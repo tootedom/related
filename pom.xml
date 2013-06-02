@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.greencheek</groupId>
+    <artifactId>related-purchase</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <properties>
+        <interface>127.0.0.1</interface>
+        <jetty.http.port>8080</jetty.http.port>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>3.2.3.RELEASE</spring.version>
+    </properties>
+    <dependencies>
+        <!-- servlet 3 -->
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-web-api</artifactId>
+            <version>6.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- CDI -->
+
+        <!-- SP1 etc, unable to work with Async Contexts, when the context is not on the request thread
+        <dependency>
+            <groupId>org.jboss.weld.servlet</groupId>
+            <artifactId>weld-servlet-core</artifactId>
+            <version>2.1.0.Beta1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-core</artifactId>
+            <version>2.1.0.Beta1</version>
+        </dependency>
+        -->
+
+        <!-- For DI -->
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <!-- domain for disruptor -->
+        <dependency>
+            <groupId>javolution</groupId>
+            <artifactId>javolution</artifactId>
+            <version>5.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <!-- client for elastic search comms -->
+        <dependency>
+            <groupId>org.elasticsearch</groupId>
+            <artifactId>elasticsearch</artifactId>
+            <version>0.90.1</version>
+        </dependency>
+
+        <!-- json parsing -->
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+        <!-- date parsing -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.2</version>
+        </dependency>
+
+
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.28</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+
+
+        <!-- a la testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.8.3</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>relatedproduct</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+                <plugin>
+                    <groupId>org.mortbay.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>8.1.3.v20120416</version>
+                    <configuration>
+                        <webAppConfig>
+                            <contextPath>/${project.build.finalName}</contextPath>
+                        </webAppConfig>
+                        <contextXml>src/main/webapp/WEB-INF/jetty-context.xml</contextXml>
+                    </configuration>
+                </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.mortbay.jetty</groupId>-->
+                <!--<artifactId>maven-jetty-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<connectors>-->
+                        <!--<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">-->
+                            <!--<port>${jetty.http.port}</port>-->
+                            <!--<maxIdleTime>3600000</maxIdleTime>-->
+                        <!--</connector>-->
+                    <!--</connectors>-->
+                    <!--<scanIntervalSeconds>10</scanIntervalSeconds>-->
+                    <!--<webAppConfig>-->
+                        <!--<contextPath>/${project.build.finalName}</contextPath>-->
+                    <!--</webAppConfig>-->
+                    <!--<jettyEnvXml>${basedir}/src/main/webapp-jetty/WEB-INF/jetty-env.xml</jettyEnvXml>-->
+                    <!--&lt;!&ndash; if you don't want to use war:inplace, use this path instead &ndash;&gt;-->
+                    <!--&lt;!&ndash;-->
+                       <!--<webAppSourceDirectory>${project.build.directory}/${project.build.finalName}</webAppSourceDirectory>-->
+                    <!--&ndash;&gt;-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+        </plugins>
+    </build>
+
+</project>
