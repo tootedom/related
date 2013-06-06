@@ -4,6 +4,8 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
+import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.InvalidRelatedProductJsonException;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
@@ -30,12 +32,15 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
+    private final IndexingRequestConverterFactory requestConverter;
     private final Configuration configuration;
 
     @Inject
     public DisruptorBasedRelatedProductIndexRequestProcessor(EventHandler<RelatedProductIndexingMessage> eventHandler,
-                                                             Configuration configuration) {
+                                                             Configuration configuration,
+                                                             IndexingRequestConverterFactory requestConverter) {
         this.configuration = configuration;
+        this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 RelatedProductIndexingMessage.FACTORY,
                 configuration.getSizeOfIndexRequestQueue(), executorService,
@@ -54,7 +59,8 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         }
 
         try {
-            RelatedProductPurchaseFromJson translator = new RelatedProductPurchaseFromJson(data,configuration);
+            IndexingRequestConverter converter = requestConverter.createConverter(data);
+            RelatedProductIndexingRequestHandler translator = new RelatedProductIndexingRequestHandler(configuration,converter);
             disruptor.publishEvent(translator);
         } catch(InvalidRelatedProductJsonException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", data.length);
