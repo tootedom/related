@@ -1,0 +1,51 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/applicationContext.xml </param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.greencheek.relatedproduct.web.ctxlistener.ApplicationCtxListener</listener-class>
+    </listener>
+
+    <!--
+    <filter>
+        <filter-name>response-code-filter</filter-name>
+        <filter-class>org.greencheek.yammer.metrics.web.filter.AsyncResponseCodeFilter</filter-class>
+        <async-supported>true</async-supported>
+
+    </filter>
+
+    <filter-mapping>
+        <filter-name>response-code-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <description>
+        </description>
+        <display-name>Metrics</display-name>
+        <servlet-name>Metrics</servlet-name>
+        <servlet-class>com.yammer.metrics.reporting.MetricsServlet</servlet-class>
+        <init-param>
+            <param-name>show-jvm-metrics</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>Metrics</servlet-name>
+        <url-pattern>/metrics</url-pattern>
+    </servlet-mapping>
+    -->
+
+
+</web-app>

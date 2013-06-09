@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>related-purchase-web-indexing</artifactId>
+    <packaging>war</packaging>
+
+    <parent>
+        <groupId>org.greencheek</groupId>
+        <artifactId>related-purchase-web</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <interface>127.0.0.1</interface>
+        <jetty.http.port>8080</jetty.http.port>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.greencheek</groupId>
+            <artifactId>related-purchase-web-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>indexing</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+
+
+        </plugins>
+    </build>
+
+</project>
