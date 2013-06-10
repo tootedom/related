@@ -1,10 +1,9 @@
 package org.greencheek.relatedproduct.searching;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.

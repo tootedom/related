@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
+package org.greencheek.relatedproduct.searching.requestprocessing;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,14 +21,14 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 @Named
-public class MultiMapAsyncContextLookup implements AsyncContextLookup{
+public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
-    private final Map<SearchRequestLookupKey,List<AsyncContext>> contexts;
+    private final ConcurrentMap<SearchRequestLookupKey,List<AsyncContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
 
     @Inject
     public MultiMapAsyncContextLookup(Configuration config) {
-        contexts = new HashMap<SearchRequestLookupKey,List<AsyncContext>>(config.getSizeOfRelatedContentSearchRequestAndResponseQueue());
+        contexts = new ConcurrentHashMap<SearchRequestLookupKey, List<AsyncContext>>(config.getSizeOfRelatedContentSearchRequestAndResponseQueue());
         expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
     }
 

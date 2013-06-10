@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.searching;
 
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
 import java.util.List;

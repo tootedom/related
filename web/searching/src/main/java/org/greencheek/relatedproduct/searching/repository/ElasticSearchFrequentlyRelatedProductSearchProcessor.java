@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.disruptor.repository;
+package org.greencheek.relatedproduct.searching.repository;
 
 import org.elasticsearch.action.search.MultiSearchRequestBuilder;
 import org.elasticsearch.action.search.MultiSearchResponse;
@@ -15,8 +15,8 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;

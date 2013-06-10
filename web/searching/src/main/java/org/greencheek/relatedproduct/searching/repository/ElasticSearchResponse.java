@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.disruptor.repository;
+package org.greencheek.relatedproduct.searching.repository;
 
 import org.elasticsearch.action.search.SearchResponse;
 

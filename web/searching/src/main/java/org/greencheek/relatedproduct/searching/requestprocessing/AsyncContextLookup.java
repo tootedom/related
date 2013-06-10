@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
+package org.greencheek.relatedproduct.searching.requestprocessing;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 

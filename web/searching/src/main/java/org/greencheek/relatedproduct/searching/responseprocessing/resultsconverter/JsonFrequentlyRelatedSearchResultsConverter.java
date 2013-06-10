@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.resultsconverter;
+package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -6,9 +6,6 @@ import net.minidev.json.JSONStyle;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.util.config.Configuration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,6 +16,7 @@ import java.util.List;
  */
 public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResultsConverter {
 
+    private static final String JSON_CONTENT_TYPE = "application/json";
     private final FrequentlyRelatedSearchResults resultsToTransform;
     private final Configuration configuration;
 
@@ -47,6 +45,11 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
         }
         return object;
 
+    }
+
+    @Override
+    public String contentType() {
+        return JSON_CONTENT_TYPE;
     }
 
     @Override

@@ -42,7 +42,7 @@ public class RelatedProductAdditionalProperties extends Struct {
         return getStringLength(numberOfProperties.get(),configuration);
     }
 
-    private int getStringLength(int numberOfProps,Configuration configuration) {
+    public static int getStringLength(int numberOfProps,Configuration configuration) {
         return (numberOfProps*(1+configuration.getRelatedProductAdditionalPropertyKeyLength()
                 +configuration.getRelatedProductAdditionalPropertyValueLength())) + (numberOfProps) + 1;
     }

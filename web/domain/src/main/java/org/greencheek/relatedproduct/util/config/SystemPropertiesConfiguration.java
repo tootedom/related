@@ -37,16 +37,18 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS = System.getProperty("related-product.key.for.frequency.result.name","size");
     private final static String KEY_FOR_FREQUENCY_RESULTS = System.getProperty("related-product.key.for.frequency.results","results");
 
+    private final static String REQUEST_PARAMETER_FOR_SIZE = System.getProperty("related-product.request.parameter.for.size","maxresults");
+    private final static String REQUEST_PARAMETER_FOR_ID = System.getProperty("related-product.request.parameter.for.id","id");
+
+    private final static int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty("related-product.default.number.of.results","4"));
+
+
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
     }
 
     public int getSizeOfRelatedContentSearchRequestHandlerQueue() {
         return SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE;
-    }
-
-    public int getSizeOfRelatedContentSearchResultsQueue() {
-        return SIZE_OF_RELATED_CONTENT_SEARCH_RESULTS_QUEUE;
     }
 
     public int getSizeOfRelatedContentSearchRequestQueue() {
@@ -87,6 +89,21 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public String getKeyForFrequencyResultOverallResultsSize() {
         return KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS;
+    }
+
+    @Override
+    public String getRequestParameterForSize() {
+        return REQUEST_PARAMETER_FOR_SIZE;
+    }
+
+    @Override
+    public String getRequestParameterForId() {
+        return REQUEST_PARAMETER_FOR_ID;
+    }
+
+    @Override
+    public int getDefaultNumberOfResults() {
+        return DEFAULT_NUMBER_OF_RESULTS;
     }
 
     @Override

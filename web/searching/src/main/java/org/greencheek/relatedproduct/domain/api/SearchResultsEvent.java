@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.domain.api;
 
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 /**
  * Created with IntelliJ IDEA.

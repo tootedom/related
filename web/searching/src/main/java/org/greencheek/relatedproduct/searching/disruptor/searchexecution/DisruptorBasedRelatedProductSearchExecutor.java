@@ -7,13 +7,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchRequestTranslator;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchResultsTranslator;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Qualifier;
-import javax.servlet.AsyncContext;
 import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -43,24 +35,22 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
     private final Disruptor<RelatedProductSearch> disruptor;
 
     private final Configuration configuration;
-    private final RelatedProductSearchFactory searchObjectFactory;
 
 //    private final EventHandler<RelatedProductSearch> eventHandler;
 
 
     @Inject
-    public DisruptorBasedRelatedProductSearchExecutor(Configuration configuration,
+    public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,
                                                       RelatedProductSearchDisruptorEventHandler eventHandler
     ) {
         this.configuration = configuration;
-        this.searchObjectFactory = new RelatedProductSearchFactory(configuration);
 //        this.eventHandler = eventHandler;
 
         disruptor = new Disruptor<RelatedProductSearch>(
                 new EventFactory<RelatedProductSearch>() {
                     @Override
                     public RelatedProductSearch newInstance() {
-                        return searchObjectFactory.createSearchObject();
+                        return RelatedProductSearchFactory.createSearchObject(configuration);
                     }
                 },
                 configuration.getSizeOfRelatedContentSearchRequestHandlerQueue(), executorService,

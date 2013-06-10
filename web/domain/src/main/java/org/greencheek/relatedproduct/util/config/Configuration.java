@@ -20,7 +20,6 @@ public interface Configuration {
     public int getSizeOfIndexRequestQueue();
     public short getMaxNumberOfSearchCriteriaForRelatedContent();
     public int getSizeOfRelatedContentSearchRequestHandlerQueue();
-    public int getSizeOfRelatedContentSearchResultsQueue();
     public int getSizeOfRelatedContentSearchRequestQueue();
     public int getSizeOfRelatedContentSearchRequestAndResponseQueue();
 
@@ -32,4 +31,8 @@ public interface Configuration {
     public String getKeyForFrequencyResultSize();
     public String getKeyForFrequencyResultName();
     public String getKeyForFrequencyResultOverallResultsSize();
+
+    public String getRequestParameterForSize();
+    public String getRequestParameterForId();
+    public int getDefaultNumberOfResults();
 }

@@ -3,7 +3,6 @@ package org.greencheek.relatedproduct.domain.api;
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 
-import java.nio.ByteBuffer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,7 +11,7 @@ import java.nio.ByteBuffer;
  * Time: 12:22
  * To change this template use File | Settings | File Templates.
  */
-public class SearchEvent{
+public class SearchEvent {
 
     private SearchEventType eventType;
     private SearchRequestLookupKey requestKey;

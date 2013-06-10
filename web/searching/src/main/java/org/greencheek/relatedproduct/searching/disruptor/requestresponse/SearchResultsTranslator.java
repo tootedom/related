@@ -3,10 +3,9 @@ package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 import com.lmax.disruptor.EventTranslator;
 import org.greencheek.relatedproduct.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.domain.api.SearchEventType;
-import org.greencheek.relatedproduct.domain.api.SearchRequestEvent;
 import org.greencheek.relatedproduct.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 /**
  * Created with IntelliJ IDEA.

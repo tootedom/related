@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.resultsconverter;
+package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -8,5 +8,6 @@ package org.greencheek.relatedproduct.resultsconverter;
  * To change this template use File | Settings | File Templates.
  */
 public interface SearchResultsConverter {
+    public String contentType();
     public String convertToString();
 }
