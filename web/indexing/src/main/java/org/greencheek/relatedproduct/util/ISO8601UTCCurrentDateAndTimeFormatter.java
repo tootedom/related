@@ -11,9 +11,12 @@ package org.greencheek.relatedproduct.util;
 /**
  * Return the current day in UTC
  */
-public interface UTCCurrentDayFormatter {
+public interface ISO8601UTCCurrentDateAndTimeFormatter {
     /**
-     * returns the current day in year, month, day:  YYYY-MM-DD ie. 2013-05-31  (31st May 2013)
+     * yyyy-MM-dd'T'HH:mm:ss.SSSZZ  (millis and timezone)
      */
     String getCurrentDay();
+
+
+    String formatToUTC(String day);
 }

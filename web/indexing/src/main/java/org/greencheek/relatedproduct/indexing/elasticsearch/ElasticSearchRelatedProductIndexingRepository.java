@@ -8,7 +8,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
-import org.greencheek.relatedproduct.util.UTCCurrentDayFormatter;
+import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +40,12 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     private final Configuration configuration;
     private final ElasticSearchClientFactory elasticSearchClientFactory;
     private final Client elasticClient;
-    private final UTCCurrentDayFormatter currentDayFormatter;
+    private final UTCCurrentDateFormatter currentDayFormatter;
 
 
     @Inject
     public ElasticSearchRelatedProductIndexingRepository(Configuration configuration,
-                                                         UTCCurrentDayFormatter currentDayFormatter,
+                                                         UTCCurrentDateFormatter currentDayFormatter,
                                                          ElasticSearchClientFactory factory) {
         this.configuration = configuration;
         this.elasticSearchClientFactory = factory;
@@ -59,11 +59,10 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     public void store(RelatedProduct... relatedProducts) {
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
 
-        StringBuilder indexName = new StringBuilder(27);
-        indexName.append(INDEX_NAME).append(currentDayFormatter.getCurrentDay());
+
         int requestAdded = 0;
         for(RelatedProduct product : relatedProducts) {
-            if(addRelatedProduct(bulkRequest,indexName.toString(),product)) requestAdded++;
+            if(addRelatedProduct(bulkRequest,product)) requestAdded++;
         }
 
         if(requestAdded>0) {
@@ -77,11 +76,13 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     }
 
     private boolean addRelatedProduct(BulkRequestBuilder bulkRequest,
-                                      String indexName,RelatedProduct product) {
+                                      RelatedProduct product) {
 
+        StringBuilder indexName = new StringBuilder(27);
+        indexName.append(INDEX_NAME).append(currentDayFormatter.parseToDate(product.getDate()));
 
         try {
-            IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexName, INDEX_TYPE);
+            IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexName.toString(), INDEX_TYPE);
 
             XContentBuilder builder = jsonBuilder().startObject()
                     .field("id", product.getId())

@@ -47,6 +47,10 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
         if(!searchMap.containsKey(key)) {
             // need to copy
             searchMap.put(key,event.copy(configuration));
+        } else {
+            // We already have the given search ready to process.
+            // Just return
+            return;
         }
 
         if(endOfBatch) {

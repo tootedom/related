@@ -10,6 +10,8 @@ import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.InvalidRelatedProductJsonException;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
+import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
+import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
@@ -26,7 +27,6 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 
 @Named(value="indexrequestprocessor")
-@Singleton
 public class DisruptorBasedRelatedProductIndexRequestProcessor implements RelatedProductIndexRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductIndexRequestProcessor.class);
 
@@ -40,7 +40,9 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
     public DisruptorBasedRelatedProductIndexRequestProcessor(EventHandler<RelatedProductIndexingMessage> eventHandler,
                                                              Configuration configuration,
                                                              IndexingRequestConverterFactory requestConverter,
-                                                             RelatedProductIndexingMessageFactory messageFactory) {
+                                                             RelatedProductIndexingMessageFactory messageFactory,
+                                                             ISO8601UTCCurrentDateAndTimeFormatter nowDateTimeGenerator,
+                                                             UTCCurrentDateFormatter nowDateGenerator) {
         this.configuration = configuration;
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(

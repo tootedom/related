@@ -48,74 +48,31 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
     @Override
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {
 
-//        if(request.getProducts().size()==0) return;
 
         if(!request.validMessage.get()) return;
-        if(request.relatedProducts.numberOfRelatedProducts.get()==0) return;
-
-        Set<RelatedProduct> products = indexConverter.convertFrom(request);
-        relatedProducts.addAll(products);
-
-        if(endOfBatch) {
-            try {
-                storageRepository.store(relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
-            } catch(Exception e) {
-                log.warn("Exception calling storage repository for related products:{}",products,e);
-            }
-            relatedProducts.clear();
+        if(request.relatedProducts.numberOfRelatedProducts.get()==0) {
+            request.validMessage.set(false);
+            return;
         }
 
-//
-//        List<RelatedProductInfo> purchases = convertToRelatedPurchaseItems(request);
+        try {
+            Set<RelatedProduct> products = indexConverter.convertFrom(request);
+            relatedProducts.addAll(products);
 
-//        for(RelatedProductInfo purchase : purchases) {
-//            XContentBuilder builder =  jsonBuilder().startObject()
-//                    .field("pid", purchase.getPid())
-//                    .field("date",purchase.getDate() )
-//                    .field("channel", purchase.getChannel())
-//                    .field("site", purchase.getSite())
-//                    .array("bought-with",purchase.getRelatedPids().toArray())
-//                    .endObject();
-//
-//            String doc = builder.string();
-//            Index index = new Index.Builder(doc).index("relatedpurchases-"+now()).type("relatedproduct").build();
-//            try {
-//                restClient.execute(index);
-//            } catch (Exception e) {
-//                log.warn("Exception indexing content : {}",doc);
-//            }
-//
-//        }
+            if(endOfBatch) {
+                try {
+                    storageRepository.store(relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
+                } catch(Exception e) {
+                    log.warn("Exception calling storage repository for related products:{}",products,e);
+                }
+
+                relatedProducts.clear();
+            }
+        } finally {
+            request.validMessage.set(false);
+        }
+
 
     }
-
-//    private List<RelatedProductInfo> convertToRelatedPurchaseItems(IndexRequest request) {
-//        List<IndexRequest.Product> products = request.getProducts();
-//        int size = products.size();
-//        List<RelatedProductInfo> purchaseRequests = new ArrayList<RelatedProductInfo>(size);
-//
-//        List<IndexRequest.Product> ids = new ArrayList<IndexRequest.Product>(size-1);
-//
-//        while(size--!=0) {
-//            IndexRequest.Product product = products.get(size);
-//            Set<IndexRequest.Product> otherItems = new HashSet<IndexRequest.Product>(products);
-//            otherItems.remove(product);
-//
-//            purchaseRequests.add(createRelatedPurchase(request,product,otherItems));
-//        }
-//
-//        return purchaseRequests;
-//    }
-//
-//    private RelatedProductInfo createRelatedPurchase(IndexRequest request, IndexRequest.Product mainProduct, Set<IndexRequest.Product> boughtWith) {
-//        String[] pids = new String[boughtWith.size()];
-//        int i = 0;
-//        for(IndexRequest.Product p : boughtWith) {
-//            pids[i++] = p.getPid();
-//        }
-//
-////        return new RelatedProductInfo(mainProduct.getPid(),request.getDate(),request.getChannel(),request.getSite(),pids);
-//        return null;
-//    }
 
 }

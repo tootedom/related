@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.indexing.jsonrequestprocessing;
 
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
+import org.greencheek.relatedproduct.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
 import org.junit.Test;
 
 /**
@@ -14,6 +15,6 @@ public class JsonSmartIndexingRequestConverterTest extends IndexingRequestConver
 
     @Override
     public IndexingRequestConverter createConverter(byte[] request) {
-        return new JsonSmartIndexingRequestConverter(request);
+        return new JsonSmartIndexingRequestConverter(new JodaISO8601UTCCurrentDateAndTimeFormatter(),request);
     }
 }

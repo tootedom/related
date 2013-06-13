@@ -21,6 +21,8 @@ import javax.servlet.AsyncContext;
 @Named
 public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler{
 
+    private volatile boolean shutdown = false;
+
     private final Configuration configuration;
     private final SearchRequestResponseHandler asyncContextStorage;
     private final RelatedProductSearchExecutor searchRequestExecutor;
@@ -36,6 +38,7 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
     @Override
     public void onEvent(RelatedProductSearchRequest event, long sequence, boolean endOfBatch) throws Exception {
+        if(shutdown) return;
         AsyncContext clientContext = event.getRequestContext();
         RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
 
@@ -43,5 +46,8 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
         searchRequestExecutor.executeSearch(search);
     }
 
+    public void shutdown() {
+        this.shutdown = true;
+    }
 
 }

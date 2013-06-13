@@ -7,6 +7,7 @@ import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
+import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
     private final JSONObject object;
 
-    public JsonSmartIndexingRequestConverter(byte[] requestData) {
+    public JsonSmartIndexingRequestConverter(ISO8601UTCCurrentDateAndTimeFormatter dateCreator, byte[] requestData) {
         JSONParser parser = new JSONParser(JSONParser.MODE_RFC4627);
         try
         {
@@ -50,13 +51,17 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             throw new InvalidIndexingRequestException("No products in request");
         }
 
+        String date = (String)object.get(DATE_KEY);
+        if(date==null) {
+            object.put(DATE_KEY,dateCreator.getCurrentDay());
+        } else {
+            object.put(DATE_KEY,dateCreator.formatToUTC(date));
+        }
     }
 
     @Override
     public void convertRequestIntoIndexingMessage(RelatedProductIndexingMessage convertedTo,
                                                   short maxNumberOfAdditionalProperties) {
-
-
         convertedTo.validMessage.set(true);
         convertedTo.purchaseDate.set((String) object.get(DATE_KEY));
         Object products = object.get(PRODUCT_KEY);

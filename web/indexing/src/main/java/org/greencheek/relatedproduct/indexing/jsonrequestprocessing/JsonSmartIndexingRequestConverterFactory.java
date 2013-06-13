@@ -3,7 +3,9 @@ package org.greencheek.relatedproduct.indexing.jsonrequestprocessing;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
+import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -16,10 +18,18 @@ import javax.inject.Named;
 @Named
 public class JsonSmartIndexingRequestConverterFactory implements IndexingRequestConverterFactory {
 
+    private final ISO8601UTCCurrentDateAndTimeFormatter dateCreator;
+
+    @Inject
+    public JsonSmartIndexingRequestConverterFactory(ISO8601UTCCurrentDateAndTimeFormatter formatter) {
+        this.dateCreator = formatter;
+
+    }
+
     @Override
     public IndexingRequestConverter createConverter(byte[] convertFrom) throws InvalidIndexingRequestException
     {
-        JsonSmartIndexingRequestConverter converter = new JsonSmartIndexingRequestConverter(convertFrom);
+        JsonSmartIndexingRequestConverter converter = new JsonSmartIndexingRequestConverter(dateCreator,convertFrom);
         return converter;
     }
 

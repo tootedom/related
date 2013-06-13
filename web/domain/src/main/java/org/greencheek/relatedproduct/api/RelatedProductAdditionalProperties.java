@@ -59,7 +59,7 @@ public class RelatedProductAdditionalProperties extends Struct {
                 string.append(prop.name.get()).append('=').append(prop.value.get()).append('&');
             }
 
-            string.deleteCharAt(lengthOfString-1);
+            string.deleteCharAt(string.length()-1);
 
             return string.toString();
         } else {

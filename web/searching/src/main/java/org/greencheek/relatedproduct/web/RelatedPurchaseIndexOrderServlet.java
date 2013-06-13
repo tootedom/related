@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 @WebServlet(urlPatterns = "/frequentrelatedto/*", name="relatedPurchaseIndexOrderHandler", asyncSupported = true)
 public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
-    private static final Pattern ID_PATTERN = Pattern.compile("/frequentrelatedto/([^/?])+");
+    private static final Pattern ID_PATTERN = Pattern.compile("/frequentrelatedto/([^/?]+)");
 
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 

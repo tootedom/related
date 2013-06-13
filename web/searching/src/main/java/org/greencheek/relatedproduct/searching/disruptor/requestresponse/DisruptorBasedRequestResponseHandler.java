@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -47,6 +48,7 @@ public class DisruptorBasedRequestResponseHandler implements SearchRequestRespon
                 SearchEvent.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
+        disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();

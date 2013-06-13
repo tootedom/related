@@ -41,7 +41,7 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
                 result.put(configuration.getKeyForFrequencyResultName(),res.getRelatedProductId());
                 array.add(result);
             }
-            object.put(configuration.getKeyForFrequencyResults(),new JSONArray());
+            object.put(configuration.getKeyForFrequencyResults(),array);
         }
         return object;
 

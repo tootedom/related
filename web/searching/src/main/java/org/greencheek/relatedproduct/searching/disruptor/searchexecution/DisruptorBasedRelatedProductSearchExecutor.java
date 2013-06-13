@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -55,7 +56,7 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
                 },
                 configuration.getSizeOfRelatedContentSearchRequestHandlerQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
-
+        disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 

@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -37,6 +38,7 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearchRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedSearchRequestProcessor.class);
 
+    private final RelatedContentSearchRequestProcessorHandler eventHandler;
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductSearchRequest> disruptor;
     private final SearchRequestParameterValidatorLocator requestValidators;
@@ -48,13 +50,14 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     public DisruptorBasedSearchRequestProcessor(RelatedContentSearchRequestProcessorHandler eventHandler,
                                                 Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
+        this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
         this.configuration = configuration;
         disruptor = new Disruptor<RelatedProductSearchRequest>(
                 RelatedProductSearchRequest.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
-
+        disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 
@@ -79,9 +82,11 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     @PreDestroy
     public void shutdown() {
 
+        eventHandler.shutdown();
+
         try {
             log.info("Attempting to shut down executor thread pool in search request/response processor");
-            executorService.shutdown();
+            executorService.shutdownNow();
         } catch (Exception e) {
             log.warn("Unable to shut down executor thread pool in search request/response processor",e);
         }
@@ -91,9 +96,13 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
             log.info("Attempting to shut down disruptor in search request/response processor");
             disruptor.halt();
             disruptor.shutdown();
+            log.info("disruptor search request/response processor is shut down");
         } catch (Exception e) {
             log.warn("Unable to shut down disruptor in search request/response processor",e);
         }
+
+
+
 
     }
 

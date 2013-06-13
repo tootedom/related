@@ -11,4 +11,5 @@ import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedContentSearchRequestProcessorHandler extends EventHandler<RelatedProductSearchRequest> {
+    public void shutdown();
 }
