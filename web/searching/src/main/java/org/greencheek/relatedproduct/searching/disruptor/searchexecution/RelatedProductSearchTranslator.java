@@ -21,6 +21,7 @@ public class RelatedProductSearchTranslator implements EventTranslator<RelatedPr
 
     @Override
     public void translateTo(RelatedProductSearch event, long sequence) {
+        event.validMessage.set(false);
         event.maxResults.set(searchRequest.maxResults.get());
         event.relatedContentId.set(searchRequest.relatedContentId.get());
 
@@ -35,6 +36,7 @@ public class RelatedProductSearchTranslator implements EventTranslator<RelatedPr
         }
 
         event.searchType.set(searchRequest.searchType.get());
+        event.validMessage.set(true);
 
     }
 }

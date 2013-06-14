@@ -27,8 +27,11 @@ public class RelatedProductSearch extends Struct {
     public final UTF8String relatedContentId;
     public final RelatedProductAdditionalProperties additionalSearchCriteria;
     public final Enum32<RelatedProductSearchType> searchType;
+    public final Bool validMessage;
+
 
     public RelatedProductSearch(Configuration config) {
+        validMessage = new Bool();
         maxResults = new Signed32();
         relatedContentId = new UTF8String(config.getRelatedProductIdLength());
         additionalSearchCriteria = inner(new RelatedProductAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent()));

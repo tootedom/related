@@ -43,20 +43,25 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
     @Override
     public void onEvent(RelatedProductSearch event, long sequence, boolean endOfBatch) throws Exception {
 
-        SearchRequestLookupKey key = event.getLookupKey(configuration);
-        if(!searchMap.containsKey(key)) {
-            // need to copy
-            searchMap.put(key,event.copy(configuration));
-        } else {
-            // We already have the given search ready to process.
-            // Just return
-            return;
-        }
+        try {
+            SearchRequestLookupKey key = event.getLookupKey(configuration);
+            if(!searchMap.containsKey(key)) {
+                // need to copy
+                searchMap.put(key,event.copy(configuration));
+            } else {
+                // We already have the given search ready to process.
+                // Just return
 
-        if(endOfBatch) {
-            RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
-            searches = searchMap.values().toArray(searches);
-            searchRespository.findRelatedProducts(searches,searchResultsHandler);
+                return;
+            }
+
+            if(endOfBatch) {
+                RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
+                searches = searchMap.values().toArray(searches);
+                searchRespository.findRelatedProducts(searches,searchResultsHandler);
+            }
+        } finally {
+            event.validMessage.set(false);
         }
     }
 }
