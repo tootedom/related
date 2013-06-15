@@ -62,8 +62,6 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             asyncContext = request.startAsync(request, response);
         }
         asyncContext.setTimeout(10000*2);
-        final HttpRequestTask task = new HttpRequestTask(asyncContext);
-        asyncContext.addListener(task);
 
         try {
             asyncContext.start(new Runnable() {
@@ -159,31 +157,4 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     }
 
-    private class HttpRequestTask implements AsyncListener {
-
-        private final AsyncContext ctx;
-
-        public HttpRequestTask(AsyncContext ctx) throws IOException {
-            this.ctx = ctx;
-        }
-
-        @Override
-        public void onComplete(AsyncEvent asyncEvent) throws IOException {
-            log.debug("Asychronous index request handled.");
-        }
-
-        @Override
-        public void onTimeout(AsyncEvent asyncEvent) throws IOException {
-            log.warn("Asynchronous index request timeout.");
-        }
-
-        @Override
-        public void onError(AsyncEvent asyncEvent) throws IOException {
-            log.warn("Asynchronous index request error.");
-        }
-
-        @Override
-        public void onStartAsync(AsyncEvent asyncEvent) throws IOException {
-        }
-    }
 }

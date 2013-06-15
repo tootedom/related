@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.searching.requestprocessing;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,12 +25,15 @@ import java.util.concurrent.ConcurrentMap;
 @Named
 public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
-    private final ConcurrentMap<SearchRequestLookupKey,List<AsyncContext>> contexts;
+    private static final Logger log = LoggerFactory.getLogger(MultiMapAsyncContextLookup.class);
+
+
+    private final Map<SearchRequestLookupKey,List<AsyncContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
 
     @Inject
     public MultiMapAsyncContextLookup(Configuration config) {
-        contexts = new ConcurrentHashMap<SearchRequestLookupKey, List<AsyncContext>>(config.getSizeOfRelatedContentSearchRequestAndResponseQueue());
+        contexts = new HashMap<SearchRequestLookupKey, List<AsyncContext>>(config.getSizeOfRelatedContentSearchRequestAndResponseQueue());
         expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
     }
 
@@ -39,6 +44,7 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
     @Override
     public boolean addContext(SearchRequestLookupKey key, AsyncContext context) {
+        log.debug("adding context to key {}",key.toString());
         List<AsyncContext> ctxs = contexts.get(key);
         if(ctxs==null) {
             ctxs = new ArrayList<AsyncContext>(expectedNumberOfSimilarRequests);

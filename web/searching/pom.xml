@@ -17,6 +17,7 @@
         <interface>127.0.0.1</interface>
         <jetty.http.port>8081</jetty.http.port>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <webAppContext>/searching</webAppContext>
     </properties>
     <dependencies>
         <dependency>

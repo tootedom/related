@@ -6,6 +6,8 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -25,6 +27,8 @@ import java.util.Map;
 @Named
 public class RelatedProductSearchEventHandler implements RelatedProductSearchDisruptorEventHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchEventHandler.class);
+
     private final Map<SearchRequestLookupKey,RelatedProductSearch> searchMap;
     private final RelatedProductSearchRepository searchRespository;
     private final SearchRequestResponseHandler searchResultsHandler;
@@ -42,24 +46,32 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
 
     @Override
     public void onEvent(RelatedProductSearch event, long sequence, boolean endOfBatch) throws Exception {
+        if(!event.validMessage.get()) return;
 
         try {
             SearchRequestLookupKey key = event.getLookupKey(configuration);
+            log.debug("Handling search request for key {}",key.toString());
             if(!searchMap.containsKey(key)) {
                 // need to copy
                 searchMap.put(key,event.copy(configuration));
             } else {
                 // We already have the given search ready to process.
                 // Just return
-
+                log.debug("Search for key {} , is already being executed",key.toString());
                 return;
             }
 
+
             if(endOfBatch) {
-                RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
-                searches = searchMap.values().toArray(searches);
-                searchRespository.findRelatedProducts(searches,searchResultsHandler);
+                try {
+                    RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
+                    searches = searchMap.values().toArray(searches);
+                    searchRespository.findRelatedProducts(searches,searchResultsHandler);
+                } finally {
+                    searchMap.clear();
+                }
             }
+
         } finally {
             event.validMessage.set(false);
         }

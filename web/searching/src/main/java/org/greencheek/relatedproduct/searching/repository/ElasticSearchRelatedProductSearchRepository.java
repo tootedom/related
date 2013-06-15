@@ -26,6 +26,7 @@ import java.util.Map;
 @Named
 public class ElasticSearchRelatedProductSearchRepository implements RelatedProductSearchRepository {
 
+
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedProductSearchRepository.class);
 
     private static final String INDEX_ALIAS_NAME = "relatedpurchases";
@@ -53,7 +54,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
     @Override
     public void findRelatedProducts(RelatedProductSearch[] searches, SearchRequestResponseHandler handler) {
-
+        log.debug("request to execute {} searches",searches.length);
         MultiSearchResponse sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
 
         Map<SearchRequestLookupKey,SearchResultsConverter> results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);

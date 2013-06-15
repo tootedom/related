@@ -18,6 +18,8 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,6 +34,9 @@ import java.util.*;
  */
 @Named
 public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
+
+    private static final Logger log = LoggerFactory.getLogger(ElasticSearchFrequentlyRelatedProductSearchProcessor.class);
+
 
     private final Configuration configuration;
     private static final String FACET_RESULT_NAME ="frequently-related-with";
@@ -52,7 +57,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
                 multiSearch.add(createFrequentlyRelatedContentSearch(search,elasticClient));
             }
         }
-
+        log.debug("executing searches");
         return multiSearch.execute().actionGet();
     }
 

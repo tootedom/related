@@ -17,6 +17,7 @@
         <interface>127.0.0.1</interface>
         <jetty.http.port>8080</jetty.http.port>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <webAppContext>/indexing</webAppContext>
     </properties>
     <dependencies>
         <dependency>

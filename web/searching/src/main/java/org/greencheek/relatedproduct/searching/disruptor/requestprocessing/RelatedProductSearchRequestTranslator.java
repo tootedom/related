@@ -32,6 +32,7 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence) {
 
+
         event.setRequestType(searchRequestType);
         event.setRequestContext(clientCtx);
         event.setRequestProperties(parameters);
