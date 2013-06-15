@@ -142,13 +142,15 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.0.3.v20130506</version>
                 <configuration>
-                    <jvmArgs>-XX:MaxPermSize=128m</jvmArgs>
+                    <jvmArgs>-Xmx1024m -Xms1024m -Xmn256m -XX:MaxPermSize=128m</jvmArgs>
                     <webAppConfig>
                         <contextPath>/${project.build.finalName}</contextPath>
                     </webAppConfig>
                     <!-- <jettyXml>src/test/resources/jetty.xml,src/test/resources/jetty-http.xml</jettyXml> -->
                     <stopKey>blah</stopKey>
                     <stopPort>6789</stopPort>
+
+                    <contextPath>/indexing</contextPath>
                 </configuration>
             </plugin>
 

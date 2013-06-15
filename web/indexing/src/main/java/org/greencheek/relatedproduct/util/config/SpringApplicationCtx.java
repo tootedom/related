@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.util.config;
 
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
+import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -16,28 +18,28 @@ import javax.inject.Named;
 @Named
 public class SpringApplicationCtx implements ApplicationCtx {
 
-    private final RelatedProductIndexRequestProcessor indexRequestProcessor;
-    private final RelatedProductStorageRepository storageRepository;
     private final Configuration applicationConfiguration;
+    private final IndexRequestProcessorFactory indexingRequestProcessingFactory;
+    private final RelatedProductStorageRepositoryFactory storageRepositoryFactory;
 
     @Inject
-    public SpringApplicationCtx(RelatedProductIndexRequestProcessor processor,
-                                RelatedProductStorageRepository storageRepository,
-                                Configuration configuration)
+    public SpringApplicationCtx(Configuration configuration,
+                                IndexRequestProcessorFactory indexingRequestProcessorFactory,
+                                RelatedProductStorageRepositoryFactory indexStorageRepositoryFactory)
     {
-        this.indexRequestProcessor = processor;
-        this.storageRepository = storageRepository;
+        this.indexingRequestProcessingFactory = indexingRequestProcessorFactory;
         this.applicationConfiguration = configuration;
+        this.storageRepositoryFactory = indexStorageRepositoryFactory;
     }
 
     @Override
     public RelatedProductIndexRequestProcessor getIndexRequestProcessor() {
-        return indexRequestProcessor;
+        return indexingRequestProcessingFactory.createProcessor(getConfiguration());
     }
 
     @Override
     public RelatedProductStorageRepository getStorageRepository() {
-        return storageRepository;
+        return storageRepositoryFactory.getRepository();
     }
 
     @Override

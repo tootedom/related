@@ -22,7 +22,7 @@ import java.io.InputStream;
 /**
  * *
  */
-@WebServlet(urlPatterns = "/index", name="relatedPurchaseIndexOrderHandler", asyncSupported = true)
+@WebServlet(urlPatterns = "/index", name="relatedPurchaseIndexOrderHandler", asyncSupported = true,loadOnStartup = 1)
 public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
@@ -37,11 +37,18 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     public void init(javax.servlet.ServletConfig servletConfig) throws javax.servlet.ServletException
     {
+        super.init(servletConfig);
         applicationCtx = (ApplicationCtx)servletConfig.getServletContext().getAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME);
 
         configuration = applicationCtx.getConfiguration();
         indexer = applicationCtx.getIndexRequestProcessor();
     }
+
+    public void destroy() {
+        super.destroy();
+        indexer.shutdown();
+    }
+
 
 
     protected void doPost(HttpServletRequest request,HttpServletResponse response)

@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.indexing.disruptor;
+package org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor;
 
 import com.lmax.disruptor.EventTranslator;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;

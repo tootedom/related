@@ -1,21 +1,18 @@
-package org.greencheek.relatedproduct.indexing.disruptor;
+package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
-import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
-import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
-import org.greencheek.relatedproduct.indexing.InvalidRelatedProductJsonException;
-import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
+import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -26,23 +23,23 @@ import java.util.concurrent.ExecutorService;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 
-@Named(value="indexrequestprocessor")
-public class DisruptorBasedRelatedProductIndexRequestProcessor implements RelatedProductIndexRequestProcessor {
-    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductIndexRequestProcessor.class);
+public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor implements RelatedProductIndexRequestProcessor {
+    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor.class);
 
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
     private final IndexingRequestConverterFactory requestConverter;
     private final Configuration configuration;
+    private final RelatedProductRoundRobinIndexRequestHandler eventHandler;
 
-    @Inject
-    public DisruptorBasedRelatedProductIndexRequestProcessor(EventHandler<RelatedProductIndexingMessage> eventHandler,
-                                                             Configuration configuration,
-                                                             IndexingRequestConverterFactory requestConverter,
-                                                             RelatedProductIndexingMessageFactory messageFactory,
-                                                             ISO8601UTCCurrentDateAndTimeFormatter nowDateTimeGenerator,
-                                                             UTCCurrentDateFormatter nowDateGenerator) {
+    public DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(Configuration configuration,
+                                                                       IndexingRequestConverterFactory requestConverter,
+                                                                       RelatedProductIndexingMessageConverter converter,
+                                                                       RelatedProductIndexingMessageFactory messageFactory,
+                                                                       RelatedProductStorageRepositoryFactory factory) {
+
+
         this.configuration = configuration;
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
@@ -50,6 +47,8 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                 configuration.getSizeOfIndexRequestQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
 
+
+        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,messageFactory,factory);
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 
@@ -64,7 +63,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
 
         try {
             IndexingRequestConverter converter = requestConverter.createConverter(data);
-            RelatedProductIndexingRequestHandler translator = new RelatedProductIndexingRequestHandler(configuration,converter);
+            RelatedProductInitialIndexingRequestTranslator translator = new RelatedProductInitialIndexingRequestTranslator(configuration,converter);
             disruptor.publishEvent(translator);
         } catch(InvalidRelatedProductJsonException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", data.length);
@@ -94,6 +93,10 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         } catch (Exception e) {
             log.warn("Unable to shut down disruptor in index request processor",e);
         }
+
+        log.info("Shutting down round robin index request event handler");
+        eventHandler.shutdown();
+
 
     }
 

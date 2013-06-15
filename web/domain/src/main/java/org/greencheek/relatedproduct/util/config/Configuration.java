@@ -10,6 +10,8 @@ package org.greencheek.relatedproduct.util.config;
 public interface Configuration {
     public static final String APPLICATION_CONTEXT_ATTRIBUTE_NAME = "ApplicationContext";
 
+    public short getNumberOfIndexingRequestProcessors();
+
     public short getMaxNumberOfRelatedProductProperties();
     public short getMaxNumberOfRelatedProductsPerPurchase();
     public short getRelatedProductIdLength();

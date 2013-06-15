@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.indexing.disruptor;
+package org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor;
 
 import com.lmax.disruptor.EventHandler;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
@@ -23,7 +23,6 @@ import java.util.*;
  * Time: 16:39
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class RingBufferIndexRequestHandler implements EventHandler<RelatedProductIndexingMessage> {
 
     private static final Logger log = LoggerFactory.getLogger(RingBufferIndexRequestHandler.class);
@@ -35,7 +34,6 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
 
 
 
-    @Inject
     public RingBufferIndexRequestHandler(RelatedProductIndexingMessageConverter converter,
                                          RelatedProductStorageRepository repository) {
 
@@ -49,17 +47,23 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {
 
 
-        if(!request.validMessage.get()) return;
+        if(!request.validMessage.get()) {
+            log.debug("Invalid indexing message.  Ignoring message");
+            return;
+        }
         if(request.relatedProducts.numberOfRelatedProducts.get()==0) {
+            log.debug("Invalid indexing message, no related products.  Ignoring message");
             request.validMessage.set(false);
             return;
         }
 
         try {
+
             Set<RelatedProduct> products = indexConverter.convertFrom(request);
             relatedProducts.addAll(products);
 
             if(endOfBatch) {
+                log.debug("Sending indexing requests to the storage repository");
                 try {
                     storageRepository.store(relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
                 } catch(Exception e) {

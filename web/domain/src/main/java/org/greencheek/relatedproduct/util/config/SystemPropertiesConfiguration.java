@@ -43,6 +43,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty("related-product.default.number.of.results","4"));
 
 
+    private final static short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
+
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
     }
@@ -104,6 +106,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getDefaultNumberOfResults() {
         return DEFAULT_NUMBER_OF_RESULTS;
+    }
+
+    @Override
+    public short getNumberOfIndexingRequestProcessors() {
+        return NUMBER_OF_INDEXING_REQUEST_PROCESSORS;
     }
 
     @Override
