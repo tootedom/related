@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.web;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
+import org.greencheek.relatedproduct.searching.requestprocessing.InvalidSearchRequestException;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,19 +17,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * *
  */
-@WebServlet(urlPatterns = "/frequentrelatedto/*", name="relatedPurchaseIndexOrderHandler", asyncSupported = true)
+@WebServlet(urlPatterns = "/frequentlyrelatedto/*", name="relatedPurchaseIndexOrderHandler", asyncSupported = true)
 public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
-    private static final Pattern ID_PATTERN = Pattern.compile("/frequentrelatedto/([^/?]+)");
+    private static final Pattern ID_PATTERN = Pattern.compile(".*/([^/?]+)");
 
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
-
 
     private RelatedProductSearchRequestProcessor productSearchRequestProcessor;
     private Configuration configuration;
@@ -56,14 +57,19 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         else {
             asyncContext = request.startAsync(request, response);
         }
-        asyncContext.setTimeout(10000*2);
+        asyncContext.setTimeout(30000);
 
 
         try {
             asyncContext.start(new Runnable() {
                 @Override
                 public void run() {
-                    submitRequestForProcessing(asyncContext, request);
+                    try {
+                        submitRequestForProcessing(asyncContext, request);
+                    } catch(Exception e) {
+                        log.warn("Exception submitting request for processing",e);
+                        asyncContext.complete();
+                    }
                 }
             });
         } catch(Exception e) {
@@ -74,6 +80,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
     }
 
     private String getId(String path) {
+        log.debug("obtaining id from endpoint {}",path);
         Matcher endpointMatcher = ID_PATTERN.matcher(path);
         if(endpointMatcher.find()) {
             return endpointMatcher.group(1);
@@ -83,7 +90,12 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
     private void submitRequestForProcessing(AsyncContext ctx, HttpServletRequest request) {
         Map<String,String> params = convertToFirstParameterValueMap(request.getParameterMap());
         params.put(configuration.getRequestParameterForId(), getId(request.getPathInfo()));
-        productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,ctx);
+        try {
+            productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,ctx);
+        } catch (InvalidSearchRequestException invalidRequestException) {
+            log.warn("Invalid search request",invalidRequestException);
+            ctx.complete();
+        }
     }
 
     private Map<String,String> convertToFirstParameterValueMap(Map<String,String[]> params) {

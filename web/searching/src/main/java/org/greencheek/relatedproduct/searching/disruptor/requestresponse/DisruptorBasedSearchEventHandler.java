@@ -42,7 +42,7 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
             case SEARCH_REQUEST :
                 contextStorage.addContext(event.getRequestKey(),((SearchRequestEvent)event.getEvent()).getRequestContext());
                 break;
-            case SEARCH_RESULT:
+            case SEARCH_RESULT:   // would be best to wrap in own stuff
                 resultsResponseProcessor.processSearchResults(contextStorage.removeContexts(event.getRequestKey()), ((SearchResultsEvent) event.getEvent()).getResults());
 
         }

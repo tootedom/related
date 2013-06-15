@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 import javax.servlet.AsyncContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -33,16 +35,28 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
         String response = results.convertToString();
         String contentType = results.contentType();
 
+        log.debug("Sending search results to {} waiting requests",context.size());
         for(AsyncContext ctx : context) {
-            HttpServletResponse r = (HttpServletResponse)ctx.getResponse();
+            HttpServletResponse r = null;
             try {
+                ServletRequest request =  ctx.getRequest();
+                if(request==null) { // tomcat returns null when a timeout has occurred
+                    continue;
+                }
+                r = (HttpServletResponse)ctx.getResponse();
                 r.setStatus(200);
                 r.setContentType(contentType);
                 ctx.getResponse().getWriter().write(response);
             } catch (IOException e) {
                 r.setStatus(500);
+            } catch (IllegalStateException e) {
+                log.warn("Async Context not available",e);
             } finally {
-                ctx.complete();
+                try {
+                    ctx.complete();
+                } catch (IllegalStateException e) {
+                    log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred");
+                }
             }
         }
     }

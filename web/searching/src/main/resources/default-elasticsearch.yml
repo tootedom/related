@@ -1,1 +1,22 @@
 cluster.name: relatedproducts
+
+# Search pool
+threadpool.search.type: fixed
+threadpool.search.size: 1
+threadpool.search.queue_size: 10000
+
+# Bulk pool
+threadpool.bulk.type: fixed
+threadpool.bulk.size: 25
+threadpool.bulk.queue_size: -1
+
+threadpool.get.type: fixed
+threadpool.get.size: 30
+threadpool.get.queue_size: -1
+
+
+# Index pool
+threadpool.index.type: fixed
+threadpool.index.size: 20
+threadpool.index.queue_size: -1
+
