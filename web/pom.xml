@@ -23,6 +23,7 @@
         <jetty.http.port>8080</jetty.http.port>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.2.3.RELEASE</spring.version>
+        <log4j2.version>2.0-beta7</log4j2.version>
     </properties>
 
 
@@ -111,11 +112,26 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.6.1</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>0.9.28</version>
         </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -149,6 +165,12 @@
                     <!-- <jettyXml>src/test/resources/jetty.xml,src/test/resources/jetty-http.xml</jettyXml> -->
                     <stopKey>blah</stopKey>
                     <stopPort>6789</stopPort>
+
+                    <systemProperties>
+                        <systemProperty>
+                            <name>org.apache.logging.log4j.core.async.AsyncLoggerContextSelector</name>
+                        </systemProperty>
+                    </systemProperties>
 
                     <contextPath>${webAppContext}</contextPath>
                 </configuration>

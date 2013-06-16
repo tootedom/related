@@ -46,7 +46,7 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
