@@ -28,7 +28,6 @@ import java.util.Map;
  * Time: 22:16
  * To change this template use File | Settings | File Templates.
  */
-@Named(value = "storagerepository")
 public class ElasticSearchRelatedProductIndexingRepository implements RelatedProductStorageRepository {
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedProductIndexingRepository.class);
@@ -43,7 +42,6 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     private final UTCCurrentDateFormatter currentDayFormatter;
 
 
-    @Inject
     public ElasticSearchRelatedProductIndexingRepository(Configuration configuration,
                                                          UTCCurrentDateFormatter currentDayFormatter,
                                                          ElasticSearchClientFactory factory) {

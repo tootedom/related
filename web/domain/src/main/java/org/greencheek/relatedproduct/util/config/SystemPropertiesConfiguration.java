@@ -46,7 +46,7 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final static short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
 
-    private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","1"));
+    private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","2"));
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;

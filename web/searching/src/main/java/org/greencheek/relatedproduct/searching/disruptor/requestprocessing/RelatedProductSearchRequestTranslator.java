@@ -1,9 +1,11 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import com.lmax.disruptor.EventTranslator;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.servlet.AsyncContext;
 import java.util.HashMap;
@@ -21,20 +23,23 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
     private final AsyncContext clientCtx;
     private final Map<String,String> parameters;
     private final RelatedProductSearchType searchRequestType;
+    private final Configuration configuration;
 
-    public RelatedProductSearchRequestTranslator(RelatedProductSearchType requestType,
+    public RelatedProductSearchRequestTranslator(Configuration configuration,
+                                                 RelatedProductSearchType requestType,
                                                  Map<String, String> parameters,
                                                  AsyncContext context) {
+        this.configuration = configuration;
         this.searchRequestType = requestType;
         this.parameters = new HashMap<String,String>(parameters);
         this.clientCtx = context;
     }
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence) {
-
-
-        event.setRequestType(searchRequestType);
+//        event.setRequestType(searchRequestType);
         event.setRequestContext(clientCtx);
-        event.setRequestProperties(parameters);
+        RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
+
+//        event.setRequestProperties(parameters);
     }
 }

@@ -46,7 +46,7 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
                 r = (HttpServletResponse)ctx.getResponse();
                 r.setStatus(200);
                 r.setContentType(contentType);
-                ctx.getResponse().getWriter().write(response);
+                r.getWriter().write(response);
             } catch (IOException e) {
                 r.setStatus(500);
             } catch (IllegalStateException e) {

@@ -39,14 +39,16 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
         try {
             AsyncContext clientContext = event.getRequestContext();
-            RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
+//            RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
 
+            RelatedProductSearch search = event.searchRequest;
             asyncContextStorage.handleRequest(search.getLookupKey(configuration),clientContext);
             searchRequestExecutor.executeSearch(search);
         } finally {
             event.setRequestContext(null);
-            event.setRequestProperties(null);
-            event.setRequestType(null);
+            event.searchRequest.validMessage.set(false);
+//            event.setRequestProperties(null);
+//            event.setRequestType(null);
         }
 
     }

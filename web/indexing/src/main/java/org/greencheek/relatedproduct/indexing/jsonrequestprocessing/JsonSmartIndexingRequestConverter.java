@@ -8,6 +8,8 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
 import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,9 @@ import java.util.Set;
  * To change this template use File | Settings | File Templates.
  */
 public class JsonSmartIndexingRequestConverter implements IndexingRequestConverter {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonSmartIndexingRequestConverter.class);
+
 
     private static String PRODUCT_KEY = "products";
     private static String DATE_KEY = "date";
@@ -86,8 +91,14 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             }
             Object value = map.get(key);
             if(value instanceof String) {
+                try {
+
                 properties.additionalProperties[i].name.set(key);
                 properties.additionalProperties[i].value.set((String)value);
+                } catch (Exception e) {
+                    log.error("map: {}",map.toJSONString());
+                    log.error("additional property: {}, {}",new Object[]{key,value,e});
+                }
             } else {
                 safeNumberOfProperties--;
             }

@@ -3,11 +3,13 @@ package org.greencheek.relatedproduct.domain;
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.servlet.AsyncContext;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,20 +22,23 @@ import java.util.Map;
  */
 public class RelatedProductSearchRequest {
 
-    private RelatedProductSearchType requestType;
+//    private RelatedProductSearchType requestType;
     private AsyncContext requestContext;
-    private Map<String,String> requestProperties;
+    public final RelatedProductSearch searchRequest;
+//    private Map<String,String> requestProperties;
 
-    private RelatedProductSearchRequest() {
+    public RelatedProductSearchRequest(Configuration configuration) {
+        searchRequest = new RelatedProductSearch(configuration);
+        searchRequest.setByteBuffer(ByteBuffer.allocate(searchRequest.size()),0);
     }
 
-    public void setRequestProperties(Map<String,String> requestProperties) {
-        this.requestProperties = requestProperties;
-    }
-
-    public Map<String, String> getRequestProperties() {
-        return requestProperties;
-    }
+//    public void setRequestProperties(Map<String,String> requestProperties) {
+//        this.requestProperties = requestProperties;
+//    }
+//
+//    public Map<String, String> getRequestProperties() {
+//        return requestProperties;
+//    }
 
     public void setRequestContext(AsyncContext clientCtx) {
         this.requestContext = clientCtx;
@@ -42,22 +47,22 @@ public class RelatedProductSearchRequest {
     public AsyncContext getRequestContext() {
         return requestContext;
     }
+//
+//    public void setRequestType(RelatedProductSearchType type) {
+//        this.requestType = type;
+//    }
+//
+//    public RelatedProductSearchType getRequestType() {
+//        return requestType;
+//    }
 
-    public void setRequestType(RelatedProductSearchType type) {
-        this.requestType = type;
-    }
-
-    public RelatedProductSearchType getRequestType() {
-        return requestType;
-    }
-
-    public final static EventFactory<RelatedProductSearchRequest> FACTORY = new EventFactory<RelatedProductSearchRequest>()
-    {
-        @Override
-        public RelatedProductSearchRequest newInstance()
-        {
-            return new RelatedProductSearchRequest();
-        }
-    };
+//    public final static EventFactory<RelatedProductSearchRequest> FACTORY = new EventFactory<RelatedProductSearchRequest>()
+//    {
+//        @Override
+//        public RelatedProductSearchRequest newInstance()
+//        {
+//            return new RelatedProductSearchRequest();
+//        }
+//    };
 
 }

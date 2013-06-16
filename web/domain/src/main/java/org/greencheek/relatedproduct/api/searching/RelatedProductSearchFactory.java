@@ -27,17 +27,28 @@ public class RelatedProductSearchFactory {
         RelatedProductSearch ob = new RelatedProductSearch(configuration);
         ob.setByteBuffer(ByteBuffer.allocate(ob.size()),0);
 
+        populateSearchObject(configuration,ob,type,properties);
+
+        return ob;
+    }
+
+
+    public static void populateSearchObject(Configuration configuration,RelatedProductSearch objectToPopulate,
+                                                            RelatedProductSearchType type,
+                                                            Map<String, String> properties) {
+        objectToPopulate.validMessage.set(false);
+
         String sizeKey = configuration.getRequestParameterForSize();
         String idKey = configuration.getRequestParameterForId();
         try {
-            ob.maxResults.set(Integer.parseInt(properties.get(sizeKey)));
+            objectToPopulate.maxResults.set(Integer.parseInt(properties.get(sizeKey)));
         } catch(NumberFormatException e) {
-            ob.maxResults.set(configuration.getDefaultNumberOfResults());
+            objectToPopulate.maxResults.set(configuration.getDefaultNumberOfResults());
         }
 
-        ob.relatedContentId.set(properties.get(idKey));
+        objectToPopulate.relatedContentId.set(properties.get(idKey));
 
-        int maxPropertiesToCopy = Math.min(ob.additionalSearchCriteria.numberOfProperties.get(),properties.size());
+        int maxPropertiesToCopy = Math.min(objectToPopulate.additionalSearchCriteria.numberOfProperties.get(),properties.size());
 
         short i=0;
         for(Map.Entry<String,String> entry : properties.entrySet()) {
@@ -45,15 +56,15 @@ public class RelatedProductSearchFactory {
             if(key.equals(sizeKey) || key.equals(idKey)) continue;
 
             if(i==maxPropertiesToCopy-1) break;
-            ob.additionalSearchCriteria.additionalProperties[i].name.set(key);
-            ob.additionalSearchCriteria.additionalProperties[i].value.set(entry.getValue());
+            objectToPopulate.additionalSearchCriteria.additionalProperties[i].name.set(key);
+            objectToPopulate.additionalSearchCriteria.additionalProperties[i].value.set(entry.getValue());
             i++;
         }
 
-        ob.additionalSearchCriteria.numberOfProperties.set(i);
+        objectToPopulate.additionalSearchCriteria.numberOfProperties.set(i);
 
-        ob.searchType.set(type);
+        objectToPopulate.searchType.set(type);
 
-        return ob;
+        objectToPopulate.validMessage.set(true);
     }
 }

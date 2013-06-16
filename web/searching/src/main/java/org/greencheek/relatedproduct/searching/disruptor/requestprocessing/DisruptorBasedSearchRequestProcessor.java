@@ -7,6 +7,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
+import org.greencheek.relatedproduct.domain.RelatedProductSearchRequestFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
 import org.greencheek.relatedproduct.searching.requestprocessing.InvalidSearchRequestException;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidator;
@@ -50,9 +51,9 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         this.requestValidators= searchRequestValidator;
         this.configuration = configuration;
         disruptor = new Disruptor<RelatedProductSearchRequest>(
-                RelatedProductSearchRequest.FACTORY,
+                new RelatedProductSearchRequestFactory(configuration),
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
@@ -71,7 +72,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
             }
         }
 
-        disruptor.publishEvent(new RelatedProductSearchRequestTranslator(requestType,parameters,context));
+        disruptor.publishEvent(new RelatedProductSearchRequestTranslator(configuration,requestType,parameters,context));
 
     }
 

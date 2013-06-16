@@ -45,7 +45,7 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 messageFactory,
                 configuration.getSizeOfIndexRequestQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.MULTI, new SleepingWaitStrategy());
 
 
         eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,messageFactory,factory);
