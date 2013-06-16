@@ -27,32 +27,41 @@ public class NodeBasedElasticSearchClientFactory implements ElasticSearchClientF
     public static final String CONFIG_FILE="elasticsearch.yml";
     public static final String DEFAULT_CONFIG_FILE = "default-elasticsearch.yml";
 
+
     private final Node node;
     private final Client client;
+    private final String defaultConfigFileName;
+    private final String configFileName;
 
-    public NodeBasedElasticSearchClientFactory() {
+    public NodeBasedElasticSearchClientFactory(String defaultConfigFileName, String configFileName) {
+        this.defaultConfigFileName = defaultConfigFileName;
+        this.configFileName = configFileName;
         this.node = createClient();
         this.client = node.client();
-        this.node.start();
+//        this.node.start();
+    }
+
+    public NodeBasedElasticSearchClientFactory() {
+        this(DEFAULT_CONFIG_FILE,CONFIG_FILE);
     }
 
     private Node createClient() {
 
-       NodeBuilder builder =  nodeBuilder().client(true);
+       NodeBuilder builder =  nodeBuilder().data(false).client(true);
         if(shouldLoadDefaults()) {
-            builder.getSettings().loadFromClasspath(DEFAULT_CONFIG_FILE);
+            builder.getSettings().loadFromClasspath(defaultConfigFileName);
         } else {
-            builder.getSettings().loadFromClasspath(CONFIG_FILE);
+            builder.getSettings().loadFromClasspath(configFileName);
         }
 
-        return builder.build();
+        return builder.node();
 
     }
 
     public boolean shouldLoadDefaults() {
         ClassLoader  classLoader = Classes.getDefaultClassLoader();
 
-        InputStream is = classLoader.getResourceAsStream(CONFIG_FILE);
+        InputStream is = classLoader.getResourceAsStream(configFileName);
 
         if (is == null) {
             return true;
@@ -83,7 +92,7 @@ public class NodeBasedElasticSearchClientFactory implements ElasticSearchClientF
         }
 
         try {
-            node.stop();
+            node.close();
         } catch(Exception e) {
             log.warn("Unable to shut down the ElasticSearch client node");
         }
