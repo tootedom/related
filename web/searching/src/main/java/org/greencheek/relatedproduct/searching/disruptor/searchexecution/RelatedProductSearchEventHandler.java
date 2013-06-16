@@ -1,20 +1,16 @@
 package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 
-import com.lmax.disruptor.EventHandler;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,20 +20,18 @@ import java.util.Map;
  * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class RelatedProductSearchEventHandler implements RelatedProductSearchDisruptorEventHandler {
 
     private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchEventHandler.class);
 
     private final Map<SearchRequestLookupKey,RelatedProductSearch> searchMap;
     private final RelatedProductSearchRepository searchRespository;
-    private final SearchRequestResponseHandler searchResultsHandler;
+    private final RelatedProductSearchRequestResponseProcessor searchResultsHandler;
     private final Configuration configuration;
 
-    @Inject
     public RelatedProductSearchEventHandler(Configuration config,
                                             RelatedProductSearchRepository searcher,
-                                            SearchRequestResponseHandler handler) {
+                                            RelatedProductSearchRequestResponseProcessor handler) {
         this.searchRespository = searcher;
         this.configuration = config;
         this.searchResultsHandler = handler;

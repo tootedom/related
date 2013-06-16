@@ -32,7 +32,6 @@ import java.util.*;
  * Time: 19:47
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchFrequentlyRelatedProductSearchProcessor.class);
@@ -42,7 +41,6 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
     private static final String FACET_RESULT_NAME ="frequently-related-with";
     private final String relatedWithFacetName;
 
-    @Inject
     public ElasticSearchFrequentlyRelatedProductSearchProcessor(Configuration configuration) {
         this.configuration = configuration;
         this.relatedWithFacetName = configuration.getRelatedWithFacetName();

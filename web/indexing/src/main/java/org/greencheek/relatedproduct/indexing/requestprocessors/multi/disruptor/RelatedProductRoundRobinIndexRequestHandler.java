@@ -11,6 +11,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageF
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.RingBufferIndexRequestHandler;
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
                                                        RelatedProductStorageRepositoryFactory repository
     ) {
 
-        int numberOfIndexingRequestProcessors = ceilingNextPowerOfTwo(configuration.getNumberOfIndexingRequestProcessors());
+        int numberOfIndexingRequestProcessors = Util.ceilingNextPowerOfTwo(configuration.getNumberOfIndexingRequestProcessors());
         disruptors = new Disruptor[numberOfIndexingRequestProcessors];
         executors = new ExecutorService[numberOfIndexingRequestProcessors];
         mask = numberOfIndexingRequestProcessors-1;
@@ -76,20 +77,6 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
 
         this.indexConverter = converter;
     }
-
-
-    /**
-     * Calculate the next power of 2, greater than or equal to x.<p>
-     * From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
-     *
-     * @param x Value to round up
-     * @return The next power of 2 from x inclusive
-     */
-    public static int ceilingNextPowerOfTwo(final int x)
-    {
-        return 1 << (32 - Integer.numberOfLeadingZeros(x - 1));
-    }
-
 
 
     @Override

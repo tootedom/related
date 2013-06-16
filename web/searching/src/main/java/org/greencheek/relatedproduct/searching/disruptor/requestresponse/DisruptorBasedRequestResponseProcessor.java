@@ -7,8 +7,8 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
-import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.AsyncContext;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
@@ -28,21 +29,19 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
  * Time: 12:14
  * To change this template use File | Settings | File Templates.
  */
-@Named
-public class DisruptorBasedRequestResponseHandler implements SearchRequestResponseHandler {
-    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRequestResponseHandler.class);
+public class DisruptorBasedRequestResponseProcessor implements RelatedProductSearchRequestResponseProcessor {
+    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRequestResponseProcessor.class);
 
-
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<SearchEvent> disruptor;
 
     private final Configuration configuration;
 
 
-    @Inject
-    public DisruptorBasedRequestResponseHandler(SearchEventHandler eventHandler,
-                                                Configuration configuration
-                                                            ) {
+    public DisruptorBasedRequestResponseProcessor(EventHandler<SearchEvent>  eventHandler,
+                                                  Configuration configuration
+    ) {
         this.configuration = configuration;
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
@@ -67,21 +66,22 @@ public class DisruptorBasedRequestResponseHandler implements SearchRequestRespon
 
     @PreDestroy
     public void shutdown() {
+        if(shutdown.compareAndSet(false,true)) {
+            try {
+                log.info("Attempting to shut down executor thread pool in search request/response processor");
+                executorService.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to shut down executor thread pool in search request/response processor",e);
+            }
 
-        try {
-            log.info("Attempting to shut down executor thread pool in search request/response processor");
-            executorService.shutdown();
-        } catch (Exception e) {
-            log.warn("Unable to shut down executor thread pool in search request/response processor",e);
-        }
-
-        log.info("Shutting down index request processor");
-        try {
-            log.info("Attempting to shut down disruptor in search request/response processor");
-            disruptor.halt();
-            disruptor.shutdown();
-        } catch (Exception e) {
-            log.warn("Unable to shut down disruptor in search request/response processor",e);
+            log.info("Shutting down index request processor");
+            try {
+                log.info("Attempting to shut down disruptor in search request/response processor");
+                disruptor.halt();
+                disruptor.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to shut down disruptor in search request/response processor",e);
+            }
         }
 
     }

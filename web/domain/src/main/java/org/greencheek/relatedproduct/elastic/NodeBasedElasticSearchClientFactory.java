@@ -21,7 +21,6 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
  * Time: 22:18
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class NodeBasedElasticSearchClientFactory implements ElasticSearchClientFactory {
     private static final Logger log = LoggerFactory.getLogger(NodeBasedElasticSearchClientFactory.class);
 

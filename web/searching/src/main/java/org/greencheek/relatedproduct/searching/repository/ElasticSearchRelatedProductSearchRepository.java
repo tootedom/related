@@ -5,9 +5,9 @@ import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,6 @@ import java.util.Map;
  * Time: 15:17
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class ElasticSearchRelatedProductSearchRepository implements RelatedProductSearchRepository {
 
 
@@ -40,7 +39,6 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
     private final Configuration configuration;
     private final ElasticSearchFrequentlyRelatedProductSearchProcessor frequentlyRelatedWithSearchBuilder;
 
-    @Inject
     public ElasticSearchRelatedProductSearchRepository(Configuration configuration,
                                                        ElasticSearchClientFactory searchClientFactory,
                                                        ElasticSearchFrequentlyRelatedProductSearchProcessor builder) {
@@ -53,7 +51,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
 
     @Override
-    public void findRelatedProducts(RelatedProductSearch[] searches, SearchRequestResponseHandler handler) {
+    public void findRelatedProducts(RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler) {
         log.debug("request to execute {} searches",searches.length);
         MultiSearchResponse sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
 

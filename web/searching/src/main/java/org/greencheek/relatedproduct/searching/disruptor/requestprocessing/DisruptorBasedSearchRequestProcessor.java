@@ -7,9 +7,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchEventHandler;
 import org.greencheek.relatedproduct.searching.requestprocessing.InvalidSearchRequestException;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidator;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
@@ -34,7 +32,6 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
  * Time: 12:14
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearchRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedSearchRequestProcessor.class);
 
@@ -46,7 +43,6 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     private final Configuration configuration;
 
 
-    @Inject
     public DisruptorBasedSearchRequestProcessor(RelatedContentSearchRequestProcessorHandler eventHandler,
                                                 Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {

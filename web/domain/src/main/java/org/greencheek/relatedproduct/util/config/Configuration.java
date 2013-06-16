@@ -24,6 +24,8 @@ public interface Configuration {
     public int getSizeOfRelatedContentSearchRequestHandlerQueue();
     public int getSizeOfRelatedContentSearchRequestQueue();
     public int getSizeOfRelatedContentSearchRequestAndResponseQueue();
+    public int getSizeOfResponseProcessingQueue();
+    public short getNumberOfSearchingRequestProcessors();
 
     public int getNumberOfExpectedLikeForLikeRequests();
 

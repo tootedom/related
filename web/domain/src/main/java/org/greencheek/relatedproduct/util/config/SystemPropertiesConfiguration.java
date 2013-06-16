@@ -42,8 +42,11 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final static int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty("related-product.default.number.of.results","4"));
 
+    private final static int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.response.processing.queue","2048"));
 
     private final static short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
+
+    private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","2"));
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
@@ -60,6 +63,16 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getSizeOfRelatedContentSearchRequestAndResponseQueue() {
         return SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE;
+    }
+
+    @Override
+    public int getSizeOfResponseProcessingQueue() {
+        return SIZE_OF_RESPONSE_PROCESSING_QUEUE;
+    }
+
+    @Override
+    public short getNumberOfSearchingRequestProcessors() {
+        return NUMBER_OF_SEARCHING_REQUEST_PROCESSORS;
     }
 
     @Override

@@ -12,5 +12,5 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 
 // ES
 public interface RelatedProductSearchRepository {
-    public void findRelatedProducts(RelatedProductSearch[] searches, SearchRequestResponseHandler handler);
+    public void findRelatedProducts(RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler);
 }

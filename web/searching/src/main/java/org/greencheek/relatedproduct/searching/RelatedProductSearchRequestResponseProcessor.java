@@ -12,7 +12,7 @@ import javax.servlet.AsyncContext;
  * Time: 12:03
  * To change this template use File | Settings | File Templates.
  */
-public interface SearchRequestResponseHandler {
+public interface RelatedProductSearchRequestResponseProcessor {
 
     public void handleRequest(SearchRequestLookupKey requestKey, AsyncContext requestCtx);
 

@@ -14,4 +14,5 @@ import java.util.List;
  */
 public interface RelatedProductSearchResultsResponseProcessor {
     public void processSearchResults(List<AsyncContext> context, SearchResultsConverter results);
+    public void shutdown();
 }

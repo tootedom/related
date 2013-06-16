@@ -17,15 +17,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * *
  */
-@WebServlet(urlPatterns = "/frequentlyrelatedto/*", name="relatedPurchaseIndexOrderHandler", asyncSupported = true)
-public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
+@WebServlet(urlPatterns = "/frequentlyrelatedto/*", name="relatedPurchaseIndexOrderHandler",
+        asyncSupported = true, loadOnStartup = 1)
+public class RelatedProductSearchServlet extends HttpServlet {
 
     private static final Pattern ID_PATTERN = Pattern.compile(".*/([^/?]+)");
 
@@ -36,16 +36,22 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     private ApplicationCtx applicationCtx;
 
-    private static final Logger log = LoggerFactory.getLogger(RelatedPurchaseIndexOrderServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchServlet.class);
 
     public void init(javax.servlet.ServletConfig servletConfig) throws ServletException
     {
+        super.init(servletConfig);
         applicationCtx = (ApplicationCtx)servletConfig.getServletContext().getAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME);
 
         configuration = applicationCtx.getConfiguration();
         productSearchRequestProcessor = applicationCtx.getRequestProcessor();
     }
 
+
+    public void destroy() {
+        super.destroy();
+        productSearchRequestProcessor.shutdown();
+    }
 
     protected void doGet(final HttpServletRequest request,HttpServletResponse response)
             throws ServletException, IOException {

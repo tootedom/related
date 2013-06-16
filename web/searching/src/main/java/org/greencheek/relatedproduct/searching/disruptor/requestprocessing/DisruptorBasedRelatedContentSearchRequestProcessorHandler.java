@@ -4,7 +4,7 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.SearchRequestResponseHandler;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;
@@ -18,18 +18,16 @@ import javax.servlet.AsyncContext;
  * Time: 21:32
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler{
 
     private volatile boolean shutdown = false;
 
     private final Configuration configuration;
-    private final SearchRequestResponseHandler asyncContextStorage;
+    private final RelatedProductSearchRequestResponseProcessor asyncContextStorage;
     private final RelatedProductSearchExecutor searchRequestExecutor;
 
-    @Inject
     public DisruptorBasedRelatedContentSearchRequestProcessorHandler(Configuration configuration,
-                                                                     SearchRequestResponseHandler asyncContextStorage,
+                                                                     RelatedProductSearchRequestResponseProcessor asyncContextStorage,
                                                                      RelatedProductSearchExecutor searchExecutor) {
         this.configuration = configuration;
         this.asyncContextStorage = asyncContextStorage;
@@ -38,12 +36,19 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
     @Override
     public void onEvent(RelatedProductSearchRequest event, long sequence, boolean endOfBatch) throws Exception {
-        if(shutdown) return;
-        AsyncContext clientContext = event.getRequestContext();
-        RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
 
-        asyncContextStorage.handleRequest(search.getLookupKey(configuration),clientContext);
-        searchRequestExecutor.executeSearch(search);
+        try {
+            AsyncContext clientContext = event.getRequestContext();
+            RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
+
+            asyncContextStorage.handleRequest(search.getLookupKey(configuration),clientContext);
+            searchRequestExecutor.executeSearch(search);
+        } finally {
+            event.setRequestContext(null);
+            event.setRequestProperties(null);
+            event.setRequestType(null);
+        }
+
     }
 
     public void shutdown() {

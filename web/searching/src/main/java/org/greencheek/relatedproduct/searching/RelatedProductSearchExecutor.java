@@ -16,4 +16,5 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 public interface RelatedProductSearchExecutor {
 
     public void executeSearch(RelatedProductSearch searchRequest);
+    public void shutdown();
 }

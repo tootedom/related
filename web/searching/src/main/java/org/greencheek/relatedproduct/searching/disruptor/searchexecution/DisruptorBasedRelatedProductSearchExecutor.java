@@ -27,7 +27,6 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
  * Time: 12:14
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProductSearchExecutor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductSearchExecutor.class);
 
@@ -40,7 +39,6 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 //    private final EventHandler<RelatedProductSearch> eventHandler;
 
 
-    @Inject
     public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,
                                                       RelatedProductSearchDisruptorEventHandler eventHandler
     ) {

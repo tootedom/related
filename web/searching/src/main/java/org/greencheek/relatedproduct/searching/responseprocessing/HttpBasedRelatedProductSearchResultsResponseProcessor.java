@@ -60,4 +60,9 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
             }
         }
     }
+
+    @Override
+    public void shutdown() {
+
+    }
 }
