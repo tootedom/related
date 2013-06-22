@@ -48,6 +48,18 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","2"));
 
+    private final static String STORAGE_INDEX_NAME_PREFIX = System.getProperty("related-product.storage.index.name.prefix","relatedproducts-");
+    private final static String STORAGE_CONTENT_TYPE_NAME = System.getProperty("related-product.storage.content.type.name","relatedproduct");
+    private final static String STORAGE_CLUSTER_NAME = System.getProperty("related-product.storage.cluster.name","relatedproducts");
+
+    private final static String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty("related-product.key.for.index.request.date.attr","date");
+    private final static String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty("related-product.key.for.index.request.id.attr","id");
+    private final static String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty("related-product.key.for.index.request.product.array.attr","products");
+
+    private final static String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
+    private final static String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
+
+
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
     }
@@ -107,6 +119,21 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
+    public String getKeyForIndexRequestDateAttr() {
+        return KEY_FOR_INDEX_REQUEST_DATE_ATTR;
+    }
+
+    @Override
+    public String getKeyForIndexRequestIdAttr() {
+        return KEY_FOR_INDEX_REQUEST_ID_ATTR;
+    }
+
+    @Override
+    public String getKeyForIndexRequestProductArrayAttr() {
+        return KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR;
+    }
+
+    @Override
     public String getRequestParameterForSize() {
         return REQUEST_PARAMETER_FOR_SIZE;
     }
@@ -119,6 +146,31 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getDefaultNumberOfResults() {
         return DEFAULT_NUMBER_OF_RESULTS;
+    }
+
+    @Override
+    public String getStorageIndexNamePrefix() {
+        return STORAGE_INDEX_NAME_PREFIX;
+    }
+
+    @Override
+    public String getStorageContentTypeName() {
+        return STORAGE_CONTENT_TYPE_NAME;
+    }
+
+    @Override
+    public String getStorageClusterName() {
+        return STORAGE_CLUSTER_NAME;
+    }
+
+    @Override
+    public String getElasticSearchClientDefaultSettingFileName() {
+        return ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME;
+    }
+
+    @Override
+    public String getElasticSearchClientOverrideSettingFileName() {
+        return ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME;
     }
 
     @Override

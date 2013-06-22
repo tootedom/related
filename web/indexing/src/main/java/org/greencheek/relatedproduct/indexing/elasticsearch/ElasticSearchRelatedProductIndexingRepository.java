@@ -7,8 +7,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
-import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
 import java.util.Map;
 
@@ -33,34 +31,35 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedProductIndexingRepository.class);
 
 
-    private static final String INDEX_NAME = "relatedpurchases-";
-    private static final String INDEX_TYPE = "relatedproduct";
+    private final String indexType;
+    private final String facetName;
 
-    private final Configuration configuration;
+    private final String idAttributeName;
+    private final String dateAttributeName;
+
     private final ElasticSearchClientFactory elasticSearchClientFactory;
     private final Client elasticClient;
-    private final UTCCurrentDateFormatter currentDayFormatter;
 
 
     public ElasticSearchRelatedProductIndexingRepository(Configuration configuration,
-                                                         UTCCurrentDateFormatter currentDayFormatter,
                                                          ElasticSearchClientFactory factory) {
-        this.configuration = configuration;
+
+        this.indexType = configuration.getStorageContentTypeName();
+        this.idAttributeName = configuration.getKeyForIndexRequestIdAttr();
+        this.dateAttributeName = configuration.getKeyForIndexRequestDateAttr();
+        this.facetName = configuration.getRelatedWithFacetName();
         this.elasticSearchClientFactory = factory;
-        this.currentDayFormatter = currentDayFormatter;
         this.elasticClient = elasticSearchClientFactory.getClient();
-
-
     }
 
     @Override
-    public void store(RelatedProduct... relatedProducts) {
+    public void store(RelatedProductStorageLocationMapper indexLocationMapper, RelatedProduct... relatedProducts) {
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
 
 
         int requestAdded = 0;
         for(RelatedProduct product : relatedProducts) {
-            if(addRelatedProduct(bulkRequest,product)) requestAdded++;
+            if(addRelatedProduct(indexLocationMapper,bulkRequest,product)) requestAdded++;
         }
 
         if(requestAdded>0) {
@@ -73,25 +72,24 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
         }
     }
 
-    private boolean addRelatedProduct(BulkRequestBuilder bulkRequest,
+    private boolean addRelatedProduct(RelatedProductStorageLocationMapper indexLocationMapper,
+                                      BulkRequestBuilder bulkRequest,
                                       RelatedProduct product) {
 
-        StringBuilder indexName = new StringBuilder(27);
-        indexName.append(INDEX_NAME).append(currentDayFormatter.parseToDate(product.getDate()));
-
         try {
-            IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexName.toString(), INDEX_TYPE);
 
             XContentBuilder builder = jsonBuilder().startObject()
-                    .field("id", product.getId())
-                    .field("date", product.getDate())
-                    .array(configuration.getRelatedWithFacetName(), product.getRelatedProductPids());
+                    .field(idAttributeName, product.getId())
+                    .field(dateAttributeName, product.getDate())
+                    .array(facetName, product.getRelatedProductPids());
 
             for(Map.Entry<String,String> property : product.getAdditionalProperties().entrySet()) {
                 builder.field(property.getKey(),property.getValue());
             }
 
             builder.endObject();
+
+            IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexLocationMapper.getLocationName(product), indexType);
 
             bulkRequest.add(indexRequestBuilder.setSource(builder));
 

@@ -6,13 +6,11 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageC
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 
 
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import java.util.*;
 
@@ -32,13 +30,15 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
 
     private final List<RelatedProduct> relatedProducts = new ArrayList<RelatedProduct>(1024);
 
-
+    private final RelatedProductStorageLocationMapper locationMapper;
 
     public RingBufferIndexRequestHandler(RelatedProductIndexingMessageConverter converter,
-                                         RelatedProductStorageRepository repository) {
+                                         RelatedProductStorageRepository repository,
+                                         RelatedProductStorageLocationMapper locationMapper) {
 
         this.indexConverter = converter;
         this.storageRepository = repository;
+        this.locationMapper = locationMapper;
     }
 
 
@@ -65,7 +65,7 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
             if(endOfBatch) {
                 log.debug("Sending indexing requests to the storage repository");
                 try {
-                    storageRepository.store(relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
+                    storageRepository.store(locationMapper,relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
                 } catch(Exception e) {
                     log.warn("Exception calling storage repository for related products:{}",products,e);
                 }

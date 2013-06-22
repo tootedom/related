@@ -9,6 +9,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.RingBufferIndexRequestHandler;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
@@ -51,7 +52,8 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
     public RelatedProductRoundRobinIndexRequestHandler(Configuration configuration,
                                                        RelatedProductIndexingMessageConverter converter,
                                                        RelatedProductIndexingMessageFactory messageFactory,
-                                                       RelatedProductStorageRepositoryFactory repository
+                                                       RelatedProductStorageRepositoryFactory repository,
+                                                       RelatedProductStorageLocationMapper locationMapper
     ) {
 
         int numberOfIndexingRequestProcessors = Util.ceilingNextPowerOfTwo(configuration.getNumberOfIndexingRequestProcessors());
@@ -70,7 +72,7 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
 
             disruptors[i]  = disruptor;
             disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
-            disruptor.handleEventsWith(new RingBufferIndexRequestHandler(converter,repository.getRepository()));
+            disruptor.handleEventsWith(new RingBufferIndexRequestHandler(converter,repository.getRepository(),locationMapper));
             disruptor.start();
 
         }

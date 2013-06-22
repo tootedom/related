@@ -235,7 +235,7 @@ public abstract class IndexingRequestConverterTest {
 
         message.additionalProperties.convertTo(properties);
 
-        assertEquals(2,properties.size());
+        assertEquals(1,properties.size());
 
     }
 

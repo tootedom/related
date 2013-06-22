@@ -101,7 +101,7 @@ public class InjectionBasedApplicationContext implements ApplicationCtx{
 
     @Override
     public RelatedProductSearchRepository createSearchRepository() {
-        return new ElasticSearchRelatedProductSearchRepository(config,new NodeBasedElasticSearchClientFactory(),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        return new ElasticSearchRelatedProductSearchRepository(config,new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
     }
 
 

@@ -14,5 +14,5 @@ import java.util.List;
  */
 public interface AsyncContextLookup {
     public List<AsyncContext> removeContexts(SearchRequestLookupKey key);
-    public boolean addContext(SearchRequestLookupKey key, AsyncContext context);
+    public void addContext(SearchRequestLookupKey key, AsyncContext context);
 }

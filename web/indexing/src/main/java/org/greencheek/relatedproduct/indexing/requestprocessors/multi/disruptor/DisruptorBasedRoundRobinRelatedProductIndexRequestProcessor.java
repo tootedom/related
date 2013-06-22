@@ -30,17 +30,16 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
     private final IndexingRequestConverterFactory requestConverter;
-    private final Configuration configuration;
     private final RelatedProductRoundRobinIndexRequestHandler eventHandler;
 
     public DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(Configuration configuration,
                                                                        IndexingRequestConverterFactory requestConverter,
                                                                        RelatedProductIndexingMessageConverter converter,
                                                                        RelatedProductIndexingMessageFactory messageFactory,
-                                                                       RelatedProductStorageRepositoryFactory factory) {
+                                                                       RelatedProductStorageRepositoryFactory factory,
+                                                                       RelatedProductStorageLocationMapper locationMapper) {
 
 
-        this.configuration = configuration;
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 messageFactory,
@@ -48,22 +47,22 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
                 ProducerType.MULTI, new SleepingWaitStrategy());
 
 
-        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,messageFactory,factory);
+        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,messageFactory,factory,locationMapper);
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 
     }
 
     @Override
-    public void processRequest(byte[] data) {
+    public void processRequest(Configuration config, byte[] data) {
         if(data.length==0) {
             log.warn("No data to index. Ignoring");
             return;
         }
 
         try {
-            IndexingRequestConverter converter = requestConverter.createConverter(data);
-            RelatedProductInitialIndexingRequestTranslator translator = new RelatedProductInitialIndexingRequestTranslator(configuration,converter);
+            IndexingRequestConverter converter = requestConverter.createConverter(config,data);
+            RelatedProductInitialIndexingRequestTranslator translator = new RelatedProductInitialIndexingRequestTranslator(config,converter);
             disruptor.publishEvent(translator);
         } catch(InvalidRelatedProductJsonException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", data.length);

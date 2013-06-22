@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.indexing;
 
+import org.greencheek.relatedproduct.util.config.Configuration;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -8,5 +10,6 @@ package org.greencheek.relatedproduct.indexing;
  * To change this template use File | Settings | File Templates.
  */
 public interface IndexingRequestConverterFactory {
-    public IndexingRequestConverter createConverter(byte[] convertFrom) throws InvalidIndexingRequestException;
+    public IndexingRequestConverter createConverter(Configuration config,
+                                                    byte[] convertFrom) throws InvalidIndexingRequestException;
 }

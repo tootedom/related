@@ -20,20 +20,16 @@ import javax.inject.Named;
 public class ElasticSearchRelatedProductStorageRepositoryFactory implements RelatedProductStorageRepositoryFactory {
 
     private final Configuration configuration;
-    private final UTCCurrentDateFormatter currentDateFormatter;
 
     @Inject
-    public ElasticSearchRelatedProductStorageRepositoryFactory(Configuration configuration,
-                                                               UTCCurrentDateFormatter currentDayFormatter) {
+    public ElasticSearchRelatedProductStorageRepositoryFactory(Configuration configuration) {
         this.configuration = configuration;
-        this.currentDateFormatter = currentDayFormatter;
-
     }
 
     @Override
     public RelatedProductStorageRepository getRepository() {
-        NodeBasedElasticSearchClientFactory factory = new NodeBasedElasticSearchClientFactory();
+        NodeBasedElasticSearchClientFactory factory = new NodeBasedElasticSearchClientFactory(configuration);
 
-        return new ElasticSearchRelatedProductIndexingRepository(configuration,currentDateFormatter,factory);
+        return new ElasticSearchRelatedProductIndexingRepository(configuration,factory);
     }
 }

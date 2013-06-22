@@ -10,6 +10,6 @@ import org.greencheek.relatedproduct.domain.RelatedProduct;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedProductStorageRepository {
-    public void store(RelatedProduct... relatedProducts);
+    public void store(RelatedProductStorageLocationMapper indexToMapper,  RelatedProduct... relatedProducts);
     public void shutdown();
 }

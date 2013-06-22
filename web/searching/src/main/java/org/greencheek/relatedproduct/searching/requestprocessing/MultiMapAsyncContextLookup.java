@@ -27,7 +27,6 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
     private static final Logger log = LoggerFactory.getLogger(MultiMapAsyncContextLookup.class);
 
-
     private final Map<SearchRequestLookupKey,List<AsyncContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
 
@@ -43,17 +42,15 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
     }
 
     @Override
-    public boolean addContext(SearchRequestLookupKey key, AsyncContext context) {
+    public void addContext(SearchRequestLookupKey key, AsyncContext context) {
         log.debug("adding context to key {}",key.toString());
         List<AsyncContext> ctxs = contexts.get(key);
         if(ctxs==null) {
             ctxs = new ArrayList<AsyncContext>(expectedNumberOfSimilarRequests);
             ctxs.add(context);
             contexts.put(key,ctxs);
-            return false;
         } else {
             ctxs.add(context);
-            return true;
         }
 
     }

@@ -1,0 +1,3 @@
+node.local: true
+node.data: false
+http.enabled: false

@@ -152,7 +152,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         ctx.complete();
 
         if(canProcess) {
-            indexer.processRequest(baos.toByteArray());
+            indexer.processRequest(configuration,baos.toByteArray());
         }
 
     }

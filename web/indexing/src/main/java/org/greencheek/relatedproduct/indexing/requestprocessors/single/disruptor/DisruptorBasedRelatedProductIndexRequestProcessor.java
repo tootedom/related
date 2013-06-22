@@ -31,7 +31,6 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
     private final IndexingRequestConverterFactory requestConverter;
-    private final Configuration configuration;
 
     private final RelatedProductStorageRepository storageRepository;
 
@@ -39,8 +38,8 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                                                              IndexingRequestConverterFactory requestConverter,
                                                              RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConvertor,
                                                              RelatedProductIndexingMessageFactory messageFactory,
-                                                             RelatedProductStorageRepositoryFactory repositoryFactory) {
-        this.configuration = configuration;
+                                                             RelatedProductStorageRepositoryFactory repositoryFactory,
+                                                             RelatedProductStorageLocationMapper locationMapper) {
         this.requestConverter = requestConverter;
         this.storageRepository = repositoryFactory.getRepository();
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
@@ -48,21 +47,21 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                 configuration.getSizeOfIndexRequestQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
 
-        disruptor.handleEventsWith(new EventHandler[] {new RingBufferIndexRequestHandler(indexingMessageToRelatedProductsConvertor,storageRepository)});
+        disruptor.handleEventsWith(new EventHandler[] {new RingBufferIndexRequestHandler(indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
         disruptor.start();
 
     }
 
     @Override
-    public void processRequest(byte[] data) {
+    public void processRequest(Configuration config, byte[] data) {
         if(data.length==0) {
             log.warn("No data to index. Ignoring");
             return;
         }
 
         try {
-            IndexingRequestConverter converter = requestConverter.createConverter(data);
-            RelatedProductIndexingRequestHandler translator = new RelatedProductIndexingRequestHandler(configuration,converter);
+            IndexingRequestConverter converter = requestConverter.createConverter(config,data);
+            RelatedProductIndexingRequestHandler translator = new RelatedProductIndexingRequestHandler(config,converter);
             disruptor.publishEvent(translator);
         } catch(InvalidRelatedProductJsonException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", data.length);

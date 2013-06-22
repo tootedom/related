@@ -1,4 +1,6 @@
-cluster.name: relatedproducts
+node.data: false
+node.local: true
+http.enabled: false
 
 # Search pool
 threadpool.search.type: fixed

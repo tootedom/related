@@ -36,7 +36,20 @@ public interface Configuration {
     public String getKeyForFrequencyResultName();
     public String getKeyForFrequencyResultOverallResultsSize();
 
+    public String getKeyForIndexRequestDateAttr();
+    public String getKeyForIndexRequestIdAttr();
+    public String getKeyForIndexRequestProductArrayAttr();
+
+
     public String getRequestParameterForSize();
     public String getRequestParameterForId();
     public int getDefaultNumberOfResults();
+
+    public String getStorageIndexNamePrefix();
+    public String getStorageContentTypeName();
+    public String getStorageClusterName();
+
+    public String getElasticSearchClientDefaultSettingFileName();
+    public String getElasticSearchClientOverrideSettingFileName();
+
 }

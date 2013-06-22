@@ -5,6 +5,8 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -16,11 +18,11 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  */
 public class RelatedProductInitialIndexingRequestTranslator implements EventTranslator<RelatedProductIndexingMessage> {
 
-    private IndexingRequestConverter requestConverter;
-    private final Configuration config;
+    private final IndexingRequestConverter requestConverter;
+    private final short maxNumberOfProductRelatedProperties;
 
     public RelatedProductInitialIndexingRequestTranslator(Configuration configuration, IndexingRequestConverter converter) {
-        this.config = configuration;
+        this.maxNumberOfProductRelatedProperties = configuration.getMaxNumberOfRelatedProductProperties();
         this.requestConverter = converter;
     }
 
@@ -30,10 +32,11 @@ public class RelatedProductInitialIndexingRequestTranslator implements EventTran
 
         event.validMessage.set(true);
         try {
-            requestConverter.convertRequestIntoIndexingMessage(event,config.getMaxNumberOfRelatedProductProperties());
-        } catch (InvalidIndexingRequestException e) {
+            requestConverter.convertRequestIntoIndexingMessage(event,maxNumberOfProductRelatedProperties);
+        } finally {
             event.validMessage.set(false);
         }
+
 
 
     }

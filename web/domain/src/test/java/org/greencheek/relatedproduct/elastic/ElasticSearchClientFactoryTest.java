@@ -7,7 +7,10 @@ import org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.node.Node;
+import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,8 +39,15 @@ public class ElasticSearchClientFactoryTest {
             @ElasticsearchSetting(name = "http.enabled", value = "false")})
     Node node3;
 
-    public ElasticSearchClientFactory clientFactory;
 
+    private Configuration configuration;
+    private ElasticSearchClientFactory clientFactory;
+
+
+    @Before
+    public void setUp() {
+        configuration = new SystemPropertiesConfiguration();
+    }
     @After
     public void tearDown() {
         if(clientFactory!=null) clientFactory.shutdown();
@@ -45,14 +55,14 @@ public class ElasticSearchClientFactoryTest {
 
     @Test
     public void testConnectToDefaultElasticNode() {
-        clientFactory = new NodeBasedElasticSearchClientFactory();
+        clientFactory = new NodeBasedElasticSearchClientFactory(configuration);
         Client client = clientFactory.getClient();
         assertEquals("default-name",getClusterName(client));
     }
 
     @Test
     public void testOverridesStandardConfiguration() {
-        clientFactory = new NodeBasedElasticSearchClientFactory("default-elasticsearch.yml","elastic.yml");
+        clientFactory = new NodeBasedElasticSearchClientFactory(configuration,"default-elasticsearch.yml","elastic.yml");
         Client client = clientFactory.getClient();
         assertEquals("custom-name",getClusterName(client));
     }
