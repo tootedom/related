@@ -1,11 +1,8 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import com.lmax.disruptor.EventFactory;
 import javolution.io.Struct;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.util.config.Configuration;
-
-import java.nio.ByteBuffer;
 
 /**
  * Created with IntelliJ IDEA.

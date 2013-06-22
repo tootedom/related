@@ -1,6 +1,5 @@
 package org.greencheek.relatedproduct.api.searching;
 
-import com.lmax.disruptor.EventFactory;
 import javolution.io.Struct;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;

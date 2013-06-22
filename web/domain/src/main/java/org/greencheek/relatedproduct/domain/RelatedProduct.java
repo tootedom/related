@@ -1,8 +1,7 @@
-package org.greencheek.relatedproduct.domain;
+package org.greencheek.relatedproduct.searching.domain;
 
 
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
 import java.util.HashMap;
 import java.util.HashSet;

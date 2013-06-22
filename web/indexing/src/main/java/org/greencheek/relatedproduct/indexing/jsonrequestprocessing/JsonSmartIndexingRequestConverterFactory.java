@@ -3,7 +3,7 @@ package org.greencheek.relatedproduct.indexing.jsonrequestprocessing;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
-import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
+import org.greencheek.relatedproduct.indexing.util.ISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;

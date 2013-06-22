@@ -8,16 +8,12 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
-import org.greencheek.relatedproduct.util.ISO8601UTCCurrentDateAndTimeFormatter;
-import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
@@ -41,7 +37,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                                                              RelatedProductStorageRepositoryFactory repositoryFactory,
                                                              RelatedProductStorageLocationMapper locationMapper) {
         this.requestConverter = requestConverter;
-        this.storageRepository = repositoryFactory.getRepository();
+        this.storageRepository = repositoryFactory.getRepository(configuration);
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 messageFactory,
                 configuration.getSizeOfIndexRequestQueue(), executorService,

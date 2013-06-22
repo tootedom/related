@@ -1,4 +1,4 @@
-node.local: true
+node.client: true
 node.data: false
 http.enabled: false
 
@@ -21,4 +21,3 @@ threadpool.get.queue_size: 10000
 threadpool.index.type: fixed
 threadpool.index.size: 1
 threadpool.index.queue_size: 10000
-

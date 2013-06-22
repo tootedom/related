@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventHandler;
-import org.greencheek.relatedproduct.domain.api.ResponseEvent;
+import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessorFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;

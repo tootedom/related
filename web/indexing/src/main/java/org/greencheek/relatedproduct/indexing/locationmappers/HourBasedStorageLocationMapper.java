@@ -1,9 +1,8 @@
 package org.greencheek.relatedproduct.indexing.locationmappers;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
-import org.greencheek.relatedproduct.util.UTCCurrentDateAndHourFormatter;
-import org.greencheek.relatedproduct.util.UTCCurrentDateFormatter;
+import org.greencheek.relatedproduct.indexing.util.UTCCurrentDateAndHourFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**

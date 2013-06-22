@@ -3,7 +3,6 @@ package org.greencheek.relatedproduct.api.indexing;
 import javolution.io.Struct;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
 /**
  * Created with IntelliJ IDEA.

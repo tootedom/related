@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.elastic;
 
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.Classes;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -11,9 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Named;
-import java.io.IOException;
-import java.io.InputStream;
 
 import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 

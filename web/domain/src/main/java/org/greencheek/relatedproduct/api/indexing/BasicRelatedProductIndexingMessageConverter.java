@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;
@@ -14,12 +14,10 @@ import java.util.*;
  * Time: 19:33
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class BasicRelatedProductIndexingMessageConverter implements RelatedProductIndexingMessageConverter{
 
     private final Configuration configuration;
 
-    @Inject
     public BasicRelatedProductIndexingMessageConverter(Configuration configuration) {
         this.configuration = configuration;
     }

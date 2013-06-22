@@ -59,6 +59,9 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
     private final static String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
 
+    // can be "day|hour"
+    private final static String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
+
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
@@ -171,6 +174,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public String getElasticSearchClientOverrideSettingFileName() {
         return ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME;
+    }
+
+    @Override
+    public String getStorageLocationMapper() {
+        return RELATED_PRODUCT_STORAGE_LOCATION_MAPPER;
     }
 
     @Override

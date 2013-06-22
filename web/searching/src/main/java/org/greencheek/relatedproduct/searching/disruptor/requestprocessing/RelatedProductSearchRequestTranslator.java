@@ -3,8 +3,7 @@ package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 import com.lmax.disruptor.EventTranslator;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.servlet.AsyncContext;

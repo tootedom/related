@@ -3,10 +3,7 @@ package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor
 import com.lmax.disruptor.EventTranslator;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
-import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**

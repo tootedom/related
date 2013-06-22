@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.indexing;
 
+import org.greencheek.relatedproduct.util.config.Configuration;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -12,5 +14,5 @@ public interface RelatedProductStorageRepositoryFactory {
      * Depending upon the implementation can create a new instance, or return the same instance.
      * @return
      */
-    public RelatedProductStorageRepository getRepository();
+    public RelatedProductStorageRepository getRepository(Configuration configuration);
 }

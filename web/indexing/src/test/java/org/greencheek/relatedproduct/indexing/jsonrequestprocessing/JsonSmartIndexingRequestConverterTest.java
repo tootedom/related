@@ -1,9 +1,8 @@
 package org.greencheek.relatedproduct.indexing.jsonrequestprocessing;
 
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
-import org.greencheek.relatedproduct.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
+import org.greencheek.relatedproduct.indexing.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-import org.junit.Test;
 
 /**
  * Created with IntelliJ IDEA.

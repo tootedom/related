@@ -1,16 +1,11 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
 import com.lmax.disruptor.EventHandler;
-import org.greencheek.relatedproduct.domain.api.ResponseEvent;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
-import org.greencheek.relatedproduct.domain.api.SearchRequestEvent;
-import org.greencheek.relatedproduct.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * Created with IntelliJ IDEA.

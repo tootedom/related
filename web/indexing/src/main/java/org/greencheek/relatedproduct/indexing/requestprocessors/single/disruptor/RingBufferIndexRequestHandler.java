@@ -3,7 +3,7 @@ package org.greencheek.relatedproduct.indexing.requestprocessors.single.disrupto
 import com.lmax.disruptor.EventHandler;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
 
 
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;

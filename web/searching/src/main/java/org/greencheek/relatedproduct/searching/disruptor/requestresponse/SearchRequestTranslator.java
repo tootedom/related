@@ -1,9 +1,9 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventTranslator;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
-import org.greencheek.relatedproduct.domain.api.SearchEventType;
-import org.greencheek.relatedproduct.domain.api.SearchRequestEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
+import org.greencheek.relatedproduct.searching.domain.api.SearchRequestEvent;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 
 import javax.servlet.AsyncContext;

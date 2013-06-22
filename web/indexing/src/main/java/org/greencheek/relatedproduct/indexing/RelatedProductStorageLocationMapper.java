@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.indexing;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
 
 /**
  * Basically maps a product to a location (index name) it should be stored in.

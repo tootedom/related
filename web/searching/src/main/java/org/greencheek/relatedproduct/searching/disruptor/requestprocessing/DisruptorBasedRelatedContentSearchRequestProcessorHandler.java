@@ -1,14 +1,11 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
-import org.greencheek.relatedproduct.domain.RelatedProductSearchRequest;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.AsyncContext;
 
 /**

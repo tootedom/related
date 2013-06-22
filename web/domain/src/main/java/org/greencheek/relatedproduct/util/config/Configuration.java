@@ -52,4 +52,6 @@ public interface Configuration {
     public String getElasticSearchClientDefaultSettingFileName();
     public String getElasticSearchClientOverrideSettingFileName();
 
+
+    public String getStorageLocationMapper();
 }

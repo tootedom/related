@@ -1,5 +1,5 @@
 node.data: false
-node.local: true
+node.client: true
 http.enabled: false
 
 # Search pool

@@ -2,8 +2,6 @@ package org.greencheek.relatedproduct.api.searching;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.nio.ByteBuffer;
 import java.util.Map;
 

@@ -2,7 +2,6 @@ package org.greencheek.relatedproduct.api;
 
 import javolution.io.Struct;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
 import java.util.Map;
 

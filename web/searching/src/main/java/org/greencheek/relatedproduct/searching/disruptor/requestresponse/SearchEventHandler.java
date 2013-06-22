@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventHandler;
-import org.greencheek.relatedproduct.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 
 /**
  * Created with IntelliJ IDEA.
