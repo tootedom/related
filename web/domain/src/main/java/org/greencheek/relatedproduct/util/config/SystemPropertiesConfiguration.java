@@ -31,9 +31,9 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static short MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty("related-product.max.number.of.search.criteria.for.related.content", "10"));
     private final static int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty("related-product.number.of.expected.like.for.like.requests", "10"));
 
-    private final static String KEY_FOR_FREQUENCY_RESULT_NAME = System.getProperty("related-product.key.for.frequency.result.name","id");
-    private final static String KEY_FOR_FREQUENCY_RESULT_SIZE = System.getProperty("related-product.key.for.frequency.result.name","frequency");
-    private final static String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS = System.getProperty("related-product.key.for.frequency.result.name","size");
+    private final static String KEY_FOR_FREQUENCY_RESULT_ID = System.getProperty("related-product.key.for.frequency.result.id","id");
+    private final static String KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = System.getProperty("related-product.key.for.frequency.result.occurrence","frequency");
+    private final static String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = System.getProperty("related-product.key.for.frequency.result.overall.no.of.related.products","size");
     private final static String KEY_FOR_FREQUENCY_RESULTS = System.getProperty("related-product.key.for.frequency.results","results");
 
     private final static String REQUEST_PARAMETER_FOR_SIZE = System.getProperty("related-product.request.parameter.for.size","maxresults");
@@ -97,13 +97,13 @@ public class SystemPropertiesConfiguration implements Configuration {
 
 
     @Override
-    public String getKeyForFrequencyResultSize() {
-        return KEY_FOR_FREQUENCY_RESULT_SIZE;
+    public String getKeyForFrequencyResultOccurrence() {
+        return KEY_FOR_FREQUENCY_RESULT_OCCURRENCE;
     }
 
     @Override
-    public String getKeyForFrequencyResultName() {
-        return KEY_FOR_FREQUENCY_RESULT_NAME;
+    public String getKeyForFrequencyResultId() {
+        return KEY_FOR_FREQUENCY_RESULT_ID;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     @Override
     public String getKeyForFrequencyResultOverallResultsSize() {
-        return KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS;
+        return KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS;
     }
 
     @Override

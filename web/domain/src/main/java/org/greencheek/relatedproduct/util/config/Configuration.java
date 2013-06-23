@@ -32,8 +32,8 @@ public interface Configuration {
     public String getKeyForIndexRequestRelatedWithAttr();
 
     public String getKeyForFrequencyResults();
-    public String getKeyForFrequencyResultSize();
-    public String getKeyForFrequencyResultName();
+    public String getKeyForFrequencyResultOccurrence();
+    public String getKeyForFrequencyResultId();
     public String getKeyForFrequencyResultOverallResultsSize();
 
     public String getKeyForIndexRequestDateAttr();
