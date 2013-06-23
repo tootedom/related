@@ -14,15 +14,14 @@ public class RelatedProduct {
     private final String id;
     private final String date;
 
-    private final Set<String> relatedProductIds;
+    private final String[] relatedProductIds;
     private final Map<String,String> additionalProperties;
 
 
     public RelatedProduct(String id, String date, Set<String> relatedPids, Map<String, String> properties, Configuration config) {
         this.id = id;
         this.date = date;
-        this.relatedProductIds = new HashSet<String>(config.getMaxNumberOfRelatedProductsPerPurchase());
-        this.relatedProductIds.addAll(relatedPids);
+        this.relatedProductIds = relatedPids.toArray(new String[config.getMaxNumberOfRelatedProductsPerPurchase()]);
         additionalProperties = new HashMap<String,String>(properties);
 
     }
@@ -36,7 +35,7 @@ public class RelatedProduct {
     }
 
 
-    public Set<String> getRelatedProductPids() {
+    public String[] getRelatedProductPids() {
         return relatedProductIds;
     }
 

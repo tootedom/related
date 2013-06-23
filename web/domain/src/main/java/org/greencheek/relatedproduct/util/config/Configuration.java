@@ -46,8 +46,10 @@ public interface Configuration {
     public int getDefaultNumberOfResults();
 
     public String getStorageIndexNamePrefix();
+    public String getStorageIndexNameAlias();
     public String getStorageContentTypeName();
     public String getStorageClusterName();
+    public String getStorageFrequentlyRelatedProductsFacetResultsFacetName();
 
     public String getElasticSearchClientDefaultSettingFileName();
     public String getElasticSearchClientOverrideSettingFileName();

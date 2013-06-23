@@ -40,11 +40,9 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
         int i = 0;
         for (FrequentlyRelatedSearchResult res : results.getResults()) {
             Map<String, String> product = new HashMap<String, String>(2);
-
             product.put(configuration.getKeyForFrequencyResultOccurrence(), Long.toString(res.getFrequency()));
             product.put(configuration.getKeyForFrequencyResultId(), res.getRelatedProductId());
-            relatedProducts[i] = product;
-            i++;
+            relatedProducts[i++] = product;
         }
         resultsMap.put(configuration.getKeyForFrequencyResults(), relatedProducts);
 

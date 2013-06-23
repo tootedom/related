@@ -35,15 +35,22 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchFrequentlyRelatedProductSearchProcessor.class);
 
     private final Configuration configuration;
-    private static final String FACET_RESULT_NAME ="frequently-related-with";
+    private final String indexName;
+    private final String facetResultName;
 
     public ElasticSearchFrequentlyRelatedProductSearchProcessor(Configuration configuration) {
         this.configuration = configuration;
+        String indexNameAlias = configuration.getStorageIndexNameAlias();
+        if(indexNameAlias==null || indexNameAlias.trim().length()==0) {
+            indexName = configuration.getStorageIndexNamePrefix()+"*";
+        } else {
+            indexName = indexNameAlias;
+        }
+        this.facetResultName = configuration.getStorageFrequentlyRelatedProductsFacetResultsFacetName();
 
     }
 
-    public MultiSearchResponse executeSearch(Client elasticClient,RelatedProductSearch[] searches
-                                             ) {
+    public MultiSearchResponse executeSearch(Client elasticClient,RelatedProductSearch[] searches) {
         MultiSearchRequestBuilder multiSearch = elasticClient.prepareMultiSearch();
         for(RelatedProductSearch search : searches) {
             if(search.searchType.get() == RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
@@ -81,7 +88,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         }
         else {
             SearchResponse searchResponse = response.getSearchResponse();
-            TermsFacet f = (TermsFacet) searchResponse.getFacets().facetsAsMap().get(FACET_RESULT_NAME);
+            TermsFacet f = (TermsFacet) searchResponse.getFacets().facetsAsMap().get(facetResultName);
             List<FrequentlyRelatedSearchResult> mostFrequentItems = new ArrayList<FrequentlyRelatedSearchResult>((int)f.getTotalCount());
 
             for(TermsFacet.Entry entry : f) {
@@ -132,9 +139,11 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
             bool.must(QueryBuilders.fieldQuery(prop.name.get(),prop.value.get()));
         }
 
+        sr.setIndices(indexName);
+        sr.setSize(0);
         sr.setQuery(bool);
-        sr.addFacet(FacetBuilders.termsFacet(FACET_RESULT_NAME).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.maxResults.get()));
-
+        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.maxResults.get()));
+        log.debug("Executing Query {}",sr);
         return sr;
 
     }
