@@ -21,6 +21,7 @@ public class CopyingRelatedProductIndexMessageTranslator implements EventTransla
     private final RelatedProductIndexingMessage sourceMessageToCopy;
 
     public CopyingRelatedProductIndexMessageTranslator(RelatedProductIndexingMessage message) {
+        log.debug("is message to translate valid? {}",message.validMessage.get());
         this.sourceMessageToCopy = message;
     }
 

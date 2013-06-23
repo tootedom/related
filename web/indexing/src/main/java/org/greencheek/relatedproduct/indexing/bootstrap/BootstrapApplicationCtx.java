@@ -8,9 +8,11 @@ import org.greencheek.relatedproduct.indexing.elasticsearch.ElasticSearchRelated
 import org.greencheek.relatedproduct.indexing.jsonrequestprocessing.JsonSmartIndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.locationmappers.HourBasedStorageLocationMapper;
+import org.greencheek.relatedproduct.indexing.locationmappers.MinuteBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.RoundRobinIndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
+import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateAndHourAndMinuteFormatter;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateAndHourFormatter;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -35,7 +37,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
     {
         this.applicationConfiguration = new SystemPropertiesConfiguration();
 
-        IndexingRequestConverterFactory requestBytesConverter = new JsonSmartIndexingRequestConverterFactory(applicationConfiguration,
+        IndexingRequestConverterFactory requestBytesConverter = new JsonSmartIndexingRequestConverterFactory(
                 new JodaISO8601UTCCurrentDateAndTimeFormatter());
 
         RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(applicationConfiguration);
@@ -45,10 +47,13 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
 
         RelatedProductStorageLocationMapper locationMapper;
 
-        if(applicationConfiguration.getStorageLocationMapper().equalsIgnoreCase("day")) {
+        String storageLocationMapperType = applicationConfiguration.getStorageLocationMapper();
+        if(storageLocationMapperType.equalsIgnoreCase("day")) {
             locationMapper = new DayBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateFormatter());
-        } else {
+        } else if(storageLocationMapperType.equalsIgnoreCase("hour")) {
             locationMapper = new HourBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourFormatter());
+        } else {
+            locationMapper = new MinuteBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourAndMinuteFormatter());
         }
 
         this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,

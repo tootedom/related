@@ -34,14 +34,11 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchFrequentlyRelatedProductSearchProcessor.class);
 
-
     private final Configuration configuration;
     private static final String FACET_RESULT_NAME ="frequently-related-with";
-    private final String relatedWithFacetName;
 
     public ElasticSearchFrequentlyRelatedProductSearchProcessor(Configuration configuration) {
         this.configuration = configuration;
-        this.relatedWithFacetName = configuration.getRelatedWithFacetName();
 
     }
 
@@ -127,7 +124,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
 
         SearchRequestBuilder sr = searchClient.prepareSearch();
-        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery("id",search.relatedContentId.get()));
+        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),search.relatedContentId.get()));
 
         short numberOfProps = search.additionalSearchCriteria.numberOfProperties.get();
         for(int i = 0;i<numberOfProps;i++) {
@@ -136,7 +133,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         }
 
         sr.setQuery(bool);
-        sr.addFacet(FacetBuilders.termsFacet(FACET_RESULT_NAME).field(relatedWithFacetName).size(search.maxResults.get()));
+        sr.addFacet(FacetBuilders.termsFacet(FACET_RESULT_NAME).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.maxResults.get()));
 
         return sr;
 

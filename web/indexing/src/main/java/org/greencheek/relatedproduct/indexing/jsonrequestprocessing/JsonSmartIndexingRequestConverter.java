@@ -62,17 +62,17 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     public void convertRequestIntoIndexingMessage(RelatedProductIndexingMessage convertedTo,
                                                   short maxNumberOfAdditionalProperties) {
         convertedTo.validMessage.set(true);
-        convertedTo.purchaseDate.set((String) object.get(dateKey));
+        convertedTo.date.set((String) object.get(dateKey));
         Object products = object.get(productKey);
         parseProductArray(convertedTo,products,maxNumberOfAdditionalProperties);
         Object tmpProduct = object.remove(productKey);
         Object tmpDate = object.remove(dateKey);
         Object tmpId = object.remove(idKey);
-        parseAdditionalProperties(convertedTo.additionalProperties,object,maxNumberOfAdditionalProperties);
+        parseAdditionalProperties(convertedTo.additionalProperties, object, maxNumberOfAdditionalProperties);
         object.put(idKey,tmpId);
         object.put(dateKey,tmpDate);
-        object.put(productKey,tmpProduct);
-
+        object.put(productKey, tmpProduct);
+        log.debug("valid converted message?: {}",convertedTo.validMessage.get());
     }
 
     private void parseAdditionalProperties(RelatedProductAdditionalProperties properties,JSONObject map, short maxPropertiesThanCanBeRead) {

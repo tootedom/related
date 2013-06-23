@@ -20,7 +20,6 @@ import javax.inject.Named;
  * Time: 14:05
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProcessorFactory{
 
     private final IndexingRequestConverterFactory requestBytesConverter;
@@ -29,7 +28,6 @@ public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProce
     private final RelatedProductStorageRepositoryFactory repoFactory;
     private final RelatedProductStorageLocationMapper locationMapper;
 
-    @Inject
     public RoundRobinIndexRequestProcessorFactory(IndexingRequestConverterFactory requestBytesConverter,
                                                   RelatedProductIndexingMessageFactory indexingMessageFactory,
                                                   RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter,

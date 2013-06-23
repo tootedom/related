@@ -98,7 +98,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchRepository createSearchRepository() {
-        return new ElasticSearchRelatedProductSearchRepository(config,new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        return new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
     }
 
 

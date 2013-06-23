@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.indexing.locationmappers;
 
-import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.util.UTCCurrentDateAndHourFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -24,7 +24,7 @@ public class HourBasedStorageLocationMapper implements RelatedProductStorageLoca
         this.indexPrefixName = s.endsWith("-") ? s : s + "-";
         currentDayFormatter = dateFormatter;
 
-        indexNameSize = indexPrefixName.length() + 10;
+        indexNameSize = indexPrefixName.length() + 13;
 
     }
 

@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProduct;
 
 import java.util.Set;
 

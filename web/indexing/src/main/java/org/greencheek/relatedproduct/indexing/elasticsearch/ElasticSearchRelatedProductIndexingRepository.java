@@ -5,7 +5,7 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
@@ -32,7 +32,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
 
 
     private final String indexType;
-    private final String facetName;
+    private final String relatedWithAttributeName;
 
     private final String idAttributeName;
     private final String dateAttributeName;
@@ -47,7 +47,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
         this.indexType = configuration.getStorageContentTypeName();
         this.idAttributeName = configuration.getKeyForIndexRequestIdAttr();
         this.dateAttributeName = configuration.getKeyForIndexRequestDateAttr();
-        this.facetName = configuration.getRelatedWithFacetName();
+        this.relatedWithAttributeName = configuration.getKeyForIndexRequestRelatedWithAttr();
         this.elasticSearchClientFactory = factory;
         this.elasticClient = elasticSearchClientFactory.getClient();
     }
@@ -81,7 +81,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
             XContentBuilder builder = jsonBuilder().startObject()
                     .field(idAttributeName, product.getId())
                     .field(dateAttributeName, product.getDate())
-                    .array(facetName, product.getRelatedProductPids());
+                    .array(relatedWithAttributeName, product.getRelatedProductPids());
 
             for(Map.Entry<String,String> property : product.getAdditionalProperties().entrySet()) {
                 builder.field(property.getKey(),property.getValue());

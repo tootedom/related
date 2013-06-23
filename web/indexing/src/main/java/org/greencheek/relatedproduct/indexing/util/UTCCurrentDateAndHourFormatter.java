@@ -13,13 +13,13 @@ package org.greencheek.relatedproduct.indexing.util;
  */
 public interface UTCCurrentDateAndHourFormatter {
     /**
-     * returns the current day in year, month, day and hour:  yyyy-MM-dd'T'HH ie. 2013-05-30T01  (30th May 2013 1am)
+     * returns the current day in year, month, day and hour:  yyyy-MM-dd'_'HH ie. 2013-05-30_01  (30th May 2013 1am)
      * The date returned is in UTC
      */
     String getCurrentDayAndHour();
 
     /**
-     * Parses the current date string, into a yyyy-MM-dd'T'HH ie. 2013-05-30T01
+     * Parses the current date string, into a yyyy-MM-dd'_'HH ie. 2013-05-30_01
      * The returned date is in UTC
      */
     String parseToDateAndHour(String dateAndOrTime);

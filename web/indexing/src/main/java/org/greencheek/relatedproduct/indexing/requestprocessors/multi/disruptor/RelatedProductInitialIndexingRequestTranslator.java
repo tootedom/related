@@ -26,15 +26,6 @@ public class RelatedProductInitialIndexingRequestTranslator implements EventTran
 
     @Override
     public void translateTo(RelatedProductIndexingMessage event, long sequence) {
-
-        event.validMessage.set(true);
-        try {
-            requestConverter.convertRequestIntoIndexingMessage(event,maxNumberOfProductRelatedProperties);
-        } finally {
-            event.validMessage.set(false);
-        }
-
-
-
+        requestConverter.convertRequestIntoIndexingMessage(event,maxNumberOfProductRelatedProperties);
     }
 }

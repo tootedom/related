@@ -29,7 +29,7 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
     public JSONObject createJson(FrequentlyRelatedSearchResults results) {
         JSONObject object = new JSONObject();
         int resultsSize = results.getNumberOfResults();
-        object.put(configuration.getKeyForFrequencyResultOverallResultsSize(),resultsSize);
+        object.put(configuration.getKeyForFrequencyResultOverallResultsSize(),Integer.valueOf(resultsSize));
 
         if(resultsSize==0) {
             object.put(configuration.getKeyForFrequencyResults(),new JSONArray());
@@ -37,7 +37,7 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
             JSONArray array = new JSONArray();
             for(FrequentlyRelatedSearchResult res : results.getResults()) {
                 JSONObject result = new JSONObject();
-                result.put(configuration.getKeyForFrequencyResultSize(),res.getFrequency());
+                result.put(configuration.getKeyForFrequencyResultSize(),Long.valueOf(res.getFrequency()));
                 result.put(configuration.getKeyForFrequencyResultName(),res.getRelatedProductId());
                 array.add(result);
             }

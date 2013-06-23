@@ -22,7 +22,7 @@ public class JsonSmartIndexingRequestConverterFactory implements IndexingRequest
     private final ISO8601UTCCurrentDateAndTimeFormatter dateCreator;
 
     @Inject
-    public JsonSmartIndexingRequestConverterFactory(Configuration configuration,ISO8601UTCCurrentDateAndTimeFormatter formatter) {
+    public JsonSmartIndexingRequestConverterFactory(ISO8601UTCCurrentDateAndTimeFormatter formatter) {
         this.dateCreator = formatter;
     }
 

@@ -15,14 +15,14 @@ public class RelatedProductIndexingMessage extends Struct {
 
     public final Bool validMessage;
     public final RelatedProductSet relatedProducts;
-    public final UTF8String purchaseDate;
+    public final UTF8String date;
     public final RelatedProductAdditionalProperties additionalProperties;
 
 
     public RelatedProductIndexingMessage(Configuration config) {
         validMessage = new Bool();
         relatedProducts = inner(new RelatedProductSet(config));
-        purchaseDate = new UTF8String(28);
+        date = new UTF8String(28);
         additionalProperties = inner(new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties()));
 
     }

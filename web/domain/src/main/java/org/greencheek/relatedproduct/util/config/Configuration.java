@@ -29,7 +29,7 @@ public interface Configuration {
 
     public int getNumberOfExpectedLikeForLikeRequests();
 
-    public String getRelatedWithFacetName();
+    public String getKeyForIndexRequestRelatedWithAttr();
 
     public String getKeyForFrequencyResults();
     public String getKeyForFrequencyResultSize();

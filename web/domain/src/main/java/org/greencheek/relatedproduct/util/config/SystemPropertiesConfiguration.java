@@ -31,7 +31,6 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static short MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty("related-product.max.number.of.search.criteria.for.related.content", "10"));
     private final static int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty("related-product.number.of.expected.like.for.like.requests", "10"));
 
-    private final static String RELATED_WITH_FACET_NAME = System.getProperty("related-product.related.with.facet.name","related-with");
     private final static String KEY_FOR_FREQUENCY_RESULT_NAME = System.getProperty("related-product.key.for.frequency.result.name","id");
     private final static String KEY_FOR_FREQUENCY_RESULT_SIZE = System.getProperty("related-product.key.for.frequency.result.name","frequency");
     private final static String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS = System.getProperty("related-product.key.for.frequency.result.name","size");
@@ -44,14 +43,15 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final static int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.response.processing.queue","2048"));
 
-    private final static short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
+    private final static short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","4"));
 
-    private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","2"));
+    private final static short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","4"));
 
     private final static String STORAGE_INDEX_NAME_PREFIX = System.getProperty("related-product.storage.index.name.prefix","relatedproducts-");
     private final static String STORAGE_CONTENT_TYPE_NAME = System.getProperty("related-product.storage.content.type.name","relatedproduct");
     private final static String STORAGE_CLUSTER_NAME = System.getProperty("related-product.storage.cluster.name","relatedproducts");
 
+    private final static String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = System.getProperty("related-product.key.for.index.request.related.with.attr","related-with");
     private final static String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty("related-product.key.for.index.request.date.attr","date");
     private final static String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty("related-product.key.for.index.request.id.attr","id");
     private final static String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty("related-product.key.for.index.request.product.array.attr","products");
@@ -59,7 +59,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final static String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
     private final static String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
 
-    // can be "day|hour"
+    // can be "day|hour|minute"
     private final static String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
 
 
@@ -95,10 +95,6 @@ public class SystemPropertiesConfiguration implements Configuration {
         return NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS;
     }
 
-    @Override
-    public String getRelatedWithFacetName() {
-        return RELATED_WITH_FACET_NAME;
-    }
 
     @Override
     public String getKeyForFrequencyResultSize() {
@@ -120,6 +116,12 @@ public class SystemPropertiesConfiguration implements Configuration {
     public String getKeyForFrequencyResultOverallResultsSize() {
         return KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_REALTED_PRODUCTS;
     }
+
+    @Override
+    public String getKeyForIndexRequestRelatedWithAttr() {
+        return KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR;
+    }
+
 
     @Override
     public String getKeyForIndexRequestDateAttr() {

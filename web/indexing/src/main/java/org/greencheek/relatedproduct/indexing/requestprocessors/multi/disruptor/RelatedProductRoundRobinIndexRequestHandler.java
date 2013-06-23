@@ -8,7 +8,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
-import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.RingBufferIndexRequestHandler;
@@ -74,8 +74,17 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
 
     @Override
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {
-        log.debug("handing off request to indexing processor");
-        disruptors[nextDisruptor++ & mask].publishEvent(new CopyingRelatedProductIndexMessageTranslator(request));
+
+        try {
+            if(request.validMessage.get()) {
+                log.debug("handing off request to indexing processor");
+                disruptors[nextDisruptor++ & mask].publishEvent(new CopyingRelatedProductIndexMessageTranslator(request));
+            } else {
+                log.info("indexing message not valid.  ignoring. potential related products: {}", request.relatedProducts.numberOfRelatedProducts);
+            }
+        } finally {
+            request.validMessage.set(false);
+        }
     }
 
 

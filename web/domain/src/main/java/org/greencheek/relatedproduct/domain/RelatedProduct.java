@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.domain;
+package org.greencheek.relatedproduct.domain;
 
 
 import org.greencheek.relatedproduct.util.config.Configuration;

@@ -1,10 +1,8 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import org.greencheek.relatedproduct.searching.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.*;
 
 /**
@@ -40,7 +38,7 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
             id.additionalProperties.convertTo(properties);
             message.additionalProperties.convertTo(properties);
 
-            relatedProducts.add(new RelatedProduct(id.id.get(),message.purchaseDate.get(),relatedIds,properties,configuration));
+            relatedProducts.add(new RelatedProduct(id.id.get(),message.date.get(),relatedIds,properties,configuration));
         }
 
         return relatedProducts;

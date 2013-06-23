@@ -26,22 +26,12 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedProductSearchRepository.class);
 
-    private static final String INDEX_ALIAS_NAME = "relatedpurchases";
-    private static final String INDEX_TYPE = "relatedproduct";
-
-    private static final String FACET_RESULT_NAME ="frequently-related-with";
-    private final String relatedWithFacetName;
-
     private final ElasticSearchClientFactory elasticSearchClientFactory;
     private final Client elasticClient;
-    private final Configuration configuration;
     private final ElasticSearchFrequentlyRelatedProductSearchProcessor frequentlyRelatedWithSearchBuilder;
 
-    public ElasticSearchRelatedProductSearchRepository(Configuration configuration,
-                                                       ElasticSearchClientFactory searchClientFactory,
+    public ElasticSearchRelatedProductSearchRepository(ElasticSearchClientFactory searchClientFactory,
                                                        ElasticSearchFrequentlyRelatedProductSearchProcessor builder) {
-        this.configuration = configuration;
-        this.relatedWithFacetName = configuration.getRelatedWithFacetName();
         this.elasticSearchClientFactory = searchClientFactory;
         this.elasticClient = elasticSearchClientFactory.getClient();
         this.frequentlyRelatedWithSearchBuilder = builder;
