@@ -75,6 +75,7 @@ public class RelatedProductSearchFactory {
     public static void main(String[] args) {
         Configuration config = new SystemPropertiesConfiguration();
         RelatedProductSearch obj = new RelatedProductSearch(config);
+        obj.setByteBuffer(ByteBuffer.allocate(obj.size()),0);
         Map<String,String> ob = new HashMap<String,String>() {{
             put("id","8676");
         }};
@@ -118,7 +119,9 @@ public class RelatedProductSearchFactory {
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
         System.out.println(obj.additionalSearchCriteria.toString(config));
 
-        System.out.println(obj.getLookupKey(config));
+        System.out.println(obj.getLookupKey(config) + ""  + Math.ceil(3 / 0.75));
+
+
 
     }
 }

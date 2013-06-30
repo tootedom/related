@@ -106,7 +106,7 @@ public class RelatedProductSearchServlet extends HttpServlet {
     }
 
     private Map<String,String> convertToFirstParameterValueMap(Map<String,String[]> params) {
-        Map<String,String> parms = new HashMap<String,String>(params.size());
+        Map<String,String> parms = new HashMap<String,String>((int)Math.ceil(params.size()/0.75));
         for(String key : params.keySet()) {
             String[] values = params.get(key);
             if(values!=null && values.length>0) {

@@ -38,13 +38,13 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
         int resultsSize = results.getNumberOfResults();
         if(resultsSize==0) return createEmptyJson();
 
-        Map<String,Object> resultsMap = new HashMap<String,Object>(2 + (resultsSize*2));
+        Map<String,Object> resultsMap = new HashMap<String,Object>((int)Math.ceil((2 + (resultsSize*2))/0.75));
         resultsMap.put(configuration.getKeyForFrequencyResultOverallResultsSize(),Integer.toString(resultsSize));
 
         Map<String, String>[] relatedProducts = new HashMap[resultsSize];
         int i = 0;
         for (FrequentlyRelatedSearchResult res : results.getResults()) {
-            Map<String, String> product = new HashMap<String, String>(2);
+            Map<String, String> product = new HashMap<String, String>(3);
 
             product.put(configuration.getKeyForFrequencyResultOccurrence(), Long.toString(res.getFrequency()));
             product.put(configuration.getKeyForFrequencyResultId(), res.getRelatedProductId());
@@ -58,7 +58,7 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
     }
 
     private Map<String,Object> createEmptyJson() {
-        Map<String,Object> resultsMap = new HashMap<String,Object>(2);
+        Map<String,Object> resultsMap = new HashMap<String,Object>(4);
         resultsMap.put(configuration.getKeyForFrequencyResultOverallResultsSize(),"0");
         resultsMap.put(configuration.getKeyForFrequencyResults(),new String[0]);
         return resultsMap;

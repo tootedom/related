@@ -16,15 +16,14 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
@@ -51,7 +50,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
             indexName = indexNameAlias;
         }
         this.facetResultName = configuration.getStorageFrequentlyRelatedProductsFacetResultsFacetName();
-        this.searchTimeout = configuration.setFrequentlyRelatedProductsSearchTimeout();
+        this.searchTimeout = configuration.getFrequentlyRelatedProductsSearchTimeoutInMillis();
 
     }
 
@@ -63,7 +62,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
             }
         }
         log.debug("executing searches");
-        return multiSearch.execute().actionGet();
+        return multiSearch.execute().actionGet(searchTimeout, TimeUnit.MILLISECONDS);
     }
 
     public Map<SearchRequestLookupKey,SearchResultsEvent> processMultiSearchResponse(RelatedProductSearch[] searches,MultiSearchResponse searchResponse) {
@@ -78,7 +77,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         }
 
         int numOfSearches = searches.length;
-        Map<SearchRequestLookupKey,SearchResultsEvent> results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>(searches.length);
+        Map<SearchRequestLookupKey,SearchResultsEvent> results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(searches.length/0.75));
         for(int i=0;i<numOfSearches;i++) {
             results.put(searches[i].getLookupKey(configuration),frequentlyRelatedWithResultsConverter(responses.get(i)));
         }
@@ -88,7 +87,9 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
     private SearchResultsEvent frequentlyRelatedWithResultsConverter(ElasticSearchResponse response) {
         final FrequentlyRelatedSearchResults results;
+        SearchResultsOutcomeType outcome;
         if(response.isFailure()) {
+            outcome = SearchResultsOutcomeType.FAILED_REQUEST;
             results = FrequentlyRelatedSearchResults.EMPTY_RESULTS;
         }
         else {
@@ -96,18 +97,24 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
             TermsFacet f = (TermsFacet) searchResponse.getFacets().facetsAsMap().get(facetResultName);
             List<TermsFacet.Entry> facets = (List<TermsFacet.Entry>) f.getEntries();
             int noOfFacets = facets==null ? 0 : facets.size();
-            FrequentlyRelatedSearchResult[] mostFrequentItems = new FrequentlyRelatedSearchResult[noOfFacets];
+            if(noOfFacets!=0) {
+                FrequentlyRelatedSearchResult[] mostFrequentItems = new FrequentlyRelatedSearchResult[noOfFacets];
 
-            while(noOfFacets--!=0) {
-                TermsFacet.Entry entry = facets.get(noOfFacets);
-                mostFrequentItems[noOfFacets] = new FrequentlyRelatedSearchResult(entry.getTerm().string(), entry.getCount());
+                while(noOfFacets--!=0) {
+                    TermsFacet.Entry entry = facets.get(noOfFacets);
+                    mostFrequentItems[noOfFacets] = new FrequentlyRelatedSearchResult(entry.getTerm().string(), entry.getCount());
+                }
+                results = new FrequentlyRelatedSearchResults(mostFrequentItems);
+                outcome = SearchResultsOutcomeType.HAS_RESULTS;
+            } else {
+                outcome = SearchResultsOutcomeType.EMPTY_RESULTS;
+                results = FrequentlyRelatedSearchResults.EMPTY_RESULTS;
             }
 
-            results = new FrequentlyRelatedSearchResults(mostFrequentItems);
         }
 
-        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,results);
-//        return new JsonFrequentlyRelatedSearchResultsConverter(configuration,results);
+        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,
+                                      outcome,results);
 
     }
 

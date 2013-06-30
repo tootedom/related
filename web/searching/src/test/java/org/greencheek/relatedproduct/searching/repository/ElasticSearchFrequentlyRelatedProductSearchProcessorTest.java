@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
@@ -104,6 +105,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
     private RelatedProductSearch createChannelSearch(String channel, String id) {
         RelatedProductSearch search = new RelatedProductSearch(configuration);
+        search.setByteBuffer(ByteBuffer.allocate(search.size()),0);
         search.relatedContentId.set(id);
         search.searchType.set(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
 
@@ -117,6 +119,8 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
     private RelatedProductSearch createIdSearch(String id) {
         RelatedProductSearch search = new RelatedProductSearch(configuration);
+        search.setByteBuffer(ByteBuffer.allocate(search.size()),0);
+
         search.relatedContentId.set(id);
         search.searchType.set(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
         search.additionalSearchCriteria.numberOfProperties.set((short)0);

@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.repository;
 
+import org.elasticsearch.ElasticSearchTimeoutException;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
@@ -51,13 +52,23 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
         try {
             sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
             results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
-        } catch(Exception searchException) {
+        } catch(ElasticSearchTimeoutException timeoutException) {
+            log.warn("Timeout exception executing search request: ",timeoutException);
             int size = searches.length;
-            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>(size);
-            int i = size+1;
+            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
+            int i = size;
             while(i--!=0) {
                 SearchRequestLookupKey key = searches[i].getLookupKey(configuration);
-                results.put(key,SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS);
+                results.put(key,SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS);
+            }
+        } catch(Exception searchException) {
+            log.warn("Exception executing search request: ",searchException);
+            int size = searches.length;
+            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
+            int i = size;
+            while(i--!=0) {
+                SearchRequestLookupKey key = searches[i].getLookupKey(configuration);
+                results.put(key,SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS);
             }
 
         }

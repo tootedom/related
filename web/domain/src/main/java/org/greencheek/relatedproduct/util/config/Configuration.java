@@ -57,5 +57,13 @@ public interface Configuration {
 
     public String getStorageLocationMapper();
 
-    public long setFrequentlyRelatedProductsSearchTimeout();
+    public long getFrequentlyRelatedProductsSearchTimeoutInMillis();
+
+
+    public int getTimedOutSearchRequestStatusCode();
+    public int getFailedSearchRequestStatusCode();
+    public int getNoFoundSearchResultsStatusCode();
+    public int getFoundSearchResultsStatusCode();
+
+
 }

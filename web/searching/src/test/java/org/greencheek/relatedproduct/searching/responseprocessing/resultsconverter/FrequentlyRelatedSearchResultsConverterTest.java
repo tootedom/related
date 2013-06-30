@@ -5,6 +5,7 @@ import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchRes
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
             FrequentlyRelatedSearchResult result = new FrequentlyRelatedSearchResult(UUID.randomUUID().toString(),i+10);
             resultList[i] = result;
         }
-        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,new FrequentlyRelatedSearchResults(resultList));
+        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.HAS_RESULTS,new FrequentlyRelatedSearchResults(resultList));
     }
 
     public abstract SearchResultsConverter getConverter();

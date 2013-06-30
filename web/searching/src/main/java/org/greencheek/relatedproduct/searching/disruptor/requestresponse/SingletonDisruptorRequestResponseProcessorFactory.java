@@ -22,20 +22,18 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  */
 public class SingletonDisruptorRequestResponseProcessorFactory implements RelatedProductSearchRequestResponseProcessorFactory{
 
-    private final Configuration config;
     private final DisruptorBasedRequestResponseProcessor processor;
     private final AsyncContextLookup asyncContextLookup;
     private final RelatedProductSearchResultsResponseProcessor searchResultsResponseProcessor;
 
     public SingletonDisruptorRequestResponseProcessorFactory(Configuration configuration) {
-        this.config = configuration;
-        this.asyncContextLookup = new MultiMapAsyncContextLookup(config);
+        this.asyncContextLookup = new MultiMapAsyncContextLookup(configuration);
         this.searchResultsResponseProcessor = new DisruptorBasedResponseProcessor(new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config)))),
-                                                                                  config);
+                new HttpBasedRelatedProductSearchResultsResponseProcessor(configuration,new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(configuration)))),
+                configuration);
 
-        processor = new DisruptorBasedRequestResponseProcessor(new DisruptorBasedSearchEventHandler(config,asyncContextLookup,searchResultsResponseProcessor),
-                                                               config);
+        processor = new DisruptorBasedRequestResponseProcessor(new DisruptorBasedSearchEventHandler(configuration,asyncContextLookup,searchResultsResponseProcessor),
+                configuration);
 
     }
 

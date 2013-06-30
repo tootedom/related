@@ -1,9 +1,11 @@
 package org.greencheek.relatedproduct.searching.responseprocessing;
 
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
+import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +27,13 @@ import java.util.List;
 public class HttpBasedRelatedProductSearchResultsResponseProcessor implements RelatedProductSearchResultsResponseProcessor {
     private static final Logger log = LoggerFactory.getLogger(HttpBasedRelatedProductSearchResultsResponseProcessor.class);
 
-    private SearchResultsConverterFactory converterLookup;
+    private final SearchResultsConverterFactory converterLookup;
+    private final Configuration configuration;
 
-    public HttpBasedRelatedProductSearchResultsResponseProcessor(SearchResultsConverterFactory factory) {
+    public HttpBasedRelatedProductSearchResultsResponseProcessor(Configuration configuration,
+                                                                 SearchResultsConverterFactory factory) {
         this.converterLookup = factory;
+        this.configuration = configuration;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
 
         String response = converter.convertToString(results);
         String contentType = converter.contentType();
-
+        int statusCode = getStatusCode(results.getOutcomeType());
         log.debug("Sending search results to {} waiting requests",context.length);
         for(AsyncContext ctx : context) {
             HttpServletResponse r = null;
@@ -66,7 +71,7 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
 
 
                 r = (HttpServletResponse)ctx.getResponse();
-                r.setStatus(200);
+                r.setStatus(statusCode);
                 r.setContentType(contentType);
                 r.getWriter().write(response);
             } catch (IOException e) {
@@ -80,6 +85,16 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
                     log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred");
                 }
             }
+        }
+    }
+
+    private int getStatusCode(SearchResultsOutcomeType type) {
+        switch (type) {
+            case EMPTY_RESULTS: return configuration.getNoFoundSearchResultsStatusCode();
+            case FAILED_REQUEST: return configuration.getFailedSearchRequestStatusCode();
+            case REQUEST_TIMEOUT: return configuration.getTimedOutSearchRequestStatusCode();
+            case HAS_RESULTS: return configuration.getFoundSearchResultsStatusCode();
+            default : return configuration.getFoundSearchResultsStatusCode();
         }
     }
 

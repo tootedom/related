@@ -37,13 +37,13 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     private final Configuration config;
     private final SearchRequestParameterValidatorLocator validatorLocator;
     private final RelatedContentSearchRequestProcessorHandlerFactory searchRequestProcessorHandlerFactory;
-//    private final RelatedProductSearchRepository searchRepository;
+    private final RelatedProductSearchRepository searchRepository;
 
     public BootstrapApplicationContext() {
         this.config = new SystemPropertiesConfiguration();
         this.validatorLocator = new MapBasedSearchRequestParameterValidatorLookup(config);
         this.searchRequestProcessorHandlerFactory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
-//        this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
 
 
     }
@@ -84,7 +84,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     @Override
     public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient() {
         return new DisruptorBasedResponseProcessor(new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(createSearchResultsConverterFactory())),config);
+                new HttpBasedRelatedProductSearchResultsResponseProcessor(config,createSearchResultsConverterFactory())),config);
 
     }
 
@@ -105,8 +105,8 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchRepository createSearchRepository() {
-//        return searchRepository;
-        return new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        return searchRepository;
+//        return new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
     }
 
     @Override

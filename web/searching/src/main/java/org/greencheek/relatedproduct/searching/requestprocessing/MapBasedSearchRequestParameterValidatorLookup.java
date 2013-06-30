@@ -18,7 +18,7 @@ import java.util.Map;
 @Named
 public class MapBasedSearchRequestParameterValidatorLookup implements  SearchRequestParameterValidatorLocator {
 
-    private final Map<RelatedProductSearchType,SearchRequestParameterValidator> validatorMap = new HashMap<RelatedProductSearchType,SearchRequestParameterValidator>(1);
+    private final Map<RelatedProductSearchType,SearchRequestParameterValidator> validatorMap = new HashMap<RelatedProductSearchType,SearchRequestParameterValidator>(2);
 
     @Inject
     public MapBasedSearchRequestParameterValidatorLookup(Configuration configuration) {

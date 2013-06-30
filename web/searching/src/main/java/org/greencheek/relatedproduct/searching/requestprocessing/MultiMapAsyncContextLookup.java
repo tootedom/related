@@ -30,7 +30,7 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
     @Inject
     public MultiMapAsyncContextLookup(Configuration config) {
-        contexts = new HashMap<SearchRequestLookupKey, List<AsyncContext>>(config.getSizeOfRelatedContentSearchRequestAndResponseQueue());
+        contexts = new HashMap<SearchRequestLookupKey, List<AsyncContext>>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
         expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
     }
 

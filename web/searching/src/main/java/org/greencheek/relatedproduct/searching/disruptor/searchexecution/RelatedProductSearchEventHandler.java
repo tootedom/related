@@ -8,7 +8,9 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +35,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
         this.searchRespository = searcher;
         this.configuration = config;
         this.searchResultsHandler = handler;
-        this.searchMap = new HashMap<SearchRequestLookupKey, RelatedProductSearch>(configuration.getSizeOfRelatedContentSearchRequestHandlerQueue());
+        this.searchMap = new HashMap<SearchRequestLookupKey, RelatedProductSearch>((int)Math.ceil(configuration.getSizeOfRelatedContentSearchRequestHandlerQueue()/0.75));
     }
 
     @Override
@@ -50,14 +52,15 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
                 // We already have the given search ready to process.
                 // Just return
                 log.debug("Search for key {} , is already being executed",key.toString());
-                return;
             }
-
 
             if(endOfBatch) {
                 try {
                     RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
-                    searches = searchMap.values().toArray(searches);
+                    int i =0;
+                    for(RelatedProductSearch r :  searchMap.values()) {
+                        searches[i++] = r;
+                    }
                     searchRespository.findRelatedProducts(configuration,searches,searchResultsHandler);
                 } finally {
                     searchMap.clear();

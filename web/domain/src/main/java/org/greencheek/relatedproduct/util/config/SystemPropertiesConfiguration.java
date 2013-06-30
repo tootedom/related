@@ -60,10 +60,17 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
     private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
 
-    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT = Long.valueOf(System.getProperty("related-product.frequently.related.search.timeout", "2000"));
+    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = Long.valueOf(System.getProperty("related-product.frequently.related.search.timeout.in.millis", "5000"));
 
     // can be "day|hour|minute"
     private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
+
+    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.timed.out.search.request.status.code","504"));
+    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","500"));
+    private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.no.found.search.request.status.code","404"));
+    private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.found.search.request.status.code","200"));
+
+
 
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
@@ -197,8 +204,28 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public long setFrequentlyRelatedProductsSearchTimeout() {
-        return FREQUENTLY_RELATED_SEARCH_TIMEOUT;
+    public long getFrequentlyRelatedProductsSearchTimeoutInMillis() {
+        return FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS;
+    }
+
+    @Override
+    public int getTimedOutSearchRequestStatusCode() {
+        return TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
+    }
+
+    @Override
+    public int getFailedSearchRequestStatusCode() {
+        return FAILED_SEARCH_REQUEST_STATUS_CODE;
+    }
+
+    @Override
+    public int getNoFoundSearchResultsStatusCode() {
+        return NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
+    }
+
+    @Override
+    public int getFoundSearchResultsStatusCode() {
+        return FOUND_SEARCH_REQUEST_STATUS_CODE;
     }
 
     @Override

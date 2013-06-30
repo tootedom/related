@@ -34,7 +34,7 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
             RelatedProductInfo id = productInfos.get(length);
             Set<String> relatedIds = new HashSet<String>(ids);
             relatedIds.remove(id.id.get());
-            Map<String,String> properties = new HashMap<String,String>(message.additionalProperties.numberOfProperties.get()+id.additionalProperties.numberOfProperties.get());
+            Map<String,String> properties = new HashMap<String,String>((int)Math.ceil((message.additionalProperties.numberOfProperties.get()+id.additionalProperties.numberOfProperties.get())/0.75));
             id.additionalProperties.convertTo(properties);
             message.additionalProperties.convertTo(properties);
 

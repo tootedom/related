@@ -35,7 +35,7 @@ public class PrototypeDisruptorRequestResponseProcessFactory implements RelatedP
         AsyncContextLookup ctxStorage =  new MultiMapAsyncContextLookup(config);
 
         EventHandler<ResponseEvent> searchResultsHandler  = new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config))));
+                new HttpBasedRelatedProductSearchResultsResponseProcessor(config,new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config))));
 
         RelatedProductSearchResultsResponseProcessor searchResultsProcessor = new DisruptorBasedResponseProcessor(searchResultsHandler,config);
 
