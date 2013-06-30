@@ -5,6 +5,8 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import java.util.HashMap;
@@ -18,6 +20,9 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class RelatedProductSearchRequestTranslator implements EventTranslator<RelatedProductSearchRequest> {
+
+    private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchRequestTranslator.class);
+
 
     private final AsyncContext clientCtx;
     private final Map<String,String> parameters;
@@ -38,6 +43,8 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
 //        event.setRequestType(searchRequestType);
         event.setRequestContext(clientCtx);
         RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
+
+        log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(configuration),parameters);
 
 //        event.setRequestProperties(parameters);
     }

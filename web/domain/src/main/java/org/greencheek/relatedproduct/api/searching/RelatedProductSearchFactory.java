@@ -1,8 +1,12 @@
 package org.greencheek.relatedproduct.api.searching;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -13,6 +17,8 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class RelatedProductSearchFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchFactory.class);
 
 
     public static RelatedProductSearch createSearchObject(Configuration configuration) {
@@ -46,14 +52,14 @@ public class RelatedProductSearchFactory {
 
         objectToPopulate.relatedContentId.set(properties.get(idKey));
 
-        int maxPropertiesToCopy = Math.min(objectToPopulate.additionalSearchCriteria.numberOfProperties.get(),properties.size());
-
+        short maxPropertiesToCopy = (short)Math.min(objectToPopulate.additionalSearchCriteria.additionalProperties.length,properties.size());
+        log.debug("max properties to copy {}, from properties {}",maxPropertiesToCopy,properties);
         short i=0;
         for(Map.Entry<String,String> entry : properties.entrySet()) {
+            if(i==maxPropertiesToCopy) break;
             String key = entry.getKey();
             if(key.equals(sizeKey) || key.equals(idKey)) continue;
 
-            if(i==maxPropertiesToCopy-1) break;
             objectToPopulate.additionalSearchCriteria.additionalProperties[i].name.set(key);
             objectToPopulate.additionalSearchCriteria.additionalProperties[i].value.set(entry.getValue());
             i++;
@@ -64,5 +70,55 @@ public class RelatedProductSearchFactory {
         objectToPopulate.searchType.set(type);
 
         objectToPopulate.validMessage.set(true);
+    }
+
+    public static void main(String[] args) {
+        Configuration config = new SystemPropertiesConfiguration();
+        RelatedProductSearch obj = new RelatedProductSearch(config);
+        Map<String,String> ob = new HashMap<String,String>() {{
+            put("id","8676");
+        }};
+
+        populateSearchObject(config,obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config, obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config, obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config, obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config,obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config,obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config,obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.getLookupKey(config));
+        populateSearchObject(config,obj,
+                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
+        System.out.println(obj.additionalSearchCriteria.numberOfProperties);
+        System.out.println(obj.additionalSearchCriteria.toString(config));
+
+        System.out.println(obj.getLookupKey(config));
+
     }
 }

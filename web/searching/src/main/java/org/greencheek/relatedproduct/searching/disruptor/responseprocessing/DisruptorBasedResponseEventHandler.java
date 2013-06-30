@@ -16,15 +16,10 @@ import javax.inject.Inject;
  */
 public class DisruptorBasedResponseEventHandler implements EventHandler<ResponseEvent> {
 
-
-    private final Configuration config;
     private final RelatedProductSearchResultsResponseProcessor resultsResponseProcessor;
 
-    @Inject
-    public DisruptorBasedResponseEventHandler(Configuration config,
-                                              RelatedProductSearchResultsResponseProcessor resultsProcessor)
+    public DisruptorBasedResponseEventHandler(RelatedProductSearchResultsResponseProcessor resultsProcessor)
     {
-        this.config = config;
         this.resultsResponseProcessor = resultsProcessor;
 
     }

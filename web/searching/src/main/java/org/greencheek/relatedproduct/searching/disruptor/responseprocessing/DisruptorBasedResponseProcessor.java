@@ -1,12 +1,15 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -44,7 +47,7 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
         disruptor = new Disruptor<ResponseEvent>(
                 ResponseEvent.FACTORY,
                 configuration.getSizeOfResponseProcessingQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.SINGLE, new BlockingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
@@ -74,7 +77,7 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
     }
 
     @Override
-    public void processSearchResults(List<AsyncContext> context, SearchResultsConverter results) {
+    public void processSearchResults(AsyncContext[] context, SearchResultsEvent results) {
         disruptor.publishEvent(new SearchResponseEventTranslator(context,results));
     }
 }

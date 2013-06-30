@@ -35,8 +35,14 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
     }
 
     @Override
-    public List<AsyncContext> removeContexts(SearchRequestLookupKey key) {
-        return contexts.remove(key);
+    public AsyncContext[] removeContexts(SearchRequestLookupKey key) {
+        List<AsyncContext> ctxs = contexts.remove(key);
+        if(ctxs==null) {
+            return new AsyncContext[0];
+        }
+        else {
+           return ctxs.toArray(new AsyncContext[ctxs.size()]);
+        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.searching.domain.api;
 
 import com.lmax.disruptor.EventFactory;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
 import java.util.List;
@@ -14,8 +13,8 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class ResponseEvent {
-    private List<AsyncContext> context;
-    private SearchResultsConverter results;
+    private AsyncContext[] context;
+    private SearchResultsEvent results;
 
 
     public final static EventFactory<ResponseEvent> FACTORY = new EventFactory<ResponseEvent>()
@@ -27,19 +26,19 @@ public class ResponseEvent {
         }
     };
 
-    public List<AsyncContext> getContext() {
+    public AsyncContext[] getContext() {
         return context;
     }
 
-    public void setContext(List<AsyncContext> context) {
+    public void setContext(AsyncContext[] context) {
         this.context = context;
     }
 
-    public SearchResultsConverter getResults() {
+    public SearchResultsEvent getResults() {
         return results;
     }
 
-    public void setResults(SearchResultsConverter results) {
+    public void setResults(SearchResultsEvent results) {
         this.results = results;
     }
 }

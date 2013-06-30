@@ -16,6 +16,8 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
@@ -44,6 +46,8 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     private static ElasticSearchClientFactory clientFactory;
     private static EsSetup esSetup;
 
+    private static SearchResultsConverter converter;
+
     private Client esClient;
 
 
@@ -69,6 +73,8 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
                 .build());
 
         esSetup.execute( deleteAll() );
+
+        converter = new JsonFrequentlyRelatedSearchResultsConverter(configuration);
 
 
 
@@ -148,13 +154,13 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("apparentice you're hired",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsConverter> results = searcher.processMultiSearchResponse(search,response);
+        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
         assertEquals("Should have a result",1,results.size());
 
-        verifyTermsInOutput((SearchResultsConverter)results.values().toArray()[0],tf);
+        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
 
     }
 
@@ -187,14 +193,14 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsConverter> results = searcher.processMultiSearchResponse(search,response);
+        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
         assertEquals("Should have a result",1,results.size());
 
 
-        verifyTermsInOutput((SearchResultsConverter)results.values().toArray()[0],tf);
+        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
     }
 
 
@@ -230,24 +236,24 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsConverter> results = searcher.processMultiSearchResponse(search,response);
+        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
         assertEquals("Should have a result",1,results.size());
 
 
-        verifyTermsInOutput((SearchResultsConverter)results.values().toArray()[0],tf);
+        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
     }
 
-    private void verifyTermsInOutput(SearchResultsConverter converter, TermsFacet tf) {
+    private void verifyTermsInOutput(SearchResultsEvent results, TermsFacet tf) {
 
         StringBuilder b = new StringBuilder(".*");
 
         for(TermsFacet.Entry term : tf.getEntries()) {
           b.append(term.getTerm().string()).append(".*");
         }
-        String s = converter.convertToString();
+        String s = converter.convertToString(results);
         assertTrue(s.matches(b.toString()));
     }
 

@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.searching;
 
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
@@ -13,6 +15,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedProductSearchResultsResponseProcessor {
-    public void processSearchResults(List<AsyncContext> context, SearchResultsConverter results);
+    public void processSearchResults(AsyncContext[] context, SearchResultsEvent results);
     public void shutdown();
 }

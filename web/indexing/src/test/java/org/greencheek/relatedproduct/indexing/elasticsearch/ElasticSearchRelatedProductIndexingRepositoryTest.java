@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
+import static com.github.tlrx.elasticsearch.test.EsSetup.index;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -139,13 +140,19 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         RelatedProduct productToStore = createRelatedProductWithCurrentDay();
         indexAndFlush(productToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + currentIndexDate));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
 
         QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = esClient.prepareSearch(getIndexNamePrefix()+ currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
+    }
+
+    private String getIndexNamePrefix() {
+        String indexName = configuration.getStorageIndexNamePrefix();
+        if(indexName.endsWith("-")) return indexName;
+        else return indexName+"-";
     }
 
     @Test
@@ -153,7 +160,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         RelatedProduct productToStore = createRelatedProductWithGivenDate("2012-05-16");
         indexAndFlush(productToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2012-05-16"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-16"));
 
         QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
 
@@ -168,7 +175,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         RelatedProduct productToStore = createRelatedProductWithGivenDate("2012-05-15T12:00:00+01:00");
         indexAndFlush(productToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2012-05-15"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
 
         QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
 
@@ -185,9 +192,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         indexAndFlush(productsToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2012-05-15"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2011-05-15"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + currentIndexDate));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+"2012-05-15"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+"2011-05-15"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+currentIndexDate));
 
         QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[0].getId()))
                 .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[1].getId()))
@@ -206,9 +213,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         indexAndFlush(productsToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2012-05-15"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2011-05-15"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + currentIndexDate));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-15"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
 
         QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[0].getId()))
                 .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[1].getId()))
@@ -239,9 +246,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         indexAndFlush(hourStorageLocationMapper,productsToStore);
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2012-05-01_11"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2011-05-02_10"));
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "2011-05-03_09"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-01_11"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-02_10"));
+        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-03_09"));
 
         QueryBuilder qb = fieldQuery("location", "liverpool");
 

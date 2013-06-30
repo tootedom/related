@@ -5,6 +5,7 @@ import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -42,6 +43,8 @@ public interface ApplicationCtx
     public RelatedProductSearchRepository createSearchRepository();
 
 
+
+    public SearchResultsConverterFactory createSearchResultsConverterFactory();
 
     public void shutdown();
 

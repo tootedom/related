@@ -58,7 +58,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
                 try {
                     RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
                     searches = searchMap.values().toArray(searches);
-                    searchRespository.findRelatedProducts(searches,searchResultsHandler);
+                    searchRespository.findRelatedProducts(configuration,searches,searchResultsHandler);
                 } finally {
                     searchMap.clear();
                 }

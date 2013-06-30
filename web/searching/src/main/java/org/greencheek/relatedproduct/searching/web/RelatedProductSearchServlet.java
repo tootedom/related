@@ -97,6 +97,7 @@ public class RelatedProductSearchServlet extends HttpServlet {
         Map<String,String> params = convertToFirstParameterValueMap(request.getParameterMap());
         params.put(configuration.getRequestParameterForId(), getId(request.getPathInfo()));
         try {
+            log.debug("Request {}",params);
             productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,ctx);
         } catch (InvalidSearchRequestException invalidRequestException) {
             log.warn("Invalid search request",invalidRequestException);

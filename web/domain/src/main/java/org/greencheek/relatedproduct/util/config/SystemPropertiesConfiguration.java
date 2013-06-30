@@ -60,6 +60,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
     private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
 
+    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT = Long.valueOf(System.getProperty("related-product.frequently.related.search.timeout", "2000"));
+
     // can be "day|hour|minute"
     private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
 
@@ -192,6 +194,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public String getStorageLocationMapper() {
         return RELATED_PRODUCT_STORAGE_LOCATION_MAPPER;
+    }
+
+    @Override
+    public long setFrequentlyRelatedProductsSearchTimeout() {
+        return FREQUENTLY_RELATED_SEARCH_TIMEOUT;
     }
 
     @Override

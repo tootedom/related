@@ -15,7 +15,8 @@ public class SearchEvent {
 
     private SearchEventType eventType;
     private SearchRequestLookupKey requestKey;
-    private Object event;
+    private SearchRequestEvent searchRequestEvent;
+    private SearchResultsEvent searchResultsEvent;
 
 
     public SearchEventType getEventType() {
@@ -34,12 +35,20 @@ public class SearchEvent {
         this.requestKey = requestKey;
     }
 
-    public Object getEvent() {
-        return event;
+    public SearchRequestEvent getSearchRequestEvent() {
+        return searchRequestEvent;
     }
 
-    public void setEvent(Object event) {
-        this.event = event;
+    public void setSearchRequestEvent(SearchRequestEvent event) {
+        this.searchRequestEvent = event;
+    }
+
+    public SearchResultsEvent getSearchResultsEvent() {
+        return this.searchResultsEvent;
+    }
+
+    public void setSearchResultsEvent(SearchResultsEvent event) {
+        searchResultsEvent = event;
     }
 
 

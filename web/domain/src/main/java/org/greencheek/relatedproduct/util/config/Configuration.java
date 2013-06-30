@@ -56,4 +56,6 @@ public interface Configuration {
 
 
     public String getStorageLocationMapper();
+
+    public long setFrequentlyRelatedProductsSearchTimeout();
 }

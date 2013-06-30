@@ -3,7 +3,6 @@ package org.greencheek.relatedproduct.searching.requestprocessing;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 
 import javax.servlet.AsyncContext;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +12,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public interface AsyncContextLookup {
-    public List<AsyncContext> removeContexts(SearchRequestLookupKey key);
+    public AsyncContext[] removeContexts(SearchRequestLookupKey key);
     public void addContext(SearchRequestLookupKey key, AsyncContext context);
 }

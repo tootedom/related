@@ -11,8 +11,8 @@ import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchRes
  */
 public class JsonFrequentlyRelatedSearchResultsConverterTest extends FrequentlyRelatedSearchResultsConverterTest{
     @Override
-    public SearchResultsConverter getConverter(FrequentlyRelatedSearchResults results) {
-        return new JsonFrequentlyRelatedSearchResultsConverter(configuration,results);
+    public SearchResultsConverter getConverter() {
+        return new JsonFrequentlyRelatedSearchResultsConverter(configuration);
     }
 
     @Override

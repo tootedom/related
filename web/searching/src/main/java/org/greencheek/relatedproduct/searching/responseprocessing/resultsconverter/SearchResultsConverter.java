@@ -1,5 +1,8 @@
 package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -9,5 +12,5 @@ package org.greencheek.relatedproduct.searching.responseprocessing.resultsconver
  */
 public interface SearchResultsConverter {
     public String contentType();
-    public String convertToString();
+    public String convertToString(SearchResultsEvent results);
 }

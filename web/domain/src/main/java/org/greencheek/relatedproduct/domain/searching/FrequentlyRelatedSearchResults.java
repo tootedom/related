@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.domain.searching;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,16 +13,17 @@ import java.util.List;
  */
 public class FrequentlyRelatedSearchResults {
 
+    public static final FrequentlyRelatedSearchResults EMPTY_RESULTS = new FrequentlyRelatedSearchResults(new FrequentlyRelatedSearchResult[0]);
 
-    private final List<FrequentlyRelatedSearchResult> results;
+    private final FrequentlyRelatedSearchResult[] results;
     private final int numberOfResults;
 
-    public FrequentlyRelatedSearchResults(List<FrequentlyRelatedSearchResult> results) {
-        this.results = new ArrayList<FrequentlyRelatedSearchResult>(results);
-        this.numberOfResults = results.size();
+    public FrequentlyRelatedSearchResults(FrequentlyRelatedSearchResult[] results) {
+        this.results = results;
+        this.numberOfResults = results.length;
     }
 
-    public List<FrequentlyRelatedSearchResult> getResults() {
+    public FrequentlyRelatedSearchResult[] getResults() {
         return results;
     }
 
@@ -32,7 +34,5 @@ public class FrequentlyRelatedSearchResults {
     public String toString() {
         return results.toString();
     }
-
-
 
 }

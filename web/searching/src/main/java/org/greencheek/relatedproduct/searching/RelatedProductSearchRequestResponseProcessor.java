@@ -1,6 +1,8 @@
 package org.greencheek.relatedproduct.searching;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
@@ -16,7 +18,7 @@ public interface RelatedProductSearchRequestResponseProcessor {
 
     public void handleRequest(SearchRequestLookupKey requestKey, AsyncContext requestCtx);
 
-    public void handleResponse(SearchRequestLookupKey requestKey, SearchResultsConverter results);
+    public void handleResponse(SearchRequestLookupKey requestKey, SearchResultsEvent results);
 
 
     public void shutdown();

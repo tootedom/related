@@ -28,7 +28,7 @@ public class SearchRequestTranslator implements EventTranslator<SearchEvent> {
 
     @Override
     public void translateTo(SearchEvent event, long sequence) {
-        event.setEvent(new SearchRequestEvent(requestCtx));
+        event.setSearchRequestEvent(new SearchRequestEvent(requestCtx));
         event.setEventType(SearchEventType.SEARCH_REQUEST);
         event.setRequestKey(requestKey);
     }

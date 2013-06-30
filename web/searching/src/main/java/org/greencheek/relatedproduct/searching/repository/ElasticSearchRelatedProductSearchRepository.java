@@ -4,14 +4,17 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,14 +42,30 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
 
     @Override
-    public void findRelatedProducts(RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler) {
+    public void findRelatedProducts(Configuration configuration,
+                                    RelatedProductSearch[] searches,
+                                    RelatedProductSearchRequestResponseProcessor handler) {
         log.debug("request to execute {} searches",searches.length);
-        MultiSearchResponse sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
+        Map<SearchRequestLookupKey,SearchResultsEvent> results;
+        MultiSearchResponse sr;
+        try {
+            sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
+            results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
+        } catch(Exception searchException) {
+            int size = searches.length;
+            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>(size);
+            int i = size+1;
+            while(i--!=0) {
+                SearchRequestLookupKey key = searches[i].getLookupKey(configuration);
+                results.put(key,SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS);
+            }
 
-        Map<SearchRequestLookupKey,SearchResultsConverter> results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
+        }
 
 
-        for(Map.Entry<SearchRequestLookupKey,SearchResultsConverter> entry : results.entrySet()) {
+
+
+        for(Map.Entry<SearchRequestLookupKey,SearchResultsEvent> entry : results.entrySet()) {
             handler.handleResponse(entry.getKey(),entry.getValue());
         }
 

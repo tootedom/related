@@ -10,6 +10,8 @@ import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.Disr
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.HttpBasedRelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -32,8 +34,8 @@ public class PrototypeDisruptorRequestResponseProcessFactory implements RelatedP
 
         AsyncContextLookup ctxStorage =  new MultiMapAsyncContextLookup(config);
 
-        EventHandler<ResponseEvent> searchResultsHandler  = new DisruptorBasedResponseEventHandler(config,
-                new HttpBasedRelatedProductSearchResultsResponseProcessor());
+        EventHandler<ResponseEvent> searchResultsHandler  = new DisruptorBasedResponseEventHandler(
+                new HttpBasedRelatedProductSearchResultsResponseProcessor(new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config))));
 
         RelatedProductSearchResultsResponseProcessor searchResultsProcessor = new DisruptorBasedResponseProcessor(searchResultsHandler,config);
 

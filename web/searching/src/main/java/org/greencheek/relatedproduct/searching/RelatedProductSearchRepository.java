@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,5 +13,5 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 
 // ES
 public interface RelatedProductSearchRepository {
-    public void findRelatedProducts(RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler);
+    public void findRelatedProducts(Configuration config, RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler);
 }

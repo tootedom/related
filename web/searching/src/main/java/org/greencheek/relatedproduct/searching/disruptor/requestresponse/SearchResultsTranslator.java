@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventTranslator;
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
@@ -17,9 +18,9 @@ import org.greencheek.relatedproduct.searching.responseprocessing.resultsconvert
 public class SearchResultsTranslator implements EventTranslator<SearchEvent> {
 
     private final SearchRequestLookupKey requestKey;
-    private final SearchResultsConverter results;
+    private final SearchResultsEvent results;
 
-    public SearchResultsTranslator(SearchRequestLookupKey key, SearchResultsConverter results) {
+    public SearchResultsTranslator(SearchRequestLookupKey key, SearchResultsEvent results) {
         this.requestKey = key;
         this.results = results;
     }
@@ -27,7 +28,8 @@ public class SearchResultsTranslator implements EventTranslator<SearchEvent> {
     @Override
     public void translateTo(SearchEvent event, long sequence) {
         event.setEventType(SearchEventType.SEARCH_RESULT);
-        event.setEvent(new SearchResultsEvent(results));
+        event.setSearchRequestEvent(null);
+        event.setSearchResultsEvent(results);
         event.setRequestKey(requestKey);
     }
 }

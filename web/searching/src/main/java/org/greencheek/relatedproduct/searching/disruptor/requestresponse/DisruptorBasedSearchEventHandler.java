@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
+import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchRequestEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
@@ -36,14 +37,15 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
         try {
             switch(event.getEventType()) {
                 case SEARCH_REQUEST :
-                    contextStorage.addContext(event.getRequestKey(),((SearchRequestEvent)event.getEvent()).getRequestContext());
+                    contextStorage.addContext(event.getRequestKey(),event.getSearchRequestEvent().getRequestContext());
                     break;
                 case SEARCH_RESULT:   // would be best to wrap in own stuff
-                    resultsResponseProcessor.processSearchResults(contextStorage.removeContexts(event.getRequestKey()), ((SearchResultsEvent) event.getEvent()).getResults());
+                    resultsResponseProcessor.processSearchResults(contextStorage.removeContexts(event.getRequestKey()),event.getSearchResultsEvent());
 
             }
         } finally {
-            event.setEvent(null);
+            event.setSearchRequestEvent(null);
+            event.setSearchResultsEvent(null);
             event.setEventType(null);
             event.setRequestKey(null);
         }
