@@ -59,7 +59,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
 
         int requestAdded = 0;
         for(RelatedProduct product : relatedProducts) {
-            if(addRelatedProduct(indexLocationMapper,bulkRequest,product)) requestAdded++;
+            requestAdded += addRelatedProduct(indexLocationMapper,bulkRequest,product);
         }
 
         if(requestAdded>0) {
@@ -72,7 +72,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
         }
     }
 
-    private boolean addRelatedProduct(RelatedProductStorageLocationMapper indexLocationMapper,
+    private int addRelatedProduct(RelatedProductStorageLocationMapper indexLocationMapper,
                                       BulkRequestBuilder bulkRequest,
                                       RelatedProduct product) {
 
@@ -83,8 +83,8 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
                     .field(dateAttributeName, product.getDate())
                     .array(relatedWithAttributeName, product.getRelatedProductPids());
 
-            for(Map.Entry<String,String> property : product.getAdditionalProperties().entrySet()) {
-                builder.field(property.getKey(),property.getValue());
+            for(String[] properties : product.getAdditionalProperties()) {
+                builder.field(properties[0],properties[1]);
             }
 
             builder.endObject();
@@ -93,9 +93,9 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
 
             bulkRequest.add(indexRequestBuilder.setSource(builder));
 
-            return true;
+            return 1;
         } catch(IOException e) {
-            return false;
+            return 0;
         }
 
     }

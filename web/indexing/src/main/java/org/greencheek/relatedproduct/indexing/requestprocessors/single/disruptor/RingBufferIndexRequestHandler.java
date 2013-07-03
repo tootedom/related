@@ -32,13 +32,20 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
 
     private final RelatedProductStorageLocationMapper locationMapper;
 
-    public RingBufferIndexRequestHandler(RelatedProductIndexingMessageConverter converter,
+    private final int batchSize;
+
+    private int count;
+
+    public RingBufferIndexRequestHandler(int batchSize,
+                                         RelatedProductIndexingMessageConverter converter,
                                          RelatedProductStorageRepository repository,
                                          RelatedProductStorageLocationMapper locationMapper) {
 
         this.indexConverter = converter;
         this.storageRepository = repository;
         this.locationMapper = locationMapper;
+        this.batchSize = batchSize;
+        this.count = batchSize;
     }
 
 
@@ -60,17 +67,21 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
         try {
 
             Set<RelatedProduct> products = indexConverter.convertFrom(request);
+            count-=products.size();
             relatedProducts.addAll(products);
 
-            if(endOfBatch) {
-                log.debug("Sending indexing requests to the storage repository");
+            if(endOfBatch || count<=0) {
                 try {
-                    storageRepository.store(locationMapper,relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
-                } catch(Exception e) {
-                    log.warn("Exception calling storage repository for related products:{}",products,e);
+                    log.debug("Sending indexing requests to the storage repository");
+                    try {
+                        storageRepository.store(locationMapper,relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
+                    } catch(Exception e) {
+                        log.warn("Exception calling storage repository for related products:{}",products,e);
+                    }
                 }
-
-                relatedProducts.clear();
+                finally {
+                    relatedProducts.clear();
+                }
             }
         } finally {
             request.validMessage.set(false);

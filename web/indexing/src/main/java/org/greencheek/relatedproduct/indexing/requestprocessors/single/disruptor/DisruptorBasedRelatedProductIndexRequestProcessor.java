@@ -42,7 +42,8 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                 configuration.getSizeOfIndexRequestQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
 
-        disruptor.handleEventsWith(new EventHandler[] {new RingBufferIndexRequestHandler(indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
+        final int batchIndexSize = configuration.getIndexBatchSize();
+        disruptor.handleEventsWith(new EventHandler[] {new RingBufferIndexRequestHandler(batchIndexSize,indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
         disruptor.start();
 
     }

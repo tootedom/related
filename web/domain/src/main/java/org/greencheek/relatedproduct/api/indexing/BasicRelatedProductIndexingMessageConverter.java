@@ -34,11 +34,24 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
             RelatedProductInfo id = productInfos.get(length);
             Set<String> relatedIds = new HashSet<String>(ids);
             relatedIds.remove(id.id.get());
-            Map<String,String> properties = new HashMap<String,String>((int)Math.ceil((message.additionalProperties.numberOfProperties.get()+id.additionalProperties.numberOfProperties.get())/0.75));
-            id.additionalProperties.convertTo(properties);
-            message.additionalProperties.convertTo(properties);
+            String[][] productProperties = id.additionalProperties.convertToStringArray();
+            String[][] indexProperties = message.additionalProperties.convertToStringArray();
 
-            relatedProducts.add(new RelatedProduct(id.id.get(),message.date.get(),relatedIds,properties,configuration));
+            int indexSize = productProperties.length+indexProperties.length;
+            String[][] additionalProperties = new String[indexSize--][2];
+
+                for(int i=0;i<indexProperties.length;i++) {
+                    additionalProperties[indexSize][0]  = indexProperties[i][0];
+                    additionalProperties[indexSize--][1]  = indexProperties[i][1];
+                }
+
+                for(int i=0;i<productProperties.length;i++) {
+                    additionalProperties[indexSize][0]  = productProperties[i][0];
+                    additionalProperties[indexSize--][1]  = productProperties[i][1];
+                }
+
+
+            relatedProducts.add(new RelatedProduct(id.id.get(),message.date.get(),relatedIds,additionalProperties,configuration));
         }
 
         return relatedProducts;

@@ -23,6 +23,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.additional.key.length", "30"));
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.additional.value.length", "30"));
     private final int SIZE_OF_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.index.request.queue", "2048"));
+    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","32"));
 
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.queue", "2048"));
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_RESULTS_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.results.queue", "2048"));
@@ -44,7 +45,7 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.response.processing.queue","2048"));
 
-    private final short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","4"));
+    private final short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
 
     private final short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","4"));
 
@@ -280,6 +281,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public short getRelatedProductAdditionalPropertyValueLength() {
         return RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH;
+    }
+
+    @Override
+    public int getIndexBatchSize() {
+        return BATCH_INDEX_SIZE;
     }
 
     @Override

@@ -21,6 +21,8 @@ public interface Configuration {
     public int getMaxRelatedProductPostDataSizeInBytes();
     public short getRelatedProductAdditionalPropertyKeyLength();
     public short getRelatedProductAdditionalPropertyValueLength();
+
+    public int getIndexBatchSize();
     public int getSizeOfIndexRequestQueue();
     public short getMaxNumberOfSearchCriteriaForRelatedContent();
     public int getSizeOfRelatedContentSearchRequestHandlerQueue();

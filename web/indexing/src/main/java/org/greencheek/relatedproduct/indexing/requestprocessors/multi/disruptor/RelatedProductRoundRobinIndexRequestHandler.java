@@ -41,7 +41,7 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
 
     private final int mask;
 
-    public RelatedProductRoundRobinIndexRequestHandler(Configuration configuration,
+    public RelatedProductRoundRobinIndexRequestHandler(final Configuration configuration,
                                                        RelatedProductIndexingMessageConverter converter,
                                                        RelatedProductIndexingMessageFactory messageFactory,
                                                        RelatedProductStorageRepositoryFactory repositoryFactory,
@@ -64,7 +64,7 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
 
             disruptors[i]  = disruptor;
             disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
-            disruptor.handleEventsWith(new RingBufferIndexRequestHandler(converter,repositoryFactory.getRepository(configuration),locationMapper));
+            disruptor.handleEventsWith(new RingBufferIndexRequestHandler(configuration.getIndexBatchSize(),converter,repositoryFactory.getRepository(configuration),locationMapper));
             disruptor.start();
 
         }

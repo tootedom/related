@@ -15,14 +15,14 @@ public class RelatedProduct {
     private final String date;
 
     private final String[] relatedProductIds;
-    private final Map<String,String> additionalProperties;
+    private final String[][] additionalProperties;
 
 
-    public RelatedProduct(String id, String date, Set<String> relatedPids, Map<String, String> properties, Configuration config) {
+    public RelatedProduct(String id, String date, Set<String> relatedPids, String[][] properties, Configuration config) {
         this.id = id;
         this.date = date;
         this.relatedProductIds = relatedPids.toArray(new String[config.getMaxNumberOfRelatedProductsPerPurchase()]);
-        additionalProperties = new HashMap<String,String>(properties);
+        additionalProperties = properties;
 
     }
 
@@ -39,7 +39,7 @@ public class RelatedProduct {
         return relatedProductIds;
     }
 
-    public Map<String,String> getAdditionalProperties() {
+    public String[][] getAdditionalProperties() {
         return additionalProperties;
     }
 

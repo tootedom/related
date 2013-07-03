@@ -36,6 +36,17 @@ public class RelatedProductAdditionalProperties extends Struct {
         }
     }
 
+    public String[][] convertToStringArray() {
+        short numberOfProps = numberOfProperties.get();
+        String[][] props = new String[numberOfProps][2];
+        while(numberOfProps--!=0) {
+            RelatedProductAdditionalProperty prop = additionalProperties[numberOfProps];
+            props[numberOfProps][0]= prop.name.get();
+            props[numberOfProps][1] = prop.value.get();
+        }
+        return props;
+    }
+
 
     public int getStringLength(Configuration configuration) {
         return getStringLength(numberOfProperties.get(),configuration);
