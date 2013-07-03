@@ -23,7 +23,6 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
 
     private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchRequestTranslator.class);
 
-
     private final AsyncContext clientCtx;
     private final Map<String,String> parameters;
     private final RelatedProductSearchType searchRequestType;
@@ -40,12 +39,9 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
     }
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence) {
-//        event.setRequestType(searchRequestType);
         event.setRequestContext(clientCtx);
         RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
 
         log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(configuration),parameters);
-
-//        event.setRequestProperties(parameters);
     }
 }

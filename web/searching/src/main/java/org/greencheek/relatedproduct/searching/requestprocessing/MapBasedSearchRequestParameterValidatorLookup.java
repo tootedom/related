@@ -15,12 +15,10 @@ import java.util.Map;
  * Time: 22:18
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class MapBasedSearchRequestParameterValidatorLookup implements  SearchRequestParameterValidatorLocator {
 
     private final Map<RelatedProductSearchType,SearchRequestParameterValidator> validatorMap = new HashMap<RelatedProductSearchType,SearchRequestParameterValidator>(2);
 
-    @Inject
     public MapBasedSearchRequestParameterValidatorLookup(Configuration configuration) {
         validatorMap.put(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,new FrequentlyRelatedContentRequestParameterValidator(configuration));
     }

@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.util.config;
 
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -59,6 +61,8 @@ public interface Configuration {
 
     public long getFrequentlyRelatedProductsSearchTimeoutInMillis();
 
+
+    public int getResponseCode(SearchResultsOutcomeType type);
 
     public int getTimedOutSearchRequestStatusCode();
     public int getFailedSearchRequestStatusCode();

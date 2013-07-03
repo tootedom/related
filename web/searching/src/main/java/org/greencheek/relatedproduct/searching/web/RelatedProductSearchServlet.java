@@ -28,8 +28,6 @@ import java.util.regex.Pattern;
         asyncSupported = true, loadOnStartup = 1)
 public class RelatedProductSearchServlet extends HttpServlet {
 
-    private static final Pattern ID_PATTERN = Pattern.compile(".*/([^/?]+)");
-
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
     private RelatedProductSearchRequestProcessor productSearchRequestProcessor;
@@ -85,12 +83,12 @@ public class RelatedProductSearchServlet extends HttpServlet {
 
     }
 
-    private String getId(String path) {
+    // Returns the last part of the url path.  i.e. the bit after the last slash '/', or empty
+    // string
+    private static String getId(String path) {
         log.debug("obtaining id from endpoint {}",path);
-        Matcher endpointMatcher = ID_PATTERN.matcher(path);
-        if(endpointMatcher.find()) {
-            return endpointMatcher.group(1);
-        } else return null;
+        int index = path.lastIndexOf('/');
+        return (index==-1) ? "" : path.substring(index+1);
     }
 
     private void submitRequestForProcessing(AsyncContext ctx, HttpServletRequest request) {

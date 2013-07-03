@@ -47,7 +47,7 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
         disruptor = new Disruptor<ResponseEvent>(
                 ResponseEvent.FACTORY,
                 configuration.getSizeOfResponseProcessingQueue(), executorService,
-                ProducerType.SINGLE, new BlockingWaitStrategy());
+                ProducerType.SINGLE, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});

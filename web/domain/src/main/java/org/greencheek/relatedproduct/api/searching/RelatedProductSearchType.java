@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.api.searching;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -8,6 +10,16 @@ package org.greencheek.relatedproduct.api.searching;
  * To change this template use File | Settings | File Templates.
  */
 public enum RelatedProductSearchType {
-    FREQUENTLY_RELATED_WITH,
-    MOST_RECENTLY_RELATED_WITH;
+    FREQUENTLY_RELATED_WITH(0),
+    MOST_RECENTLY_RELATED_WITH(1);
+
+    private final int index;
+
+    private RelatedProductSearchType(int index) {
+        this.index = index;
+    }
+
+    public int getIndex() {
+        return index;
+    }
 }

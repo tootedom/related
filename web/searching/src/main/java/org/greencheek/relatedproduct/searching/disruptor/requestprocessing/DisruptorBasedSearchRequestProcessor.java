@@ -52,7 +52,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         disruptor = new Disruptor<RelatedProductSearchRequest>(
                 new RelatedProductSearchRequestFactory(configuration),
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
-                ProducerType.MULTI, new BlockingWaitStrategy());
+                ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();

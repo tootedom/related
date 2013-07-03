@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.responseprocessing;
 
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
@@ -11,10 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,7 +57,7 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
 
         String response = converter.convertToString(results);
         String contentType = converter.contentType();
-        int statusCode = getStatusCode(results.getOutcomeType());
+        int statusCode = configuration.getResponseCode(results.getOutcomeType());
         log.debug("Sending search results to {} waiting requests",context.length);
         for(AsyncContext ctx : context) {
             HttpServletResponse r = null;
@@ -85,16 +83,6 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
                     log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred");
                 }
             }
-        }
-    }
-
-    private int getStatusCode(SearchResultsOutcomeType type) {
-        switch (type) {
-            case EMPTY_RESULTS: return configuration.getNoFoundSearchResultsStatusCode();
-            case FAILED_REQUEST: return configuration.getFailedSearchRequestStatusCode();
-            case REQUEST_TIMEOUT: return configuration.getTimedOutSearchRequestStatusCode();
-            case HAS_RESULTS: return configuration.getFoundSearchResultsStatusCode();
-            default : return configuration.getFoundSearchResultsStatusCode();
         }
     }
 

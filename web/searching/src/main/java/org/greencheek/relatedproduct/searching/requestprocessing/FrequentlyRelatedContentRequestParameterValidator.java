@@ -13,12 +13,10 @@ import java.util.Map;
  * Time: 23:21
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class FrequentlyRelatedContentRequestParameterValidator implements SearchRequestParameterValidator {
 
     private final Configuration configuration;
 
-    @Inject
     public FrequentlyRelatedContentRequestParameterValidator(Configuration configuration) {
         this.configuration = configuration;
     }
@@ -26,12 +24,6 @@ public class FrequentlyRelatedContentRequestParameterValidator implements Search
     @Override
     public ValidationMessage validateParameters(Map<String, String> requestParameters) {
         String id = requestParameters.get(configuration.getRequestParameterForId());
-        if(id == null) {
-            return new ValidationMessage(false,configuration.getRequestParameterForId(),"no id");
-        }
-        else {
-
-            return new ValidationMessage(true);
-        }
+        return new ValidationMessage(id.length()!=0,configuration.getRequestParameterForId(),"no id");
     }
 }

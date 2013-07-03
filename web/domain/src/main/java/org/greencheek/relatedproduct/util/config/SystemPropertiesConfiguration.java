@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.util.config;
 
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+
 import javax.inject.Named;
 
 /**
@@ -65,12 +67,19 @@ public class SystemPropertiesConfiguration implements Configuration {
     // can be "day|hour|minute"
     private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
 
-    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.timed.out.search.request.status.code","504"));
+    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.timed.out.search.request.status.code", "504"));
     private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","500"));
     private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.no.found.search.request.status.code","404"));
     private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.found.search.request.status.code","200"));
 
+    private final int[] searchRequestResponseCodes = new int[4];
 
+    public SystemPropertiesConfiguration() {
+        searchRequestResponseCodes[SearchResultsOutcomeType.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcomeType.FAILED_REQUEST.getIndex()] = FAILED_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcomeType.REQUEST_TIMEOUT.getIndex()] = TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcomeType.HAS_RESULTS.getIndex()] = FOUND_SEARCH_REQUEST_STATUS_CODE;
+    }
 
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
@@ -206,6 +215,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public long getFrequentlyRelatedProductsSearchTimeoutInMillis() {
         return FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS;
+    }
+
+    @Override
+    public int getResponseCode(SearchResultsOutcomeType type) {
+        return  searchRequestResponseCodes[type.getIndex()];
     }
 
     @Override

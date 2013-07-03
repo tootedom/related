@@ -17,7 +17,7 @@ import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchRes
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,11 +69,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
         List<ElasticSearchResponse> responses = new ArrayList<ElasticSearchResponse>(searches.length);
         for (MultiSearchResponse.Item item : searchResponse.getResponses()) {
-            if(!item.isFailure()) {
-                responses.add(new ElasticSearchResponse(item.getResponse()));
-            } else {
-                responses.add(new ElasticSearchResponse(item.getFailureMessage()));
-            }
+            responses.add(new ElasticSearchResponse(item.getResponse(),item.getFailureMessage(),item.isFailure()));
         }
 
         int numOfSearches = searches.length;

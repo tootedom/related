@@ -45,14 +45,12 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
         try {
             SearchRequestLookupKey key = event.getLookupKey(configuration);
             log.debug("Handling search request for key {}",key.toString());
-            if(!searchMap.containsKey(key)) {
-                // need to copy
-                searchMap.put(key,event.copy(configuration));
-            } else {
-                // We already have the given search ready to process.
-                // Just return
-                log.debug("Search for key {} , is already being executed",key.toString());
-            }
+            boolean existed = searchMap.put(key,event.copy(configuration))!=null;
+
+            // We already have the given search ready to process.
+            // Just return
+            log.debug("Search for key {} already being existed?:{}",key.toString(),existed);
+
 
             if(endOfBatch) {
                 try {

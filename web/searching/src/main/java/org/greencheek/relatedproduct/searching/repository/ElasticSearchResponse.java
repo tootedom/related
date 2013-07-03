@@ -17,17 +17,12 @@ public class ElasticSearchResponse {
 
     private final SearchResponse searchResponse;
 
-    public ElasticSearchResponse(String exception) {
+    public ElasticSearchResponse(SearchResponse response,String exception,boolean failure) {
         this.exception = exception;
-        this.failure=true;
-        this.searchResponse = null;
-    }
-
-    public ElasticSearchResponse(SearchResponse response) {
-        this.failure=false;
-        this.exception ="";
+        this.failure=failure;
         this.searchResponse = response;
     }
+
 
     public String getException() {
         return exception;

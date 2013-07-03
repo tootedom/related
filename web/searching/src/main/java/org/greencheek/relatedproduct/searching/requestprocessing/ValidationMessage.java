@@ -9,17 +9,13 @@ package org.greencheek.relatedproduct.searching.requestprocessing;
  */
 public class ValidationMessage {
     public final boolean isValid;
-    public final String message;
+    public final String invalidMessage;
     public final String invalidProperty;
-
-    public ValidationMessage(boolean valid) {
-        this(valid,"","");
-    }
 
     public ValidationMessage(boolean valid,String property, String message)
     {
         isValid = valid;
         invalidProperty = property;
-        this.message = message;
+        invalidMessage = message;
     }
 }
