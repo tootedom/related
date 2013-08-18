@@ -27,7 +27,6 @@ public class RelatedProductIndexingMessageFactory implements EventFactory<Relate
     @Override
     public RelatedProductIndexingMessage newInstance() {
         RelatedProductIndexingMessage message = new RelatedProductIndexingMessage(configuration);
-        message.setByteBuffer(ByteBuffer.allocate(message.getSize()), 0);
         return message;
     }
 }

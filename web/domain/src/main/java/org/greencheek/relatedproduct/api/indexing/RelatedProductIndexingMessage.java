@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.api.indexing;
 
 import javolution.io.Struct;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -11,25 +12,58 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  * Time: 15:10
  * To change this template use File | Settings | File Templates.
  */
-public class RelatedProductIndexingMessage extends Struct {
+public class RelatedProductIndexingMessage {
 
-    public final Bool validMessage;
+    public boolean validMessage;
+    public String dateUTC;
+
     public final RelatedProductSet relatedProducts;
-    public final UTF8String date;
     public final RelatedProductAdditionalProperties additionalProperties;
 
 
     public RelatedProductIndexingMessage(Configuration config) {
-        validMessage = new Bool();
-        relatedProducts = inner(new RelatedProductSet(config));
-        date = new UTF8String(28);
-        additionalProperties = inner(new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties()));
+        validMessage = false;
+        relatedProducts = new RelatedProductSet(config);
+        additionalProperties = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties());
 
     }
 
-    public int getSize()
-    {
-       return this.size();
+    public void setValidMessage(boolean isValid) {
+        this.validMessage = isValid;
+    }
+
+    public void setUTCFormattedDate(String date) {
+        this.dateUTC = date;
+    }
+
+    public boolean isValidMessage() {
+        return this.validMessage;
+    }
+
+    public void copyInto(RelatedProductIndexingMessage copyTo) {
+        copyTo.setValidMessage(this.validMessage);
+        copyTo.setUTCFormattedDate(this.dateUTC);
+
+        short numberOfRelatedProducts = relatedProducts.numberOfRelatedProducts;
+        copyTo.relatedProducts.setNumberOfRelatedProducts(numberOfRelatedProducts);
+        RelatedProductInfo[] sourceInfo = relatedProducts.relatedProducts;
+        for(int i =0;i<numberOfRelatedProducts;i++) {
+            RelatedProductInfo infoCopyFrom = sourceInfo[i];
+            RelatedProductInfo infoCopyTo = copyTo.relatedProducts.relatedProducts[i];
+            infoCopyFrom.id.copyTo(infoCopyTo.id);
+
+            infoCopyFrom.additionalProperties.copyTo(infoCopyTo.additionalProperties);
+        }
+
+        short numberOfAdditionalProps = additionalProperties.getNumberOfProperties();
+
+        copyTo.additionalProperties.setNumberOfProperties(additionalProperties.getNumberOfProperties());
+        RelatedProductAdditionalProperty[] srcProps = additionalProperties.additionalProperties;
+        RelatedProductAdditionalProperty[] targetProps = copyTo.additionalProperties.additionalProperties;
+        for(int i=0;i<numberOfAdditionalProps;i++) {
+            srcProps[i].copyTo(targetProps[i]);
+        }
+
     }
 
     @Override

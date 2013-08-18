@@ -122,17 +122,17 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
     private RelatedProduct createRelatedProductWithCurrentDay() {
         return new RelatedProduct(UUID.randomUUID().toString(),currentIndexDate,
-                Collections.singleton(UUID.randomUUID().toString()),Collections.EMPTY_MAP,configuration);
+                new String[]{UUID.randomUUID().toString()},new String[0][0]);
     }
 
     private RelatedProduct createRelatedProductWithGivenDate(String date) {
         return new RelatedProduct(UUID.randomUUID().toString(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                Collections.singleton(UUID.randomUUID().toString()),Collections.EMPTY_MAP,configuration);
+                new String[]{UUID.randomUUID().toString()},new String[0][0]);
     }
 
-    private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, Map<String,String> customProp) {
+    private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, String[][] customProp) {
         return new RelatedProduct(UUID.randomUUID().toString(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                Collections.singleton(UUID.randomUUID().toString()),customProp,configuration);
+                new String[]{UUID.randomUUID().toString()},customProp);
     }
 
     @Test
@@ -232,17 +232,15 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     public void testMultiStoreOfProductWithCustomDateAndProperties() {
         RelatedProduct[] productsToStore =  new RelatedProduct[] {
                 createRelatedProductWithGivenDateAndProperties("2012-05-01T12:00:00+01:00",
-                        new HashMap<String, String>() {{
-                            put("location", "london");
-                        }}),
+                        new String[][] { new String[] {
+                            "location", "london"}}),
+
                 createRelatedProductWithGivenDateAndProperties("2011-05-02T11:00:00+01:00",
-                        new HashMap<String, String>() {{
-                            put("location", "liverpool");
-                        }}),
+                        new String[][] { new String[] {"location", "liverpool"}}),
+
                 createRelatedProductWithGivenDateAndProperties("2011-05-03T10:00:00+01:00",
-                        new HashMap<String, String>() {{
-                            put("location", "manchester");
-                        }})};
+                        new String[][] { new String[] {"location", "manchester"}})};
+
 
         indexAndFlush(hourStorageLocationMapper,productsToStore);
 

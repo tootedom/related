@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.api.indexing;
 
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
@@ -20,52 +21,83 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
         this.configuration = configuration;
     }
 
-    public Set<RelatedProduct> convertFrom(RelatedProductIndexingMessage message) {
+    public RelatedProduct[] convertFrom(RelatedProductIndexingMessage message) {
 
-        short numberOfRelatedProducts = message.relatedProducts.numberOfRelatedProducts.get();
-        Set<RelatedProduct> relatedProducts = new HashSet<RelatedProduct>(numberOfRelatedProducts);
-        List<RelatedProductInfo> productInfos = new ArrayList<RelatedProductInfo>(numberOfRelatedProducts);
-        List<String> ids = new ArrayList<String>(numberOfRelatedProducts);
+        short numberOfRelatedProducts = message.relatedProducts.numberOfRelatedProducts;
 
-        getRelatedProductInfo(message,ids,productInfos);
+        RelatedProduct[] relatedProducts = new RelatedProduct[numberOfRelatedProducts];
+        String[] ids = new String[numberOfRelatedProducts];
+        RelatedProductInfo[] productInfos = new RelatedProductInfo[numberOfRelatedProducts];
 
-        int length = numberOfRelatedProducts;
-        while(length-- !=0) {
-            RelatedProductInfo id = productInfos.get(length);
-            Set<String> relatedIds = new HashSet<String>(ids);
-            relatedIds.remove(id.id.get());
-            String[][] productProperties = id.additionalProperties.convertToStringArray();
-            String[][] indexProperties = message.additionalProperties.convertToStringArray();
-
-            int indexSize = productProperties.length+indexProperties.length;
-            String[][] additionalProperties = new String[indexSize--][2];
-
-                for(int i=0;i<indexProperties.length;i++) {
-                    additionalProperties[indexSize][0]  = indexProperties[i][0];
-                    additionalProperties[indexSize--][1]  = indexProperties[i][1];
-                }
-
-                for(int i=0;i<productProperties.length;i++) {
-                    additionalProperties[indexSize][0]  = productProperties[i][0];
-                    additionalProperties[indexSize--][1]  = productProperties[i][1];
-                }
+        getRelatedProductInfo(message.relatedProducts.relatedProducts,ids,productInfos,numberOfRelatedProducts);
 
 
-            relatedProducts.add(new RelatedProduct(id.id.get(),message.date.get(),relatedIds,additionalProperties,configuration));
+        String[][] idLists = relatedIds(ids);
+        int length = numberOfRelatedProducts-1;
+        String[][] indexProperties = message.additionalProperties.convertToStringArray();
+        for(int i =0;i<length;i++) {
+            RelatedProductInfo id = productInfos[i];
+            relatedProducts[i] = createRelatedProduct(message,id,idLists[i+1],indexProperties);
         }
 
+
+        relatedProducts[length] = createRelatedProduct(message,productInfos[length],
+                                                  idLists[0],indexProperties);
         return relatedProducts;
 
     }
 
-    private void getRelatedProductInfo(RelatedProductIndexingMessage message, List<String> ids, List<RelatedProductInfo> products ) {
+    private RelatedProduct createRelatedProduct(RelatedProductIndexingMessage message,RelatedProductInfo info,
+                                                String[] ids,
+                                                String[][] indexProperties) {
+        String[][] productProperties = info.additionalProperties.convertToStringArray();
 
-        for(int i =0;i<message.relatedProducts.numberOfRelatedProducts.get();i++) {
-            products.add(message.relatedProducts.relatedProducts[i]);
-            ids.add(message.relatedProducts.relatedProducts[i].id.get());
+        int indexSize = productProperties.length+indexProperties.length;
+        String[][] additionalProperties = new String[indexSize--][2];
+
+        for(int i=0;i<indexProperties.length;i++) {
+            additionalProperties[indexSize][0]    = indexProperties[i][0];
+            additionalProperties[indexSize--][1]  = indexProperties[i][1];
+        }
+
+        for(int i=0;i<productProperties.length;i++) {
+            additionalProperties[indexSize][0]    = productProperties[i][0];
+            additionalProperties[indexSize--][1]  = productProperties[i][1];
+        }
+
+        return new RelatedProduct(info.id.toString(),message.dateUTC,ids,additionalProperties);
+    }
+
+    public static String[][] relatedIds(String[] ids) {
+        int len = ids.length;
+        int lenMinOne = len-1;
+        String[][] idSets = new String[len][lenMinOne];
+
+        for(int i=0;i<len;i++) {
+            int start = i;
+            for(int j = 0;j<lenMinOne;j++) {
+                int elem = start++;
+                if(elem>lenMinOne) {
+                    elem-=len;
+                }
+                idSets[i][j] = ids[elem];
+            }
+        }
+
+        return idSets;
+    }
+
+
+
+    private void getRelatedProductInfo(RelatedProductInfo[] message, String[] ids, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
+
+        for(int i =0;i<numberOfRelatedProducts;i++) {
+            products[i] = message[i];
+            ids[i] = message[i].id.toString();
         }
 
     }
+
 
 
 

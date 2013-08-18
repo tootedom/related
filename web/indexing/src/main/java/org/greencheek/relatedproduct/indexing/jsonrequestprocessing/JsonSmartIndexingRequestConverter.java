@@ -61,8 +61,8 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     @Override
     public void convertRequestIntoIndexingMessage(RelatedProductIndexingMessage convertedTo,
                                                   short maxNumberOfAdditionalProperties) {
-        convertedTo.validMessage.set(true);
-        convertedTo.date.set((String) object.get(dateKey));
+        convertedTo.setValidMessage(true);
+        convertedTo.setUTCFormattedDate((String) object.get(dateKey));
         Object products = object.get(productKey);
         parseProductArray(convertedTo,products,maxNumberOfAdditionalProperties);
         Object tmpProduct = object.remove(productKey);
@@ -72,7 +72,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         object.put(idKey,tmpId);
         object.put(dateKey,tmpDate);
         object.put(productKey, tmpProduct);
-        log.debug("valid converted message?: {}",convertedTo.validMessage.get());
+        log.debug("valid converted message?: {}",convertedTo.isValidMessage());
     }
 
     private void parseAdditionalProperties(RelatedProductAdditionalProperties properties,JSONObject map, short maxPropertiesThanCanBeRead) {
@@ -89,8 +89,8 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             if(value instanceof String) {
                 try {
 
-                properties.additionalProperties[i].name.set(key);
-                properties.additionalProperties[i].value.set((String)value);
+                properties.additionalProperties[i].setName(key);
+                properties.additionalProperties[i].setValue((String)value);
                 } catch (Exception e) {
                     log.error("map: {}",map.toJSONString());
                     log.error("additional property: {}, {}",new Object[]{key,value,e});
@@ -101,7 +101,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             i++;
         }
 
-        properties.numberOfProperties.set((short)safeNumberOfProperties);
+        properties.setNumberOfProperties((short)safeNumberOfProperties);
     }
 
     private void parseProductArray(RelatedProductIndexingMessage event, Object products,
@@ -115,7 +115,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
                     JSONObject productObj = (JSONObject)product;
                     Object id = productObj.get(idKey);
                     if(id instanceof String) {
-                        event.relatedProducts.relatedProducts[i].id.set((String)id);
+                        event.relatedProducts.relatedProducts[i].id.setId((String)id);
                     } else {
                         continue;
                     }
@@ -128,7 +128,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
                 } else {
                     try {
-                        event.relatedProducts.relatedProducts[i].id.set((String)product);
+                        event.relatedProducts.relatedProducts[i].id.setId((String)product);
                     } catch(ClassCastException exception) {
                         continue;
                     }
@@ -139,7 +139,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             if(i==0) {
                 invalidateMessage(event);
             } else {
-                event.relatedProducts.numberOfRelatedProducts.set((short)i);
+                event.relatedProducts.setNumberOfRelatedProducts((short)i);
             }
         } else {
             invalidateMessage(event);
@@ -147,7 +147,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     }
 
     private void invalidateMessage(RelatedProductIndexingMessage message) {
-        message.validMessage.set(false);
-        message.relatedProducts.numberOfRelatedProducts.set((short)0);
+        message.setValidMessage(false);
+        message.relatedProducts.setNumberOfRelatedProducts((short)0);
     }
 }

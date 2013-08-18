@@ -50,8 +50,8 @@ public abstract class IndexingRequestConverterTest {
 
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
-        assertEquals("Message should be valid, 3 related products",true,message.validMessage.get());
-        assertEquals("Message should have 3 related products",3,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
+        assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
 
     }
 
@@ -67,8 +67,8 @@ public abstract class IndexingRequestConverterTest {
 
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
-        assertEquals("Message should be valid, 3 related products",true,message.validMessage.get());
-        assertEquals("Message should have 3 related products",3,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
+        assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
 
     }
 
@@ -83,8 +83,8 @@ public abstract class IndexingRequestConverterTest {
 
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
-        assertEquals("Message should be invalid, no related products",false,message.validMessage.get());
-        assertEquals("Message should have no related product",0,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
+        assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
 
 
     }
@@ -100,8 +100,8 @@ public abstract class IndexingRequestConverterTest {
                         "}";
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
-        assertEquals("Message should be invalid, no related products",false,message.validMessage.get());
-        assertEquals("Message should have no related product",0,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
+        assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
 
 
     }
@@ -118,8 +118,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be invalid, no related products",false,message.validMessage.get());
-        assertEquals("Message should have no related product",0,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
+        assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
 
     }
 
@@ -135,11 +135,11 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be valid, with 2 related products",true,message.validMessage.get());
-        assertEquals("Message should have 2 related products",2,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
+        assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
 
 
-        Map<String,String> properties = new HashMap<String,String>(message.additionalProperties.numberOfProperties.get());
+        Map<String,String> properties = new HashMap<String,String>(message.additionalProperties.getNumberOfProperties());
 
         message.additionalProperties.convertTo(properties);
 
@@ -161,8 +161,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)1);
 
-        assertEquals("Message should be valid, with 2 related products",true,message.validMessage.get());
-        assertEquals("Message should have 2 related products",2,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
+        assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
 
 
         Map<String,String> properties = new HashMap<String,String>(1);
@@ -191,8 +191,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be invalid, no related products",true,message.validMessage.get());
-        assertEquals("Message should have 3 related product",3,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be invalid, no related products",true,message.isValidMessage());
+        assertEquals("Message should have 3 related product",3,message.relatedProducts.getNumberOfRelatedProducts());
 
 
         Map<String,String> properties = new HashMap<String,String>(1);
@@ -227,8 +227,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be valid, with 3 related products",true,message.validMessage.get());
-        assertEquals("Message should have 3 related products",3,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
+        assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
 
 
         Map<String,String> properties = new HashMap<String,String>(1);
@@ -252,8 +252,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)1);
 
-        assertEquals("Message should be valid, with 3 related products",true,message.validMessage.get());
-        assertEquals("Message should have 2 related products",2,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
+        assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
 
 
         Map<String,String> properties = new HashMap<String,String>(1);
@@ -276,8 +276,8 @@ public abstract class IndexingRequestConverterTest {
         IndexingRequestConverter converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be valid, with 1 related products",true,message.validMessage.get());
-        assertEquals("Message should have 1 related products",1,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());
+        assertEquals("Message should have 1 related products",1,message.relatedProducts.getNumberOfRelatedProducts());
 
 
         json =
@@ -290,8 +290,8 @@ public abstract class IndexingRequestConverterTest {
         converter = createConverter(json.getBytes());
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
-        assertEquals("Message should be valid, with 1 related products",true,message.validMessage.get());
-        assertEquals("Message should have 1 related products",1,message.relatedProducts.numberOfRelatedProducts.get());
+        assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());
+        assertEquals("Message should have 1 related products",1,message.relatedProducts.getNumberOfRelatedProducts());
 
     }
 }

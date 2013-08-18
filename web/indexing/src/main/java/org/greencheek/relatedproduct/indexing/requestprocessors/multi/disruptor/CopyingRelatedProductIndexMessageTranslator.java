@@ -5,7 +5,6 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,26 +20,14 @@ public class CopyingRelatedProductIndexMessageTranslator implements EventTransla
     private final RelatedProductIndexingMessage sourceMessageToCopy;
 
     public CopyingRelatedProductIndexMessageTranslator(RelatedProductIndexingMessage message) {
-        log.debug("is message to translate valid? {}",message.validMessage.get());
+        log.debug("is message to translate valid? {}",message.isValidMessage());
         this.sourceMessageToCopy = message;
     }
 
     @Override
     public void translateTo(RelatedProductIndexingMessage relatedProductIndexingMessage, long l) {
-
         log.debug("Translating message ready for indexing");
-        ByteBuffer source = sourceMessageToCopy.getByteBuffer();
-        ByteBuffer target = relatedProductIndexingMessage.getByteBuffer();
-        try {
-            source.position(0).limit(source.capacity());
-            target.clear();
-            target.put(source);
-            log.debug("message copied." + relatedProductIndexingMessage.validMessage.get());
-        }
-        finally {
-            sourceMessageToCopy.validMessage.set(false);
-            log.debug("message copied." + relatedProductIndexingMessage.validMessage.get());
-
-        }
+        sourceMessageToCopy.copyInto(relatedProductIndexingMessage);
+        sourceMessageToCopy.setValidMessage(false);
     }
 }

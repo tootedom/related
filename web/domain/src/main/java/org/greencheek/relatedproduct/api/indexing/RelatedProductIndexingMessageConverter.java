@@ -13,5 +13,5 @@ import java.util.Set;
  */
 public interface RelatedProductIndexingMessageConverter {
 
-    public Set<RelatedProduct> convertFrom(RelatedProductIndexingMessage message);
+    public RelatedProduct[] convertFrom(RelatedProductIndexingMessage message);
 }

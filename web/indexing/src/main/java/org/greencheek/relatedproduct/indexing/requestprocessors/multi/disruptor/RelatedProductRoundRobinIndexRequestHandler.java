@@ -76,14 +76,14 @@ public class RelatedProductRoundRobinIndexRequestHandler implements EventHandler
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {
 
         try {
-            if(request.validMessage.get()) {
+            if(request.isValidMessage()) {
                 log.debug("handing off request to indexing processor");
                 disruptors[nextDisruptor++ & mask].publishEvent(new CopyingRelatedProductIndexMessageTranslator(request));
             } else {
                 log.info("indexing message not valid.  ignoring. potential related products: {}", request.relatedProducts.numberOfRelatedProducts);
             }
         } finally {
-            request.validMessage.set(false);
+            request.setValidMessage(false);
         }
     }
 

@@ -72,4 +72,6 @@ public interface Configuration {
     public int getFoundSearchResultsStatusCode();
 
 
+    public String getPropertyEncoding();
+
 }

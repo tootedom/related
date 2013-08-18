@@ -33,7 +33,7 @@ public class RelatedProductSearch extends Struct {
         validMessage = new Bool();
         maxResults = new Signed32();
         relatedContentId = new UTF8String(config.getRelatedProductIdLength());
-        additionalSearchCriteria = inner(new RelatedProductAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent()));
+        additionalSearchCriteria = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent());
         searchType = new Enum32<RelatedProductSearchType>(RelatedProductSearchType.values());
 
     }
@@ -59,14 +59,13 @@ public class RelatedProductSearch extends Struct {
         newCopy.relatedContentId.set(this.relatedContentId.get());
         newCopy.maxResults.set(this.maxResults.get());
         newCopy.searchType.set(this.searchType.get());
-        short numOfProps = this.additionalSearchCriteria.numberOfProperties.get();
-        newCopy.additionalSearchCriteria.numberOfProperties.set(numOfProps);
+        short numOfProps = this.additionalSearchCriteria.getNumberOfProperties();
+        newCopy.additionalSearchCriteria.setNumberOfProperties(numOfProps);
         for(int i=0;i<numOfProps;i++) {
             RelatedProductAdditionalProperty oldProp = this.additionalSearchCriteria.additionalProperties[i];
             RelatedProductAdditionalProperty newProp = newCopy.additionalSearchCriteria.additionalProperties[i];
 
-            newProp.name.set(oldProp.name.get());
-            newProp.value.set(oldProp.value.get());
+            oldProp.copyTo(newProp);
         }
         return newCopy;
     }

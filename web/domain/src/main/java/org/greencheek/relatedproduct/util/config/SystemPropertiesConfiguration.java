@@ -20,8 +20,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty("related-product.related.product.invalid.id.string", "INVALID_ID");
     private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","10240"));
 
-    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.additional.key.length", "30"));
-    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.additional.value.length", "30"));
+    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
+    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
     private final int SIZE_OF_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.index.request.queue", "2048"));
     private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","32"));
 
@@ -72,6 +72,9 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","500"));
     private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.no.found.search.request.status.code","404"));
     private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.found.search.request.status.code","200"));
+
+    // string Encoding for the properties
+    private final String PROPERTY_ENCODING = System.getProperty("related-product..additional.prop.string.encoding","UTF-8");
 
     private final int[] searchRequestResponseCodes = new int[4];
 
@@ -291,5 +294,10 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getSizeOfIndexRequestQueue() {
         return SIZE_OF_INDEX_REQUEST_QUEUE;
+    }
+
+    @Override
+    public String getPropertyEncoding() {
+        return PROPERTY_ENCODING;
     }
 }

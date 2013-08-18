@@ -54,21 +54,23 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {
 
 
-        if(!request.validMessage.get()) {
+        if(!request.isValidMessage()) {
             log.debug("Invalid indexing message.  Ignoring message");
             return;
         }
-        if(request.relatedProducts.numberOfRelatedProducts.get()==0) {
+        if(request.relatedProducts.getNumberOfRelatedProducts()==0) {
             log.debug("Invalid indexing message, no related products.  Ignoring message");
-            request.validMessage.set(false);
+            request.setValidMessage(false);
             return;
         }
 
         try {
 
-            Set<RelatedProduct> products = indexConverter.convertFrom(request);
-            count-=products.size();
-            relatedProducts.addAll(products);
+            RelatedProduct[] products = indexConverter.convertFrom(request);
+            count-=products.length;
+            for(RelatedProduct p : products) {
+                relatedProducts.add(p);
+            }
 
             if(endOfBatch || count<=0) {
                 try {
@@ -80,11 +82,12 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
                     }
                 }
                 finally {
+                    count = batchSize;
                     relatedProducts.clear();
                 }
             }
         } finally {
-            request.validMessage.set(false);
+            request.setValidMessage(false);
         }
 
 

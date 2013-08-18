@@ -60,12 +60,12 @@ public class RelatedProductSearchFactory {
             String key = entry.getKey();
             if(key.equals(sizeKey) || key.equals(idKey)) continue;
 
-            objectToPopulate.additionalSearchCriteria.additionalProperties[i].name.set(key);
-            objectToPopulate.additionalSearchCriteria.additionalProperties[i].value.set(entry.getValue());
+            objectToPopulate.additionalSearchCriteria.additionalProperties[i].setName(key);
+            objectToPopulate.additionalSearchCriteria.additionalProperties[i].setValue(entry.getValue());
             i++;
         }
 
-        objectToPopulate.additionalSearchCriteria.numberOfProperties.set(i);
+        objectToPopulate.additionalSearchCriteria.setNumberOfProperties(i);
 
         objectToPopulate.searchType.set(type);
 
@@ -83,32 +83,32 @@ public class RelatedProductSearchFactory {
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
@@ -117,7 +117,7 @@ public class RelatedProductSearchFactory {
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
         System.out.println(obj.additionalSearchCriteria.numberOfProperties);
-        System.out.println(obj.additionalSearchCriteria.toString(config));
+        System.out.println(obj.additionalSearchCriteria.toString());
 
         System.out.println(obj.getLookupKey(config) + ""  + Math.ceil(3 / 0.75));
 
