@@ -21,22 +21,27 @@ import java.util.*;
  * Time: 16:39
  * To change this template use File | Settings | File Templates.
  */
-public class RingBufferIndexRequestHandler implements EventHandler<RelatedProductIndexingMessage> {
+class RingBufferRelatedProductIndexingRequestHandlerL1 {
+    private int p01, p02, p03, p04, p05, p06, p07, p08;
+    private int p11, p12, p13, p14, p15, p16, p17, p18;
+}
 
-    private static final Logger log = LoggerFactory.getLogger(RingBufferIndexRequestHandler.class);
+class RingBufferRelatedProductIndexingRequestHandlerL2 extends RingBufferRelatedProductIndexingRequestHandlerL1 {
 
-    private final RelatedProductIndexingMessageConverter indexConverter;
-    private final RelatedProductStorageRepository storageRepository;
+    protected static final Logger log = LoggerFactory.getLogger(RingBufferRelatedProductIndexingRequestHandler.class);
 
-    private final List<RelatedProduct> relatedProducts = new ArrayList<RelatedProduct>(1024);
+    protected final RelatedProductIndexingMessageConverter indexConverter;
+    protected final RelatedProductStorageRepository storageRepository;
 
-    private final RelatedProductStorageLocationMapper locationMapper;
+    protected final List<RelatedProduct> relatedProducts = new ArrayList<RelatedProduct>(1024);
 
-    private final int batchSize;
+    protected final RelatedProductStorageLocationMapper locationMapper;
 
-    private int count;
+    protected final int batchSize;
 
-    public RingBufferIndexRequestHandler(int batchSize,
+    protected int count;
+
+    protected RingBufferRelatedProductIndexingRequestHandlerL2(int batchSize,
                                          RelatedProductIndexingMessageConverter converter,
                                          RelatedProductStorageRepository repository,
                                          RelatedProductStorageLocationMapper locationMapper) {
@@ -48,7 +53,31 @@ public class RingBufferIndexRequestHandler implements EventHandler<RelatedProduc
         this.count = batchSize;
     }
 
+}
 
+class RingBufferRelatedProductIndexingRequestHandlerL3 extends  RingBufferRelatedProductIndexingRequestHandlerL2 {
+    private int p01, p02, p03, p04, p05, p06, p07, p08;
+    private int p11, p12, p13, p14, p15, p16, p17, p18;
+
+    protected RingBufferRelatedProductIndexingRequestHandlerL3(int batchSize,
+                                           RelatedProductIndexingMessageConverter converter,
+                                           RelatedProductStorageRepository repository,
+                                           RelatedProductStorageLocationMapper locationMapper) {
+        super(batchSize,converter,repository,locationMapper);
+    }
+}
+
+
+
+public class RingBufferRelatedProductIndexingRequestHandler extends RingBufferRelatedProductIndexingRequestHandlerL3 implements EventHandler<RelatedProductIndexingMessage> {
+
+    public RingBufferRelatedProductIndexingRequestHandler(int batchSize,
+                                                          RelatedProductIndexingMessageConverter converter,
+                                                          RelatedProductStorageRepository repository,
+                                                          RelatedProductStorageLocationMapper locationMapper)
+    {
+        super(batchSize,converter,repository,locationMapper);
+    }
 
     @Override
     public void onEvent(RelatedProductIndexingMessage request, long l, boolean endOfBatch) throws Exception {

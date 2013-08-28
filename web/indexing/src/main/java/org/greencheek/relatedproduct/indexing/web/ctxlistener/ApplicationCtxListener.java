@@ -3,8 +3,7 @@ package org.greencheek.relatedproduct.indexing.web.ctxlistener;
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.indexing.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -21,7 +20,6 @@ public class ApplicationCtxListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext ctx = servletContextEvent.getServletContext();
-        WebApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(ctx);
         ApplicationCtx applicationCtx = new BootstrapApplicationCtx();
 
         ctx.setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,applicationCtx);

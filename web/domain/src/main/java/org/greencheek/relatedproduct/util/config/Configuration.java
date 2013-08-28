@@ -12,12 +12,14 @@ import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 public interface Configuration {
     public static final String APPLICATION_CONTEXT_ATTRIBUTE_NAME = "ApplicationContext";
 
+    public WaitStrategyFactory getWaitStrategyFactory();
     public short getNumberOfIndexingRequestProcessors();
 
     public short getMaxNumberOfRelatedProductProperties();
     public short getMaxNumberOfRelatedProductsPerPurchase();
     public short getRelatedProductIdLength();
     public String getRelatedProductInvalidIdString();
+    public int getMinRelatedProductPostDataSizeInBytes();
     public int getMaxRelatedProductPostDataSizeInBytes();
     public short getRelatedProductAdditionalPropertyKeyLength();
     public short getRelatedProductAdditionalPropertyValueLength();

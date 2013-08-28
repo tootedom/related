@@ -19,12 +19,14 @@
     </properties>
     <dependencies>
         <!-- domain for disruptor -->
+        <!--
         <dependency>
             <groupId>javolution</groupId>
             <artifactId>javolution</artifactId>
             <version>5.5.1</version>
             <scope>compile</scope>
         </dependency>
+        -->
     </dependencies>
 
     <build>

@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.requestprocessing;
 
+import java.util.List;
 import java.util.Map;
 
 /**

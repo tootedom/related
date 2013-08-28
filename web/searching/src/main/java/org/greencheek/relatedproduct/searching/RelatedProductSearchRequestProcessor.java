@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 
 import javax.servlet.AsyncContext;
+import java.util.List;
 import java.util.Map;
 
 /**

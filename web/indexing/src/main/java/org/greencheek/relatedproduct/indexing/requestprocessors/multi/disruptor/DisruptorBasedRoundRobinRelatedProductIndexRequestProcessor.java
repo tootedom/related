@@ -1,12 +1,12 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -31,19 +31,20 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
     public DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(Configuration configuration,
                                                                        IndexingRequestConverterFactory requestConverter,
                                                                        RelatedProductIndexingMessageConverter converter,
-                                                                       RelatedProductIndexingMessageFactory messageFactory,
+                                                                       RelatedProductIndexingMessageFactory indexingMessageFactory,
+                                                                       RelatedProductReferenceMessageFactory referenceMessageFactory,
                                                                        RelatedProductStorageRepositoryFactory factory,
                                                                        RelatedProductStorageLocationMapper locationMapper) {
 
 
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
-                messageFactory,
+                indexingMessageFactory,
                 configuration.getSizeOfIndexRequestQueue(), executorService,
-                ProducerType.MULTI, new SleepingWaitStrategy());
+                ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
 
 
-        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,messageFactory,factory,locationMapper);
+        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,referenceMessageFactory,factory,locationMapper);
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 

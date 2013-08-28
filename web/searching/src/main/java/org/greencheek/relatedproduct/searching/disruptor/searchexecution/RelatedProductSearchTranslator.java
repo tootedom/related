@@ -21,22 +21,12 @@ public class RelatedProductSearchTranslator implements EventTranslator<RelatedPr
 
     @Override
     public void translateTo(RelatedProductSearch event, long sequence) {
-        event.validMessage.set(false);
-        event.maxResults.set(searchRequest.maxResults.get());
-        event.relatedContentId.set(searchRequest.relatedContentId.get());
-
-        short numOfProps = searchRequest.additionalSearchCriteria.numberOfProperties.get();
-        event.additionalSearchCriteria.numberOfProperties.set(numOfProps);
-
-        for(int i=0;i<numOfProps;i++) {
-            RelatedProductAdditionalProperty prop = searchRequest.additionalSearchCriteria.additionalProperties[i];
-
-            event.additionalSearchCriteria.additionalProperties[i].name.set(prop.name.get());
-            event.additionalSearchCriteria.additionalProperties[i].value.set(prop.value.get());
-        }
-
-        event.searchType.set(searchRequest.searchType.get());
-        event.validMessage.set(true);
+        event.setValidMessage(false);
+        event.setMaxResults(searchRequest.maxResults);
+        searchRequest.relatedContentId.copyTo(event.relatedContentId);
+        searchRequest.additionalSearchCriteria.copyTo(event.additionalSearchCriteria);
+        event.setRelatedProductSearchType(searchRequest.searchType);
+        event.setValidMessage(true);
 
     }
 }

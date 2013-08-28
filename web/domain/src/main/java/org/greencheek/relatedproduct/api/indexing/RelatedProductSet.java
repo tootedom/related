@@ -1,6 +1,5 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import javolution.io.Struct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**

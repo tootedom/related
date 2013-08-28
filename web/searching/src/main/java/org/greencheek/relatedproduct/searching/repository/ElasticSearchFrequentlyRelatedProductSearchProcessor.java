@@ -10,6 +10,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
@@ -57,7 +58,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedProductSearch[] searches) {
         MultiSearchRequestBuilder multiSearch = elasticClient.prepareMultiSearch();
         for(RelatedProductSearch search : searches) {
-            if(search.searchType.get() == RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
+            if(search.getRelatedProductSearchType() == RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
                 multiSearch.add(createFrequentlyRelatedContentSearch(search,elasticClient));
             }
         }
@@ -139,22 +140,22 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
      * @return
      */
     private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedProductSearch search, Client searchClient) {
-
-
         SearchRequestBuilder sr = searchClient.prepareSearch();
-        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),search.relatedContentId.get()));
+        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),search.getRelatedContentId()));
 
-        short numberOfProps = search.additionalSearchCriteria.numberOfProperties.get();
+        RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
+        short numberOfProps = searchProps.getNumberOfProperties();
+        RelatedProductAdditionalProperty[] searchCriteria = searchProps.getAdditionalProperties();
         for(int i = 0;i<numberOfProps;i++) {
-            RelatedProductAdditionalProperty prop = search.additionalSearchCriteria.additionalProperties[i];
-            bool.must(QueryBuilders.fieldQuery(prop.name.get(),prop.value.get()));
+            RelatedProductAdditionalProperty prop = searchCriteria[i];
+            bool.must(QueryBuilders.fieldQuery(prop.getName(),prop.getValue()));
         }
 
         sr.setIndices(indexName);
         sr.setSize(0);
         sr.setQuery(bool);
         sr.setTimeout(TimeValue.timeValueMillis(searchTimeout));
-        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.maxResults.get()));
+        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults()));
         log.debug("Executing Query {}",sr);
         return sr;
 

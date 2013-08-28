@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
 import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.EventTranslatorOneArg;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * Time: 13:27
  * To change this template use File | Settings | File Templates.
  */
-public class CopyingRelatedProductIndexMessageTranslator implements EventTranslator<RelatedProductIndexingMessage>  {
+public class CopyingRelatedProductIndexMessageTranslator implements EventTranslator<RelatedProductIndexingMessage> {
 
     private static final Logger log = LoggerFactory.getLogger(CopyingRelatedProductIndexMessageTranslator.class);
 
@@ -30,4 +31,6 @@ public class CopyingRelatedProductIndexMessageTranslator implements EventTransla
         sourceMessageToCopy.copyInto(relatedProductIndexingMessage);
         sourceMessageToCopy.setValidMessage(false);
     }
+
+
 }

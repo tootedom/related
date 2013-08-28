@@ -1,5 +1,9 @@
 package org.greencheek.relatedproduct.util.config;
 
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.WaitStrategy;
+import com.lmax.disruptor.YieldingWaitStrategy;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 
 import javax.inject.Named;
@@ -19,6 +23,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final short RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
     private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty("related-product.related.product.invalid.id.string", "INVALID_ID");
     private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","10240"));
+    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","4096"));
 
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
@@ -78,13 +83,39 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final int[] searchRequestResponseCodes = new int[4];
 
+    private final String WAIT_STRATEGY = System.getProperty("related-product.wait.strategy","yield").toLowerCase();
+
+
+    private final WaitStrategyFactory waitStrategyFactory;
+
     public SystemPropertiesConfiguration() {
         searchRequestResponseCodes[SearchResultsOutcomeType.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
         searchRequestResponseCodes[SearchResultsOutcomeType.FAILED_REQUEST.getIndex()] = FAILED_SEARCH_REQUEST_STATUS_CODE;
         searchRequestResponseCodes[SearchResultsOutcomeType.REQUEST_TIMEOUT.getIndex()] = TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
         searchRequestResponseCodes[SearchResultsOutcomeType.HAS_RESULTS.getIndex()] = FOUND_SEARCH_REQUEST_STATUS_CODE;
+
+        if(WAIT_STRATEGY.contains("yield")) {
+            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
+        }
+        else if(WAIT_STRATEGY.contains("block")) {
+            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BLOCKING);
+        }
+        else if(WAIT_STRATEGY.contains("sleep")) {
+            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.SLEEPING);
+        }
+        else if (WAIT_STRATEGY.contains("busy")) {
+            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BUSY);
+        }
+        else {
+            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
+        }
+
     }
 
+
+    public WaitStrategyFactory getWaitStrategyFactory() {
+        return waitStrategyFactory;
+    }
 
     public short getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
@@ -274,6 +305,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getMaxRelatedProductPostDataSizeInBytes() {
         return MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES;
+    }
+
+    @Override
+    public int getMinRelatedProductPostDataSizeInBytes() {
+        return MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES;
     }
 
     @Override

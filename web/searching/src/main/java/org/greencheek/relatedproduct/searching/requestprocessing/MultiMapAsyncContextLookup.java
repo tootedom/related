@@ -20,15 +20,14 @@ import java.util.Map;
  * Time: 13:18
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
     private static final Logger log = LoggerFactory.getLogger(MultiMapAsyncContextLookup.class);
+    private static final AsyncContext[] EMPTY_CONTEXT = new AsyncContext[0];
 
     private final Map<SearchRequestLookupKey,List<AsyncContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
 
-    @Inject
     public MultiMapAsyncContextLookup(Configuration config) {
         contexts = new HashMap<SearchRequestLookupKey, List<AsyncContext>>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
         expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
@@ -38,7 +37,7 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
     public AsyncContext[] removeContexts(SearchRequestLookupKey key) {
         List<AsyncContext> ctxs = contexts.remove(key);
         if(ctxs==null) {
-            return new AsyncContext[0];
+            return EMPTY_CONTEXT;
         }
         else {
            return ctxs.toArray(new AsyncContext[ctxs.size()]);

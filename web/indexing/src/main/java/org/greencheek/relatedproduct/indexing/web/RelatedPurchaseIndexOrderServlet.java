@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 
+import org.elasticsearch.common.netty.buffer.DynamicChannelBuffer;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 /**
  * *
@@ -61,17 +63,17 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         }
         asyncContext.setTimeout(10000*2);
 
-        try {
-            asyncContext.start(new Runnable() {
-                @Override
-                public void run() {
-                    submitRequestForProcessing(asyncContext);
-                }
-            });
-        } catch(Exception e) {
-
-
-        }
+//        try {
+//            asyncContext.start(new Runnable() {
+//                @Override
+//                public void run() {
+        submitRequestForProcessing(asyncContext);
+//                }
+//            });
+//        } catch(Exception e) {
+//
+//
+//        }
 
 
     }
@@ -101,6 +103,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
     }
 
     private void submitRequestForProcessing(AsyncContext ctx) {
+        int minPostData = configuration.getMinRelatedProductPostDataSizeInBytes();
         int maxPostData = configuration.getMaxRelatedProductPostDataSizeInBytes();
         HttpServletRequest request = (HttpServletRequest)ctx.getRequest();
         HttpServletResponse response = (HttpServletResponse)ctx.getResponse();
@@ -112,8 +115,8 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             return;
         }
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[4096];
+        DynamicChannelBuffer channel = new DynamicChannelBuffer(minPostData);
+        byte[] buffer = new byte[minPostData];
         InputStream inputStream;
         try {
             inputStream = request.getInputStream();
@@ -121,21 +124,25 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             log.warn("Error obtaining content from request to index");
             return;
         }
+
         int length = 0;
         int accumLength = 0;
         boolean canProcess = true;
         try {
             while ((length = inputStream.read(buffer)) != -1) {
-                baos.write(buffer, 0, length);
+                channel.writeBytes(buffer,0,length);
                 accumLength+=length;
                 if(accumLength>maxPostData) {
                     response.setStatus(413);
                     canProcess = false;
                     log.warn("Post data is larger than max allowed : {}",maxPostData);
+                    break;
 
                 }
             }
-            response.setStatus(202);
+            if(canProcess) {
+                response.setStatus(202);
+            }
 
         } catch (IOException exception) {
             log.warn("Error obtaining content from request to index");
@@ -147,11 +154,12 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
             }
         }
-        ctx.complete();
 
         if(canProcess) {
-            indexer.processRequest(configuration,baos.toByteArray());
+            indexer.processRequest(configuration,channel.toByteBuffer().array());
         }
+
+        ctx.complete();
 
     }
 

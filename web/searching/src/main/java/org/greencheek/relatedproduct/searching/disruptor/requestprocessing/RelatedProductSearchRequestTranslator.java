@@ -34,7 +34,7 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
                                                  AsyncContext context) {
         this.configuration = configuration;
         this.searchRequestType = requestType;
-        this.parameters = new HashMap<String,String>(parameters);
+        this.parameters = parameters;
         this.clientCtx = context;
     }
     @Override

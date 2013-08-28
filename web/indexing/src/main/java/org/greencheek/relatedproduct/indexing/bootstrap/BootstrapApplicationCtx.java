@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.indexing.bootstrap;
 import org.greencheek.relatedproduct.api.indexing.BasicRelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.indexing.elasticsearch.ElasticSearchRelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.jsonrequestprocessing.JsonSmartIndexingRequestConverterFactory;
@@ -41,6 +42,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
                 new JodaISO8601UTCCurrentDateAndTimeFormatter());
 
         RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(applicationConfiguration);
+        RelatedProductReferenceMessageFactory indexingReferenceMessageFactory = new RelatedProductReferenceMessageFactory();
 
         RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter = new BasicRelatedProductIndexingMessageConverter(applicationConfiguration);
         RelatedProductStorageRepositoryFactory repoFactory = new ElasticSearchRelatedProductStorageRepositoryFactory(applicationConfiguration);
@@ -57,7 +59,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
         }
 
         this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,
-                indexingMessageFactory,indexingMessageToRelatedProductsConverter,repoFactory,locationMapper);
+                indexingMessageFactory,indexingReferenceMessageFactory,indexingMessageToRelatedProductsConverter,repoFactory,locationMapper);
 
 
 

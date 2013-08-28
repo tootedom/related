@@ -1,6 +1,5 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import javolution.io.Struct;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -26,6 +25,13 @@ public class RelatedProductIndexingMessage {
         relatedProducts = new RelatedProductSet(config);
         additionalProperties = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties());
 
+    }
+
+    public RelatedProductIndexingMessage(Configuration config,RelatedProductIndexingMessage objectToClone) {
+        validMessage = false;
+        relatedProducts = new RelatedProductSet(config);
+        additionalProperties = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties());
+        objectToClone.copyInto(this);
     }
 
     public void setValidMessage(boolean isValid) {

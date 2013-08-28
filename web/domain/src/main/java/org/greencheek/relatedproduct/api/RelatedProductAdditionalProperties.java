@@ -1,9 +1,7 @@
 package org.greencheek.relatedproduct.api;
 
-import javolution.io.Struct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 /**
@@ -33,6 +31,10 @@ public class RelatedProductAdditionalProperties {
 
     public short getNumberOfProperties() {
         return this.numberOfProperties;
+    }
+
+    public RelatedProductAdditionalProperty[] getAdditionalProperties() {
+        return this.additionalProperties;
     }
 
     public void copyTo(RelatedProductAdditionalProperties copyTo) {
@@ -91,7 +93,7 @@ public class RelatedProductAdditionalProperties {
 
             while(numberOfProps--!=0) {
                 RelatedProductAdditionalProperty prop = additionalProperties[numberOfProps];
-                string.append(new String(prop.name,0,prop.nameLength)).append('=').append(new String(prop.value,0,prop.valueLength)).append('&');
+                string.append(prop.name,0,prop.nameLength).append('=').append(prop.value,0,prop.valueLength).append('&');
             }
 
             string.deleteCharAt(string.length()-1);

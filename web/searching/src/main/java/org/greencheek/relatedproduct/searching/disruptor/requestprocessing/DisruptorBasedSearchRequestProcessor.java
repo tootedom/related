@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.servlet.AsyncContext;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -62,7 +63,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
 
     @Override
-    public void processRequest(RelatedProductSearchType requestType, Map<String, String> parameters, AsyncContext context) throws InvalidSearchRequestException {
+    public void processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, AsyncContext context) throws InvalidSearchRequestException {
         SearchRequestParameterValidator validator = requestValidators.getValidatorForType(requestType);
         if(validator !=null) {
             ValidationMessage isValid = validator.validateParameters(parameters);

@@ -16,7 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,6 +105,12 @@ public class RelatedProductSearchServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Returns a sort List of key to value String objects.
+     * List<String[2]> where String[0] is the key and String[1] is the value
+     * @param params
+     * @return
+     */
     private Map<String,String> convertToFirstParameterValueMap(Map<String,String[]> params) {
         Map<String,String> parms = new HashMap<String,String>((int)Math.ceil(params.size()/0.75));
         for(String key : params.keySet()) {

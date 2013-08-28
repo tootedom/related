@@ -77,14 +77,15 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
     private void parseAdditionalProperties(RelatedProductAdditionalProperties properties,JSONObject map, short maxPropertiesThanCanBeRead) {
 
-        Set<String> additionalPropertiesSet = map.keySet();
-        String[] additionalProperties = additionalPropertiesSet.toArray(new String[additionalPropertiesSet.size()]);
-        int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, additionalProperties.length);
+//        Set<String> additionalPropertiesSet = map.keySet();
+//        String[] additionalProperties = additionalPropertiesSet.toArray(new String[additionalPropertiesSet.size()]);
+        int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, map.size());
 
         int i=0;
         int safeNumberOfProperties = minNumberOfAdditionalProperties;
-        while(i<minNumberOfAdditionalProperties) {
-            String key = additionalProperties[i];
+//        while(i<minNumberOfAdditionalProperties) {
+
+        for(String key : map.keySet()) {
             Object value = map.get(key);
             if(value instanceof String) {
                 try {
@@ -99,6 +100,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
                 safeNumberOfProperties--;
             }
             i++;
+            if(i>=minNumberOfAdditionalProperties) break;
         }
 
         properties.setNumberOfProperties((short)safeNumberOfProperties);

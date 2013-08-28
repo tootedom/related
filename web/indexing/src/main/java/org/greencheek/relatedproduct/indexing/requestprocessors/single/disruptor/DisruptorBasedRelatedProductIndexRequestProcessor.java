@@ -1,13 +1,13 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor;
 
 import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
+import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.RingBufferRelatedProductReferenceRequestHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +40,10 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 messageFactory,
                 configuration.getSizeOfIndexRequestQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.SINGLE, configuration.getWaitStrategyFactory().createWaitStrategy());
 
         final int batchIndexSize = configuration.getIndexBatchSize();
-        disruptor.handleEventsWith(new EventHandler[] {new RingBufferIndexRequestHandler(batchIndexSize,indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
+        disruptor.handleEventsWith(new EventHandler[] {new RingBufferRelatedProductIndexingRequestHandler(batchIndexSize,indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
         disruptor.start();
 
     }
