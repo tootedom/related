@@ -20,7 +20,6 @@ public class RelatedProductIndexingMessageFactory implements EventFactory<Relate
 
     @Override
     public RelatedProductIndexingMessage newInstance() {
-        RelatedProductIndexingMessage message = new RelatedProductIndexingMessage(configuration);
-        return message;
+        return new RelatedProductIndexingMessage(configuration);
     }
 }

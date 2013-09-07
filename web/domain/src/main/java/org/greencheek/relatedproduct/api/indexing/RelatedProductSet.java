@@ -26,6 +26,10 @@ public class RelatedProductSet {
         this.numberOfRelatedProducts = numberOfRelatedProducts;
     }
 
+    public RelatedProductInfo[] getListOfRelatedProductInfomation() {
+        return this.relatedProducts;
+    }
+
     public short getNumberOfRelatedProducts() {
         return this.numberOfRelatedProducts;
     }

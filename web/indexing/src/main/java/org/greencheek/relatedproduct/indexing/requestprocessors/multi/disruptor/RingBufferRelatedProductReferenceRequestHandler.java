@@ -21,8 +21,10 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 class RingBufferRelatedProductReferencRequestHandlerL1 {
-    private int p01, p02, p03, p04, p05, p06, p07, p08;
-    private int p11, p12, p13, p14, p15, p16, p17, p18;
+    public int p01, p02, p03, p04, p05, p06, p07, p08;
+    public int p11, p12, p13, p14, p15, p16, p17, p18;
+    public int p21, p22, p23, p24, p25, p26, p27, p28;
+    public int p31, p32, p33, p34, p35, p36, p37, p38;
 }
 
 class RingBufferRelatedProductReferencRequestHandlerL2 extends RingBufferRelatedProductReferencRequestHandlerL1 {
@@ -53,8 +55,10 @@ class RingBufferRelatedProductReferencRequestHandlerL2 extends RingBufferRelated
 }
 
 class RingBufferRelatedProductReferencRequestHandlerL3 extends  RingBufferRelatedProductReferencRequestHandlerL2 {
-    private int p01, p02, p03, p04, p05, p06, p07, p08;
-    private int p11, p12, p13, p14, p15, p16, p17, p18;
+    public int e01, e02, e03, e04, e05, e06, e07, e08;
+    public int e11, e12, e13, e14, e15, e16, e17, e18;
+    public int e21, e22, e23, e24, e25, e26, e27, e28;
+    public int e31, e32, e33, e34, e35, e36, e37, e38;
 
     protected RingBufferRelatedProductReferencRequestHandlerL3(int batchSize,
                                            RelatedProductStorageRepository repository,

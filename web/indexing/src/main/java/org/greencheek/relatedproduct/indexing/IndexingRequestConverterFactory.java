@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.indexing;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
 
+import java.nio.ByteBuffer;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -11,5 +13,5 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  */
 public interface IndexingRequestConverterFactory {
     public IndexingRequestConverter createConverter(Configuration config,
-                                                    byte[] convertFrom) throws InvalidIndexingRequestException;
+                                                    ByteBuffer convertFrom) throws InvalidIndexingRequestException;
 }

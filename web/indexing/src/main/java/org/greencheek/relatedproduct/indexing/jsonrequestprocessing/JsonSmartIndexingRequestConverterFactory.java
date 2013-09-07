@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.nio.ByteBuffer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,7 +28,7 @@ public class JsonSmartIndexingRequestConverterFactory implements IndexingRequest
     }
 
     @Override
-    public IndexingRequestConverter createConverter(Configuration configuration, byte[] convertFrom) throws InvalidIndexingRequestException
+    public IndexingRequestConverter createConverter(Configuration configuration, ByteBuffer convertFrom) throws InvalidIndexingRequestException
     {
         JsonSmartIndexingRequestConverter converter = new JsonSmartIndexingRequestConverter(configuration,dateCreator,convertFrom);
         return converter;

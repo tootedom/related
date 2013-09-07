@@ -27,13 +27,6 @@ public class RelatedProductIndexingMessage {
 
     }
 
-    public RelatedProductIndexingMessage(Configuration config,RelatedProductIndexingMessage objectToClone) {
-        validMessage = false;
-        relatedProducts = new RelatedProductSet(config);
-        additionalProperties = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfRelatedProductProperties());
-        objectToClone.copyInto(this);
-    }
-
     public void setValidMessage(boolean isValid) {
         this.validMessage = isValid;
     }
@@ -46,30 +39,12 @@ public class RelatedProductIndexingMessage {
         return this.validMessage;
     }
 
-    public void copyInto(RelatedProductIndexingMessage copyTo) {
-        copyTo.setValidMessage(this.validMessage);
-        copyTo.setUTCFormattedDate(this.dateUTC);
+    public RelatedProductSet getRelatedProducts() {
+        return this.relatedProducts;
+    }
 
-        short numberOfRelatedProducts = relatedProducts.numberOfRelatedProducts;
-        copyTo.relatedProducts.setNumberOfRelatedProducts(numberOfRelatedProducts);
-        RelatedProductInfo[] sourceInfo = relatedProducts.relatedProducts;
-        for(int i =0;i<numberOfRelatedProducts;i++) {
-            RelatedProductInfo infoCopyFrom = sourceInfo[i];
-            RelatedProductInfo infoCopyTo = copyTo.relatedProducts.relatedProducts[i];
-            infoCopyFrom.id.copyTo(infoCopyTo.id);
-
-            infoCopyFrom.additionalProperties.copyTo(infoCopyTo.additionalProperties);
-        }
-
-        short numberOfAdditionalProps = additionalProperties.getNumberOfProperties();
-
-        copyTo.additionalProperties.setNumberOfProperties(additionalProperties.getNumberOfProperties());
-        RelatedProductAdditionalProperty[] srcProps = additionalProperties.additionalProperties;
-        RelatedProductAdditionalProperty[] targetProps = copyTo.additionalProperties.additionalProperties;
-        for(int i=0;i<numberOfAdditionalProps;i++) {
-            srcProps[i].copyTo(targetProps[i]);
-        }
-
+    public RelatedProductAdditionalProperties getIndexingMessageProperties() {
+        return this.additionalProperties;
     }
 
     @Override

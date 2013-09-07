@@ -2,7 +2,6 @@ package org.greencheek.relatedproduct.api;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import java.io.UnsupportedEncodingException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,48 +10,44 @@ import java.io.UnsupportedEncodingException;
  * Time: 20:14
  * To change this template use File | Settings | File Templates.
  */
+
 public class RelatedProductInfoIdentifier {
 
-    private static final String encoding = "UTF-8";
-    private final short maxStringIdLength;
-    private final short maxLength;
-    private final byte[] id;
-    private short length = 0;
+    protected final short maxStringIdLength;
+    protected final char[] id;
+    protected int length = 0;
 
     public RelatedProductInfoIdentifier(Configuration configuration) {
         maxStringIdLength = configuration.getRelatedProductIdLength();
-        maxLength = (short)(maxStringIdLength*4);
-        id = new byte[maxLength];
+        id = new char[maxStringIdLength];
     }
 
     public void setId(String id) {
-        String subString = id.substring(0, Math.min(id.length(),maxStringIdLength));
-        try {
-            setId(subString.getBytes(encoding));
-        } catch(UnsupportedEncodingException e) {
-            setId(subString.getBytes());
-        }
-
+        length = Math.min(id.length(),maxStringIdLength);
+        id.getChars(0, length,this.id,0);
     }
 
-    public void setId(byte[] id) {
-        short idLength = (short)Math.min(maxLength,id.length);
-        length = idLength;
-        System.arraycopy(id,0,this.id,0,idLength);
+    public char[] getIdCharArray() {
+        return id;
     }
 
-    public void copyTo(RelatedProductInfoIdentifier id) {
-        System.arraycopy(this.id,0,id.id,0,length);
-        id.length = this.length;
+    public char[] duplicate() {
+        char destination[] = new char[length];
+        System.arraycopy(this.id,0,destination,0,length);
+        return destination;
     }
-
 
     public String toString() {
-        try {
-            return new String(id,0,length,encoding);
-        } catch (UnsupportedEncodingException e) {
-            return new String(id,0,length);
-        }
+        return new String(id,0,length);
     }
 
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public void copyTo(RelatedProductInfoIdentifier destination) {
+        System.arraycopy(this.id,0,destination.getIdCharArray(),0,length);
+        destination.setLength(this.length);
+    }
 }

@@ -5,6 +5,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.*;
 
 import javax.inject.Named;
+import java.io.IOException;
 
 
 /**
@@ -30,12 +31,24 @@ public class JodaUTCCurrentDateFormatter implements UTCCurrentDateFormatter {
     public String getCurrentDay() {
         DateTime dt = new DateTime();
         DateTime utc =dt.withZone(DateTimeZone.UTC);
-        return formatter.print(utc);
+        StringBuilderWriter b = new StringBuilderWriter(24);
+        try {
+             formatter.printTo(b, utc);
+        } catch (IOException e) {
+            // this does not get thrown by the StringBuilder Appendable interface.
+        }
+        return b.toString();
     }
 
     @Override
     public String parseToDate(String dateAndOrTime) {
-        return formatter.print(formatterUTC.parseDateTime(dateAndOrTime));
+        StringBuilderWriter b = new StringBuilderWriter(24);
+        try {
+            formatter.printTo(b,formatterUTC.parseDateTime(dateAndOrTime));
+        } catch(IOException e) {
+            // this does not get thrown by the StringBuilder Appendable interface.
+        }
+        return b.toString();
     }
 
 }

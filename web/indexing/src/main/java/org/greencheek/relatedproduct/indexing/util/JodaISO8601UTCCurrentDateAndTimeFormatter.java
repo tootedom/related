@@ -4,7 +4,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.*;
 
-import javax.inject.Named;
+
+import java.io.IOException;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +15,6 @@ import javax.inject.Named;
  * Time: 22:48
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurrentDateAndTimeFormatter {
     private final DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
     private final DateTimeFormatter formatterUTCPrinter = ISODateTimeFormat.dateTime().withZoneUTC();
@@ -30,13 +31,27 @@ public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurr
 
     @Override
     public String getCurrentDay() {
+
         DateTime dt = new DateTime();
         DateTime utc =dt.withZone(DateTimeZone.UTC);
-        return formatter.print(utc);    }
+        StringBuilderWriter b = new StringBuilderWriter(24);
+        try {
+            formatter.printTo(b,utc);
+        } catch (IOException e) {
+            // this does not get thrown by the StringBuilder Appendable interface.
+        }
+        return b.toString();
+    }
 
     @Override
     public String formatToUTC(String day) {
-        return formatterUTCPrinter.print(formatterUTC.parseDateTime(day));
+        StringBuilderWriter b = new StringBuilderWriter(24);
+        try {
+            formatterUTCPrinter.printTo(b,formatterUTC.parseDateTime(day));
+        } catch (IOException e) {
+            // this does not get thrown by the StringBuilder Appendable interface.
+        }
+        return b.toString();
     }
 
     public static void main(String[] args) {
@@ -48,4 +63,9 @@ public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurr
         System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00"));
         System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07"));
     }
+
+
+
+
+
 }

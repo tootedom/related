@@ -4,13 +4,10 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <Async name="ASYNC" >
-            <appender-ref ref="Console"/>
-        </Async>
     </appenders>
     <loggers>
-        <root level="debug">
-            <appender-ref ref="ASYNC"/>
+        <root level="debug" includeLocation="false">
+            <appender-ref ref="Console"/>
         </root>
     </loggers>
 </configuration>

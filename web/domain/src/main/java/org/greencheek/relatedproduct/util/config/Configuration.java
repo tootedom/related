@@ -76,4 +76,6 @@ public interface Configuration {
 
     public String getPropertyEncoding();
 
+    boolean isIndexNameDateCachingEnabled();
+    public int getNumberOfIndexNamesToCache();
 }

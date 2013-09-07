@@ -7,6 +7,7 @@ import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public abstract class IndexingRequestConverterTest {
 
 
 
-    public abstract IndexingRequestConverter createConverter(byte[] data);
+    public abstract IndexingRequestConverter createConverter(ByteBuffer data);
 
     @Before
     public void setUp() {
@@ -48,7 +49,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ \"B009S4IJCK\",  \"B0076UICIO\" ,\"B0096TJCXW\" ]"+
                         "}";
 
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
         assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
@@ -65,7 +66,7 @@ public abstract class IndexingRequestConverterTest {
         "    \"products\" : [ { \"id\" : \"B009S4IJCK\"}, { \"id\" : \"B0076UICIO\"}, { \"id\" : \"B0096TJCXW\"} ]"+
         "}";
 
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
         assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
@@ -81,7 +82,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\""+
                         "}";
 
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
         assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
@@ -98,7 +99,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { }, { }, { } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
         assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
@@ -115,7 +116,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
@@ -132,7 +133,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ \"10\",\"20\" ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
@@ -158,7 +159,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ \"10\",\"20\" ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)1);
 
         assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
@@ -188,7 +189,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { \"id\" : \"B0076UICIO\", \"type\":\"staticdischarger\"  }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
 
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be invalid, no related products",true,message.isValidMessage());
@@ -211,7 +212,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { \"id\" : \"B0076UICIO\", \"type\":\"staticdischarger\"  }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "...";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
 
     }
 
@@ -224,7 +225,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { \"id\" : \"B0076UICIO\", \"type\":\"staticdischarger\"  }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
@@ -249,7 +250,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)1);
 
         assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
@@ -273,7 +274,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : 1, \"type\":\"memory\" }, { }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(json.getBytes());
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());
@@ -287,7 +288,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [  1 ,\"B0096TJCXW\"  ]"+
                         "}";
-        converter = createConverter(json.getBytes());
+        converter = createConverter(ByteBuffer.wrap(json.getBytes()));
         converter.convertRequestIntoIndexingMessage(message,(short)10);
 
         assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());

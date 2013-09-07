@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 public class BatchCopyingRelatedProductIndexMessageTranslator implements EventTranslatorOneArg<RelatedProductReference,RelatedProduct> {
 
     private static final Logger log = LoggerFactory.getLogger(BatchCopyingRelatedProductIndexMessageTranslator.class);
+    public static final BatchCopyingRelatedProductIndexMessageTranslator INSTANCE = new BatchCopyingRelatedProductIndexMessageTranslator();
 
 
     public BatchCopyingRelatedProductIndexMessageTranslator() {
@@ -27,7 +28,6 @@ public class BatchCopyingRelatedProductIndexMessageTranslator implements EventTr
 
     @Override
     public void translateTo(RelatedProductReference event, long sequence, RelatedProduct sourceMessageToCopy) {
-        log.debug("Translating message ready for indexing");
         event.setReference(sourceMessageToCopy);
     }
 }

@@ -9,13 +9,13 @@ import java.util.*;
 public class RelatedProduct {
 
     private final String date;
-    private final String id;
+    private final char[] id;
 
     private final String[] relatedProductIds;
     private final String[][] additionalProperties;
 
 
-    public RelatedProduct(String id,  String date, String[] relatedPids, String[][] properties) {
+    public RelatedProduct(char[] id,  String date, String[] relatedPids, String[][] properties) {
         this.id = id;
         this.date = date;
         this.relatedProductIds = Arrays.copyOf(relatedPids, relatedPids.length);
@@ -27,7 +27,7 @@ public class RelatedProduct {
         return date;
     }
 
-    public String getId() {
+    public char[] getId() {
         return id;
     }
 

@@ -23,7 +23,7 @@
         <jetty.http.port>8080</jetty.http.port>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>3.2.3.RELEASE</spring.version>
-        <log4j2.version>2.0-beta7</log4j2.version>
+        <log4j2.version>2.0-beta8</log4j2.version>
     </properties>
 
 
@@ -37,6 +37,20 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- used for caching date strings -->
+        <dependency>
+            <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+            <artifactId>concurrentlinkedhashmap-lru</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <!-- below is just here for code completion, ide navigation.. it comes part and parcel of elasticsearch -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.2.0</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- CDI -->
 
         <!-- SP1 etc, unable to work with Async Contexts, when the context is not on the request thread
@@ -93,6 +107,12 @@
             <version>0.90.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>4.0.8.Final</version>
+        </dependency>
+
         <!-- json parsing -->
         <dependency>
             <groupId>net.minidev</groupId>
@@ -112,7 +132,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.1</version>
+            <version>1.7.5</version>
         </dependency>
         <!--
         <dependency>

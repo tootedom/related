@@ -26,10 +26,9 @@ public class RelatedProductAdditionalProperty {
     }
 
     public void setName(String s) {
-        char[] src = s.toCharArray();
-        short min = (short)Math.min(src.length,maxNameLength);
+        short min = (short)Math.min(s.length(),maxNameLength);
         nameLength = min;
-        System.arraycopy(src,0,name,0,min);
+        s.getChars(0,min,name,0);
     }
 
     public String getName() {
@@ -37,10 +36,9 @@ public class RelatedProductAdditionalProperty {
     }
 
     public void setValue(String s) {
-        char[] src = s.toCharArray();
-        short min = (short)Math.min(src.length,maxValueLength);
+        short min = (short)Math.min(s.length(),maxValueLength);
         valueLength = min;
-        System.arraycopy(src,0,value,0,min);
+        s.getChars(0,min,value,0);
     }
 
     public String getValue() {

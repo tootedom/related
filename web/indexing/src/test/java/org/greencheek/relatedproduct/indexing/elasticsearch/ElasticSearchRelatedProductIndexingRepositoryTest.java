@@ -121,17 +121,17 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
 
     private RelatedProduct createRelatedProductWithCurrentDay() {
-        return new RelatedProduct(UUID.randomUUID().toString(),currentIndexDate,
+        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),currentIndexDate,
                 new String[]{UUID.randomUUID().toString()},new String[0][0]);
     }
 
     private RelatedProduct createRelatedProductWithGivenDate(String date) {
-        return new RelatedProduct(UUID.randomUUID().toString(),(date!=null) ? date : dateFormatter.getCurrentDay(),
+        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
                 new String[]{UUID.randomUUID().toString()},new String[0][0]);
     }
 
     private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, String[][] customProp) {
-        return new RelatedProduct(UUID.randomUUID().toString(),(date!=null) ? date : dateFormatter.getCurrentDay(),
+        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
                 new String[]{UUID.randomUUID().toString()},customProp);
     }
 
@@ -142,7 +142,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
+        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
         SearchResponse response = esClient.prepareSearch(getIndexNamePrefix()+ currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
@@ -162,7 +162,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-16"));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
+        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
         SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
@@ -177,7 +177,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productToStore.getId());
+        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
         SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
@@ -196,9 +196,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         assertTrue(esSetup.exists(getIndexNamePrefix()+"2011-05-15"));
         assertTrue(esSetup.exists(getIndexNamePrefix()+currentIndexDate));
 
-        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[0].getId()))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[1].getId()))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[2].getId()));
+        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
+                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
+                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
 
         SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
@@ -217,9 +217,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-15"));
         assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
 
-        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[0].getId()))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[1].getId()))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), productsToStore[2].getId()));
+        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
+                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
+                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
 
         SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 

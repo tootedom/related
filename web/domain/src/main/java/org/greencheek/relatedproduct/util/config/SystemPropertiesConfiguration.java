@@ -85,6 +85,9 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final String WAIT_STRATEGY = System.getProperty("related-product.wait.strategy","yield").toLowerCase();
 
+    private final boolean INDEXNAME_DATE_CACHING_ENABLED = Boolean.parseBoolean(System.getProperty("related-product.indexname.date.caching.enabled","true"));
+
+    private final int NUMBER_OF_INDEXNAMES_TO_CACHE = Integer.valueOf(System.getProperty("related-product.number.of.indexname.to.cache","365"));
 
     private final WaitStrategyFactory waitStrategyFactory;
 
@@ -335,5 +338,15 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public String getPropertyEncoding() {
         return PROPERTY_ENCODING;
+    }
+
+    @Override
+    public boolean isIndexNameDateCachingEnabled() {
+        return INDEXNAME_DATE_CACHING_ENABLED;
+    }
+
+    @Override
+    public int getNumberOfIndexNamesToCache() {
+        return NUMBER_OF_INDEXNAMES_TO_CACHE;
     }
 }

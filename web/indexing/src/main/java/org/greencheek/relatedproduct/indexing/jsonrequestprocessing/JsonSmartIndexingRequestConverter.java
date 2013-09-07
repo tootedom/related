@@ -12,6 +12,9 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Set;
 
 /**
@@ -31,11 +34,11 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
     private final JSONObject object;
 
-    public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, byte[] requestData) {
+    public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, ByteBuffer requestData) {
         JSONParser parser = new JSONParser(JSONParser.MODE_RFC4627);
         try
         {
-            object = (JSONObject) parser.parse(requestData);
+            object = (JSONObject) parser.parse(new ByteBufferBackedInputStream(requestData));
         }
         catch (Exception e)
         {
@@ -99,8 +102,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             } else {
                 safeNumberOfProperties--;
             }
-            i++;
-            if(i>=minNumberOfAdditionalProperties) break;
+            if(++i==minNumberOfAdditionalProperties) break;
         }
 
         properties.setNumberOfProperties((short)safeNumberOfProperties);
@@ -151,5 +153,32 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     private void invalidateMessage(RelatedProductIndexingMessage message) {
         message.setValidMessage(false);
         message.relatedProducts.setNumberOfRelatedProducts((short)0);
+    }
+
+    class ByteBufferBackedInputStream extends InputStream {
+
+        ByteBuffer buf;
+
+        public ByteBufferBackedInputStream(ByteBuffer buf) {
+            this.buf = buf;
+        }
+
+        public int read() throws IOException {
+            if (!buf.hasRemaining()) {
+                return -1;
+            }
+            return buf.get() & 0xFF;
+        }
+
+        public int read(byte[] bytes, int off, int len)
+                throws IOException {
+            if (!buf.hasRemaining()) {
+                return -1;
+            }
+
+            len = Math.min(len, buf.remaining());
+            buf.get(bytes, off, len);
+            return len;
+        }
     }
 }

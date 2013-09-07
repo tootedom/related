@@ -22,8 +22,8 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 class RingBufferRelatedProductIndexingRequestHandlerL1 {
-    private int p01, p02, p03, p04, p05, p06, p07, p08;
-    private int p11, p12, p13, p14, p15, p16, p17, p18;
+    public long p01, p02, p03, p04, p05, p06, p07 = 7L;
+    public long p08, p09, p10, p11, p12, p13, p14 = 7L;
 }
 
 class RingBufferRelatedProductIndexingRequestHandlerL2 extends RingBufferRelatedProductIndexingRequestHandlerL1 {
@@ -56,8 +56,9 @@ class RingBufferRelatedProductIndexingRequestHandlerL2 extends RingBufferRelated
 }
 
 class RingBufferRelatedProductIndexingRequestHandlerL3 extends  RingBufferRelatedProductIndexingRequestHandlerL2 {
-    private int p01, p02, p03, p04, p05, p06, p07, p08;
-    private int p11, p12, p13, p14, p15, p16, p17, p18;
+    public long p15, p16, p17, p18, p19, p20, p21 = 7L;
+    public long p22, p23, p24, p25, p26, p27, p28 = 7L;
+
 
     protected RingBufferRelatedProductIndexingRequestHandlerL3(int batchSize,
                                            RelatedProductIndexingMessageConverter converter,
@@ -101,7 +102,7 @@ public class RingBufferRelatedProductIndexingRequestHandler extends RingBufferRe
                 relatedProducts.add(p);
             }
 
-            if(endOfBatch || count<=0) {
+            if(endOfBatch || count<1) {
                 try {
                     log.debug("Sending indexing requests to the storage repository");
                     try {

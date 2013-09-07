@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
@@ -51,21 +52,18 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
     }
 
     @Override
-    public void processRequest(Configuration config, byte[] data) {
-        if(data.length==0) {
-            log.warn("No data to index. Ignoring");
-            return;
-        }
-
+    public void processRequest(Configuration config, ByteBuffer data) {
+        int size = data.remaining();
         try {
             IndexingRequestConverter converter = requestConverter.createConverter(config,data);
             RelatedProductInitialIndexingRequestTranslator translator = new RelatedProductInitialIndexingRequestTranslator(config,converter);
             disruptor.publishEvent(translator);
         } catch(InvalidRelatedProductJsonException e) {
-            log.warn("Invalid json content, unable to process request.  Length of data:{}", data.length);
+            log.warn("Invalid json content, unable to process request.  Length of data:{}", size);
 
             if(log.isDebugEnabled()) {
-                log.debug("Invalid content as byte array: {}", Arrays.toString(data));
+                if(data.hasArray())
+                    log.debug("Invalid content as byte array: {}", Arrays.toString(data.array()));
             }
         }
     }

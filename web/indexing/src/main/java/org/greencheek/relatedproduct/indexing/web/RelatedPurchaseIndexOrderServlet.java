@@ -1,6 +1,10 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import org.apache.lucene.store.bytebuffer.ByteBufferAllocator;
 import org.elasticsearch.common.netty.buffer.DynamicChannelBuffer;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
@@ -84,21 +88,20 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
      *
      * @param request
      * @param maxPostDataSize
-     * @return true if content length is ok, or if there is no content length.  false if content length is present and
-     * exceeds allowed size
+     * @return -1 if size of post data is too large, or corrupt, -2 if we don't have content length (chunked),
+     *         or the size (this could be 0)
      */
-    private boolean isContentLengthOk(HttpServletRequest request, int maxPostDataSize) {
-        String length = request.getHeader("CONTENT_LENGTH_HEADER");
+    private int parseContentLength(int maxPostDataSize, String length) {
         if(length!=null) {
             try {
                 int size = Integer.parseInt(length);
-                if(size>maxPostDataSize) return false;
-                else return true;
+                if(size>maxPostDataSize) return -1;
+                else return size;
             } catch(NumberFormatException e) {
-                return true;
+                return -1;
             }
         } else {
-            return true;
+            return -2;
         }
     }
 
@@ -107,31 +110,52 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         int maxPostData = configuration.getMaxRelatedProductPostDataSizeInBytes();
         HttpServletRequest request = (HttpServletRequest)ctx.getRequest();
         HttpServletResponse response = (HttpServletResponse)ctx.getResponse();
+        int length = parseContentLength(maxPostData,request.getHeader(CONTENT_LENGTH_HEADER));
 
-        if(!isContentLengthOk(request,maxPostData)) {
+        if(length==-1) {
             response.setStatus(413);
+            response.setContentLength(0);
             log.warn("Post data is larger than max allowed : {}",maxPostData);
+            ctx.complete();
+            return;
+        } else if(length == 0) {
+            response.setStatus(413);
+            response.setContentLength(0);
+            log.warn("No post data.");
             ctx.complete();
             return;
         }
 
-        DynamicChannelBuffer channel = new DynamicChannelBuffer(minPostData);
-        byte[] buffer = new byte[minPostData];
+
+        ByteBuf channel;
+        byte[] buffer;
+
+        if(length>0) {
+            channel = UnpooledByteBufAllocator.DEFAULT.buffer(length,length);
+            buffer = new byte[length];
+        } else {
+            channel = UnpooledByteBufAllocator.DEFAULT.buffer(minPostData,maxPostData);
+            buffer = new byte[minPostData];
+        }
+
         InputStream inputStream;
         try {
             inputStream = request.getInputStream();
         } catch (IOException exception) {
+            response.setStatus(413);
+            response.setContentLength(0);
             log.warn("Error obtaining content from request to index");
+            ctx.complete();
             return;
         }
 
-        int length = 0;
+        int lengthRead = 0;
         int accumLength = 0;
         boolean canProcess = true;
         try {
-            while ((length = inputStream.read(buffer)) != -1) {
-                channel.writeBytes(buffer,0,length);
-                accumLength+=length;
+            while ((lengthRead = inputStream.read(buffer)) != -1) {
+                channel.writeBytes(buffer,0,lengthRead);
+                accumLength+=lengthRead;
                 if(accumLength>maxPostData) {
                     response.setStatus(413);
                     canProcess = false;
@@ -156,7 +180,8 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         }
 
         if(canProcess) {
-            indexer.processRequest(configuration,channel.toByteBuffer().array());
+            if(channel.readableBytes()!=0);
+                indexer.processRequest(configuration,channel.nioBuffer());
         }
 
         ctx.complete();

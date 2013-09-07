@@ -1,10 +1,7 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
-
-import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,18 +20,19 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
 
     public RelatedProduct[] convertFrom(RelatedProductIndexingMessage message) {
 
-        short numberOfRelatedProducts = message.relatedProducts.numberOfRelatedProducts;
+        RelatedProductSet products = message.getRelatedProducts();
+        short numberOfRelatedProducts = products.getNumberOfRelatedProducts();
 
         RelatedProduct[] relatedProducts = new RelatedProduct[numberOfRelatedProducts];
         String[] ids = new String[numberOfRelatedProducts];
         RelatedProductInfo[] productInfos = new RelatedProductInfo[numberOfRelatedProducts];
 
-        getRelatedProductInfo(message.relatedProducts.relatedProducts,ids,productInfos,numberOfRelatedProducts);
-
+        populateRelatedProductInfo(products.getListOfRelatedProductInfomation(),ids,productInfos,numberOfRelatedProducts);
 
         String[][] idLists = relatedIds(ids);
+
         int length = numberOfRelatedProducts-1;
-        String[][] indexProperties = message.additionalProperties.convertToStringArray();
+        String[][] indexProperties = message.getIndexingMessageProperties().convertToStringArray();
         for(int i =0;i<length;i++) {
             RelatedProductInfo id = productInfos[i];
             relatedProducts[i] = createRelatedProduct(message,id,idLists[i+1],indexProperties);
@@ -55,19 +53,33 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
         int indexSize = productProperties.length+indexProperties.length;
         String[][] additionalProperties = new String[indexSize--][2];
 
+        // properties from the index request
         for(int i=0;i<indexProperties.length;i++) {
             additionalProperties[indexSize][0]    = indexProperties[i][0];
             additionalProperties[indexSize--][1]  = indexProperties[i][1];
         }
 
+        // properties specific to the product
         for(int i=0;i<productProperties.length;i++) {
             additionalProperties[indexSize][0]    = productProperties[i][0];
             additionalProperties[indexSize--][1]  = productProperties[i][1];
         }
 
-        return new RelatedProduct(info.id.toString(),message.dateUTC,ids,additionalProperties);
+        return new RelatedProduct(info.id.duplicate(),message.dateUTC,ids,additionalProperties);
     }
 
+
+    /**
+     * Given a list of ids {"1","2","3","5"}
+     *
+     * The method returns list of ids, such that each item in the
+     * list, exists in in a list with
+     */
+
+
+    //
+    //
+    //
     public static String[][] relatedIds(String[] ids) {
         int len = ids.length;
         int lenMinOne = len-1;
@@ -89,7 +101,7 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
 
 
 
-    private void getRelatedProductInfo(RelatedProductInfo[] message, String[] ids, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
+    private void populateRelatedProductInfo(RelatedProductInfo[] message, String[] ids, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
 
         for(int i =0;i<numberOfRelatedProducts;i++) {
             products[i] = message[i];
