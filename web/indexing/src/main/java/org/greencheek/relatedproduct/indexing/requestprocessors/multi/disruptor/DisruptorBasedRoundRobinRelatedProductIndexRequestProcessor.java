@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageC
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 indexingMessageFactory,
-                configuration.getSizeOfIndexRequestQueue(), executorService,
+                Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()), executorService,
                 ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
 
 

@@ -11,14 +11,14 @@ public class RelatedProduct {
     private final String date;
     private final char[] id;
 
-    private final String[] relatedProductIds;
+    private final char[][] relatedProductIds;
     private final String[][] additionalProperties;
 
 
-    public RelatedProduct(char[] id,  String date, String[] relatedPids, String[][] properties) {
+    public RelatedProduct(char[] id,  String date, char[][] relatedPids, String[][] properties) {
         this.id = id;
         this.date = date;
-        this.relatedProductIds = Arrays.copyOf(relatedPids, relatedPids.length);
+        this.relatedProductIds = relatedPids;
         additionalProperties = properties;
 
     }
@@ -31,7 +31,7 @@ public class RelatedProduct {
         return id;
     }
 
-    public String[] getRelatedProductPids() {
+    public char[][] getRelatedProductPids() {
         return relatedProductIds;
     }
 

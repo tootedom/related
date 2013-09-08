@@ -69,8 +69,12 @@ class RelatedProductRoundRobinIndexRequestHandlerL2 extends
         executors = new ExecutorService[numberOfIndexingRequestProcessors];
 
         mask = numberOfIndexingRequestProcessors-1;
-
-        final int sizeOfQueue = Util.ceilingNextPowerOfTwo(configuration.getSizeOfIndexRequestQueue()/numberOfIndexingRequestProcessors);
+        final int sizeOfQueue;
+        if(configuration.getSizeOfBatchIndexingRequestQueue()==-1) {
+            sizeOfQueue = Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()/numberOfIndexingRequestProcessors);
+        } else {
+            sizeOfQueue = Util.ceilingNextPowerOfTwo(configuration.getSizeOfBatchIndexingRequestQueue());
+        }
         int i = numberOfIndexingRequestProcessors;
         while(i--!=0) {
             ExecutorService executorService = newSingleThreadExecutor();
@@ -88,7 +92,7 @@ class RelatedProductRoundRobinIndexRequestHandlerL2 extends
 
         }
 
-        batchSize = 50;
+        batchSize = configuration.getIndexBatchSize();
         batchMessages= new ArrayList<RelatedProduct>(batchSize);
     }
 

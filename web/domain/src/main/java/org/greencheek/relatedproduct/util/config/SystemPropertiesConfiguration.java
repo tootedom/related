@@ -23,12 +23,13 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final short RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
     private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty("related-product.related.product.invalid.id.string", "INVALID_ID");
     private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","10240"));
-    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","4096"));
+    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.min.related.product.post.data.size.in.bytes","4096"));
 
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
     private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
-    private final int SIZE_OF_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.index.request.queue", "2048"));
-    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","32"));
+    private final int SIZE_OF_INCOMING_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.incoming.request.queue", "2048"));
+    private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.batch.indexing.request.queue", "-1"));
+    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","128"));
 
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.queue", "2048"));
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_RESULTS_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.results.queue", "2048"));
@@ -331,8 +332,13 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public int getSizeOfIndexRequestQueue() {
-        return SIZE_OF_INDEX_REQUEST_QUEUE;
+    public int getSizeOfBatchIndexingRequestQueue() {
+        return SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE;
+    }
+
+    @Override
+    public int getSizeOfIncomingMessageQueue() {
+        return SIZE_OF_INCOMING_REQUEST_QUEUE;
     }
 
     @Override

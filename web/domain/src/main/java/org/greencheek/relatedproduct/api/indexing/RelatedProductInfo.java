@@ -23,4 +23,12 @@ public class RelatedProductInfo {
 
     }
 
+
+    public RelatedProductInfoIdentifier getId() {
+        return id;
+    }
+
+    public RelatedProductAdditionalProperties getAdditionalProperties() {
+        return additionalProperties;
+    }
 }

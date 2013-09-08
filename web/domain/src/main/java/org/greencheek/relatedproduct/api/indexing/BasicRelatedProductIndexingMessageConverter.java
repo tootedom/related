@@ -2,13 +2,13 @@ package org.greencheek.relatedproduct.api.indexing;
 
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
  * Date: 01/06/2013
  * Time: 19:33
- * To change this template use File | Settings | File Templates.
  */
 public class BasicRelatedProductIndexingMessageConverter implements RelatedProductIndexingMessageConverter{
 
@@ -24,29 +24,29 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
         short numberOfRelatedProducts = products.getNumberOfRelatedProducts();
 
         RelatedProduct[] relatedProducts = new RelatedProduct[numberOfRelatedProducts];
-        String[] ids = new String[numberOfRelatedProducts];
-        RelatedProductInfo[] productInfos = new RelatedProductInfo[numberOfRelatedProducts];
+//        String[] ids = new String[numberOfRelatedProducts];
+//        RelatedProductInfo[] productInfos = new RelatedProductInfo[numberOfRelatedProducts];
 
-        populateRelatedProductInfo(products.getListOfRelatedProductInfomation(),ids,productInfos,numberOfRelatedProducts);
+//        populateRelatedProductInfo(products.getListOfRelatedProductInfomation(),productInfos,numberOfRelatedProducts);
 
-        String[][] idLists = relatedIds(ids);
+        RelatedProductInfo[][] idLists = relatedIds(products.getListOfRelatedProductInfomation(),products.getNumberOfRelatedProducts());
 
         int length = numberOfRelatedProducts-1;
         String[][] indexProperties = message.getIndexingMessageProperties().convertToStringArray();
-        for(int i =0;i<length;i++) {
-            RelatedProductInfo id = productInfos[i];
-            relatedProducts[i] = createRelatedProduct(message,id,idLists[i+1],indexProperties);
+        for(int i =0;i<numberOfRelatedProducts;i++) {
+            RelatedProductInfo id = idLists[i][length];
+            relatedProducts[i] = createRelatedProduct(message,id,idLists[i],indexProperties);
         }
 
 
-        relatedProducts[length] = createRelatedProduct(message,productInfos[length],
-                                                  idLists[0],indexProperties);
+//        relatedProducts[length] = createRelatedProduct(message,productInfos[length],
+//                                                  idLists[0],indexProperties);
         return relatedProducts;
 
     }
 
     private RelatedProduct createRelatedProduct(RelatedProductIndexingMessage message,RelatedProductInfo info,
-                                                String[] ids,
+                                                RelatedProductInfo[] ids,
                                                 String[][] indexProperties) {
         String[][] productProperties = info.additionalProperties.convertToStringArray();
 
@@ -65,35 +65,61 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
             additionalProperties[indexSize--][1]  = productProperties[i][1];
         }
 
-        return new RelatedProduct(info.id.duplicate(),message.dateUTC,ids,additionalProperties);
+        int relatedIdLength = ids.length-1;
+        char[][] relatedIds = new char[relatedIdLength][];
+        for(int i=0;i<relatedIdLength;i++) {
+            relatedIds[i] = ids[i].getId().duplicate();
+        }
+
+        return new RelatedProduct(info.getId().duplicate(),message.dateUTC,relatedIds,additionalProperties);
     }
 
 
     /**
      * Given a list of ids {"1","2","3","5"}
      *
-     * The method returns list of ids, such that each item in the
-     * list, exists in in a list with
+     * The method returns list of ids, where each id, is returned
+     * with a link to the other ids in the list that it is related to.
+     *
+     * for example:
+     *
+     * 1 -> 2, 3, 5
+     * 2 -> 3, 5, 1
+     * 3 -> 5, 1, 2
+     * 5 -> 1, 2, 3
+     *
+     * The item that is related to the the other items, is the last element in the returned
+     * array (X marks the spot below)
+     *
+     * i.e.
+     *              X
+     * [
+     *   [ 2, 3, 5, 1 ],
+     *   [ 3, 5, 1, 2 ],
+     *   [ 5, 1, 2, 3 ],
+     *   [ 1, 2, 3, 5 ]
+     * ]
+     *
+     *
+     *
      */
-
-
-    //
-    //
-    //
-    public static String[][] relatedIds(String[] ids) {
-        int len = ids.length;
+    public static RelatedProductInfo[][] relatedIds(RelatedProductInfo[] ids, int length) {
+        int len = length;
         int lenMinOne = len-1;
-        String[][] idSets = new String[len][lenMinOne];
+        RelatedProductInfo[][] idSets = new RelatedProductInfo[len][len];
 
         for(int i=0;i<len;i++) {
             int start = i;
+            int missingElem = i;
             for(int j = 0;j<lenMinOne;j++) {
                 int elem = start++;
+                missingElem++;
                 if(elem>lenMinOne) {
                     elem-=len;
                 }
                 idSets[i][j] = ids[elem];
             }
+            idSets[i][lenMinOne] = ids[(missingElem>lenMinOne)? missingElem-len : missingElem];
         }
 
         return idSets;
@@ -101,14 +127,14 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
 
 
 
-    private void populateRelatedProductInfo(RelatedProductInfo[] message, String[] ids, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
-
-        for(int i =0;i<numberOfRelatedProducts;i++) {
-            products[i] = message[i];
-            ids[i] = message[i].id.toString();
-        }
-
-    }
+//    private void populateRelatedProductInfo(RelatedProductInfo[] message, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
+//
+//        for(int i =0;i<numberOfRelatedProducts;i++) {
+//            products[i] = message[i];
+////            ids[i] = message[i].id.toString();
+//        }
+//
+//    }
 
 
 

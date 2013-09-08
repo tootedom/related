@@ -81,8 +81,12 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
             char[] id = product.getId();
             XContentBuilder builder = jsonBuilder().startObject()
                     .field(idAttributeName,id,0,id.length )
-                    .field(dateAttributeName, product.getDate())
-                    .array(relatedWithAttributeName, product.getRelatedProductPids());
+                    .field(dateAttributeName, product.getDate()).startArray(relatedWithAttributeName);
+
+            for(char[] relatedIds : product.getRelatedProductPids()) {
+                builder.value(new String(relatedIds,0,relatedIds.length));
+            }
+            builder.endArray();
 
             for(String[] properties : product.getAdditionalProperties()) {
                 builder.field(properties[0],properties[1]);

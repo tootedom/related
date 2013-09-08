@@ -25,7 +25,23 @@ public interface Configuration {
     public short getRelatedProductAdditionalPropertyValueLength();
 
     public int getIndexBatchSize();
-    public int getSizeOfIndexRequestQueue();
+
+    /**
+     * The size of the ring buffer that batches the storage of index request to the
+     * backend storage respository.
+     *
+     * client.
+     * @return
+     */
+    public int getSizeOfBatchIndexingRequestQueue();
+
+    /**
+     * The size of the ring buffer that accepts incoming messages from the
+     * client.
+     * @return
+     */
+    public int getSizeOfIncomingMessageQueue();
+
     public short getMaxNumberOfSearchCriteriaForRelatedContent();
     public int getSizeOfRelatedContentSearchRequestHandlerQueue();
     public int getSizeOfRelatedContentSearchRequestQueue();

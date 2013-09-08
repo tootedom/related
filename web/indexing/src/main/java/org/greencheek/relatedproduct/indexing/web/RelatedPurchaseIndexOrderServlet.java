@@ -145,8 +145,10 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             response.setStatus(413);
             response.setContentLength(0);
             log.warn("Error obtaining content from request to index");
-            ctx.complete();
             return;
+        } finally {
+            ctx.complete();
+
         }
 
         int lengthRead = 0;
@@ -170,6 +172,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
         } catch (IOException exception) {
             log.warn("Error obtaining content from request to index");
+            ctx.complete();
             return;
         } finally {
             try {
@@ -179,12 +182,14 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             }
         }
 
-        if(canProcess) {
-            if(channel.readableBytes()!=0);
-                indexer.processRequest(configuration,channel.nioBuffer());
+        try {
+            if(canProcess) {
+                if(channel.readableBytes()!=0);
+                    indexer.processRequest(configuration,channel.nioBuffer());
+            }
+        } finally {
+            ctx.complete();
         }
-
-        ctx.complete();
 
     }
 

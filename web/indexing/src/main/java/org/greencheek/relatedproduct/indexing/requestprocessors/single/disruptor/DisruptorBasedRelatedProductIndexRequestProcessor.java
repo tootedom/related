@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageC
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.RingBufferRelatedProductReferenceRequestHandler;
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         this.storageRepository = repositoryFactory.getRepository(configuration);
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 messageFactory,
-                configuration.getSizeOfIndexRequestQueue(), executorService,
+                Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()), executorService,
                 ProducerType.SINGLE, configuration.getWaitStrategyFactory().createWaitStrategy());
 
         final int batchIndexSize = configuration.getIndexBatchSize();

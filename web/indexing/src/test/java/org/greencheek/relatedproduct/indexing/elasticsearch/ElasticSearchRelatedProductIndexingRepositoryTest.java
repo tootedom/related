@@ -122,17 +122,17 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
     private RelatedProduct createRelatedProductWithCurrentDay() {
         return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),currentIndexDate,
-                new String[]{UUID.randomUUID().toString()},new String[0][0]);
+                new char[][] {UUID.randomUUID().toString().toCharArray()},new String[0][0]);
     }
 
     private RelatedProduct createRelatedProductWithGivenDate(String date) {
         return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                new String[]{UUID.randomUUID().toString()},new String[0][0]);
+                new char[][]{UUID.randomUUID().toString().toCharArray()},new String[0][0]);
     }
 
     private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, String[][] customProp) {
         return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                new String[]{UUID.randomUUID().toString()},customProp);
+                new char[][]{UUID.randomUUID().toString().toCharArray()},customProp);
     }
 
     @Test
