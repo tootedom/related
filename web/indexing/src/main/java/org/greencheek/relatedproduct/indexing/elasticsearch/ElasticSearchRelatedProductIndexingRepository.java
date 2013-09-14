@@ -3,8 +3,10 @@ package org.greencheek.relatedproduct.indexing.elasticsearch;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
@@ -55,6 +57,7 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
     @Override
     public void store(RelatedProductStorageLocationMapper indexLocationMapper, RelatedProduct... relatedProducts) {
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
+        bulkRequest.setReplicationType(ReplicationType.ASYNC).setRefresh(false);
 
 
         int requestAdded = 0;
@@ -84,12 +87,12 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
                     .field(dateAttributeName, product.getDate()).startArray(relatedWithAttributeName);
 
             for(char[] relatedIds : product.getRelatedProductPids()) {
-                builder.value(new String(relatedIds,0,relatedIds.length));
+                builder.value(new String(relatedIds, 0, relatedIds.length));
             }
             builder.endArray();
 
-            for(String[] properties : product.getAdditionalProperties()) {
-                builder.field(properties[0],properties[1]);
+            for(RelatedProductAdditionalProperty property : product.getAdditionalProperties()) {
+                builder.field(property.getName(),property.getValueCharArray(),0,property.getValueLength());
             }
 
             builder.endObject();

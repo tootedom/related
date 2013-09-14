@@ -131,10 +131,10 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         byte[] buffer;
 
         if(length>0) {
-            channel = UnpooledByteBufAllocator.DEFAULT.buffer(length,length);
+            channel = UnpooledByteBufAllocator.DEFAULT.heapBuffer(length,length);
             buffer = new byte[length];
         } else {
-            channel = UnpooledByteBufAllocator.DEFAULT.buffer(minPostData,maxPostData);
+            channel = UnpooledByteBufAllocator.DEFAULT.heapBuffer(minPostData,maxPostData);
             buffer = new byte[minPostData];
         }
 
@@ -145,10 +145,8 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             response.setStatus(413);
             response.setContentLength(0);
             log.warn("Error obtaining content from request to index");
-            return;
-        } finally {
             ctx.complete();
-
+            return;
         }
 
         int lengthRead = 0;
@@ -188,6 +186,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
                     indexer.processRequest(configuration,channel.nioBuffer());
             }
         } finally {
+            channel.release();
             ctx.complete();
         }
 

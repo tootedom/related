@@ -32,6 +32,9 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     private final String dateKey;
     private final String idKey;
 
+    private final String date;
+    private final Object[] products;
+
     private final JSONObject object;
 
     public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, ByteBuffer requestData) {
@@ -53,11 +56,18 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             throw new InvalidIndexingRequestException("No products in request");
         }
 
-        String date = (String)object.get(dateKey);
-        if(date==null) {
-            object.put(dateKey,dateCreator.getCurrentDay());
+        Object products = object.remove(productKey);
+        if(!(products instanceof JSONArray)) {
+            throw new InvalidIndexingRequestException("No parsable products in request.  Product list must be an array of related products");
         } else {
-            object.put(dateKey,dateCreator.formatToUTC(date));
+            this.products = ((JSONArray)products).toArray();
+        }
+
+        String date = (String)object.remove(dateKey);
+        if(date==null) {
+            this.date = dateCreator.getCurrentDay();
+        } else {
+            this.date = dateCreator.formatToUTC(date);
         }
     }
 
@@ -65,24 +75,22 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     public void convertRequestIntoIndexingMessage(RelatedProductIndexingMessage convertedTo,
                                                   short maxNumberOfAdditionalProperties) {
         convertedTo.setValidMessage(true);
-        convertedTo.setUTCFormattedDate((String) object.get(dateKey));
-        Object products = object.get(productKey);
-        parseProductArray(convertedTo,products,maxNumberOfAdditionalProperties);
-        Object tmpProduct = object.remove(productKey);
-        Object tmpDate = object.remove(dateKey);
-        Object tmpId = object.remove(idKey);
+        convertedTo.setUTCFormattedDate(date);
+        parseProductArray(convertedTo,maxNumberOfAdditionalProperties);
         parseAdditionalProperties(convertedTo.additionalProperties, object, maxNumberOfAdditionalProperties);
-        object.put(idKey,tmpId);
-        object.put(dateKey,tmpDate);
-        object.put(productKey, tmpProduct);
         log.debug("valid converted message?: {}",convertedTo.isValidMessage());
     }
 
     private void parseAdditionalProperties(RelatedProductAdditionalProperties properties,JSONObject map, short maxPropertiesThanCanBeRead) {
+        int mapSize = map.size();
+        if(mapSize==0) {
+            properties.setNumberOfProperties((short)0);
+            return;
+        }
 
 //        Set<String> additionalPropertiesSet = map.keySet();
 //        String[] additionalProperties = additionalPropertiesSet.toArray(new String[additionalPropertiesSet.size()]);
-        int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, map.size());
+        int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, mapSize);
 
         int i=0;
         int safeNumberOfProperties = minNumberOfAdditionalProperties;
@@ -92,9 +100,8 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             Object value = map.get(key);
             if(value instanceof String) {
                 try {
-
-                properties.additionalProperties[i].setName(key);
-                properties.additionalProperties[i].setValue((String)value);
+                    properties.additionalProperties[i].setName(key);
+                    properties.additionalProperties[i].setValue((String)value);
                 } catch (Exception e) {
                     log.error("map: {}",map.toJSONString());
                     log.error("additional property: {}, {}",new Object[]{key,value,e});
@@ -108,27 +115,23 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         properties.setNumberOfProperties((short)safeNumberOfProperties);
     }
 
-    private void parseProductArray(RelatedProductIndexingMessage event, Object products,
+    private void parseProductArray(RelatedProductIndexingMessage event,
                                    short maxNumberOfAdditionalProperties) {
 
-        if(products instanceof JSONArray) {
-            Object[] productIdsArray = ((JSONArray)products).toArray();
             int i = 0;
-            for(Object product : productIdsArray) {
+            for(Object product : this.products) {
                 if(product instanceof JSONObject) {
                     JSONObject productObj = (JSONObject)product;
-                    Object id = productObj.get(idKey);
+                    Object id = productObj.remove(idKey);
                     if(id instanceof String) {
                         event.relatedProducts.relatedProducts[i].id.setId((String)id);
                     } else {
+                        productObj.put(idKey,id);
                         continue;
                     }
 
-                    Object idObj =productObj.remove(idKey);
-                    parseAdditionalProperties(event.relatedProducts.relatedProducts[i].additionalProperties,productObj,
-                            maxNumberOfAdditionalProperties);
-                    productObj.put(idKey,idObj);
-
+                    parseAdditionalProperties(event.relatedProducts.relatedProducts[i].additionalProperties,productObj,maxNumberOfAdditionalProperties);
+                    productObj.put(idKey,id);
 
                 } else {
                     try {
@@ -145,9 +148,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             } else {
                 event.relatedProducts.setNumberOfRelatedProducts((short)i);
             }
-        } else {
-            invalidateMessage(event);
-        }
+
     }
 
     private void invalidateMessage(RelatedProductIndexingMessage message) {

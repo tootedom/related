@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.domain;
 
 
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import java.util.*;
@@ -12,15 +13,17 @@ public class RelatedProduct {
     private final char[] id;
 
     private final char[][] relatedProductIds;
-    private final String[][] additionalProperties;
+    private final RelatedProductAdditionalProperty[] additionalProperties;
 
 
-    public RelatedProduct(char[] id,  String date, char[][] relatedPids, String[][] properties) {
+    public RelatedProduct(char[] id,  String date, char[][] relatedPids, RelatedProductAdditionalProperty[] properties) {
         this.id = id;
         this.date = date;
         this.relatedProductIds = relatedPids;
-        additionalProperties = properties;
-
+        this.additionalProperties = new RelatedProductAdditionalProperty[properties.length];
+        for(int i=0;i<properties.length;i++) {
+           this.additionalProperties[i] = properties[i].trimAndClone();
+        }
     }
 
     public String getDate() {
@@ -35,7 +38,7 @@ public class RelatedProduct {
         return relatedProductIds;
     }
 
-    public String[][] getAdditionalProperties() {
+    public RelatedProductAdditionalProperty[] getAdditionalProperties() {
         return additionalProperties;
     }
 

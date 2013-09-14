@@ -12,7 +12,7 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class RelatedProductAdditionalProperties {
-    public short numberOfProperties = 0;
+    public int numberOfProperties = 0;
     public final RelatedProductAdditionalProperty[] additionalProperties;
 
 
@@ -29,7 +29,7 @@ public class RelatedProductAdditionalProperties {
         this.numberOfProperties = numberOfProperties;
     }
 
-    public short getNumberOfProperties() {
+    public int getNumberOfProperties() {
         return this.numberOfProperties;
     }
 
@@ -47,11 +47,23 @@ public class RelatedProductAdditionalProperties {
     }
 
     public void convertTo(Map<String,String> properties) {
-        short numberOfProps = numberOfProperties;
+        int numberOfProps = numberOfProperties;
         while(numberOfProps--!=0) {
             RelatedProductAdditionalProperty prop = additionalProperties[numberOfProps];
             properties.put(new String(prop.name,0,(int)prop.nameLength),new String(prop.value,0,prop.valueLength));
         }
+    }
+
+    public static RelatedProductAdditionalProperty[] convertFrom(Configuration config, Map<String,String> propertes) {
+        RelatedProductAdditionalProperty[] propArrays = new RelatedProductAdditionalProperty[propertes.size()];
+
+        int i=0;
+        for(Map.Entry<String,String> entry : propertes.entrySet() ) {
+            propArrays[i] = new RelatedProductAdditionalProperty(config);
+            propArrays[i].setName(entry.getKey());
+            propArrays[i++].setValue(entry.getValue());
+        }
+        return propArrays;
     }
 
     /**
@@ -63,17 +75,15 @@ public class RelatedProductAdditionalProperties {
      * @return
      */
     public String[][] convertToStringArray() {
-        short numberOfProps = numberOfProperties;
+        int numberOfProps = numberOfProperties;
         String[][] props = new String[numberOfProps][2];
         while(numberOfProps--!=0) {
             RelatedProductAdditionalProperty prop = additionalProperties[numberOfProps];
-            props[numberOfProps][0]=  new String(prop.name,0,prop.nameLength);
+            props[numberOfProps][0] =  new String(prop.name,0,prop.nameLength);
             props[numberOfProps][1] = new String(prop.value,0,prop.valueLength);
         }
         return props;
     }
-
-
 
     public int getStringLength(Configuration configuration) {
         return getStringLength(numberOfProperties,configuration);
@@ -85,7 +95,7 @@ public class RelatedProductAdditionalProperties {
     }
 
     public String toString(Configuration config) {
-        short numberOfProps = numberOfProperties;
+        int numberOfProps = numberOfProperties;
 
         if(numberOfProps>0) {
             int lengthOfString =  getStringLength(numberOfProps,config);

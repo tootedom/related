@@ -7,6 +7,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
@@ -121,18 +123,19 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
 
     private RelatedProduct createRelatedProductWithCurrentDay() {
-        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),currentIndexDate,
-                new char[][] {UUID.randomUUID().toString().toCharArray()},new String[0][0]);
+        return createRelatedProductWithGivenDate(currentIndexDate);
     }
 
     private RelatedProduct createRelatedProductWithGivenDate(String date) {
-        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                new char[][]{UUID.randomUUID().toString().toCharArray()},new String[0][0]);
+        return createRelatedProductWithGivenDateAndProperties((date!=null) ? date : dateFormatter.getCurrentDay(),null);
     }
 
-    private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, String[][] customProp) {
-        return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),(date!=null) ? date : dateFormatter.getCurrentDay(),
-                new char[][]{UUID.randomUUID().toString().toCharArray()},customProp);
+    private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, Map<String,String> customProps) {
+        if(customProps==null) {
+            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()},new RelatedProductAdditionalProperty[0]);
+        } else {
+            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()}, RelatedProductAdditionalProperties.convertFrom(configuration, customProps));
+        }
     }
 
     @Test
@@ -232,14 +235,15 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     public void testMultiStoreOfProductWithCustomDateAndProperties() {
         RelatedProduct[] productsToStore =  new RelatedProduct[] {
                 createRelatedProductWithGivenDateAndProperties("2012-05-01T12:00:00+01:00",
-                        new String[][] { new String[] {
-                            "location", "london"}}),
+                                new HashMap(){{ put("location", "london");}}),
 
                 createRelatedProductWithGivenDateAndProperties("2011-05-02T11:00:00+01:00",
-                        new String[][] { new String[] {"location", "liverpool"}}),
+                        new HashMap(){{ put("location", "liverpool");}}),
 
                 createRelatedProductWithGivenDateAndProperties("2011-05-03T10:00:00+01:00",
-                        new String[][] { new String[] {"location", "manchester"}})};
+                        new HashMap(){{ put("location", "manchester");}})
+
+        };
 
 
         indexAndFlush(hourStorageLocationMapper,productsToStore);

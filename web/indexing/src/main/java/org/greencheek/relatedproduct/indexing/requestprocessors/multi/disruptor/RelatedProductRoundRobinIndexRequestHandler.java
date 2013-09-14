@@ -93,7 +93,7 @@ class RelatedProductRoundRobinIndexRequestHandlerL2 extends
         }
 
         batchSize = configuration.getIndexBatchSize();
-        batchMessages= new ArrayList<RelatedProduct>(batchSize);
+        batchMessages= new ArrayList<RelatedProduct>(batchSize * 2);
     }
 
 }
@@ -147,7 +147,7 @@ public class RelatedProductRoundRobinIndexRequestHandler extends RelatedProductR
 
                 for(RelatedProduct p : products) batchMessages.add(p);
 
-                if(batchMessages.size()>=batchSize || endOfBatch) {
+                if(endOfBatch || batchMessages.size()>=batchSize) {
                     log.debug("handing off request to indexing processor");
                     try {
                         disruptors[nextDisruptor++ & mask].publishEvents(BatchCopyingRelatedProductIndexMessageTranslator.INSTANCE,batchMessages.toArray(new RelatedProduct[batchMessages.size()]));
