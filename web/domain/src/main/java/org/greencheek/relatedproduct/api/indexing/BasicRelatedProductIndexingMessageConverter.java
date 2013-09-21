@@ -23,26 +23,19 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
     public RelatedProduct[] convertFrom(RelatedProductIndexingMessage message) {
 
         RelatedProductSet products = message.getRelatedProducts();
-        short numberOfRelatedProducts = products.getNumberOfRelatedProducts();
+        int numberOfRelatedProducts = products.getNumberOfRelatedProducts();
 
         RelatedProduct[] relatedProducts = new RelatedProduct[numberOfRelatedProducts];
-//        String[] ids = new String[numberOfRelatedProducts];
-//        RelatedProductInfo[] productInfos = new RelatedProductInfo[numberOfRelatedProducts];
-
-//        populateRelatedProductInfo(products.getListOfRelatedProductInfomation(),productInfos,numberOfRelatedProducts);
 
         RelatedProductInfo[][] idLists = relatedIds(products.getListOfRelatedProductInfomation(),products.getNumberOfRelatedProducts());
 
         int length = numberOfRelatedProducts-1;
-//        String[][] indexProperties = message.getIndexingMessageProperties().convertToStringArray();
         for(int i =0;i<numberOfRelatedProducts;i++) {
             RelatedProductInfo id = idLists[i][length];
             relatedProducts[i] = createRelatedProduct(message,id,idLists[i],message.getIndexingMessageProperties());
         }
 
 
-//        relatedProducts[length] = createRelatedProduct(message,productInfos[length],
-//                                                  idLists[0],indexProperties);
         return relatedProducts;
 
     }
@@ -53,9 +46,6 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
         RelatedProductAdditionalProperties productProperties = info.getAdditionalProperties();
 
 
-//        String[][] productProperties = info.additionalProperties.convertToStringArray();
-
-//        int indexSize = productProperties.length+indexProperties.length;
         int numberOfProductProperties = productProperties.getNumberOfProperties();
         int numberOfIndexRequestProperties = indexProperties.getNumberOfProperties();
         int numberOfProperties = numberOfProductProperties +  numberOfIndexRequestProperties;
@@ -72,20 +62,6 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
         for(int j=0;j<numberOfIndexRequestProperties;j++) {
             properties[propertyIndex++] = productProps[j];
         }
-
-//        String[][] additionalProperties = new String[indexSize--][2];
-
-//        // properties from the index request
-//        for(int i=0;i<indexProperties.length;i++) {
-//            additionalProperties[indexSize][0]    = indexProperties[i][0];
-//            additionalProperties[indexSize--][1]  = indexProperties[i][1];
-//        }
-//
-//        // properties specific to the product
-//        for(int i=0;i<productProperties.length;i++) {
-//            additionalProperties[indexSize][0]    = productProperties[i][0];
-//            additionalProperties[indexSize--][1]  = productProperties[i][1];
-//        }
 
         int relatedIdLength = ids.length-1;
         char[][] relatedIds = new char[relatedIdLength][];
@@ -146,20 +122,5 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
 
         return idSets;
     }
-
-
-
-//    private void populateRelatedProductInfo(RelatedProductInfo[] message, RelatedProductInfo[] products, short numberOfRelatedProducts ) {
-//
-//        for(int i =0;i<numberOfRelatedProducts;i++) {
-//            products[i] = message[i];
-////            ids[i] = message[i].id.toString();
-//        }
-//
-//    }
-
-
-
-
 
 }

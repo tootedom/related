@@ -23,10 +23,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
 import static com.github.tlrx.elasticsearch.test.EsSetup.index;
@@ -141,8 +138,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     @Test
     public void testSingleStoreOfProductWithTodaysDate() throws Exception {
         RelatedProduct productToStore = createRelatedProductWithCurrentDay();
-        indexAndFlush(productToStore);
-
+        indexAndFlush(Arrays.asList(productToStore));
         assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
 
         QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
@@ -161,8 +157,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     @Test
     public void testSingleStoreOfProductWithCustomDate() {
         RelatedProduct productToStore = createRelatedProductWithGivenDate("2012-05-16");
-        indexAndFlush(productToStore);
-
+        indexAndFlush(Arrays.asList(productToStore));
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-16"));
 
         QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
@@ -176,7 +171,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     @Test
     public void testSingleStoreOfProductWithCustomDateAndTime() {
         RelatedProduct productToStore = createRelatedProductWithGivenDate("2012-05-15T12:00:00+01:00");
-        indexAndFlush(productToStore);
+        indexAndFlush(Arrays.asList(productToStore));
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
 
@@ -193,7 +188,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
                                                                  createRelatedProductWithGivenDate("2011-05-15T11:00:00+01:00"),
                                                                  createRelatedProductWithCurrentDay()};
 
-        indexAndFlush(productsToStore);
+        indexAndFlush(Arrays.asList(productsToStore));
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+"2012-05-15"));
         assertTrue(esSetup.exists(getIndexNamePrefix()+"2011-05-15"));
@@ -214,7 +209,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
                 createRelatedProductWithGivenDate("2011-05-15T11:00:00+01:00"),
                 createRelatedProductWithCurrentDay()};
 
-        indexAndFlush(productsToStore);
+        indexAndFlush(Arrays.asList(productsToStore));
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-15"));
@@ -246,7 +241,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         };
 
 
-        indexAndFlush(hourStorageLocationMapper,productsToStore);
+        indexAndFlush(hourStorageLocationMapper,Arrays.asList(productsToStore));
 
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-01_11"));
         assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-02_10"));
@@ -261,12 +256,12 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         assertEquals(1,response.getHits().getTotalHits());
     }
 
-    private void indexAndFlush(RelatedProductStorageLocationMapper storageLocationMapper, RelatedProduct... products) {
+    private void indexAndFlush(RelatedProductStorageLocationMapper storageLocationMapper, List<RelatedProduct> products) {
         repository.store(storageLocationMapper,products);
         esClient.admin().indices().refresh(new RefreshRequest(configuration.getStorageIndexNamePrefix() + "*")).actionGet();
     }
 
-    private void indexAndFlush(RelatedProduct... products) {
+    private void indexAndFlush(List<RelatedProduct> products) {
        indexAndFlush(dayStorageLocationMapper,products);
     }
 

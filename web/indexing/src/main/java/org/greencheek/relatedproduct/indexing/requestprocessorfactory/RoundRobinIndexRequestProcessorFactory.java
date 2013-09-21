@@ -46,7 +46,7 @@ public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProce
 
     @Override
     public RelatedProductIndexRequestProcessor createProcessor(Configuration configuration) {
-        short requestedNumberOfRequestProcessors = configuration.getNumberOfIndexingRequestProcessors();
+        int requestedNumberOfRequestProcessors = configuration.getNumberOfIndexingRequestProcessors();
 
         if(requestedNumberOfRequestProcessors>1) {
             return new DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(configuration,

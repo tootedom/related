@@ -62,6 +62,8 @@ public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurr
         System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("20080207T093000+0900"));
         System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00"));
         System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07"));
+
+        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().getCurrentDay());
     }
 
 

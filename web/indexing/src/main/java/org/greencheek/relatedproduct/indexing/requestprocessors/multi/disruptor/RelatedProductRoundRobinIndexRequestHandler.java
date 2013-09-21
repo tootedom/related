@@ -49,12 +49,15 @@ class RelatedProductRoundRobinIndexRequestHandlerL2 extends
     protected final int mask;
 
     protected final List<RelatedProduct> batchMessages;
+
     protected final int batchSize;
     protected final Configuration configuration;
     protected final RelatedProductIndexingMessageConverter converter;
 
     // Hot field, protect via class hierachy for false sharing
     protected int nextDisruptor = 0;
+
+    protected int currentBatchedCount = 0;
 
     protected RelatedProductRoundRobinIndexRequestHandlerL2(final Configuration configuration,
                                                        RelatedProductIndexingMessageConverter converter,
@@ -93,7 +96,8 @@ class RelatedProductRoundRobinIndexRequestHandlerL2 extends
         }
 
         batchSize = configuration.getIndexBatchSize();
-        batchMessages= new ArrayList<RelatedProduct>(batchSize * 2);
+
+        batchMessages= new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());
     }
 
 }
@@ -142,10 +146,7 @@ public class RelatedProductRoundRobinIndexRequestHandler extends RelatedProductR
                     return;
                 }
 
-                RelatedProduct[] products = converter.convertFrom(request);
-                if(products.length==0) return;
-
-                for(RelatedProduct p : products) batchMessages.add(p);
+                for(RelatedProduct p : converter.convertFrom(request)) batchMessages.add(p);
 
                 if(endOfBatch || batchMessages.size()>=batchSize) {
                     log.debug("handing off request to indexing processor");
@@ -156,7 +157,7 @@ public class RelatedProductRoundRobinIndexRequestHandler extends RelatedProductR
                     }
                 }
             } else {
-                log.info("indexing message not valid.  ignoring. potential related products: {}", request.relatedProducts.numberOfRelatedProducts);
+                log.info("indexing message not valid, and will be ignored.  Potentially contained {} related products", request.getRelatedProducts().getNumberOfRelatedProducts());
             }
         } finally {
             request.setValidMessage(false);

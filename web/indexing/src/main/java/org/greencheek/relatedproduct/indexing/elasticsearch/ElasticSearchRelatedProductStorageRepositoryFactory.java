@@ -1,12 +1,12 @@
 package org.greencheek.relatedproduct.indexing.elasticsearch;
 
+import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,7 +25,18 @@ public class ElasticSearchRelatedProductStorageRepositoryFactory implements Rela
 
     @Override
     public RelatedProductStorageRepository getRepository(Configuration configuration) {
-        NodeBasedElasticSearchClientFactory factory = new NodeBasedElasticSearchClientFactory(configuration);
+        ElasticSearchClientFactory factory;
+        switch(configuration.getElasticSearchClientType()) {
+            case NODE:
+                factory = new NodeBasedElasticSearchClientFactory(configuration);
+                break;
+            case TRANSPORT:
+                factory = new TransportBasedElasticSearchClientFactory(configuration);
+                break;
+            default:
+                factory = new TransportBasedElasticSearchClientFactory(configuration);
+                break;
+        }
 
         return new ElasticSearchRelatedProductIndexingRepository(configuration,factory);
     }

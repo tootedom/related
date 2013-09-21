@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.indexing.elasticsearch;
 
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.client.Client;
@@ -19,6 +20,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +37,8 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
 
     private final String indexType;
     private final String relatedWithAttributeName;
+    private final boolean threadedIndexing;
+    private final IndexRequest.OpType createOrIndex;
 
     private final String idAttributeName;
     private final String dateAttributeName;
@@ -50,15 +54,16 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
         this.idAttributeName = configuration.getKeyForIndexRequestIdAttr();
         this.dateAttributeName = configuration.getKeyForIndexRequestDateAttr();
         this.relatedWithAttributeName = configuration.getKeyForIndexRequestRelatedWithAttr();
+        this.createOrIndex = configuration.getShouldReplaceOldContentIfExists() == true ? IndexRequest.OpType.INDEX : IndexRequest.OpType.CREATE;
+        this.threadedIndexing = configuration.getShouldUseSeparateIndexStorageThread();
         this.elasticSearchClientFactory = factory;
         this.elasticClient = elasticSearchClientFactory.getClient();
     }
 
     @Override
-    public void store(RelatedProductStorageLocationMapper indexLocationMapper, RelatedProduct... relatedProducts) {
+    public void store(RelatedProductStorageLocationMapper indexLocationMapper, List<RelatedProduct> relatedProducts) {
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
         bulkRequest.setReplicationType(ReplicationType.ASYNC).setRefresh(false);
-
 
         int requestAdded = 0;
         for(RelatedProduct product : relatedProducts) {
@@ -98,7 +103,8 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
             builder.endObject();
 
             IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexLocationMapper.getLocationName(product), indexType);
-
+            indexRequestBuilder.setOpType(createOrIndex);
+            indexRequestBuilder.setOperationThreaded(threadedIndexing);
             bulkRequest.add(indexRequestBuilder.setSource(builder));
 
             return 1;

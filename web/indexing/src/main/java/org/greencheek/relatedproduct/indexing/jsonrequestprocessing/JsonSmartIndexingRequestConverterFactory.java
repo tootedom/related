@@ -17,12 +17,10 @@ import java.nio.ByteBuffer;
  * Time: 21:00
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class JsonSmartIndexingRequestConverterFactory implements IndexingRequestConverterFactory {
 
     private final ISO8601UTCCurrentDateAndTimeFormatter dateCreator;
 
-    @Inject
     public JsonSmartIndexingRequestConverterFactory(ISO8601UTCCurrentDateAndTimeFormatter formatter) {
         this.dateCreator = formatter;
     }
@@ -30,8 +28,7 @@ public class JsonSmartIndexingRequestConverterFactory implements IndexingRequest
     @Override
     public IndexingRequestConverter createConverter(Configuration configuration, ByteBuffer convertFrom) throws InvalidIndexingRequestException
     {
-        JsonSmartIndexingRequestConverter converter = new JsonSmartIndexingRequestConverter(configuration,dateCreator,convertFrom);
-        return converter;
+        return new JsonSmartIndexingRequestConverter(configuration,dateCreator,convertFrom);
     }
 
 

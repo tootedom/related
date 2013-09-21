@@ -30,6 +30,8 @@ public abstract class IndexingRequestConverterTest {
 
 
     public abstract IndexingRequestConverter createConverter(ByteBuffer data);
+    public abstract IndexingRequestConverter createConverter(ByteBuffer data, int numberOfAllowedProperties);
+
 
     @Before
     public void setUp() {
@@ -50,7 +52,7 @@ public abstract class IndexingRequestConverterTest {
                         "}";
 
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
         assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
 
@@ -67,7 +69,7 @@ public abstract class IndexingRequestConverterTest {
         "}";
 
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
         assertEquals("Message should be valid, 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
 
@@ -83,7 +85,7 @@ public abstract class IndexingRequestConverterTest {
                         "}";
 
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
         assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
 
@@ -100,7 +102,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ { }, { }, { } ]"+
                         "}";
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
         assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
 
@@ -117,7 +119,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ ]"+
                         "}";
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
         assertEquals("Message should have no related product",0,message.relatedProducts.getNumberOfRelatedProducts());
@@ -134,7 +136,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ \"10\",\"20\" ]"+
                         "}";
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
         assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
@@ -159,8 +161,8 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ \"10\",\"20\" ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)1);
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1);
+        converter.translateTo(message,(short)1);
 
         assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
         assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
@@ -172,7 +174,8 @@ public abstract class IndexingRequestConverterTest {
 
         assertEquals(1,properties.size());
 
-        converter.convertRequestIntoIndexingMessage(message,(short)2);
+        converter = createConverter(ByteBuffer.wrap(json.getBytes()),2);
+        converter.translateTo(message,(short)2);
 
         message.additionalProperties.convertTo(properties);
 
@@ -190,7 +193,7 @@ public abstract class IndexingRequestConverterTest {
                         "}";
 
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be invalid, no related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related product",3,message.relatedProducts.getNumberOfRelatedProducts());
@@ -226,7 +229,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { \"id\" : \"B0076UICIO\", \"type\":\"staticdischarger\"  }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 3 related products",3,message.relatedProducts.getNumberOfRelatedProducts());
@@ -250,8 +253,8 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)1);
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1);
+        converter.translateTo(message,(short)1);
 
         assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());
         assertEquals("Message should have 2 related products",2,message.relatedProducts.getNumberOfRelatedProducts());
@@ -275,7 +278,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [ { \"id\" : 1, \"type\":\"memory\" }, { }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
         IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());
         assertEquals("Message should have 1 related products",1,message.relatedProducts.getNumberOfRelatedProducts());
@@ -289,7 +292,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"products\" : [  1 ,\"B0096TJCXW\"  ]"+
                         "}";
         converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.convertRequestIntoIndexingMessage(message,(short)10);
+        converter.translateTo(message,(short)10);
 
         assertEquals("Message should be valid, with 1 related products",true,message.isValidMessage());
         assertEquals("Message should have 1 related products",1,message.relatedProducts.getNumberOfRelatedProducts());

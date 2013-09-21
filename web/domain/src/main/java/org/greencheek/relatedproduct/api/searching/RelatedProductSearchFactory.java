@@ -51,7 +51,7 @@ public class RelatedProductSearchFactory {
         objectToPopulate.setRelatedContentId(properties.remove(idKey));
 
         RelatedProductAdditionalProperty[] props = objectToPopulate.getAdditionalSearchCriteria().getAdditionalProperties();
-        short maxPropertiesToCopy = (short)Math.min(props.length,properties.size());
+        int maxPropertiesToCopy = Math.min(props.length,properties.size());
         log.debug("max properties to copy {}, from properties {}",maxPropertiesToCopy,properties);
         short i=0;
 

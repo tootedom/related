@@ -16,16 +16,15 @@ public class RelatedProductAdditionalProperties {
     public final RelatedProductAdditionalProperty[] additionalProperties;
 
 
-    public RelatedProductAdditionalProperties(Configuration configuration, short maxNumOfProperties) {
-        short num = maxNumOfProperties;
-        additionalProperties = new RelatedProductAdditionalProperty[num];
+    public RelatedProductAdditionalProperties(Configuration configuration, int maxNumOfProperties) {
+        additionalProperties = new RelatedProductAdditionalProperty[maxNumOfProperties];
 
-        for(int i=0;i<num;i++) {
+        for(int i=0;i<maxNumOfProperties;i++) {
             additionalProperties[i] = new RelatedProductAdditionalProperty(configuration);
         }
     }
 
-    public void setNumberOfProperties(short numberOfProperties) {
+    public void setNumberOfProperties(int numberOfProperties) {
         this.numberOfProperties = numberOfProperties;
     }
 

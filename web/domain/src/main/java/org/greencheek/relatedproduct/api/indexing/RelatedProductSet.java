@@ -10,19 +10,19 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  * To change this template use File | Settings | File Templates.
  */
 public class RelatedProductSet {
-    public short numberOfRelatedProducts;
+    public int numberOfRelatedProducts;
     public final RelatedProductInfo[] relatedProducts;
 
 
     public RelatedProductSet(Configuration configuration) {
-        short num = configuration.getMaxNumberOfRelatedProductsPerPurchase();
+        int num = configuration.getMaxNumberOfRelatedProductsPerPurchase();
         relatedProducts = new RelatedProductInfo[num];
         for(int i=0;i<num;i++) {
             relatedProducts[i] = new RelatedProductInfo(configuration);
         }
     }
 
-    public void setNumberOfRelatedProducts(short numberOfRelatedProducts) {
+    public void setNumberOfRelatedProducts(int numberOfRelatedProducts) {
         this.numberOfRelatedProducts = numberOfRelatedProducts;
     }
 
@@ -30,7 +30,7 @@ public class RelatedProductSet {
         return this.relatedProducts;
     }
 
-    public short getNumberOfRelatedProducts() {
+    public int getNumberOfRelatedProducts() {
         return this.numberOfRelatedProducts;
     }
 

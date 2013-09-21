@@ -144,7 +144,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),search.getRelatedContentId()));
 
         RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
-        short numberOfProps = searchProps.getNumberOfProperties();
+        int numberOfProps = searchProps.getNumberOfProperties();
         RelatedProductAdditionalProperty[] searchCriteria = searchProps.getAdditionalProperties();
         for(int i = 0;i<numberOfProps;i++) {
             RelatedProductAdditionalProperty prop = searchCriteria[i];

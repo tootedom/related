@@ -55,8 +55,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         int size = data.remaining();
         try {
             IndexingRequestConverter converter = requestConverter.createConverter(config,data);
-            RelatedProductIndexingRequestHandler translator = new RelatedProductIndexingRequestHandler(config,converter);
-            disruptor.publishEvent(translator);
+            disruptor.publishEvent(converter);
         } catch(InvalidRelatedProductJsonException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", size);
 

@@ -13,7 +13,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 
 public class RelatedProductInfoIdentifier {
 
-    protected final short maxStringIdLength;
+    protected final int maxStringIdLength;
     protected final char[] id;
     protected int length = 0;
 

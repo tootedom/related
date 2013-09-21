@@ -28,12 +28,12 @@ public class RelatedProductIndexingRequestHandler implements EventTranslator<Rel
     @Override
     public void translateTo(RelatedProductIndexingMessage event, long sequence) {
 
-        event.setValidMessage(true);
-        try {
-            requestConverter.convertRequestIntoIndexingMessage(event,config.getMaxNumberOfRelatedProductProperties());
-        } catch (InvalidIndexingRequestException e) {
-            event.setValidMessage(false);
-        }
+//        event.setValidMessage(true);
+//        try {
+//            requestConverter.convertRequestIntoIndexingMessage(event,config.getMaxNumberOfRelatedProductProperties());
+//        } catch (InvalidIndexingRequestException e) {
+//            event.setValidMessage(false);
+//        }
 
 
     }

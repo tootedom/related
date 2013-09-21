@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.indexing;
 
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 
+import java.util.List;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -10,6 +12,7 @@ import org.greencheek.relatedproduct.domain.RelatedProduct;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedProductStorageRepository {
-    public void store(RelatedProductStorageLocationMapper indexToMapper,  RelatedProduct... relatedProducts);
+    // Must not be asynchronous, The input list will not be a copy, but a passed reference
+    public void store(RelatedProductStorageLocationMapper indexToMapper,  List<RelatedProduct> relatedProducts);
     public void shutdown();
 }

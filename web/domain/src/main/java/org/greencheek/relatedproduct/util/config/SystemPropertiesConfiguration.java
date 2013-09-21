@@ -16,17 +16,17 @@ import javax.inject.Named;
  * To change this template use File | Settings | File Templates.
  */
 public class SystemPropertiesConfiguration implements Configuration {
-    private final short MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
+    private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
 
 
-    private final short MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty("related-product.max.number.related.products.per.product", "10"));
-    private final short RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
+    private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty("related-product.max.number.related.products.per.product", "10"));
+    private final int RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
     private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty("related-product.related.product.invalid.id.string", "INVALID_ID");
     private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","10240"));
     private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.min.related.product.post.data.size.in.bytes","4096"));
 
-    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
-    private final short RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
     private final int SIZE_OF_INCOMING_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.incoming.request.queue", "2048"));
     private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.batch.indexing.request.queue", "-1"));
     private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","128"));
@@ -36,7 +36,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.handler.queue", "2048"));
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.and.response.queue", "2048"));
 
-    private final short MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty("related-product.max.number.of.search.criteria.for.related.content", "10"));
+    private final int MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty("related-product.max.number.of.search.criteria.for.related.content", "10"));
     private final int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty("related-product.number.of.expected.like.for.like.requests", "10"));
 
     private final String KEY_FOR_FREQUENCY_RESULT_ID = System.getProperty("related-product.key.for.frequency.result.id","id");
@@ -51,9 +51,9 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.response.processing.queue","2048"));
 
-    private final short NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
+    private final int NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
 
-    private final short NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","4"));
+    private final int NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","4"));
 
     private final String STORAGE_INDEX_NAME_PREFIX = System.getProperty("related-product.storage.index.name.prefix","relatedproducts");
     private final String STORAGE_INDEX_NAME_ALIAS = System.getProperty("related-product-storage.index.name.alias","");
@@ -86,11 +86,25 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final String WAIT_STRATEGY = System.getProperty("related-product.wait.strategy","yield").toLowerCase();
 
+    private final String ES_CLIENT_TYPE = System.getProperty("related-product.es.client.type","transport").toLowerCase();
+
     private final boolean INDEXNAME_DATE_CACHING_ENABLED = Boolean.parseBoolean(System.getProperty("related-product.indexname.date.caching.enabled","true"));
 
     private final int NUMBER_OF_INDEXNAMES_TO_CACHE = Integer.valueOf(System.getProperty("related-product.number.of.indexname.to.cache","365"));
 
+    private final boolean REPLACE_OLD_INDEXED_CONTENT = Boolean.parseBoolean(System.getProperty("related-product.replace.old.indexed.content", "false"));
+
+    private final boolean SEPARATE_INDEXING_THREAD  = Boolean.parseBoolean(System.getProperty("related-product.use.separate.repository.storage.thread","false"));
+
+    private final boolean DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  Boolean.parseBoolean(System.getProperty("related-product.discard.storage.requests.with.too.many.relations","false"));
+
+    private final String ELASTIC_SEARCH_TRANSPORT_HOSTS = System.getProperty("related-product.elastic.search.transport.hosts","127.0.0.1:9300");
+
+    private final int DEFAULT_ELASTIC_SEARCH_PORT = Integer.valueOf(System.getProperty("related-product.elastic.search.default.port","9300"));
+
     private final WaitStrategyFactory waitStrategyFactory;
+
+    private final ElasticeSearchClientType esClientType;
 
     public SystemPropertiesConfiguration() {
         searchRequestResponseCodes[SearchResultsOutcomeType.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
@@ -114,6 +128,14 @@ public class SystemPropertiesConfiguration implements Configuration {
             waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
         }
 
+        if(ES_CLIENT_TYPE.equals("transport")) {
+            esClientType = ElasticeSearchClientType.TRANSPORT;
+        } else if(ES_CLIENT_TYPE.equals("node")) {
+            esClientType = ElasticeSearchClientType.NODE;
+        } else {
+            esClientType = ElasticeSearchClientType.TRANSPORT;
+        }
+
     }
 
 
@@ -121,7 +143,7 @@ public class SystemPropertiesConfiguration implements Configuration {
         return waitStrategyFactory;
     }
 
-    public short getMaxNumberOfSearchCriteriaForRelatedContent() {
+    public int getMaxNumberOfSearchCriteriaForRelatedContent() {
         return MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT;
     }
 
@@ -144,7 +166,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public short getNumberOfSearchingRequestProcessors() {
+    public int getNumberOfSearchingRequestProcessors() {
         return NUMBER_OF_SEARCHING_REQUEST_PROCESSORS;
     }
 
@@ -282,22 +304,22 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public short getNumberOfIndexingRequestProcessors() {
+    public int getNumberOfIndexingRequestProcessors() {
         return NUMBER_OF_INDEXING_REQUEST_PROCESSORS;
     }
 
     @Override
-    public short getMaxNumberOfRelatedProductProperties() {
+    public int getMaxNumberOfRelatedProductProperties() {
         return MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES;
     }
 
     @Override
-    public short getMaxNumberOfRelatedProductsPerPurchase() {
+    public int getMaxNumberOfRelatedProductsPerPurchase() {
         return MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE;
     }
 
     @Override
-    public short getRelatedProductIdLength() {
+    public int getRelatedProductIdLength() {
         return RELATED_PRODUCT_ID_LENGTH;
     }
 
@@ -317,12 +339,12 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public short getRelatedProductAdditionalPropertyKeyLength() {
+    public int getRelatedProductAdditionalPropertyKeyLength() {
         return RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH;
     }
 
     @Override
-    public short getRelatedProductAdditionalPropertyValueLength() {
+    public int getRelatedProductAdditionalPropertyValueLength() {
         return RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH;
     }
 
@@ -354,5 +376,35 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getNumberOfIndexNamesToCache() {
         return NUMBER_OF_INDEXNAMES_TO_CACHE;
+    }
+
+    @Override
+    public boolean getShouldReplaceOldContentIfExists() {
+        return REPLACE_OLD_INDEXED_CONTENT;
+    }
+
+    @Override
+    public boolean getShouldUseSeparateIndexStorageThread() {
+        return SEPARATE_INDEXING_THREAD;
+    }
+
+    @Override
+    public boolean shouldDiscardIndexRequestWithTooManyRelations() {
+        return DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS;
+    }
+
+    @Override
+    public ElasticeSearchClientType getElasticSearchClientType() {
+        return esClientType;
+    }
+
+    @Override
+    public String getElasticSearchTransportHosts() {
+        return ELASTIC_SEARCH_TRANSPORT_HOSTS;
+    }
+
+    @Override
+    public int getDefaultElasticSearchPort() {
+        return DEFAULT_ELASTIC_SEARCH_PORT;
     }
 }

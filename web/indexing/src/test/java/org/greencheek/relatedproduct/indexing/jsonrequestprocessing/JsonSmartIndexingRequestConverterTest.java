@@ -19,4 +19,9 @@ public class JsonSmartIndexingRequestConverterTest extends IndexingRequestConver
     public IndexingRequestConverter createConverter(ByteBuffer request) {
         return new JsonSmartIndexingRequestConverter(new SystemPropertiesConfiguration(),new JodaISO8601UTCCurrentDateAndTimeFormatter(),request);
     }
+
+    @Override
+    public IndexingRequestConverter createConverter(ByteBuffer request, int maxNumberOfAllowedProperties) {
+        return new JsonSmartIndexingRequestConverter(new SystemPropertiesConfiguration(),new JodaISO8601UTCCurrentDateAndTimeFormatter(),request,maxNumberOfAllowedProperties);
+    }
 }

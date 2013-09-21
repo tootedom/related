@@ -166,6 +166,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
             }
             if(canProcess) {
                 response.setStatus(202);
+                response.setContentLength(0);
             }
 
         } catch (IOException exception) {

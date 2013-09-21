@@ -23,7 +23,9 @@ public class RelatedProductInfo {
 
     }
 
-
+    public void setId(String idAsString) {
+        this.id.setId(idAsString);
+    }
     public RelatedProductInfoIdentifier getId() {
         return id;
     }

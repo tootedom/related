@@ -54,13 +54,10 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
 
     @Override
     public void processRequest(Configuration config, ByteBuffer data) {
-        int size = data.remaining();
         try {
-            IndexingRequestConverter converter = requestConverter.createConverter(config,data);
-            RelatedProductInitialIndexingRequestTranslator translator = new RelatedProductInitialIndexingRequestTranslator(config,converter);
-            disruptor.publishEvent(translator);
+            disruptor.publishEvent(requestConverter.createConverter(config,data));
         } catch(InvalidRelatedProductJsonException e) {
-            log.warn("Invalid json content, unable to process request.  Length of data:{}", size);
+            log.warn("Invalid json content, unable to process request.  Length of data:{}", data.remaining());
 
             if(log.isDebugEnabled()) {
                 if(data.hasArray())

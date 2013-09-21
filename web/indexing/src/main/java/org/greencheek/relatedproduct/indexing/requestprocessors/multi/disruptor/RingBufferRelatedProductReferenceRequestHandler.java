@@ -90,7 +90,7 @@ public class RingBufferRelatedProductReferenceRequestHandler extends RingBufferR
                 try {
                     log.debug("Sending indexing requests to the storage repository");
                     try {
-                        storageRepository.store(locationMapper,relatedProducts.toArray(new RelatedProduct[relatedProducts.size()]));
+                        storageRepository.store(locationMapper,relatedProducts);
                     } catch(Exception e) {
                         log.warn("Exception calling storage repository for related products:{}",relatedProducts,e);
                     }

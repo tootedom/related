@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.util.config;
 
+import org.elasticsearch.action.index.IndexRequest;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 
 /**
@@ -13,16 +14,16 @@ public interface Configuration {
     public static final String APPLICATION_CONTEXT_ATTRIBUTE_NAME = "ApplicationContext";
 
     public WaitStrategyFactory getWaitStrategyFactory();
-    public short getNumberOfIndexingRequestProcessors();
+    public int getNumberOfIndexingRequestProcessors();
 
-    public short getMaxNumberOfRelatedProductProperties();
-    public short getMaxNumberOfRelatedProductsPerPurchase();
-    public short getRelatedProductIdLength();
+    public int getMaxNumberOfRelatedProductProperties();
+    public int getMaxNumberOfRelatedProductsPerPurchase();
+    public int getRelatedProductIdLength();
     public String getRelatedProductInvalidIdString();
     public int getMinRelatedProductPostDataSizeInBytes();
     public int getMaxRelatedProductPostDataSizeInBytes();
-    public short getRelatedProductAdditionalPropertyKeyLength();
-    public short getRelatedProductAdditionalPropertyValueLength();
+    public int getRelatedProductAdditionalPropertyKeyLength();
+    public int getRelatedProductAdditionalPropertyValueLength();
 
     public int getIndexBatchSize();
 
@@ -42,12 +43,12 @@ public interface Configuration {
      */
     public int getSizeOfIncomingMessageQueue();
 
-    public short getMaxNumberOfSearchCriteriaForRelatedContent();
+    public int getMaxNumberOfSearchCriteriaForRelatedContent();
     public int getSizeOfRelatedContentSearchRequestHandlerQueue();
     public int getSizeOfRelatedContentSearchRequestQueue();
     public int getSizeOfRelatedContentSearchRequestAndResponseQueue();
     public int getSizeOfResponseProcessingQueue();
-    public short getNumberOfSearchingRequestProcessors();
+    public int getNumberOfSearchingRequestProcessors();
 
     public int getNumberOfExpectedLikeForLikeRequests();
 
@@ -94,4 +95,21 @@ public interface Configuration {
 
     boolean isIndexNameDateCachingEnabled();
     public int getNumberOfIndexNamesToCache();
+
+    public boolean getShouldReplaceOldContentIfExists();
+
+    public boolean getShouldUseSeparateIndexStorageThread();
+
+    boolean shouldDiscardIndexRequestWithTooManyRelations();
+
+    ElasticeSearchClientType getElasticSearchClientType();
+
+    public String getElasticSearchTransportHosts();
+
+    int getDefaultElasticSearchPort();
+
+    public enum ElasticeSearchClientType {
+        NODE,
+        TRANSPORT;
+    }
 }

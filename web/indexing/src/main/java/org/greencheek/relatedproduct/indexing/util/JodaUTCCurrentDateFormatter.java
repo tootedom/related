@@ -31,7 +31,7 @@ public class JodaUTCCurrentDateFormatter implements UTCCurrentDateFormatter {
     public String getCurrentDay() {
         DateTime dt = new DateTime();
         DateTime utc =dt.withZone(DateTimeZone.UTC);
-        StringBuilderWriter b = new StringBuilderWriter(24);
+        StringBuilderWriter b = new StringBuilderWriter(10);
         try {
              formatter.printTo(b, utc);
         } catch (IOException e) {
@@ -42,13 +42,17 @@ public class JodaUTCCurrentDateFormatter implements UTCCurrentDateFormatter {
 
     @Override
     public String parseToDate(String dateAndOrTime) {
-        StringBuilderWriter b = new StringBuilderWriter(24);
+        StringBuilderWriter b = new StringBuilderWriter(10);
         try {
             formatter.printTo(b,formatterUTC.parseDateTime(dateAndOrTime));
         } catch(IOException e) {
             // this does not get thrown by the StringBuilder Appendable interface.
         }
         return b.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new JodaUTCCurrentDateFormatter().getCurrentDay());
     }
 
 }
