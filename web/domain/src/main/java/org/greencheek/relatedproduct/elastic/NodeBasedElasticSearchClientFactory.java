@@ -50,7 +50,7 @@ public class NodeBasedElasticSearchClientFactory implements ElasticSearchClientF
     }
 
     public NodeBasedElasticSearchClientFactory(Settings defaultSettings,Configuration configuration) {
-        this(defaultSettings,configuration,configuration.getElasticSearchClientDefaultSettingFileName(),
+        this(defaultSettings,configuration,configuration.getElasticSearchClientDefaultNodeSettingFileName(),
                 configuration.getElasticSearchClientOverrideSettingFileName());
     }
 

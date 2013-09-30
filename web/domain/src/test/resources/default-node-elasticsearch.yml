@@ -1,0 +1,2 @@
+cluster.name: default-name
+node.local: true

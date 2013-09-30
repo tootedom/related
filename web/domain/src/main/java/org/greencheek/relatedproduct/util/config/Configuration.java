@@ -74,7 +74,8 @@ public interface Configuration {
     public String getStorageClusterName();
     public String getStorageFrequentlyRelatedProductsFacetResultsFacetName();
 
-    public String getElasticSearchClientDefaultSettingFileName();
+    public String getElasticSearchClientDefaultNodeSettingFileName();
+    public String getElasticSearchClientDefaultTransportSettingFileName();
     public String getElasticSearchClientOverrideSettingFileName();
 
 

@@ -6,7 +6,6 @@ import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 
-import javax.inject.Named;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +16,6 @@ import javax.inject.Named;
  */
 public class SystemPropertiesConfiguration implements Configuration {
     private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
-
 
     private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty("related-product.max.number.related.products.per.product", "10"));
     private final int RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
@@ -66,8 +64,9 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty("related-product.key.for.index.request.id.attr","id");
     private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty("related-product.key.for.index.request.product.array.attr","products");
 
-    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.fila.name","default-elasticsearch.yml");
-    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.fila.name","elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.file.name","default-transport-elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.file.name","default-node-elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.file.name","elasticsearch.yml");
 
     private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = Long.valueOf(System.getProperty("related-product.frequently.related.search.timeout.in.millis", "5000"));
 
@@ -259,8 +258,13 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public String getElasticSearchClientDefaultSettingFileName() {
-        return ELASTIC_SEARCH_CLIENT_DEFAULT_SETTINGS_FILE_NAME;
+    public String getElasticSearchClientDefaultNodeSettingFileName() {
+        return ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME;
+    }
+
+    @Override
+    public String getElasticSearchClientDefaultTransportSettingFileName() {
+        return ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME;
     }
 
     @Override

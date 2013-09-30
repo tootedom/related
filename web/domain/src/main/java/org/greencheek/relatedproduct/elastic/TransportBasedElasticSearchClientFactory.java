@@ -47,7 +47,7 @@ public final class TransportBasedElasticSearchClientFactory implements ElasticSe
     }
 
     public TransportBasedElasticSearchClientFactory(Settings defaultSettings, Configuration configuration) {
-        this(defaultSettings,configuration,configuration.getElasticSearchClientDefaultSettingFileName(),
+        this(defaultSettings,configuration,configuration.getElasticSearchClientDefaultTransportSettingFileName(),
                 configuration.getElasticSearchClientOverrideSettingFileName());
     }
 
@@ -55,19 +55,17 @@ public final class TransportBasedElasticSearchClientFactory implements ElasticSe
     private Client createClient(Settings defaultSettings,Configuration config) {
 
         ImmutableSettings.Builder settings = ImmutableSettings.settingsBuilder().put("cluster.name",config.getStorageClusterName());
-//                .put("node.local","true").put("node.client","true").put("http.enabled","false");
-
 
         // load the pre-packaged defaults
-//        settings.loadFromClasspath(defaultConfigFileName);
+        settings.loadFromClasspath(defaultConfigFileName);
 
         // Set the default cluster name from the configuration, then possibility to override
         // from the given settings object.  Then once again the possibility to override from
         // the xml filenames
-//        settings.put(defaultSettings);
+        settings.put(defaultSettings);
 
         // load the overrides on the classpath
-//        settings.loadFromClasspath(configFileName);
+        settings.loadFromClasspath(configFileName);
 
         TransportClient client = new TransportClient(settings);
 

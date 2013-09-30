@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.api;
 
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -54,7 +55,9 @@ public class RelatedProductAdditionalProperty {
 
     public char[] getDuplicateNameCharArray() {
         char[] copyTo = new char[nameLength];
-        System.arraycopy(this.name,0,copyTo,0,nameLength);
+        Util.getUnsafe().copyMemory(this.name, Util.getCharArrayOffset(), copyTo, Util.getCharArrayOffset(), nameLength*2);
+
+//        System.arraycopy(this.name,0,copyTo,0,nameLength);
         return copyTo;
     }
 
@@ -64,7 +67,9 @@ public class RelatedProductAdditionalProperty {
 
     public char[] getDuplicateValueCharArray() {
         char[] copyTo = new char[valueLength];
-        System.arraycopy(this.value,0,copyTo,0,valueLength);
+        Util.getUnsafe().copyMemory(this.value, Util.getCharArrayOffset(), copyTo, Util.getCharArrayOffset(), valueLength<<1);
+
+//        System.arraycopy(this.value,0,copyTo,0,valueLength);
         return copyTo;
     }
 
@@ -84,8 +89,11 @@ public class RelatedProductAdditionalProperty {
     public void copyTo(RelatedProductAdditionalProperty copyTo) {
         copyTo.nameLength=this.nameLength;
         copyTo.valueLength=this.valueLength;
-        System.arraycopy(this.name,0,copyTo.name,0,nameLength);
-        System.arraycopy(this.value,0,copyTo.value,0,valueLength);
+        Util.getUnsafe().copyMemory(this.name, Util.getCharArrayOffset(), copyTo.name, Util.getCharArrayOffset(), nameLength<<1);
+        Util.getUnsafe().copyMemory(this.value, Util.getCharArrayOffset(), copyTo.value, Util.getCharArrayOffset(), valueLength<<1);
+
+//        System.arraycopy(this.name,0,copyTo.name,0,nameLength);
+//        System.arraycopy(this.value,0,copyTo.value,0,valueLength);
 
 
     }

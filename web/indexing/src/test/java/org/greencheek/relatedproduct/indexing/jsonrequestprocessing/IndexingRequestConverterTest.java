@@ -30,7 +30,7 @@ public abstract class IndexingRequestConverterTest {
 
 
     public abstract IndexingRequestConverter createConverter(ByteBuffer data);
-    public abstract IndexingRequestConverter createConverter(ByteBuffer data, int numberOfAllowedProperties);
+    public abstract IndexingRequestConverter createConverter(ByteBuffer data, int numberOfAllowedProperties, int maxNumberOfRelatedProductsPerPurchase);
 
 
     @Before
@@ -161,7 +161,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ \"10\",\"20\" ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1);
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1,10);
         converter.translateTo(message,(short)1);
 
         assertEquals("Message should be valid, with 2 related products",true,message.isValidMessage());
@@ -174,7 +174,7 @@ public abstract class IndexingRequestConverterTest {
 
         assertEquals(1,properties.size());
 
-        converter = createConverter(ByteBuffer.wrap(json.getBytes()),2);
+        converter = createConverter(ByteBuffer.wrap(json.getBytes()),2,2);
         converter.translateTo(message,(short)2);
 
         message.additionalProperties.convertTo(properties);
@@ -253,7 +253,7 @@ public abstract class IndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ { \"id\" : \"B009S4IJCK\", \"type\":\"memory\" }, { }, { \"id\" : \"B0096TJCXW\" ,\"type\":\"screwdriver\" } ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1);
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()),1,3);
         converter.translateTo(message,(short)1);
 
         assertEquals("Message should be valid, with 3 related products",true,message.isValidMessage());

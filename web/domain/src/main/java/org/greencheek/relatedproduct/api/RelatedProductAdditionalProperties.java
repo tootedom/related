@@ -17,6 +17,7 @@ public class RelatedProductAdditionalProperties {
 
 
     public RelatedProductAdditionalProperties(Configuration configuration, int maxNumOfProperties) {
+        int num = maxNumOfProperties;
         additionalProperties = new RelatedProductAdditionalProperty[maxNumOfProperties];
 
         for(int i=0;i<maxNumOfProperties;i++) {
