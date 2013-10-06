@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.api;
 
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 
@@ -13,9 +14,9 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 
 public class RelatedProductInfoIdentifier {
 
-    protected final int maxStringIdLength;
-    protected final char[] id;
-    protected int length = 0;
+    private final int maxStringIdLength;
+    private final char[] id;
+    private int length = 0;
 
     public RelatedProductInfoIdentifier(Configuration configuration) {
         maxStringIdLength = configuration.getRelatedProductIdLength();
@@ -25,6 +26,8 @@ public class RelatedProductInfoIdentifier {
     public void setId(String id) {
         length = Math.min(id.length(),maxStringIdLength);
         id.getChars(0, length,this.id,0);
+
+//        Util.copyStringCharacterArray(id,this.id,length,0);
     }
 
     public char[] getIdCharArray() {
@@ -33,6 +36,7 @@ public class RelatedProductInfoIdentifier {
 
     public char[] duplicate() {
         char destination[] = new char[length];
+//        Util.getUnsafe().copyMemory(this.id, Util.getCharArrayOffset(), destination, Util.getCharArrayOffset(), length*Util.getCharArrayScale());
         System.arraycopy(this.id,0,destination,0,length);
         return destination;
     }
@@ -42,11 +46,12 @@ public class RelatedProductInfoIdentifier {
     }
 
 
-    public void setLength(int length) {
+    private void setLength(int length) {
         this.length = length;
     }
 
     public void copyTo(RelatedProductInfoIdentifier destination) {
+//        Util.getUnsafe().copyMemory(this.id, Util.getCharArrayOffset(),destination.getIdCharArray(), Util.getCharArrayOffset(),length*Util.getCharArrayScale());
         System.arraycopy(this.id,0,destination.getIdCharArray(),0,length);
         destination.setLength(this.length);
     }

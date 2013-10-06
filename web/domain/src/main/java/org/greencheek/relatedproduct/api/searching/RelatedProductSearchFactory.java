@@ -50,8 +50,9 @@ public class RelatedProductSearchFactory {
 
         objectToPopulate.setRelatedContentId(properties.remove(idKey));
 
-        RelatedProductAdditionalProperty[] props = objectToPopulate.getAdditionalSearchCriteria().getAdditionalProperties();
-        int maxPropertiesToCopy = Math.min(props.length,properties.size());
+//        RelatedProductAdditionalProperty[] props = objectToPopulate.getAdditionalSearchCriteria().getAdditionalProperties();
+        RelatedProductAdditionalProperties props = objectToPopulate.getAdditionalSearchCriteria();
+        int maxPropertiesToCopy = Math.min(props.getNumberOfProperties(),properties.size());
         log.debug("max properties to copy {}, from properties {}",maxPropertiesToCopy,properties);
         short i=0;
 
@@ -60,9 +61,10 @@ public class RelatedProductSearchFactory {
         for(String key : sortedParameters) {
             if(i==maxPropertiesToCopy) break;
 
-            props[i].setName(key);
-            props[i].setValue(properties.get(key));
-            i++;
+            props.setProperty(key,properties.get(key),i++);
+//            [i].setName(key);
+//            props[i].setValue(properties.get(key));
+//            i++;
         }
 
         objectToPopulate.getAdditionalSearchCriteria().setNumberOfProperties(i);
@@ -83,41 +85,41 @@ public class RelatedProductSearchFactory {
 
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config, obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(obj.getLookupKey(config));
         populateSearchObject(config,obj,
                 RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-        System.out.println(props.numberOfProperties);
+        System.out.println(props.getNumberOfProperties());
         System.out.println(props.toString());
 
         System.out.println(obj.getLookupKey(config) + ""  + Math.ceil(3 / 0.75));

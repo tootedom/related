@@ -31,7 +31,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
     private static final Logger log = LoggerFactory.getLogger(JsonSmartIndexingRequestConverter.class);
 
     private final int maxNumberOfAdditionalProperties;
-    private final int maxNumberOfRelatedProducts;
+//    private final int maxNumberOfRelatedProducts;
     private final String productKey;
     private final String dateKey;
     private final String idKey;
@@ -49,7 +49,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         int maxNumberOfAllowedProperties,int maxNumberOfRelatedProducts) {
 
         this.maxNumberOfAdditionalProperties = maxNumberOfAllowedProperties;
-        this.maxNumberOfRelatedProducts = maxNumberOfRelatedProducts;
+//        this.maxNumberOfRelatedProducts = maxNumberOfRelatedProducts;
 
         JSONParser parser = new JSONParser(JSONParser.MODE_RFC4627);
         try
@@ -115,7 +115,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         }
 
         int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, mapSize);
-        RelatedProductAdditionalProperty[] additionalProperties = properties.getAdditionalProperties();
+//        RelatedProductAdditionalProperty[] additionalProperties = properties.getAdditionalProperties();
 
         int i=0;
         int safeNumberOfProperties = minNumberOfAdditionalProperties;
@@ -124,8 +124,9 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             Object value = map.get(key);
             if(value instanceof String) {
                 try {
-                    additionalProperties[i].setName(key);
-                    additionalProperties[i].setValue((String) value);
+                    properties.setProperty(key,(String)value,i);
+//                    additionalProperties[i].setName(key);
+//                    additionalProperties[i].setValue((String) value);
                 } catch (Exception e) {
                     log.error("map: {}",map.toJSONString());
                     log.error("additional property: {}, {}",new Object[]{key,value,e});

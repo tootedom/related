@@ -43,25 +43,27 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
     private RelatedProduct createRelatedProduct(RelatedProductIndexingMessage message,RelatedProductInfo info,
                                                 RelatedProductInfo[] ids,
                                                 RelatedProductAdditionalProperties indexProperties) {
-        RelatedProductAdditionalProperties productProperties = info.getAdditionalProperties();
+//        RelatedProductAdditionalProperties productProperties =;
+
+        RelatedProductAdditionalProperties properties = new RelatedProductAdditionalProperties(info.getAdditionalProperties(),indexProperties);
 
 
-        int numberOfProductProperties = productProperties.getNumberOfProperties();
-        int numberOfIndexRequestProperties = indexProperties.getNumberOfProperties();
-        int numberOfProperties = numberOfProductProperties +  numberOfIndexRequestProperties;
-        RelatedProductAdditionalProperty[] properties = new RelatedProductAdditionalProperty[numberOfProperties];
+//        int numberOfProductProperties = productProperties.getNumberOfProperties();
+//        int numberOfIndexRequestProperties = indexProperties.getNumberOfProperties();
+//        int numberOfProperties = numberOfProductProperties +  numberOfIndexRequestProperties;
+//        RelatedProductAdditionalProperty[] properties = new RelatedProductAdditionalProperty[numberOfProperties];
 
-        int propertyIndex=0;
+//        int propertyIndex=0;
 
-        RelatedProductAdditionalProperty[] productProps = productProperties.getAdditionalProperties();
-        for(int i=0;i<numberOfProductProperties;i++) {
-            properties[propertyIndex++] = productProps[i];
-        }
-
-        productProps = indexProperties.getAdditionalProperties();
-        for(int j=0;j<numberOfIndexRequestProperties;j++) {
-            properties[propertyIndex++] = productProps[j];
-        }
+//        RelatedProductAdditionalProperty[] productProps = productProperties.getAdditionalProperties();
+//        for(int i=0;i<numberOfProductProperties;i++) {
+//            properties[propertyIndex++] = productProps[i];
+//        }
+//
+//        productProps = indexProperties.getAdditionalProperties();
+//        for(int j=0;j<numberOfIndexRequestProperties;j++) {
+//            properties[propertyIndex++] = productProps[j];
+//        }
 
         int relatedIdLength = ids.length-1;
         char[][] relatedIds = new char[relatedIdLength][];

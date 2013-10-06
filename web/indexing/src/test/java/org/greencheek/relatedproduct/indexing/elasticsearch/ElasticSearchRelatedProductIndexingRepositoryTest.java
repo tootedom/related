@@ -129,9 +129,9 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
 
     private RelatedProduct createRelatedProductWithGivenDateAndProperties(String date, Map<String,String> customProps) {
         if(customProps==null) {
-            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()},new RelatedProductAdditionalProperty[0]);
+            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()},new RelatedProductAdditionalProperties(configuration,0));
         } else {
-            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()}, RelatedProductAdditionalProperties.convertFrom(configuration, customProps));
+            return new RelatedProduct(UUID.randomUUID().toString().toCharArray(),date,new char[][]{UUID.randomUUID().toString().toCharArray()}, convertFrom(configuration, customProps));
         }
     }
 
@@ -146,6 +146,21 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         SearchResponse response = esClient.prepareSearch(getIndexNamePrefix()+ currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
+    }
+
+
+    public static RelatedProductAdditionalProperties convertFrom(Configuration config, Map<String,String> propertes) {
+        RelatedProductAdditionalProperties propArrays = new RelatedProductAdditionalProperties(config,propertes.size());
+
+        int i=0;
+        for(Map.Entry<String,String> entry : propertes.entrySet() ) {
+            propArrays.setProperty(entry.getKey(),entry.getValue(),i++);
+//            propArrays[i] = new RelatedProductAdditionalProperty(config);
+//            propArrays[i].setName(entry.getKey());
+//            propArrays[i++].setValue(entry.getValue());
+        }
+        propArrays.setNumberOfProperties(propertes.size());
+        return propArrays;
     }
 
     private String getIndexNamePrefix() {
@@ -230,7 +245,7 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
     public void testMultiStoreOfProductWithCustomDateAndProperties() {
         RelatedProduct[] productsToStore =  new RelatedProduct[] {
                 createRelatedProductWithGivenDateAndProperties("2012-05-01T12:00:00+01:00",
-                                new HashMap(){{ put("location", "london");}}),
+                                new HashMap(){{ put("location", "london"); put("country","gb");}}),
 
                 createRelatedProductWithGivenDateAndProperties("2011-05-02T11:00:00+01:00",
                         new HashMap(){{ put("location", "liverpool");}}),

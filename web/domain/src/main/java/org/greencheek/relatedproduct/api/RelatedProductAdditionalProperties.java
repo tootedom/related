@@ -12,12 +12,27 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class RelatedProductAdditionalProperties {
-    public int numberOfProperties = 0;
-    public final RelatedProductAdditionalProperty[] additionalProperties;
+    private int numberOfProperties = 0;
+    private final RelatedProductAdditionalProperty[] additionalProperties;
 
+
+    public RelatedProductAdditionalProperties(RelatedProductAdditionalProperties... buildFrom) {
+        this.numberOfProperties = 0;
+        for(RelatedProductAdditionalProperties properties : buildFrom) {
+            numberOfProperties+=properties.getNumberOfProperties();
+        }
+
+        additionalProperties = new RelatedProductAdditionalProperty[numberOfProperties];
+
+        int index = 0;
+        for(RelatedProductAdditionalProperties properties : buildFrom) {
+            for(int i=0;i<properties.getNumberOfProperties();i++) {
+                additionalProperties[index++] = properties.additionalProperties[i].trimAndClone();
+            }
+        }
+    }
 
     public RelatedProductAdditionalProperties(Configuration configuration, int maxNumOfProperties) {
-        int num = maxNumOfProperties;
         additionalProperties = new RelatedProductAdditionalProperty[maxNumOfProperties];
 
         for(int i=0;i<maxNumOfProperties;i++) {
@@ -33,9 +48,23 @@ public class RelatedProductAdditionalProperties {
         return this.numberOfProperties;
     }
 
-    public RelatedProductAdditionalProperty[] getAdditionalProperties() {
-        return this.additionalProperties;
+    public void setProperty(String name, String value, int propertyIndex) {
+        additionalProperties[propertyIndex].setName(name);
+        additionalProperties[propertyIndex].setValue(value);
     }
+
+    public String getPropertyName(int propertyIndex) {
+        return additionalProperties[propertyIndex].getName();
+    }
+
+    public String getPropertyValue(int propertyIndex) {
+        return additionalProperties[propertyIndex].getValue();
+    }
+
+    public char[] getPropertyValueCharArray(int propertyIndex) {
+        return additionalProperties[propertyIndex].getValueCharArray();
+    }
+
 
     public void copyTo(RelatedProductAdditionalProperties copyTo) {
         copyTo.numberOfProperties = numberOfProperties;
@@ -54,17 +83,6 @@ public class RelatedProductAdditionalProperties {
         }
     }
 
-    public static RelatedProductAdditionalProperty[] convertFrom(Configuration config, Map<String,String> propertes) {
-        RelatedProductAdditionalProperty[] propArrays = new RelatedProductAdditionalProperty[propertes.size()];
-
-        int i=0;
-        for(Map.Entry<String,String> entry : propertes.entrySet() ) {
-            propArrays[i] = new RelatedProductAdditionalProperty(config);
-            propArrays[i].setName(entry.getKey());
-            propArrays[i++].setValue(entry.getValue());
-        }
-        return propArrays;
-    }
 
     /**
      * Returns a two dimensional array that is like that of a map:
@@ -89,6 +107,7 @@ public class RelatedProductAdditionalProperties {
         return getStringLength(numberOfProperties,configuration);
     }
 
+    // TODO : Need to get the length from the properties
     public static int getStringLength(int numberOfProps,Configuration configuration) {
         return (numberOfProps*(1+configuration.getRelatedProductAdditionalPropertyKeyLength()
                 +configuration.getRelatedProductAdditionalPropertyValueLength())) + (numberOfProps) + 1;

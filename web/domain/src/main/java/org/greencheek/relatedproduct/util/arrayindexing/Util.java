@@ -30,6 +30,13 @@ public class Util {
 
     private static final Unsafe THE_UNSAFE;
     private static final long CHAR_ARRAY_OFFSET;
+    private static final long CHAR_ARRAY_SCALE;
+    private static final long INT_ARRAY_OFFSET;
+    private static final long INT_ARRAY_SCALE;
+    private static final long stringOffset;
+    private static final long stringCharsArrayOffset;
+
+
     static
     {
         try
@@ -51,6 +58,29 @@ public class Util {
             throw new RuntimeException("Unable to load unsafe", e);
         }
         CHAR_ARRAY_OFFSET = THE_UNSAFE.arrayBaseOffset(char[].class);
+        CHAR_ARRAY_SCALE = THE_UNSAFE.arrayIndexScale(char[].class);
+        INT_ARRAY_OFFSET = THE_UNSAFE.arrayBaseOffset(int[].class);
+        INT_ARRAY_SCALE = THE_UNSAFE.arrayIndexScale(int[].class);
+
+        try {
+            stringCharsArrayOffset = THE_UNSAFE.objectFieldOffset(String.class.getDeclaredField("value"));
+        } catch (NoSuchFieldException e) {
+            throw new InstantiationError("Unable to manipulate string object");
+        }
+
+        Field declaredField = null;
+        try {
+            declaredField = String.class.getDeclaredField("offset");
+        }
+        // this will happen for jdk7 as these fields have been removed
+        catch (NoSuchFieldException e) {
+            declaredField = null;
+        }
+        if (declaredField != null) {
+            stringOffset = THE_UNSAFE.objectFieldOffset(declaredField);
+        } else {
+            stringOffset = -1L;
+        }
 
     }
 
@@ -66,5 +96,27 @@ public class Util {
 
     public static long getCharArrayOffset() {
         return CHAR_ARRAY_OFFSET;
+    }
+
+    public static long getCharArrayScale() {
+        return CHAR_ARRAY_SCALE;
+    }
+
+    public static long getIntArrayOffset() {
+        return INT_ARRAY_OFFSET;
+    }
+
+    public static long getIntArrayScale() {
+        return INT_ARRAY_SCALE;
+    }
+
+    public static void copyStringCharacterArray(String stringToCopy, char[] destination, int length,int destOffset) {
+        char[] stringChars =(char[]) THE_UNSAFE.getObject(stringToCopy, stringCharsArrayOffset);
+        if(stringOffset>-1) {
+            getUnsafe().copyMemory(stringChars, Util.getCharArrayOffset()+(stringOffset*CHAR_ARRAY_SCALE), destination, Util.getCharArrayOffset()+(destOffset*CHAR_ARRAY_SCALE), length*CHAR_ARRAY_SCALE);
+        } else {
+            getUnsafe().copyMemory(stringChars, Util.getCharArrayOffset(), destination, Util.getCharArrayOffset()+(destOffset*CHAR_ARRAY_SCALE), length*CHAR_ARRAY_SCALE);
+        }
+
     }
 }

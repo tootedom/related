@@ -174,7 +174,7 @@ public abstract class IndexingRequestConverterTest {
 
         assertEquals(1,properties.size());
 
-        converter = createConverter(ByteBuffer.wrap(json.getBytes()),2,2);
+        converter = createConverter(ByteBuffer.wrap(json.getBytes()),3,2);
         converter.translateTo(message,(short)2);
 
         message.additionalProperties.convertTo(properties);

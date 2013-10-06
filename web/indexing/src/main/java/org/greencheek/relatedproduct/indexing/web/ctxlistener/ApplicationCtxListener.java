@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +17,7 @@ import javax.servlet.ServletContextListener;
  * Time: 15:26
  * To change this template use File | Settings | File Templates.
  */
+@WebListener
 public class ApplicationCtxListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {

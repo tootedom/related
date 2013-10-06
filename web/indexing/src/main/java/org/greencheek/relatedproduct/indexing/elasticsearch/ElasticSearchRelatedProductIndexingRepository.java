@@ -7,6 +7,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
@@ -96,8 +97,11 @@ public class ElasticSearchRelatedProductIndexingRepository implements RelatedPro
             }
             builder.endArray();
 
-            for(RelatedProductAdditionalProperty property : product.getAdditionalProperties()) {
-                builder.field(property.getName(),property.getValueCharArray(),0,property.getValueLength());
+            RelatedProductAdditionalProperties properties = product.getAdditionalProperties();
+            int maxNumberOfProperties = properties.getNumberOfProperties();
+            for(int i=0;i<maxNumberOfProperties;i++) {
+                char[] value = properties.getPropertyValueCharArray(i);
+                builder.field(properties.getPropertyName(i),value,0,value.length);
             }
 
             builder.endObject();
