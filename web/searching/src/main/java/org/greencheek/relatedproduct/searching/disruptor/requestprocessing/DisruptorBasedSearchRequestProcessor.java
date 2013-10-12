@@ -1,9 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.IgnoreExceptionHandler;
-import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
@@ -45,13 +42,13 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
 
     public DisruptorBasedSearchRequestProcessor(RelatedContentSearchRequestProcessorHandler eventHandler,
-                                                Configuration configuration,
+                                                Configuration configuration, EventFactory<RelatedProductSearchRequest> searchRequestEventFactory,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
         this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
         this.configuration = configuration;
         disruptor = new Disruptor<RelatedProductSearchRequest>(
-                new RelatedProductSearchRequestFactory(configuration),
+                searchRequestEventFactory,
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());

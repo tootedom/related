@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 
 import com.lmax.disruptor.EventTranslator;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 
 /**
@@ -22,10 +21,10 @@ public class RelatedProductSearchTranslator implements EventTranslator<RelatedPr
     @Override
     public void translateTo(RelatedProductSearch event, long sequence) {
         event.setValidMessage(false);
-        event.setMaxResults(searchRequest.maxResults);
-        searchRequest.relatedContentId.copyTo(event.relatedContentId);
-        searchRequest.additionalSearchCriteria.copyTo(event.additionalSearchCriteria);
-        event.setRelatedProductSearchType(searchRequest.searchType);
+        event.setMaxResults(searchRequest.getMaxResults());
+        searchRequest.getRelatedContentIdentifier().copyTo(event.getRelatedContentIdentifier());
+        searchRequest.getAdditionalSearchCriteria().copyTo(event.getAdditionalSearchCriteria());
+        event.setRelatedProductSearchType(searchRequest.getRelatedProductSearchType());
         event.setValidMessage(true);
 
     }

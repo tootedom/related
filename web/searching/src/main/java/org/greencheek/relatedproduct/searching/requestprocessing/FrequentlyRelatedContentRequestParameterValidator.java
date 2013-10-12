@@ -15,15 +15,22 @@ import java.util.Map;
  */
 public class FrequentlyRelatedContentRequestParameterValidator implements SearchRequestParameterValidator {
 
+    public final ValidationMessage VALID_ID_MESSAGE;
+    public final ValidationMessage INVALID_ID_MESSAGE;
+
     private final Configuration configuration;
 
     public FrequentlyRelatedContentRequestParameterValidator(Configuration configuration) {
         this.configuration = configuration;
+        VALID_ID_MESSAGE = new ValidationMessage(true,configuration.getRequestParameterForId(),"");
+        INVALID_ID_MESSAGE = new ValidationMessage(false,configuration.getRequestParameterForId(),"no id present in parameters");
     }
 
     @Override
     public ValidationMessage validateParameters(Map<String, String> requestParameters) {
-        String id = requestParameters.get(configuration.getRequestParameterForId());
-        return new ValidationMessage(id.length()!=0,configuration.getRequestParameterForId(),"no id");
+        String idKey = configuration.getKeyForFrequencyResultId();
+        String id = requestParameters.get(idKey);
+        if(id == null || id.length()==0) return INVALID_ID_MESSAGE;
+        else return VALID_ID_MESSAGE;
     }
 }

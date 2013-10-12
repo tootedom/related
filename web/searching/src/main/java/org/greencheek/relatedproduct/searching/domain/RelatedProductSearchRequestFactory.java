@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.domain;
 
 import com.lmax.disruptor.EventFactory;
+import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -13,13 +14,15 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 public class RelatedProductSearchRequestFactory implements EventFactory<RelatedProductSearchRequest> {
 
     private final Configuration config;
+    private final SearchRequestLookupKeyFactory searchRequestLookupKeyFactory;
 
-    public RelatedProductSearchRequestFactory(Configuration configuration) {
+    public RelatedProductSearchRequestFactory(Configuration configuration, SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
         this.config = configuration;
+        this.searchRequestLookupKeyFactory = searchRequestLookupKeyFactory;
     }
 
     public RelatedProductSearchRequest createRelatedProductSearchRequest() {
-        return new RelatedProductSearchRequest(config);
+        return new RelatedProductSearchRequest(config,searchRequestLookupKeyFactory);
     }
 
 

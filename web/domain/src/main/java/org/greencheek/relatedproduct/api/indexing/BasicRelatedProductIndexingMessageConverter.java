@@ -1,10 +1,8 @@
 package org.greencheek.relatedproduct.api.indexing;
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,27 +41,7 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
     private RelatedProduct createRelatedProduct(RelatedProductIndexingMessage message,RelatedProductInfo info,
                                                 RelatedProductInfo[] ids,
                                                 RelatedProductAdditionalProperties indexProperties) {
-//        RelatedProductAdditionalProperties productProperties =;
-
         RelatedProductAdditionalProperties properties = new RelatedProductAdditionalProperties(info.getAdditionalProperties(),indexProperties);
-
-
-//        int numberOfProductProperties = productProperties.getNumberOfProperties();
-//        int numberOfIndexRequestProperties = indexProperties.getNumberOfProperties();
-//        int numberOfProperties = numberOfProductProperties +  numberOfIndexRequestProperties;
-//        RelatedProductAdditionalProperty[] properties = new RelatedProductAdditionalProperty[numberOfProperties];
-
-//        int propertyIndex=0;
-
-//        RelatedProductAdditionalProperty[] productProps = productProperties.getAdditionalProperties();
-//        for(int i=0;i<numberOfProductProperties;i++) {
-//            properties[propertyIndex++] = productProps[i];
-//        }
-//
-//        productProps = indexProperties.getAdditionalProperties();
-//        for(int j=0;j<numberOfIndexRequestProperties;j++) {
-//            properties[propertyIndex++] = productProps[j];
-//        }
 
         int relatedIdLength = ids.length-1;
         char[][] relatedIds = new char[relatedIdLength][];

@@ -65,11 +65,11 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 //            RelatedProductSearch search = RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest,event.getRequestType(), event.getRequestProperties());
             RelatedProductSearch search = event.searchRequest;
             int currentIndex = this.currentIndex++ & mask;
-            asyncContextStorage[currentIndex].handleRequest(search.getLookupKey(configuration),clientContext);
+            asyncContextStorage[currentIndex].handleRequest(search.getLookupKey(),clientContext);
             searchRequestExecutor[currentIndex].executeSearch(search);
         } finally {
             event.setRequestContext(null);
-            event.searchRequest.validMessage.set(false);
+            event.searchRequest.setValidMessage(false);
 
         }
     }

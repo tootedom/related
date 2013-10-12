@@ -3,8 +3,6 @@ package org.greencheek.relatedproduct.searching.web.ctxlistener;
 import org.greencheek.relatedproduct.searching.bootstrap.BootstrapApplicationContext;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

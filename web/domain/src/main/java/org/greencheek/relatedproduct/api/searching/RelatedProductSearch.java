@@ -1,9 +1,9 @@
 package org.greencheek.relatedproduct.api.searching;
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.api.RelatedProductInfoIdentifier;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 
@@ -24,12 +24,15 @@ public class RelatedProductSearch {
     private int maxResults;
     private RelatedProductSearchType searchType;
     private boolean validMessage;
+    private SearchRequestLookupKey lookupKey;
 
     private final RelatedProductInfoIdentifier relatedContentId;
     private final RelatedProductAdditionalProperties additionalSearchCriteria;
+    private final SearchRequestLookupKeyFactory searchRequestLookupKeyFactory;
 
 
-    public RelatedProductSearch(Configuration config) {
+    public RelatedProductSearch(Configuration config,SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
+        this.searchRequestLookupKeyFactory = searchRequestLookupKeyFactory;
         relatedContentId = new RelatedProductInfoIdentifier(config);
         additionalSearchCriteria = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent());
     }
@@ -80,26 +83,38 @@ public class RelatedProductSearch {
 
 
     private int getStringLength(Configuration configuration) {
-        return additionalSearchCriteria.getStringLength(configuration) + configuration.getRelatedProductIdLength() + RESULTS_SET_SIZE_KEY_LENGTH +
+        return additionalSearchCriteria.getUrlQueryTypeStringLength() + configuration.getRelatedProductIdLength() + RESULTS_SET_SIZE_KEY_LENGTH +
                 ID_KEY_LENGTH + 4;
 
     }
 
-    public SearchRequestLookupKey getLookupKey(Configuration configuration) {
+    public SearchRequestLookupKey createLookupKey(Configuration configuration) {
         StringBuilder string = new StringBuilder(getStringLength(configuration));
         string.append(ID_KEY).append('=').append(relatedContentId.toString()).append('&');
         string.append(RESULTS_SET_SIZE_KEY).append('=').append(maxResults).append('&');
-        string.append(additionalSearchCriteria.toString(configuration));
-        return new SearchRequestLookupKey(string.toString());
+        string.append(additionalSearchCriteria.toUrlQueryTypeString());
+        return searchRequestLookupKeyFactory.createSearchRequestLookupKey(string.toString());
     }
 
     public RelatedProductSearch copy(Configuration config) {
-        RelatedProductSearch newCopy = new RelatedProductSearch(config);
+        RelatedProductSearch newCopy = new RelatedProductSearch(config,this.searchRequestLookupKeyFactory);
         newCopy.setRelatedContentId(this.relatedContentId);
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedProductSearchType(this.searchType);
+        newCopy.setLookupKey(this.getLookupKey());
         this.additionalSearchCriteria.copyTo(newCopy.additionalSearchCriteria);
         return newCopy;
     }
 
+    public void setLookupKey(SearchRequestLookupKey key) {
+        this.lookupKey = key;
+    }
+
+    public SearchRequestLookupKey getLookupKey() {
+        return lookupKey;
+    }
+
+    public void generateAndSaveLookupKey(Configuration config) {
+        lookupKey = createLookupKey(config);
+    }
 }

@@ -4,7 +4,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductInfo;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -115,7 +113,6 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         }
 
         int minNumberOfAdditionalProperties = Math.min(maxPropertiesThanCanBeRead, mapSize);
-//        RelatedProductAdditionalProperty[] additionalProperties = properties.getAdditionalProperties();
 
         int i=0;
         int safeNumberOfProperties = minNumberOfAdditionalProperties;
@@ -125,8 +122,6 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             if(value instanceof String) {
                 try {
                     properties.setProperty(key,(String)value,i);
-//                    additionalProperties[i].setName(key);
-//                    additionalProperties[i].setValue((String) value);
                 } catch (Exception e) {
                     log.error("map: {}",map.toJSONString());
                     log.error("additional property: {}, {}",new Object[]{key,value,e});

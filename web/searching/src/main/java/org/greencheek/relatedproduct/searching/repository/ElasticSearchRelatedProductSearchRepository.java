@@ -5,11 +5,9 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -58,7 +56,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
             results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
             int i = size;
             while(i--!=0) {
-                SearchRequestLookupKey key = searches[i].getLookupKey(configuration);
+                SearchRequestLookupKey key = searches[i].createLookupKey(configuration);
                 results.put(key,SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS);
             }
         } catch(Exception searchException) {
@@ -67,7 +65,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
             results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
             int i = size;
             while(i--!=0) {
-                SearchRequestLookupKey key = searches[i].getLookupKey(configuration);
+                SearchRequestLookupKey key = searches[i].createLookupKey(configuration);
                 results.put(key,SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS);
             }
 

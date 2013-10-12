@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,6 +41,6 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
         event.setRequestContext(clientCtx);
         RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
 
-        log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(configuration),parameters);
+        log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(),parameters);
     }
 }

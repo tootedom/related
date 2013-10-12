@@ -83,11 +83,11 @@ class StringBuilderWriter extends Writer {
      * behaves in exactly the same way as the invocation
      * <p/>
      * <pre>
-     *     out.write(csq.toString()) </pre>
+     *     out.write(csq.toUrlQueryTypeString()) </pre>
      *
-     * <p> Depending on the specification of <tt>toString</tt> for the
+     * <p> Depending on the specification of <tt>toUrlQueryTypeString</tt> for the
      * character sequence <tt>csq</tt>, the entire sequence may not be
-     * appended. For instance, invoking the <tt>toString</tt> method of a
+     * appended. For instance, invoking the <tt>toUrlQueryTypeString</tt> method of a
      * character buffer will return a subsequence whose content depends upon
      * the buffer's position and limit.
      *
@@ -114,7 +114,7 @@ class StringBuilderWriter extends Writer {
      * exactly the same way as the invocation
      * <p/>
      * <pre>
-     *     out.write(csq.subSequence(start, end).toString()) </pre>
+     *     out.write(csq.subSequence(start, end).toUrlQueryTypeString()) </pre>
      *
      * @param csq   The character sequence from which a subsequence will be
      *              appended.  If <tt>csq</tt> is <tt>null</tt>, then characters

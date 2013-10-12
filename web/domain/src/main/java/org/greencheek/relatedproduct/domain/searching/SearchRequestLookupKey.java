@@ -4,60 +4,31 @@ package org.greencheek.relatedproduct.domain.searching;
 import java.util.Random;
 
 /**
+ * See:
  * https://devcentral.f5.com/weblogs/david/archive/2012/01/20/hashdos-ndash-the-post-of-doom-explained.aspx
+ *
+ *
+ * A string that is going to be used as a lookup for an async context within a map.
+ * This is performed so that if more that one request hits the server, and a search is currently
+ * being performed for the same data, upon return we can obtain all the requests waiting for that
+ * search request, and reply to them all using the same result; rather than having to perform
+ * the same request.
+ *
+ * The search request lookup key, is made up of the url parameters that are passed directly to the
+ * search endpoint.  Therefore as the mashed up string of url parameters will be used in a hash map,
+ * we need to use a different hash code than that of the standard jdk hash code.
+ *
+ * The implementation must implement the hashCode and equals method, that are protected against
+ * a high number of collisions as per the reference above and CVE-2012-0022
+ * http://stackoverflow.com/questions/8669946/application-vulnerability-due-to-non-random-hash-functions
+ *
  */
-public class SearchRequestLookupKey {
+public interface SearchRequestLookupKey {
 
-    private static final short RMAX=2048;
-    private static final int[] rdata = new int[RMAX]; //just over 8k
+    public boolean equals(Object o);
 
-    // Set up the TCR
-    static {
-        for(int i=0;i<RMAX;i++)
-            rdata[i] = new Random().nextInt();
-    }
+    public int hashCode();
 
-    private final int hash;
-    private final String key;
-
-    public SearchRequestLookupKey(String key) {
-        this.key = key;
-        hash = generateHashCode();
-    }
-
-    private int generateHashCode() {
-        int h = hash;
-        int len = key.length();
-        if (h == 0 && len > 0) {
-            int off = 0;
-            char val[] = key.toCharArray();
-
-            int i=len+1;
-            while(--i !=0) {
-                h = 31*h + (val[off++] ^ rdata[i & (RMAX-1)]);
-            }
-        }
-        return h;
-    }
-
-    public boolean equals(Object o) {
-        if(o == null) return false;
-        if(o == this) return true;
-        if(o instanceof SearchRequestLookupKey) {
-            return ((SearchRequestLookupKey)o).key.equals(this.key);
-        } else {
-            return false;
-        }
-    }
-
-    public int hashCode() {
-        return hash;
-    }
-
-    public String toString() {
-        return key;
-    }
-
-
+    public String toString();
 
 }

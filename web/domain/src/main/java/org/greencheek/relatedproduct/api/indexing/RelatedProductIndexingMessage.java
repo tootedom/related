@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.api.indexing;
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**

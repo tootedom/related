@@ -8,7 +8,6 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
@@ -155,9 +154,6 @@ public class ElasticSearchRelatedProductIndexingRepositoryTest {
         int i=0;
         for(Map.Entry<String,String> entry : propertes.entrySet() ) {
             propArrays.setProperty(entry.getKey(),entry.getValue(),i++);
-//            propArrays[i] = new RelatedProductAdditionalProperty(config);
-//            propArrays[i].setName(entry.getKey());
-//            propArrays[i++].setValue(entry.getValue());
         }
         propArrays.setNumberOfProperties(propertes.size());
         return propArrays;

@@ -11,7 +11,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
@@ -76,7 +75,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         int numOfSearches = searches.length;
         Map<SearchRequestLookupKey,SearchResultsEvent> results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(searches.length/0.75));
         for(int i=0;i<numOfSearches;i++) {
-            results.put(searches[i].getLookupKey(configuration),frequentlyRelatedWithResultsConverter(responses.get(i)));
+            results.put(searches[i].createLookupKey(configuration),frequentlyRelatedWithResultsConverter(responses.get(i)));
         }
 
         return results;
@@ -145,10 +144,9 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
         RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
         int numberOfProps = searchProps.getNumberOfProperties();
-        RelatedProductAdditionalProperty[] searchCriteria = searchProps.getAdditionalProperties();
+
         for(int i = 0;i<numberOfProps;i++) {
-            RelatedProductAdditionalProperty prop = searchCriteria[i];
-            bool.must(QueryBuilders.fieldQuery(prop.getName(),prop.getValue()));
+            bool.must(QueryBuilders.fieldQuery(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
         }
 
         sr.setIndices(indexName);

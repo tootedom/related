@@ -8,9 +8,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,10 +38,10 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
 
     @Override
     public void onEvent(RelatedProductSearch event, long sequence, boolean endOfBatch) throws Exception {
-        if(!event.validMessage.get()) return;
+        if(!event.isValidMessage()) return;
 
         try {
-            SearchRequestLookupKey key = event.getLookupKey(configuration);
+            SearchRequestLookupKey key = event.createLookupKey(configuration);
             log.debug("Handling search request for key {}",key.toString());
             boolean existed = searchMap.put(key,event.copy(configuration))!=null;
 
@@ -66,7 +64,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
             }
 
         } finally {
-            event.validMessage.set(false);
+            event.setValidMessage(false);
         }
     }
 }

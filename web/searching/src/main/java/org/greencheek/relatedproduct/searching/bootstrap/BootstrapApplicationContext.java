@@ -1,5 +1,10 @@
 package org.greencheek.relatedproduct.searching.bootstrap;
 
+import com.lmax.disruptor.EventFactory;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
+import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedSearchRequestProcessor;
@@ -12,6 +17,7 @@ import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.Disr
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.RelatedProductSearchEventHandler;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
@@ -38,12 +44,16 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     private final SearchRequestParameterValidatorLocator validatorLocator;
     private final RelatedContentSearchRequestProcessorHandlerFactory searchRequestProcessorHandlerFactory;
     private final RelatedProductSearchRepository searchRepository;
+    private final SearchRequestLookupKeyFactory searchRequestLookupKeyFactory;
+    private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
 
     public BootstrapApplicationContext() {
         this.config = new SystemPropertiesConfiguration();
         this.validatorLocator = new MapBasedSearchRequestParameterValidatorLookup(config);
         this.searchRequestProcessorHandlerFactory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
         this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        this.searchRequestLookupKeyFactory = new SipHashSearchRequestLookupKeyFactory();
+        this.relatedProductSearchRequestFactory = new RelatedProductSearchRequestFactory(config,searchRequestLookupKeyFactory);
 
 
     }
@@ -60,7 +70,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     @Override
     public RelatedProductSearchRequestProcessor getRequestProcessor() {
        return new DisruptorBasedSearchRequestProcessor(getSearchRequestProcessingHandlerFactory().createHandler(config,this),
-                                                       config,getSearchRequestParameterValidator());
+                                                       config,createRelatedSearchRequestFactory(),getSearchRequestParameterValidator());
     }
 
     @Override
@@ -99,8 +109,18 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchRequestResponseProcessor requestAndResponseGateway) {
-        return new DisruptorBasedRelatedProductSearchExecutor(config,new RelatedProductSearchEventHandler(config,createSearchRepository(),requestAndResponseGateway));
+        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),requestAndResponseGateway));
 
+    }
+
+    @Override
+    public EventFactory<RelatedProductSearch> createRelatedProductSearchEventFactory() {
+        return new EventFactory<RelatedProductSearch>() {
+            @Override
+            public RelatedProductSearch newInstance() {
+                return RelatedProductSearchFactory.createSearchObject(config,createSearchRequestLookupKeyFactory());
+            }
+        };
     }
 
     @Override
@@ -114,7 +134,15 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         return new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
     }
 
+    @Override
+    public RelatedProductSearchRequestFactory createRelatedSearchRequestFactory() {
+        return relatedProductSearchRequestFactory;
+    }
 
+    @Override
+    public SearchRequestLookupKeyFactory createSearchRequestLookupKeyFactory() {
+        return searchRequestLookupKeyFactory;
+    }
 
 
 }

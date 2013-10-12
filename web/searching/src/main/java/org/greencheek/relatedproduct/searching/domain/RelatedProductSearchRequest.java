@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.domain;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.servlet.AsyncContext;
@@ -18,11 +19,12 @@ public class RelatedProductSearchRequest {
 //    private RelatedProductSearchType requestType;
     private AsyncContext requestContext;
     public final RelatedProductSearch searchRequest;
+
 //    private Map<String,String> requestProperties;
 
-    public RelatedProductSearchRequest(Configuration configuration) {
-        searchRequest = new RelatedProductSearch(configuration);
-        searchRequest.setByteBuffer(ByteBuffer.allocate(searchRequest.size()),0);
+    public RelatedProductSearchRequest(Configuration configuration,
+                                       SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
+        searchRequest = new RelatedProductSearch(configuration,searchRequestLookupKeyFactory);
     }
 
 //    public void setRequestProperties(Map<String,String> requestProperties) {

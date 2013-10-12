@@ -26,8 +26,6 @@ public class RelatedProductInfoIdentifier {
     public void setId(String id) {
         length = Math.min(id.length(),maxStringIdLength);
         id.getChars(0, length,this.id,0);
-
-//        Util.copyStringCharacterArray(id,this.id,length,0);
     }
 
     public char[] getIdCharArray() {
@@ -36,7 +34,6 @@ public class RelatedProductInfoIdentifier {
 
     public char[] duplicate() {
         char destination[] = new char[length];
-//        Util.getUnsafe().copyMemory(this.id, Util.getCharArrayOffset(), destination, Util.getCharArrayOffset(), length*Util.getCharArrayScale());
         System.arraycopy(this.id,0,destination,0,length);
         return destination;
     }
@@ -51,7 +48,6 @@ public class RelatedProductInfoIdentifier {
     }
 
     public void copyTo(RelatedProductInfoIdentifier destination) {
-//        Util.getUnsafe().copyMemory(this.id, Util.getCharArrayOffset(),destination.getIdCharArray(), Util.getCharArrayOffset(),length*Util.getCharArrayScale());
         System.arraycopy(this.id,0,destination.getIdCharArray(),0,length);
         destination.setLength(this.length);
     }

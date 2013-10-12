@@ -34,19 +34,14 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 //    private final EventHandler<RelatedProductSearch> eventHandler;
 
 
-    public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,
+    public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,EventFactory<RelatedProductSearch> eventFactory,
                                                       RelatedProductSearchDisruptorEventHandler eventHandler
     ) {
         this.configuration = configuration;
 //        this.eventHandler = eventHandler;
 
         disruptor = new Disruptor<RelatedProductSearch>(
-                new EventFactory<RelatedProductSearch>() {
-                    @Override
-                    public RelatedProductSearch newInstance() {
-                        return RelatedProductSearchFactory.createSearchObject(configuration);
-                    }
-                },
+                eventFactory,
                 configuration.getSizeOfRelatedContentSearchRequestHandlerQueue(), executorService,
                 ProducerType.SINGLE, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());

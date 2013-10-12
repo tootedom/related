@@ -2,10 +2,6 @@ package org.greencheek.relatedproduct.domain;
 
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperty;
-import org.greencheek.relatedproduct.util.config.Configuration;
-
-import java.util.*;
 
 
 public class RelatedProduct {

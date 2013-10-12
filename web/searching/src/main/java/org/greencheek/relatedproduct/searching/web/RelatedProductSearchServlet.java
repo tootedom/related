@@ -66,22 +66,22 @@ public class RelatedProductSearchServlet extends HttpServlet {
         asyncContext.setTimeout(30000);
 
 
-        try {
-            asyncContext.start(new Runnable() {
-                @Override
-                public void run() {
+//        try {
+//            asyncContext.start(new Runnable() {
+//                @Override
+//                public void run() {
                     try {
                         submitRequestForProcessing(asyncContext, request);
                     } catch(Exception e) {
                         log.warn("Exception submitting request for processing",e);
                         asyncContext.complete();
                     }
-                }
-            });
-        } catch(Exception e) {
-
-
-        }
+//                }
+//            });
+//        } catch(Exception e) {
+//
+//
+//        }
 
     }
 

@@ -14,6 +14,8 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
@@ -46,6 +48,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     private static Configuration configuration;
     private static ElasticSearchClientFactory clientFactory;
     private static EsSetup esSetup;
+    private static SearchRequestLookupKeyFactory lookupKeyFactory;
 
     private static SearchResultsConverter converter;
 
@@ -89,6 +92,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
     @Before
     public void setUp() {
+        lookupKeyFactory = new SipHashSearchRequestLookupKeyFactory();
         esSetup.execute( deleteAll() );
         esClient = esSetup.client();
 
@@ -104,28 +108,27 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     }
 
     private RelatedProductSearch createChannelSearch(String channel, String id) {
-        RelatedProductSearch search = new RelatedProductSearch(configuration);
-        search.setByteBuffer(ByteBuffer.allocate(search.size()),0);
-        search.relatedContentId.set(id);
-        search.searchType.set(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
+        RelatedProductSearch search = new RelatedProductSearch(configuration,lookupKeyFactory);
+        search.setRelatedContentId(id);
+        search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
 
-        search.additionalSearchCriteria.additionalProperties[0].name.set("channel");
-        search.additionalSearchCriteria.additionalProperties[0].value.set(channel);
-        search.additionalSearchCriteria.numberOfProperties.set((short)1);
-        search.maxResults.set(5);
-        search.validMessage.set(true);
+        search.getAdditionalSearchCriteria().addProperty("channel",channel);
+
+
+        search.setMaxResults(5);
+        search.setValidMessage(true);
         return search;
     }
 
     private RelatedProductSearch createIdSearch(String id) {
-        RelatedProductSearch search = new RelatedProductSearch(configuration);
-        search.setByteBuffer(ByteBuffer.allocate(search.size()),0);
+        RelatedProductSearch search = new RelatedProductSearch(configuration,lookupKeyFactory);
 
-        search.relatedContentId.set(id);
-        search.searchType.set(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
-        search.additionalSearchCriteria.numberOfProperties.set((short)0);
-        search.maxResults.set(5);
-        search.validMessage.set(true);
+        search.setRelatedContentId(id);
+        search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
+
+        search.setMaxResults(5);
+        search.setValidMessage(true);
+
         return search;
     }
 
