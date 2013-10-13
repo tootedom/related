@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
@@ -37,18 +38,24 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductSearchRequest> disruptor;
     private final SearchRequestParameterValidatorLocator requestValidators;
+    private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
+    private final RelatedProductSearchFactory searchFactory;
 
     private final Configuration configuration;
 
 
     public DisruptorBasedSearchRequestProcessor(RelatedContentSearchRequestProcessorHandler eventHandler,
-                                                Configuration configuration, EventFactory<RelatedProductSearchRequest> searchRequestEventFactory,
+                                                RelatedProductSearchRequestFactory relatedProductSearchRequestFactory,
+                                                RelatedProductSearchFactory searchFactory,
+                                                Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
         this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
         this.configuration = configuration;
+        this.searchFactory = searchFactory;
+        this.relatedProductSearchRequestFactory = relatedProductSearchRequestFactory;
         disruptor = new Disruptor<RelatedProductSearchRequest>(
-                searchRequestEventFactory,
+                relatedProductSearchRequestFactory,
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
@@ -70,7 +77,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         }
 
         log.debug("Processing requesttype {} with parameters {}",requestType,parameters);
-        disruptor.publishEvent(new RelatedProductSearchRequestTranslator(configuration,requestType,parameters,context));
+        disruptor.publishEvent(new RelatedProductSearchRequestTranslator(configuration,searchFactory,requestType,parameters,context));
 
     }
 

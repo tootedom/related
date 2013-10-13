@@ -41,7 +41,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
         if(!event.isValidMessage()) return;
 
         try {
-            SearchRequestLookupKey key = event.createLookupKey(configuration);
+            SearchRequestLookupKey key = event.getLookupKey();
             log.debug("Handling search request for key {}",key.toString());
             boolean existed = searchMap.put(key,event.copy(configuration))!=null;
 

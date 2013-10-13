@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
@@ -67,6 +68,12 @@ public interface ApplicationCtx
      */
     public EventFactory<RelatedProductSearch> createRelatedProductSearchEventFactory();
 
+
+    /**
+     * Returns the factory that is response for creating and populating RelatedProductSearch
+     * objects.
+     */
+    public RelatedProductSearchFactory createRelatedProductSearchFactory();
 
     public void shutdown();
 

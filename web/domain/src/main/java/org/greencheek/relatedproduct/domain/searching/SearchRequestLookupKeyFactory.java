@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.domain.searching;
 
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -13,5 +15,13 @@ package org.greencheek.relatedproduct.domain.searching;
  */
 public interface SearchRequestLookupKeyFactory {
 
+    /**
+     * Give a normal string object, converts to a SearchRequestLookupKey
+     *
+     * @param key The string to wrap.
+     * @return the SearchRequestLookupKey
+     */
     SearchRequestLookupKey createSearchRequestLookupKey(String key);
+
+
 }

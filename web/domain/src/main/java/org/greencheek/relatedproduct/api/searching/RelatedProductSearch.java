@@ -18,8 +18,8 @@ public class RelatedProductSearch {
 
     public static final String RESULTS_SET_SIZE_KEY = "resultssetsize";
     public static final String ID_KEY = "id";
-    private static final int RESULTS_SET_SIZE_KEY_LENGTH = RESULTS_SET_SIZE_KEY.length();
-    private static final int ID_KEY_LENGTH = ID_KEY.length();
+    public static final int RESULTS_SET_SIZE_KEY_LENGTH = RESULTS_SET_SIZE_KEY.length();
+    public static final int ID_KEY_LENGTH = ID_KEY.length();
 
     private int maxResults;
     private RelatedProductSearchType searchType;
@@ -28,11 +28,9 @@ public class RelatedProductSearch {
 
     private final RelatedProductInfoIdentifier relatedContentId;
     private final RelatedProductAdditionalProperties additionalSearchCriteria;
-    private final SearchRequestLookupKeyFactory searchRequestLookupKeyFactory;
 
 
-    public RelatedProductSearch(Configuration config,SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
-        this.searchRequestLookupKeyFactory = searchRequestLookupKeyFactory;
+    public RelatedProductSearch(Configuration config) {
         relatedContentId = new RelatedProductInfoIdentifier(config);
         additionalSearchCriteria = new RelatedProductAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent());
     }
@@ -81,23 +79,8 @@ public class RelatedProductSearch {
         this.searchType = searchType;
     }
 
-
-    private int getStringLength(Configuration configuration) {
-        return additionalSearchCriteria.getUrlQueryTypeStringLength() + configuration.getRelatedProductIdLength() + RESULTS_SET_SIZE_KEY_LENGTH +
-                ID_KEY_LENGTH + 4;
-
-    }
-
-    public SearchRequestLookupKey createLookupKey(Configuration configuration) {
-        StringBuilder string = new StringBuilder(getStringLength(configuration));
-        string.append(ID_KEY).append('=').append(relatedContentId.toString()).append('&');
-        string.append(RESULTS_SET_SIZE_KEY).append('=').append(maxResults).append('&');
-        string.append(additionalSearchCriteria.toUrlQueryTypeString());
-        return searchRequestLookupKeyFactory.createSearchRequestLookupKey(string.toString());
-    }
-
     public RelatedProductSearch copy(Configuration config) {
-        RelatedProductSearch newCopy = new RelatedProductSearch(config,this.searchRequestLookupKeyFactory);
+        RelatedProductSearch newCopy = new RelatedProductSearch(config);
         newCopy.setRelatedContentId(this.relatedContentId);
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedProductSearchType(this.searchType);
@@ -114,7 +97,4 @@ public class RelatedProductSearch {
         return lookupKey;
     }
 
-    public void generateAndSaveLookupKey(Configuration config) {
-        lookupKey = createLookupKey(config);
-    }
 }

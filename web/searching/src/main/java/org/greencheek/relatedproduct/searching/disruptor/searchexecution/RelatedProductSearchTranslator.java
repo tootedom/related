@@ -25,6 +25,7 @@ public class RelatedProductSearchTranslator implements EventTranslator<RelatedPr
         searchRequest.getRelatedContentIdentifier().copyTo(event.getRelatedContentIdentifier());
         searchRequest.getAdditionalSearchCriteria().copyTo(event.getAdditionalSearchCriteria());
         event.setRelatedProductSearchType(searchRequest.getRelatedProductSearchType());
+        event.setLookupKey(searchRequest.getLookupKey());
         event.setValidMessage(true);
 
     }

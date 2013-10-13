@@ -14,15 +14,13 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 public class RelatedProductSearchRequestFactory implements EventFactory<RelatedProductSearchRequest> {
 
     private final Configuration config;
-    private final SearchRequestLookupKeyFactory searchRequestLookupKeyFactory;
 
-    public RelatedProductSearchRequestFactory(Configuration configuration, SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
+    public RelatedProductSearchRequestFactory(Configuration configuration) {
         this.config = configuration;
-        this.searchRequestLookupKeyFactory = searchRequestLookupKeyFactory;
     }
 
     public RelatedProductSearchRequest createRelatedProductSearchRequest() {
-        return new RelatedProductSearchRequest(config,searchRequestLookupKeyFactory);
+        return new RelatedProductSearchRequest(config);
     }
 
 

@@ -108,7 +108,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     }
 
     private RelatedProductSearch createChannelSearch(String channel, String id) {
-        RelatedProductSearch search = new RelatedProductSearch(configuration,lookupKeyFactory);
+        RelatedProductSearch search = new RelatedProductSearch(configuration);
         search.setRelatedContentId(id);
         search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
 
@@ -121,7 +121,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     }
 
     private RelatedProductSearch createIdSearch(String id) {
-        RelatedProductSearch search = new RelatedProductSearch(configuration,lookupKeyFactory);
+        RelatedProductSearch search = new RelatedProductSearch(configuration);
 
         search.setRelatedContentId(id);
         search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);

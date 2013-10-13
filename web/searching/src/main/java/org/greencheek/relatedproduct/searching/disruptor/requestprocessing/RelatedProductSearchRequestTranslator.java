@@ -26,8 +26,10 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
     private final Map<String,String> parameters;
     private final RelatedProductSearchType searchRequestType;
     private final Configuration configuration;
+    private final RelatedProductSearchFactory relatedProductSearchFactory;
 
     public RelatedProductSearchRequestTranslator(Configuration configuration,
+                                                 RelatedProductSearchFactory relatedProductSearchFactory,
                                                  RelatedProductSearchType requestType,
                                                  Map<String, String> parameters,
                                                  AsyncContext context) {
@@ -35,11 +37,12 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
         this.searchRequestType = requestType;
         this.parameters = parameters;
         this.clientCtx = context;
+        this.relatedProductSearchFactory = relatedProductSearchFactory;
     }
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence) {
         event.setRequestContext(clientCtx);
-        RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
+        relatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
 
         log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(),parameters);
     }

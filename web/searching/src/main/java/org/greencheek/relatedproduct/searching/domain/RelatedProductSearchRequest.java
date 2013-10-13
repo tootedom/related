@@ -22,9 +22,8 @@ public class RelatedProductSearchRequest {
 
 //    private Map<String,String> requestProperties;
 
-    public RelatedProductSearchRequest(Configuration configuration,
-                                       SearchRequestLookupKeyFactory searchRequestLookupKeyFactory) {
-        searchRequest = new RelatedProductSearch(configuration,searchRequestLookupKeyFactory);
+    public RelatedProductSearchRequest(Configuration configuration) {
+        searchRequest = new RelatedProductSearch(configuration);
     }
 
 //    public void setRequestProperties(Map<String,String> requestProperties) {

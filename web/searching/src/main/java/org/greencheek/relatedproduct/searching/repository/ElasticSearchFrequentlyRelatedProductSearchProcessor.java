@@ -75,7 +75,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         int numOfSearches = searches.length;
         Map<SearchRequestLookupKey,SearchResultsEvent> results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(searches.length/0.75));
         for(int i=0;i<numOfSearches;i++) {
-            results.put(searches[i].createLookupKey(configuration),frequentlyRelatedWithResultsConverter(responses.get(i)));
+            results.put(searches[i].getLookupKey(),frequentlyRelatedWithResultsConverter(responses.get(i)));
         }
 
         return results;
