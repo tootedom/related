@@ -13,8 +13,51 @@ import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
  * Date: 01/06/2013
  * Time: 14:52
  * To change this template use File | Settings | File Templates.
+ * ==============================================================
+ * For Indexing:
+ * -------------
+ * The settings for a 2 cpu, 4 core per cpu, with a 12gb heap would be:
+ * (JDK7) :
+ * Standard JDK Opts:
+ *
+ * -Djava.awt.headless=true
+ * -XX:+UseParNewGC
+ * -XX:+UseConcMarkSweepGC
+ * -XX:CMSInitiatingOccupancyFraction=90
+ * -XX:+UseCMSInitiatingOccupancyOnly
+ * -XX:MaxTenuringThreshold=15
+ * -Djava.rmi.server.hostname=10.0.1.29
+ * -Dcom.sun.management.jmxremote.port=3333
+ * -Dcom.sun.management.jmxremote.ssl=false
+ * -Dcom.sun.management.jmxremote.authenticate=false
+ * -Xmx11776m -Xmn8700m -Xms11776m -Xss256k -XX:MaxPermSize=128m
+ * -XX:+UnlockDiagnosticVMOptions -XX:ParGCCardsPerStrideChunk=4096 -XX:+AggressiveOpts
+ * -XX:+UseCondCardMark
+ *
+ * Indexing opts:
+ *
+ * -Drelated-product.wait.strategy=busy
+ * -Drelated-product.size.of.incoming.request.queue=65536
+ * -Drelated-product.number.of.indexing.request.processors=8
+ * -Drelated-product.index.batch.size=450
+ * -Drelated-product.elastic.search.transport.hosts=10.0.1.19:9300
+ * -Des.discovery.zen.ping.multicast.enabled=false
+ * -Des.discovery.zen.ping.unicast.hosts=10.0.1.19
+ * -Dnetwork.tcp.no_delay=false
+ *
+ * ==============================================================
+ *
+ * -Drelated-product.size.of.related.content.search.request.queue=32768
+ * -Drelated-product.size.of.response.processing.queue=32768
+ * -Drelated-product.size.of.related.content.search.request.and.response.queue=262144
+ * -Drelated-product.size.of.related.content.search.request.handler.queue=32768
+ * -Drelated-product.number.of.searching.request.processors=8
+ *
  */
 public class SystemPropertiesConfiguration implements Configuration {
+
+
+
     private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
 
     private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty("related-product.max.number.related.products.per.product", "10"));
@@ -30,7 +73,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","128"));
 
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.queue", "2048"));
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_RESULTS_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.results.queue", "2048"));
+
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.handler.queue", "2048"));
     private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.and.response.queue", "2048"));
 
@@ -100,6 +143,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String ELASTIC_SEARCH_TRANSPORT_HOSTS = System.getProperty("related-product.elastic.search.transport.hosts","127.0.0.1:9300");
 
     private final int DEFAULT_ELASTIC_SEARCH_PORT = Integer.valueOf(System.getProperty("related-product.elastic.search.default.port","9300"));
+
+    private final boolean USE_SHARED_SEARCH_REPOSITORY = Boolean.parseBoolean(System.getProperty("related-product.use.shared.search.repository","false"));
 
     private final WaitStrategyFactory waitStrategyFactory;
 
@@ -410,5 +455,10 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getDefaultElasticSearchPort() {
         return DEFAULT_ELASTIC_SEARCH_PORT;
+    }
+
+    @Override
+    public boolean useSharedSearchRepository() {
+        return USE_SHARED_SEARCH_REPOSITORY;
     }
 }

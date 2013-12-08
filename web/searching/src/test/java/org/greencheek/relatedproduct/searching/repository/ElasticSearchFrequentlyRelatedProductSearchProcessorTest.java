@@ -13,20 +13,19 @@ import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -36,11 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 23/06/2013
- * Time: 17:27
- * To change this template use File | Settings | File Templates.
+ * Tests the searching for related products against elastic search
  */
 public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
@@ -60,6 +55,20 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     public static void setUpElastic() {
         // Instantiates a local node & client
         configuration = new SystemPropertiesConfiguration();
+        converter = new JsonFrequentlyRelatedSearchResultsConverter(configuration);
+
+
+
+
+    }
+
+    @After
+    public void shutdownElastic() {
+        esSetup.terminate();
+    }
+
+    @Before
+    public void setUp() {
 
         esSetup = new EsSetup(ImmutableSettings.settingsBuilder()
                 .put("cluster.name", configuration.getStorageClusterName())
@@ -76,22 +85,6 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
                 .put("http.enabled",false)
                 .build());
 
-        esSetup.execute( deleteAll() );
-
-        converter = new JsonFrequentlyRelatedSearchResultsConverter(configuration);
-
-
-
-
-    }
-
-    @AfterClass
-    public static void shutdownElastic() {
-        esSetup.terminate();
-    }
-
-    @Before
-    public void setUp() {
         lookupKeyFactory = new SipHashSearchRequestLookupKeyFactory();
         esSetup.execute( deleteAll() );
         esClient = esSetup.client();
@@ -161,13 +154,13 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("apparentice you're hired",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
+        SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
-        assertEquals("Should have a result",1,results.size());
+        assertEquals("Should have a result",1,results.length);
 
-        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
+        verifyTermsInOutput(results[0].getResponse(),tf);
 
     }
 
@@ -200,16 +193,68 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
+        SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
-        assertEquals("Should have a result",1,results.size());
+        assertEquals("Should have a result",1,results.length);
 
 
-        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
+        verifyTermsInOutput(results[0].getResponse(),tf);
     }
 
+    /**
+     * Tests that a failure to connect to ES is caught, and reported back.
+     */
+    @Test
+    public void testSearchFailureIsCaught() {
+        setIndexTemplate();
+        indexDoc();
+
+        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+
+        ElasticSearchFrequentlyRelatedProductSearchProcessor searcher = new ElasticSearchFrequentlyRelatedProductSearchProcessor(configuration);
+
+        RelatedProductSearch[] search = new RelatedProductSearch[] {createIdSearch("emmerdale")};
+
+        shutdownElastic();
+
+        MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
+
+        SearchResultEventWithSearchRequestKey[] result = searcher.processMultiSearchResponse(search,response);
+
+        SearchRequestLookupKey key = result[0].getRequest();
+        SearchResultsEvent event = result[0].getResponse();
+
+        assertEquals(0, event.getFrequentlyRelatedSearchResults().getNumberOfResults());
+        assertEquals(SearchResultsOutcomeType.FAILED_REQUEST, event.getOutcomeType());
+    }
+
+    /**
+     * Tests that an empty results set is returned when no related products are found
+     */
+    @Test
+    public void testNoRelatedProducts() {
+        setIndexTemplate();
+        indexDoc();
+
+        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+
+        ElasticSearchFrequentlyRelatedProductSearchProcessor searcher = new ElasticSearchFrequentlyRelatedProductSearchProcessor(configuration);
+
+        RelatedProductSearch[] search = new RelatedProductSearch[] {createIdSearch("elf")};
+
+
+        MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
+
+        SearchResultEventWithSearchRequestKey[] result = searcher.processMultiSearchResponse(search,response);
+
+        SearchRequestLookupKey key = result[0].getRequest();
+        SearchResultsEvent event = result[0].getResponse();
+
+        assertEquals(0, event.getFrequentlyRelatedSearchResults().getNumberOfResults());
+        assertEquals(SearchResultsOutcomeType.EMPTY_RESULTS,event.getOutcomeType());
+    }
 
     @Test
     public void testAliasCanBeUsed() {
@@ -243,14 +288,14 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
 
-        Map<SearchRequestLookupKey,SearchResultsEvent> results = searcher.processMultiSearchResponse(search,response);
+        SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
         assertTrue(results != null);
 
-        assertEquals("Should have a result",1,results.size());
+        assertEquals("Should have a result",1,results.length);
 
 
-        verifyTermsInOutput((SearchResultsEvent)results.values().toArray()[0],tf);
+        verifyTermsInOutput(results[0].getResponse(),tf);
     }
 
     private void verifyTermsInOutput(SearchResultsEvent results, TermsFacet tf) {
@@ -299,6 +344,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
                 "}")).actionGet();
 
     }
+
     private void indexDoc() {
 
 
@@ -367,6 +413,9 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
         String content21 = "{ \"date\":\"2013-01-01T10:00:00+0100\",\"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"coronation street\",\"itn news\"]}";
 
+        String contentNoRelation = "{ \"channel\":\"film4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"elf\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
+                "[ ]}";
+
 
         esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content)).actionGet();
         esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content2)).actionGet();
@@ -389,6 +438,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
         esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content19)).actionGet();
         esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(content20)).actionGet();
         esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(content21)).actionGet();
+        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(contentNoRelation)).actionGet();
 
 
 

@@ -1,6 +1,7 @@
-node.client: true
 node.data: false
+node.client: true
 http.enabled: false
+client.transport.sniff : false
 
 # Search pool
 threadpool.search.type: fixed
@@ -25,3 +26,11 @@ threadpool.index.queue_size: 10000
 # timeout for unresponsive cluster
 # see http://www.elasticsearch.org/guide/reference/modules/discovery/zen/
 discovery.zen.fd.ping_timeout: 2000
+
+# worker_pool
+transport.netty.worker_count: 1
+
+# transport
+transport.connections_per_node.min: 1
+transport.connections_per_node.medium: 1
+transport.connections_per_node.high: 1

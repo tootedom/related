@@ -1,35 +1,25 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
-import com.lmax.disruptor.EventTranslator;
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import com.lmax.disruptor.EventTranslatorOneArg;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 13:01
- * To change this template use File | Settings | File Templates.
+ * Translates a {@link SearchResultEventWithSearchRequestKey} object into a {@link SearchEvent}
  */
-public class SearchResultsTranslator implements EventTranslator<SearchEvent> {
+public class SearchResultsTranslator implements EventTranslatorOneArg<SearchEvent,SearchResultEventWithSearchRequestKey> {
 
-    private final SearchRequestLookupKey requestKey;
-    private final SearchResultsEvent results;
+    public static final SearchResultsTranslator INSTANCE = new SearchResultsTranslator();
 
-    public SearchResultsTranslator(SearchRequestLookupKey key, SearchResultsEvent results) {
-        this.requestKey = key;
-        this.results = results;
+    public SearchResultsTranslator() {
     }
 
     @Override
-    public void translateTo(SearchEvent event, long sequence) {
+    public void translateTo(SearchEvent event, long sequence, SearchResultEventWithSearchRequestKey searchResult) {
         event.setEventType(SearchEventType.SEARCH_RESULT);
         event.setSearchRequestEvent(null);
-        event.setSearchResultsEvent(results);
-        event.setRequestKey(requestKey);
+        event.setSearchResultsEvent(searchResult.getResponse());
+        event.setRequestKey(searchResult.getRequest());
     }
 }

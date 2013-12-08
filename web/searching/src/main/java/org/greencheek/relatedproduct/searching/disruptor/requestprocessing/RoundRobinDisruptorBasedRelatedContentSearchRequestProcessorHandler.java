@@ -12,11 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.AsyncContext;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 21:32
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler{
 

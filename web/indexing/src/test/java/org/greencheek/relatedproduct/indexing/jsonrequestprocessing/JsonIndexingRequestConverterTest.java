@@ -15,16 +15,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 03/06/2013
- * Time: 22:59
- * To change this template use File | Settings | File Templates.
+ * Tests the conversion of a json indexing request into a RelatedProductIndexingMessage
  */
-public abstract class IndexingRequestConverterTest {
+public abstract class JsonIndexingRequestConverterTest {
 
-
-    private IndexingRequestConverter converter;
     private RelatedProductIndexingMessage message;
 
 

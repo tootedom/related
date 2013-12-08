@@ -5,11 +5,12 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:22
- * To change this template use File | Settings | File Templates.
+ * This represents an event in the system that is either a request or a response.
+ * The search event has a type to distinguish the two.
+ *
+ * As a result if the {@see #getEventType} is a {@link SearchEventType#SEARCH_REQUEST} then
+ * the {@see #getSearchResultsEvent} will be null.  Like wise if it is {@link SearchEventType#SEARCH_RESULT}
+ * then {@see #getSearchRequestEvent} will be null.
  */
 public class SearchEvent {
 

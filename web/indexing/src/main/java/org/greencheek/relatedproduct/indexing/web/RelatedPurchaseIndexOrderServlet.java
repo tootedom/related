@@ -1,13 +1,10 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledByteBufAllocator;
-import org.apache.lucene.store.bytebuffer.ByteBufferAllocator;
-import org.elasticsearch.common.netty.buffer.DynamicChannelBuffer;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.indexing.util.ResizableByteBuffer;
+import org.greencheek.relatedproduct.indexing.util.ResizableByteBufferNoBoundsChecking;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +15,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 /**
  * *
@@ -127,14 +122,14 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         }
 
 
-        ByteBuf channel;
+        ResizableByteBuffer content;
         byte[] buffer;
 
         if(length>0) {
-            channel = UnpooledByteBufAllocator.DEFAULT.heapBuffer(length,length);
+            content = new ResizableByteBufferNoBoundsChecking(length,length);
             buffer = new byte[length];
         } else {
-            channel = UnpooledByteBufAllocator.DEFAULT.heapBuffer(minPostData,maxPostData);
+            content = new ResizableByteBufferNoBoundsChecking(minPostData,maxPostData);
             buffer = new byte[minPostData];
         }
 
@@ -154,7 +149,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         boolean canProcess = true;
         try {
             while ((lengthRead = inputStream.read(buffer)) != -1) {
-                channel.writeBytes(buffer,0,lengthRead);
+                content.append(buffer, 0, lengthRead);
                 accumLength+=lengthRead;
                 if(accumLength>maxPostData) {
                     response.setStatus(413);
@@ -183,11 +178,10 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
         try {
             if(canProcess) {
-                if(channel.readableBytes()!=0);
-                    indexer.processRequest(configuration,channel.nioBuffer());
+                if(content.size()>0);
+                    indexer.processRequest(configuration,content.toByteBuffer());
             }
         } finally {
-            channel.release();
             ctx.complete();
         }
 

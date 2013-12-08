@@ -16,6 +16,7 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -65,31 +66,28 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         return multiSearch.execute().actionGet(searchTimeout, TimeUnit.MILLISECONDS);
     }
 
-    public Map<SearchRequestLookupKey,SearchResultsEvent> processMultiSearchResponse(RelatedProductSearch[] searches,MultiSearchResponse searchResponse) {
-
-        List<ElasticSearchResponse> responses = new ArrayList<ElasticSearchResponse>(searches.length);
-        for (MultiSearchResponse.Item item : searchResponse.getResponses()) {
-            responses.add(new ElasticSearchResponse(item.getResponse(),item.getFailureMessage(),item.isFailure()));
-        }
-
-        int numOfSearches = searches.length;
-        Map<SearchRequestLookupKey,SearchResultsEvent> results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(searches.length/0.75));
-        for(int i=0;i<numOfSearches;i++) {
-            results.put(searches[i].getLookupKey(),frequentlyRelatedWithResultsConverter(responses.get(i)));
+    public SearchResultEventWithSearchRequestKey[] processMultiSearchResponse(RelatedProductSearch[] searches,MultiSearchResponse searchResponse) {
+        int i = 0;
+        SearchResultEventWithSearchRequestKey[] results = new SearchResultEventWithSearchRequestKey[searches.length];
+        for(MultiSearchResponse.Item item : searchResponse.getResponses()) {
+            SearchRequestLookupKey key = searches[i].getLookupKey();
+            results[i++] = frequentlyRelatedWithResultsConverter(key,item.getResponse(),item.getFailureMessage(),item.isFailure());
         }
 
         return results;
     }
 
-    private SearchResultsEvent frequentlyRelatedWithResultsConverter(ElasticSearchResponse response) {
+    private SearchResultEventWithSearchRequestKey frequentlyRelatedWithResultsConverter(SearchRequestLookupKey key,
+                                                                     SearchResponse searchResponse,
+                                                                     String failureMessage,
+                                                                     boolean isFailure) {
         final FrequentlyRelatedSearchResults results;
         SearchResultsOutcomeType outcome;
-        if(response.isFailure()) {
-            outcome = SearchResultsOutcomeType.FAILED_REQUEST;
-            results = FrequentlyRelatedSearchResults.EMPTY_RESULTS;
+        if(isFailure) {
+            log.error("Search response failure for search request key : {}",key,failureMessage);
+            return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
         }
         else {
-            SearchResponse searchResponse = response.getSearchResponse();
             TermsFacet f = (TermsFacet) searchResponse.getFacets().facetsAsMap().get(facetResultName);
             List<TermsFacet.Entry> facets = (List<TermsFacet.Entry>) f.getEntries();
             int noOfFacets = facets==null ? 0 : facets.size();
@@ -103,14 +101,14 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
                 results = new FrequentlyRelatedSearchResults(mostFrequentItems);
                 outcome = SearchResultsOutcomeType.HAS_RESULTS;
             } else {
-                outcome = SearchResultsOutcomeType.EMPTY_RESULTS;
-                results = FrequentlyRelatedSearchResults.EMPTY_RESULTS;
+                log.debug("no related content found for search key {}",key);
+                return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
             }
 
         }
 
-        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,
-                                      outcome,results);
+        return new SearchResultEventWithSearchRequestKey(new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,
+                                      outcome,results),key);
 
     }
 

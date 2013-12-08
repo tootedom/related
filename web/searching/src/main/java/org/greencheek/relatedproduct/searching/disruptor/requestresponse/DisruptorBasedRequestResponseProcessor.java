@@ -1,22 +1,18 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
-import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
-import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
+import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
 import javax.servlet.AsyncContext;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -61,11 +57,10 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
     }
 
     @Override
-    public void handleResponse(SearchRequestLookupKey key, SearchResultsEvent result) {
-        disruptor.publishEvent(new SearchResultsTranslator(key,result));
+    public void handleResponse(SearchResultEventWithSearchRequestKey[] results) {
+        disruptor.publishEvents(SearchResultsTranslator.INSTANCE, results);
     }
 
-    @PreDestroy
     public void shutdown() {
         if(shutdown.compareAndSet(false,true)) {
             try {

@@ -18,18 +18,19 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 03/06/2013
- * Time: 20:34
- * To change this template use File | Settings | File Templates.
+ * Converts a byte[] (which is a json payload) into a {@link RelatedProductIndexingMessage}
+ * The constructor actually invokes the parsing of the json data.
+ *
+ * Once the translateTo method has been called there is NO going back.  The object has
+ * to be thrown away.  If there's a failure to convert from a user supplied json object to
+ * a internal {@link RelatedProductIndexingMessage}, the chances are trying that parsing again,
+ * will fail for the same reason.
  */
 public class JsonSmartIndexingRequestConverter implements IndexingRequestConverter {
 
     private static final Logger log = LoggerFactory.getLogger(JsonSmartIndexingRequestConverter.class);
 
     private final int maxNumberOfAdditionalProperties;
-//    private final int maxNumberOfRelatedProducts;
     private final String productKey;
     private final String dateKey;
     private final String idKey;
@@ -47,7 +48,6 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         int maxNumberOfAllowedProperties,int maxNumberOfRelatedProducts) {
 
         this.maxNumberOfAdditionalProperties = maxNumberOfAllowedProperties;
-//        this.maxNumberOfRelatedProducts = maxNumberOfRelatedProducts;
 
         JSONParser parser = new JSONParser(JSONParser.MODE_RFC4627);
         try
@@ -101,9 +101,13 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
                             long sequence) {
         convertedTo.setValidMessage(true);
         convertedTo.setUTCFormattedDate(date);
+        // parses the product array
         parseProductArray(convertedTo,maxNumberOfAdditionalProperties);
+        // parses the properties that were associated to the wrapper, as a result are common to all the related products
+        // ie. the site one which they were purchased together
         parseAdditionalProperties(convertedTo.additionalProperties, object, maxNumberOfAdditionalProperties);
     }
+
 
     private void parseAdditionalProperties(RelatedProductAdditionalProperties properties,JSONObject map, int maxPropertiesThanCanBeRead) {
         int mapSize = map.size();
@@ -148,17 +152,13 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
                 if (id instanceof String) {
                     relatedProductInfos[i].setId((String) id);
                     parseAdditionalProperties(relatedProductInfos[i].getAdditionalProperties(), productObj, maxNumberOfAdditionalProperties);
-                    productObj.put(idKey, id);
                 } else {
-                    productObj.put(idKey, id);
                     continue;
                 }
-
-
             } else {
-                try {
+                if(product instanceof String) {
                     relatedProductInfos[i].setId((String) product);
-                } catch (ClassCastException exception) {
+                } else {
                     continue;
                 }
             }
@@ -203,5 +203,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             buf.get(bytes, off, len);
             return len;
         }
+
+
     }
 }

@@ -5,11 +5,32 @@ import org.greencheek.relatedproduct.api.RelatedProductInfoIdentifier;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 02/06/2013
- * Time: 17:22
- * To change this template use File | Settings | File Templates.
+ * Presents an individual product and it's associated attributes.
+ * The number of associated attributes a product is allowed is defined at construction
+ * time.  It is the callee's responsibility to make sure these limits are not exhausted.
+ *
+ * In the following json payload, this domain object represents a single item from the "products" array.
+ * i.e. id: 10, type : "map"
+ * <pre>
+ * {
+ *   "channel" : "uk",
+ *   "site"    : "amazon",
+ *   "products":[
+ *               {
+ *                "id"   : "10",
+ *                "type" : "map"
+ *               },
+ *               {
+ *                "id"   : "11",
+ *                "type" : "compass"
+ *               },
+ *               {
+ *                "id"   : "12",
+ *                "type" : "torch"
+ *               }
+ *             ]
+ *  }
+ * </pre>
  */
 public class RelatedProductInfo {
 

@@ -5,11 +5,7 @@ import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:38
- * To change this template use File | Settings | File Templates.
+ *
  */
 public class SearchResultsEvent {
 

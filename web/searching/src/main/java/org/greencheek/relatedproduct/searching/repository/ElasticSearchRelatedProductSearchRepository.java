@@ -7,6 +7,7 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -45,7 +46,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
                                     RelatedProductSearch[] searches,
                                     RelatedProductSearchRequestResponseProcessor handler) {
         log.debug("request to execute {} searches",searches.length);
-        Map<SearchRequestLookupKey,SearchResultsEvent> results;
+        SearchResultEventWithSearchRequestKey[] results;
         MultiSearchResponse sr;
         try {
             sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
@@ -53,31 +54,33 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
         } catch(ElasticSearchTimeoutException timeoutException) {
             log.warn("Timeout exception executing search request: ",timeoutException);
             int size = searches.length;
-            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
-            int i = size;
-            while(i--!=0) {
+            results = new SearchResultEventWithSearchRequestKey[size];
+
+            for(int i=0;i<size;i++) {
                 SearchRequestLookupKey key = searches[i].getLookupKey();
-                results.put(key,SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS);
+                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
             }
         } catch(Exception searchException) {
             log.warn("Exception executing search request: ",searchException);
             int size = searches.length;
-            results = new HashMap<SearchRequestLookupKey,SearchResultsEvent>((int)Math.ceil(size/0.75));
-            int i = size;
-            while(i--!=0) {
+            results = new SearchResultEventWithSearchRequestKey[size];
+            for(int i=0;i<size;i++) {
                 SearchRequestLookupKey key = searches[i].getLookupKey();
-                results.put(key,SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS);
+                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
             }
 
         }
 
+        handler.handleResponse(results);
+    }
 
-
-
-        for(Map.Entry<SearchRequestLookupKey,SearchResultsEvent> entry : results.entrySet()) {
-            handler.handleResponse(entry.getKey(),entry.getValue());
+    @Override
+    public void shutdown() {
+        try {
+            elasticSearchClientFactory.shutdown();
+        } catch(Exception e) {
+            log.warn("unable to stop ");
         }
-
     }
 
 }

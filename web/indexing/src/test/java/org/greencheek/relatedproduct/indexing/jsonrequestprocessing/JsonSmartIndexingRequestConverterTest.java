@@ -7,13 +7,10 @@ import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import java.nio.ByteBuffer;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 03/06/2013
- * Time: 22:58
- * To change this template use File | Settings | File Templates.
+ * Tests that the JsonSmart implementation is able to parse the json documents into an RelatedProductIndexingMessage domain
+ * object
  */
-public class JsonSmartIndexingRequestConverterTest extends IndexingRequestConverterTest {
+public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestConverterTest {
 
     @Override
     public IndexingRequestConverter createConverter(ByteBuffer request) {

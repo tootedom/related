@@ -47,12 +47,19 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
     private final RelatedProductSearchFactory relatedProductSearchFactory;
     private final RelatedProductSearchLookupKeyGenerator relatedProductSearchLookupKeyGenerator;
+    private final boolean useSharedSearchRepository;
 
     public BootstrapApplicationContext() {
         this.config = new SystemPropertiesConfiguration();
         this.validatorLocator = new MapBasedSearchRequestParameterValidatorLookup(config);
         this.searchRequestProcessorHandlerFactory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
-        this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+
+        useSharedSearchRepository = config.useSharedSearchRepository();
+        if(useSharedSearchRepository) {
+            this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        } else {
+            this.searchRepository = null;
+        }
         this.searchRequestLookupKeyFactory = new SipHashSearchRequestLookupKeyFactory();
         this.relatedProductSearchRequestFactory = new RelatedProductSearchRequestFactory(config);
         this.relatedProductSearchLookupKeyGenerator = new KeyFactoryBasedRelatedProductSearchLookupKeyGenerator(config,searchRequestLookupKeyFactory);
@@ -133,7 +140,11 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchRepository createSearchRepository() {
-        return searchRepository;
+        if(useSharedSearchRepository) {
+            return searchRepository;
+        } else {
+            return new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+        }
     }
 
     @Override

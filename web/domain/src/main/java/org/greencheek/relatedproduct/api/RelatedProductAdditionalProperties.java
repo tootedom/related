@@ -261,7 +261,7 @@ public class RelatedProductAdditionalProperties {
         }
 
         public void setValue(String s) {
-            valueLength = Math.min(s.length(),maxValueLength);;
+            valueLength = Math.min(s.length(),maxValueLength);
             s.getChars(0,valueLength,value,0);
         }
 

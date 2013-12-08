@@ -113,4 +113,6 @@ public interface Configuration {
         NODE,
         TRANSPORT;
     }
+
+    public boolean useSharedSearchRepository();
 }

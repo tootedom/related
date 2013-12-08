@@ -4,14 +4,11 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 00:45
- * To change this template use File | Settings | File Templates.
+ * performs a number of searches, either in batch fasion to others,
+ * and calls {@link RelatedProductSearchRequestResponseProcessor#handleResponse(org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey, org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent)}
+ * to forward the results of the search to the listener.
  */
-
-// ES
 public interface RelatedProductSearchRepository {
     public void findRelatedProducts(Configuration config, RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler);
+    public void shutdown();
 }

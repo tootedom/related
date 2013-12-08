@@ -2,24 +2,23 @@ package org.greencheek.relatedproduct.searching;
 
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 
 import javax.servlet.AsyncContext;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:03
- * To change this template use File | Settings | File Templates.
+ * Interface that deals with take a user request and forwarding it on for processing
+ * taking the results of many user requests and forwarding those results onto the appropriate
+ * processor that sends that response to the waiting request.
+ *
  */
 public interface RelatedProductSearchRequestResponseProcessor {
 
     public void handleRequest(SearchRequestLookupKey requestKey, AsyncContext requestCtx);
 
-    public void handleResponse(SearchRequestLookupKey requestKey, SearchResultsEvent results);
-
+    public void handleResponse(SearchResultEventWithSearchRequestKey[] results);
 
     public void shutdown();
 }
