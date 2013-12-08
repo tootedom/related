@@ -43,11 +43,18 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
         try {
             SearchRequestLookupKey key = event.getLookupKey();
             log.debug("Handling search request for key {}",key.toString());
-            boolean existed = searchMap.put(key,event.copy(configuration))!=null;
 
-            // We already have the given search ready to process.
-            // Just return
-            log.debug("Search for key {} already being existed?:{}",key.toString(),existed);
+            if(searchMap.containsKey(key)) {
+                // We already have the given search ready to process.
+                // Just return.  We could do .put(key,event.copy), but there is no
+                // point in creating the object copy if the event already exists. (that search has
+                // already been requested)
+                log.debug("Search for key {} already being existed",key.toString(),true);
+            } else {
+                log.debug("Added search for key {}",key.toString());
+                searchMap.put(key,event.copy(configuration));
+            }
+
 
 
             if(endOfBatch) {

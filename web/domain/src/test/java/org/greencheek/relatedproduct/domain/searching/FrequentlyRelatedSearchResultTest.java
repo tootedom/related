@@ -8,10 +8,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 12/10/2013
- * Time: 09:29
  *
  * Tests the FrequentlyRelatedSearchResult domain object works as expected
  */
@@ -38,5 +34,14 @@ public class FrequentlyRelatedSearchResultTest {
 
         assertFalse(result2.equals(result3));
         assertFalse(result2.equals(result4));
+    }
+
+    @Test
+    public void testToString() {
+        FrequentlyRelatedSearchResult result = new FrequentlyRelatedSearchResult("123456",10);
+        FrequentlyRelatedSearchResult result4 = new FrequentlyRelatedSearchResult("123456",11);
+
+        assertEquals("10:123456",result.toString());
+        assertEquals("11:123456",result4.toString());
     }
 }

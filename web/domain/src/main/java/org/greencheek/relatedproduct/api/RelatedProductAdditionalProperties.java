@@ -166,8 +166,6 @@ public class RelatedProductAdditionalProperties {
     }
 
 
-
-    // TODO : Need to get the length from the properties
     public static int getMaxPotentialUrlQueryTypeStringLength(int numberOfProps, Configuration configuration) {
         return (numberOfProps*(1+configuration.getRelatedProductAdditionalPropertyKeyLength()
                 +configuration.getRelatedProductAdditionalPropertyValueLength())) + (numberOfProps) + 1;

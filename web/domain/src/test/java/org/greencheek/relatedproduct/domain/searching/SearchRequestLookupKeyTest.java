@@ -80,6 +80,14 @@ public abstract class SearchRequestLookupKeyTest {
     }
 
     @Test
+    public void keysAreNotEqual() {
+        SearchRequestLookupKeyFactory factory = getFactory();
+        SearchRequestLookupKey key1 = factory.createSearchRequestLookupKey("bob");
+        String key2 = "bob";
+        assertFalse("The same keys, but different objects, must not match:", key1.equals(key2));
+    }
+
+    @Test
     public void generationOfSimilarKeys() {
         System.out.println(getFactory().createSearchRequestLookupKey("").hashCode());
         System.out.println(getFactory().createSearchRequestLookupKey("\0").hashCode());

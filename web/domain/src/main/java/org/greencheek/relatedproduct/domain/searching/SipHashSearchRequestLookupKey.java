@@ -16,8 +16,10 @@ import java.util.Random;
  * See:
  * https://devcentral.f5.com/weblogs/david/archive/2012/01/20/hashdos-ndash-the-post-of-doom-explained.aspx
  *
- * This is a implemention of the hash used there:
- * : DJBX33A, XORing random data to make target collision resistant
+ * This is an implemention siphash that avoids the issues of the random hash function that is used
+ * in the previous posts.  SipHash was defined to combat the issues with matching hash keys for different strings.
+ * And as a result when used as a hash key, the distribution of the keys is wider and the chance of hash collisions
+ * on strings is less.
  */
 public class SipHashSearchRequestLookupKey implements SearchRequestLookupKey {
 

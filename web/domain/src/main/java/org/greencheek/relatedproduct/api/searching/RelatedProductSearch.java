@@ -85,6 +85,7 @@ public class RelatedProductSearch {
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedProductSearchType(this.searchType);
         newCopy.setLookupKey(this.getLookupKey());
+        newCopy.setValidMessage(this.isValidMessage());
         this.additionalSearchCriteria.copyTo(newCopy.additionalSearchCriteria);
         return newCopy;
     }

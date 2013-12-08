@@ -1,11 +1,6 @@
 package org.greencheek.relatedproduct.domain.searching;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 08/06/2013
- * Time: 16:13
- *
  * Represents a results that contains the frequency of the id occurring.
  */
 public class FrequentlyRelatedSearchResult {

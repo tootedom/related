@@ -1,7 +1,7 @@
 package com.github.emboss.siphash;
 
 /**
- * 
+ * https://github.com/emboss/siphash-java
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
 public class SipKey {
