@@ -44,11 +44,10 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
     public void onEvent(RelatedProductReference request, long l, boolean endOfBatch) throws Exception {
 
         try {
-            --count;
 
             relatedProducts.add(request.getReference());
 
-            if(endOfBatch || count==0) {
+            if(endOfBatch || --count==0) {
                 try {
                     log.debug("Sending indexing requests to the storage repository");
                     try {

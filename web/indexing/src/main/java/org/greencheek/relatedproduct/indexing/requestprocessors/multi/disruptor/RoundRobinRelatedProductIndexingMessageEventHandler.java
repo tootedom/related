@@ -75,7 +75,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
             disruptor.start();
 
         }
-
+        nextDisruptor[7] = 1;
         batchSize = configuration.getIndexBatchSize();
 
         batchMessages= new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());

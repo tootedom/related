@@ -1,18 +1,22 @@
-package org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor;
+package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
 import org.greencheek.relatedproduct.api.indexing.BasicRelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
 import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.domain.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
+import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.SingleRelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,9 +26,13 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Tests batching effect of the indexing message event handler
+ * Created with IntelliJ IDEA.
+ * User: dominictootell
+ * Date: 11/12/2013
+ * Time: 17:02
+ * To change this template use File | Settings | File Templates.
  */
-public class SingleRelatedProductIndexingMessageEventHandlerTest {
+public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     private static final String DATE = "2013-05-22T20:31:35";
     private static final String PRODUCTID_1 = "1";
@@ -38,15 +46,17 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
 
     RelatedProductIndexingMessageEventHandler handler;
     Configuration configuration;
-    TestRelatedProductStorageRepository repo;
+    TestRelatedProductReferenceEventHandlerFactory repo;
 
     @Before
     public void setUp() {
+        System.setProperty("related-product.max.number.related.products.per.product","10");
         System.setProperty("related-product.index.batch.size", "25");
+        System.setProperty("related-product.number.of.indexing.request.processors","2");
         configuration = new SystemPropertiesConfiguration();
-        repo = new TestRelatedProductStorageRepository();
-        handler = new SingleRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
-                repo,new DayBasedStorageLocationMapper(configuration,new JodaUTCCurrentDateFormatter()));
+        repo = new TestRelatedProductReferenceEventHandlerFactory();
+        handler = new RoundRobinRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
+                new RelatedProductReferenceMessageFactory(),repo);
     }
 
 
@@ -83,9 +93,14 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
         } catch(Exception e) {
             fail();
         }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        assertEquals(3,repo.handlers.get(0).getNumberOfCalls());
+        assertEquals(1,repo.handlers.get(0).getNumberOfEndOfBatchCalls());
 
-        assertEquals(1,repo.getNumberOfCalls());
-        assertEquals(3,repo.getNumberOfProductsSentForStoring());
     }
 
     @Test
@@ -98,9 +113,15 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
         } catch(Exception e) {
             fail();
         }
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
 
-        assertEquals(1,repo.getNumberOfCalls());
-        assertEquals(24,repo.getNumberOfProductsSentForStoring());
+        assertEquals(24,repo.handlers.get(0).getNumberOfCalls());
+        assertEquals(1,repo.handlers.get(0).getNumberOfEndOfBatchCalls());
+
     }
 
     @Test
@@ -115,9 +136,20 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
 
-        assertEquals(3,repo.getNumberOfCalls());
-        assertEquals(78,repo.getNumberOfProductsSentForStoring());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        assertEquals(51,repo.handlers.get(0).getNumberOfCalls());
+        assertEquals(2,repo.handlers.get(0).getNumberOfEndOfBatchCalls());
+
+        assertEquals(27,repo.handlers.get(1).getNumberOfCalls());
+        assertEquals(1,repo.handlers.get(1).getNumberOfEndOfBatchCalls());
     }
+
+
 
     @Test
     public void checkNoCallMadeForInvalidMessage() {
@@ -129,8 +161,7 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
 
-        assertEquals(0,repo.getNumberOfCalls());
-        assertEquals(0,repo.getNumberOfProductsSentForStoring());
+        assertEquals(0,repo.handlers.get(0).getNumberOfCalls());
     }
 
     @Test
@@ -144,30 +175,36 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
 
-        assertEquals(0,repo.getNumberOfCalls());
-        assertEquals(0,repo.getNumberOfProductsSentForStoring());
+        assertEquals(0,repo.handlers.get(0).getNumberOfCalls());
     }
 
     @Test
     public void testShutdownIsCalledOnStorageRepo() {
         handler.shutdown();
 
-        assertTrue(repo.isShutdown());
+        assertTrue(repo.handlers.get(0).isShutdown());
+        assertTrue(repo.handlers.get(1).isShutdown());
     }
 
-    private class TestRelatedProductStorageRepository implements RelatedProductStorageRepository{
+    private class TestRelatedProductReferenceEventHandlerFactory implements RelatedProductReferenceEventHandlerFactory {
 
+        public List<TestRelatedProductReferenceEventHandler> handlers = new ArrayList<>();
+
+        @Override
+        public RelatedProductReferenceEventHandler getHandler() {
+            TestRelatedProductReferenceEventHandler handler = new TestRelatedProductReferenceEventHandler();
+            handlers.add(handler);
+            return handler;
+        }
+    }
+
+    private class TestRelatedProductReferenceEventHandler implements RelatedProductReferenceEventHandler {
+
+        AtomicInteger endOfBatchCalls = new AtomicInteger(0);
         AtomicInteger calls = new AtomicInteger(0);
-        AtomicInteger numberOfProducts = new AtomicInteger(0);
         AtomicBoolean shutdownCalled = new AtomicBoolean(false);
 
 
-
-        @Override
-        public void store(RelatedProductStorageLocationMapper indexToMapper, List<RelatedProduct> relatedProducts) {
-            numberOfProducts.getAndAdd(relatedProducts.size());
-            calls.incrementAndGet();
-        }
 
         @Override
         public void shutdown() {
@@ -178,12 +215,19 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
             return calls.get();
         }
 
-        public int getNumberOfProductsSentForStoring() {
-            return numberOfProducts.get();
+        public int getNumberOfEndOfBatchCalls() {
+            return endOfBatchCalls.get();
         }
+
 
         public boolean isShutdown() {
             return shutdownCalled.get();
+        }
+
+        @Override
+        public void onEvent(RelatedProductReference event, long sequence, boolean endOfBatch) throws Exception {
+            calls.incrementAndGet();
+            if(endOfBatch) endOfBatchCalls.incrementAndGet();
         }
     }
 }

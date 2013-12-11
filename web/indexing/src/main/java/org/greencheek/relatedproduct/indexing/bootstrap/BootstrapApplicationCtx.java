@@ -69,7 +69,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
         RelatedProductIndexingMessageEventHandler roundRobinMessageStorage = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
                 indexingMessageToRelatedProductsConverter,indexingReferenceMessageFactory,factory);
 
-        RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration.getIndexBatchSize(),
+        RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration,
                 indexingMessageToRelatedProductsConverter,repoFactory.getRepository(applicationConfiguration),locationMapper);
 
         this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,

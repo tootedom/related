@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
+import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
 
     protected int count;
 
-    public SingleRelatedProductIndexingMessageEventHandler(int batchSize,
+    public SingleRelatedProductIndexingMessageEventHandler(Configuration configuration,
                                                            RelatedProductIndexingMessageConverter converter,
                                                            RelatedProductStorageRepository repository,
                                                            RelatedProductStorageLocationMapper locationMapper)
@@ -38,9 +39,9 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
         this.indexConverter = converter;
         this.storageRepository = repository;
         this.locationMapper = locationMapper;
-        this.batchSize = batchSize;
+        this.batchSize = configuration.getIndexBatchSize();
         this.count = batchSize;
-        this.relatedProducts = new ArrayList<RelatedProduct>(batchSize + batchSize/2);
+        this.relatedProducts = new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());
     }
 
     @Override
