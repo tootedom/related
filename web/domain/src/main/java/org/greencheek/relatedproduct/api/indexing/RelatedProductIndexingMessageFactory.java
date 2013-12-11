@@ -4,11 +4,7 @@ import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 08/06/2013
- * Time: 14:59
- * To change this template use File | Settings | File Templates.
+ * Factory for use by the Disruptor for filling the ring buffer with RelatedProductIndexingMessage
  */
 public class RelatedProductIndexingMessageFactory implements EventFactory<RelatedProductIndexingMessage> {
 

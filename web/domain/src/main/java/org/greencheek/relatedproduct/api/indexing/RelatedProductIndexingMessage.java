@@ -12,11 +12,11 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  */
 public class RelatedProductIndexingMessage {
 
-    public boolean validMessage;
-    public String dateUTC;
+    private boolean validMessage;
+    private String dateUTC;
 
-    public final RelatedProductSet relatedProducts;
-    public final RelatedProductAdditionalProperties additionalProperties;
+    private final RelatedProductSet relatedProducts;
+    private final RelatedProductAdditionalProperties additionalProperties;
 
 
     public RelatedProductIndexingMessage(Configuration config) {
@@ -34,8 +34,20 @@ public class RelatedProductIndexingMessage {
         this.dateUTC = date;
     }
 
+    /**
+     * This only returns set has been set via {@link #setUTCFormattedDate}
+     * @return
+     */
+    public String getUTCFormattedDate() {
+        return this.dateUTC;
+    }
+
     public boolean isValidMessage() {
         return this.validMessage;
+    }
+
+    public int getMaxNumberOfRelatedProductsAllowed() {
+        return this.relatedProducts.getMaxNumberOfRelatedProducts();
     }
 
     public RelatedProductSet getRelatedProducts() {
@@ -45,14 +57,5 @@ public class RelatedProductIndexingMessage {
     public RelatedProductAdditionalProperties getIndexingMessageProperties() {
         return this.additionalProperties;
     }
-
-    @Override
-    public String toString()
-    {
-        return "RelatedProductIndexingMessage";
-    }
-
-
-
 
 }

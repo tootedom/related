@@ -3,15 +3,11 @@ package org.greencheek.relatedproduct.api.indexing;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 02/06/2013
- * Time: 17:24
- * To change this template use File | Settings | File Templates.
+ * Represents a group of {@link RelatedProductInfo} objects
  */
 public class RelatedProductSet {
-    public int numberOfRelatedProducts;
-    public final RelatedProductInfo[] relatedProducts;
+    private int numberOfRelatedProducts;
+    private final RelatedProductInfo[] relatedProducts;
 
 
     public RelatedProductSet(Configuration configuration) {
@@ -28,6 +24,32 @@ public class RelatedProductSet {
 
     public RelatedProductInfo[] getListOfRelatedProductInfomation() {
         return this.relatedProducts;
+    }
+
+    /**
+     * performs no bounds checking.
+     *
+     * @param index
+     * @return
+     */
+    public RelatedProductInfo getRelatedProductAtIndex(int index) {
+       return relatedProducts[index];
+    }
+
+    /**
+     * checks that the requested index is within the bounds of the currently
+     * actively set number of related products
+     *
+     * @param index
+     * @return
+     */
+    public RelatedProductInfo getCheckedRelatedProductAtIndex(int index) {
+        return ( index < numberOfRelatedProducts ) ? relatedProducts[index] : null;
+
+    }
+
+    public int getMaxNumberOfRelatedProducts() {
+        return this.relatedProducts.length;
     }
 
     public int getNumberOfRelatedProducts() {

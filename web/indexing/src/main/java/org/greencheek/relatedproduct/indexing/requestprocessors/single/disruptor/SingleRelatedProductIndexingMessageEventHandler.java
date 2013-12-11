@@ -51,7 +51,7 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
             log.debug("Invalid indexing message.  Ignoring message");
             return;
         }
-        if(request.relatedProducts.getNumberOfRelatedProducts()==0) {
+        if(request.getRelatedProducts().getNumberOfRelatedProducts()==0) {
             log.debug("Invalid indexing message, no related products.  Ignoring message");
             request.setValidMessage(false);
             return;

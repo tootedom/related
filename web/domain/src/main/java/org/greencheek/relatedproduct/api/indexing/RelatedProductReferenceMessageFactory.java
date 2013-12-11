@@ -5,11 +5,8 @@ import org.greencheek.relatedproduct.domain.RelatedProductReference;
 
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 08/06/2013
- * Time: 14:59
- * To change this template use File | Settings | File Templates.
+ * Simply creates a {@link RelatedProductReference}, which is basically a reference to a {@link org.greencheek.relatedproduct.domain.RelatedProduct} object.
+ * The factory is used for populating the disruptor ring buffer.
  */
 public class RelatedProductReferenceMessageFactory implements EventFactory<RelatedProductReference> {
 
@@ -20,7 +17,6 @@ public class RelatedProductReferenceMessageFactory implements EventFactory<Relat
 
     @Override
     public RelatedProductReference newInstance() {
-        RelatedProductReference message = new RelatedProductReference();
-        return message;
+        return new RelatedProductReference();
     }
 }

@@ -86,7 +86,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
 
         try {
             if(request.isValidMessage()) {
-                if(request.relatedProducts.getNumberOfRelatedProducts()==0) {
+                if(request.getRelatedProducts().getNumberOfRelatedProducts()==0) {
                     log.info("indexing message not valid.  ignoring.  No related products");
                     return;
                 }

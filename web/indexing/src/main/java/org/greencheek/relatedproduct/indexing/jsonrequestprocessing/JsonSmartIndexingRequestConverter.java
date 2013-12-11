@@ -105,7 +105,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         parseProductArray(convertedTo,maxNumberOfAdditionalProperties);
         // parses the properties that were associated to the wrapper, as a result are common to all the related products
         // ie. the site one which they were purchased together
-        parseAdditionalProperties(convertedTo.additionalProperties, object, maxNumberOfAdditionalProperties);
+        parseAdditionalProperties(convertedTo.getIndexingMessageProperties(), object, maxNumberOfAdditionalProperties);
     }
 
 
@@ -168,14 +168,14 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         if (i == 0) {
             invalidateMessage(event);
         } else {
-            event.relatedProducts.setNumberOfRelatedProducts(i);
+            event.getRelatedProducts().setNumberOfRelatedProducts(i);
         }
 
     }
 
     private void invalidateMessage(RelatedProductIndexingMessage message) {
         message.setValidMessage(false);
-        message.relatedProducts.setNumberOfRelatedProducts(0);
+        message.getRelatedProducts().setNumberOfRelatedProducts(0);
     }
 
     class ByteBufferBackedInputStream extends InputStream {

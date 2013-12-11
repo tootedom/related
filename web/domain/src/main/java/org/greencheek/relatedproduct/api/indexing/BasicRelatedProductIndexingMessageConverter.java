@@ -49,7 +49,7 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
             relatedIds[i] = ids[i].getId().duplicate();
         }
 
-        return new RelatedProduct(info.getId().duplicate(),message.dateUTC,relatedIds,properties);
+        return new RelatedProduct(info.getId().duplicate(),message.getUTCFormattedDate(),relatedIds,properties);
     }
 
 
