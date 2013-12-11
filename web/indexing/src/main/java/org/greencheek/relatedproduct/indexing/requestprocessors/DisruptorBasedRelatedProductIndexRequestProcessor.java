@@ -1,10 +1,9 @@
-package org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor;
+package org.greencheek.relatedproduct.indexing.requestprocessors;
 
-import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
-import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
@@ -12,7 +11,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import javax.annotation.PreDestroy;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
@@ -27,53 +26,44 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
     private final IndexingRequestConverterFactory requestConverter;
-
-    private final RelatedProductStorageRepository storageRepository;
+    private final RelatedProductIndexingMessageEventHandler eventHandler;
 
     public DisruptorBasedRelatedProductIndexRequestProcessor(Configuration configuration,
                                                              IndexingRequestConverterFactory requestConverter,
-                                                             RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConvertor,
-                                                             RelatedProductIndexingMessageFactory messageFactory,
-                                                             RelatedProductStorageRepositoryFactory repositoryFactory,
-                                                             RelatedProductStorageLocationMapper locationMapper) {
-        this.requestConverter = requestConverter;
-        this.storageRepository = repositoryFactory.getRepository(configuration);
-        disruptor = new Disruptor<RelatedProductIndexingMessage>(
-                messageFactory,
-                Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()), executorService,
-                ProducerType.SINGLE, configuration.getWaitStrategyFactory().createWaitStrategy());
+                                                             RelatedProductIndexingMessageFactory indexingMessageFactory,
+                                                             RelatedProductIndexingMessageEventHandler eventHandler
+    ) {
 
-        final int batchIndexSize = configuration.getIndexBatchSize();
-        disruptor.handleEventsWith(new EventHandler[] {new SingleRelatedProductIndexingMessageEventHandler(batchIndexSize,indexingMessageToRelatedProductsConvertor,storageRepository,locationMapper)});
+
+        this.requestConverter = requestConverter;
+        disruptor = new Disruptor<RelatedProductIndexingMessage>(
+                indexingMessageFactory,
+                Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()), executorService,
+                ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
+
+        this.eventHandler = eventHandler;
+        disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 
     }
 
     @Override
     public void processRequest(Configuration config, ByteBuffer data) {
-        int size = data.remaining();
         try {
-            IndexingRequestConverter converter = requestConverter.createConverter(config,data);
-            disruptor.publishEvent(converter);
+            disruptor.publishEvent(requestConverter.createConverter(config,data));
         } catch(InvalidRelatedProductJsonException e) {
-            log.warn("Invalid json content, unable to process request.  Length of data:{}", size);
+            log.warn("Invalid json content, unable to process request.  Length of data:{}", data.remaining());
 
             if(log.isDebugEnabled()) {
-                if(data.hasArray()) {
+                if(data.hasArray())
                     log.debug("Invalid content as byte array: {}", Arrays.toString(data.array()));
-                }
             }
         }
     }
 
 
+    @PreDestroy
     public void shutdown() {
-
-        try {
-            storageRepository.shutdown();
-        } catch(Exception e ) {
-            log.warn("Unable to shutdown respository client");
-        }
 
         try {
             log.info("Attempting to shut down executor thread pool in index request processor");
@@ -90,6 +80,10 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         } catch (Exception e) {
             log.warn("Unable to shut down disruptor in index request processor",e);
         }
+
+        log.info("Shutting down round robin index request event handler");
+        eventHandler.shutdown();
+
 
     }
 
