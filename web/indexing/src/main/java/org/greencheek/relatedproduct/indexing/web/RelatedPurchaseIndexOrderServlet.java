@@ -81,7 +81,6 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
      * If there is a content length header.  Check the reported length, making sure
      * it isn't over the max post data size.
      *
-     * @param request
      * @param maxPostDataSize
      * @return -1 if size of post data is too large, or corrupt, -2 if we don't have content length (chunked),
      *         or the size (this could be 0)

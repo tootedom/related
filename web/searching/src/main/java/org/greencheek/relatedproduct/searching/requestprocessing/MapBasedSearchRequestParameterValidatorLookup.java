@@ -9,11 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 10/06/2013
- * Time: 22:18
- * To change this template use File | Settings | File Templates.
+ * Stores validators that can be used to validate request parameters
  */
 public class MapBasedSearchRequestParameterValidatorLookup implements SearchRequestParameterValidatorLocator {
 

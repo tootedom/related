@@ -12,6 +12,11 @@ import org.greencheek.relatedproduct.indexing.locationmappers.HourBasedStorageLo
 import org.greencheek.relatedproduct.indexing.locationmappers.MinuteBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.RoundRobinIndexRequestProcessorFactory;
+import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
+import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.BatchingRelatedProductReferenceEventHanderFactory;
+import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.RelatedProductReferenceEventHandlerFactory;
+import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.RoundRobinRelatedProductIndexingMessageEventHandler;
+import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.SingleRelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateAndHourAndMinuteFormatter;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateAndHourFormatter;
@@ -58,12 +63,23 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
             locationMapper = new MinuteBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourAndMinuteFormatter());
         }
 
+        RelatedProductReferenceEventHandlerFactory factory = new BatchingRelatedProductReferenceEventHanderFactory(applicationConfiguration,
+                repoFactory,locationMapper);
+
+        RelatedProductIndexingMessageEventHandler roundRobinMessageStorage = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
+                indexingMessageToRelatedProductsConverter,indexingReferenceMessageFactory,factory);
+
+        RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration.getIndexBatchSize(),
+                indexingMessageToRelatedProductsConverter,repoFactory.getRepository(applicationConfiguration),locationMapper);
+
         this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,
-                indexingMessageFactory,indexingReferenceMessageFactory,indexingMessageToRelatedProductsConverter,repoFactory,locationMapper);
+                indexingMessageFactory,roundRobinMessageStorage,singleMessageStorage);
 
 
 
     }
+
+
 
     @Override
     public RelatedProductIndexRequestProcessor getIndexRequestProcessor() {

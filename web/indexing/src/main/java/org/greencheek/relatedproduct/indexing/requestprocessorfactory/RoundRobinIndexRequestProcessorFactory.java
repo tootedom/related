@@ -1,18 +1,16 @@
 package org.greencheek.relatedproduct.indexing.requestprocessorfactory;
 
+import com.lmax.disruptor.EventHandler;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
-import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
+import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor;
-import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.DisruptorBasedRelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.util.config.Configuration;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,23 +23,18 @@ public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProce
 
     private final IndexingRequestConverterFactory requestBytesConverter;
     private final RelatedProductIndexingMessageFactory indexingMessageFactory;
-    private final RelatedProductReferenceMessageFactory referenceMessageFactory;
-    private final RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter;
-    private final RelatedProductStorageRepositoryFactory repoFactory;
-    private final RelatedProductStorageLocationMapper locationMapper;
+
+    private final RelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler;
+    private final RelatedProductIndexingMessageEventHandler singleIndexingEventHandler;
 
     public RoundRobinIndexRequestProcessorFactory(IndexingRequestConverterFactory requestBytesConverter,
                                                   RelatedProductIndexingMessageFactory indexingMessageFactory,
-                                                  RelatedProductReferenceMessageFactory referenceMessageFactory,
-                                                  RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter,
-                                                  RelatedProductStorageRepositoryFactory repoFactory,
-                                                  RelatedProductStorageLocationMapper locationMapper) {
+                                                  RelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler,
+                                                  RelatedProductIndexingMessageEventHandler singleIndexingEventHandler) {
         this.requestBytesConverter = requestBytesConverter;
         this.indexingMessageFactory = indexingMessageFactory;
-        this.referenceMessageFactory = referenceMessageFactory;
-        this.indexingMessageToRelatedProductsConverter = indexingMessageToRelatedProductsConverter;
-        this.repoFactory = repoFactory;
-        this.locationMapper = locationMapper;
+        this.roundRobinIndexingEventHandler = roundRobinIndexingEventHandler;
+        this.singleIndexingEventHandler = singleIndexingEventHandler;
     }
 
     @Override
@@ -49,12 +42,17 @@ public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProce
         int requestedNumberOfRequestProcessors = configuration.getNumberOfIndexingRequestProcessors();
 
         if(requestedNumberOfRequestProcessors>1) {
+            // needs to be passed in.
+//            EventHandler<RelatedProductReference> relatedProductIndexingEventHandler = new RingBufferRelatedProductReferenceRequestHandler(configuration.getIndexBatchSize(),repoFactory.getRepository(configuration),locationMapper);
+//            EventHandler<RelatedProductIndexingMessage> eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,indexingMessageToRelatedProductsConverter,referenceMessageFactory,relatedProductIndexingEventHandler);
+
             return new DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(configuration,
-                    requestBytesConverter,indexingMessageToRelatedProductsConverter,indexingMessageFactory,referenceMessageFactory,repoFactory,locationMapper);
+                    requestBytesConverter,indexingMessageFactory,roundRobinIndexingEventHandler);
         }
         else {
-            return new DisruptorBasedRelatedProductIndexRequestProcessor(configuration,
-                    requestBytesConverter,indexingMessageToRelatedProductsConverter,indexingMessageFactory,repoFactory,locationMapper);
+            return new DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(configuration,
+                    requestBytesConverter,indexingMessageFactory,singleIndexingEventHandler);
+
         }
     }
 }

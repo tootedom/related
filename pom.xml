@@ -27,6 +27,7 @@
         <git.releases.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/releases</git.releases.repo.url>
         <git.sites.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/sites</git.sites.repo.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <elastic.version>0.90.7</elastic.version>
     </properties>
 
 
@@ -58,7 +59,7 @@
         <dependency>
             <groupId>com.github.tlrx</groupId>
             <artifactId>elasticsearch-test</artifactId>
-            <version>0.90.5</version>
+            <version>0.90.6</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

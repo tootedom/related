@@ -7,7 +7,9 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
+import org.greencheek.relatedproduct.domain.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.*;
+import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -28,15 +30,13 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
 
     private final IndexingRequestConverterFactory requestConverter;
-    private final RelatedProductRoundRobinIndexRequestHandler eventHandler;
+    private final RelatedProductIndexingMessageEventHandler eventHandler;
 
     public DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor(Configuration configuration,
                                                                        IndexingRequestConverterFactory requestConverter,
-                                                                       RelatedProductIndexingMessageConverter converter,
                                                                        RelatedProductIndexingMessageFactory indexingMessageFactory,
-                                                                       RelatedProductReferenceMessageFactory referenceMessageFactory,
-                                                                       RelatedProductStorageRepositoryFactory factory,
-                                                                       RelatedProductStorageLocationMapper locationMapper) {
+                                                                       RelatedProductIndexingMessageEventHandler eventHandler
+                                                                       ) {
 
 
         this.requestConverter = requestConverter;
@@ -45,8 +45,9 @@ public class DisruptorBasedRoundRobinRelatedProductIndexRequestProcessor impleme
                 Util.ceilingNextPowerOfTwo(configuration.getSizeOfIncomingMessageQueue()), executorService,
                 ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
 
-
-        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,referenceMessageFactory,factory,locationMapper);
+        //new RingBufferRelatedProductReferenceRequestHandler(configuration.getIndexBatchSize(),factory.getRepository(configuration),locationMapper);
+//        eventHandler = new RelatedProductRoundRobinIndexRequestHandler(configuration,converter,referenceMessageFactory,relatedProductIndexingEventHandler);
+        this.eventHandler = eventHandler;
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
 

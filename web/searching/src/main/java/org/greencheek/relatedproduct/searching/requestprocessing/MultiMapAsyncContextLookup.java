@@ -14,11 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 13:18
- * To change this template use File | Settings | File Templates.
+ * Stores AsyncContext objects against a request url.
+ * The AsyncContext can then be retrieved using the {@link SearchRequestLookupKey}
+ * and the responses sent to the client that is waiting on the AsyncContext to be completed.
  */
 public class MultiMapAsyncContextLookup implements AsyncContextLookup {
 
