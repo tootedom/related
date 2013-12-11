@@ -44,7 +44,6 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
     public void onEvent(RelatedProductReference request, long l, boolean endOfBatch) throws Exception {
 
         try {
-
             relatedProducts.add(request.getReference());
 
             if(endOfBatch || --count==0) {
