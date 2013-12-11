@@ -43,7 +43,14 @@ public class DayBasedStorageLocationMapper implements RelatedProductStorageLocat
 
     @Override
     public String getLocationName(RelatedProduct product) {
-        String date = currentDayFormatter.parseToDate(product.getDate());
+        String dateStr = product.getDate();
+        String date;
+        if(dateStr==null) {
+            date = currentDayFormatter.getCurrentDay();
+        } else {
+            date = currentDayFormatter.parseToDate(product.getDate());
+        }
+
         if(dateCachingEnabled) {
             String cachedIndexName = dayCache.get(date);
             if(cachedIndexName==null) {

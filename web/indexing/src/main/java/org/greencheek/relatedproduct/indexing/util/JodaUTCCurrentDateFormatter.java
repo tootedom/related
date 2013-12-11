@@ -4,7 +4,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.*;
 
-import javax.inject.Named;
 import java.io.IOException;
 
 
@@ -15,7 +14,6 @@ import java.io.IOException;
  * Time: 17:59
  * To change this template use File | Settings | File Templates.
  */
-@Named
 public class JodaUTCCurrentDateFormatter implements UTCCurrentDateFormatter {
 
     private final DateTimeParser[] parsers = {
