@@ -17,6 +17,7 @@ import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFac
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.indexing.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,9 +27,12 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -48,6 +52,10 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     @Before
     public void setUp() {
+
+    }
+
+    public void startTomcat(BootstrapApplicationCtx bootstrapApplicationCtx) {
         String webappDirLocation = "src/main/webapp/";
         tomcat = new Tomcat();
         tomcat.setPort(0);
@@ -56,20 +64,16 @@ public class RelatedPurchaseIndexOrderServletTest {
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
 
-//        StandardContext ctx = null;
-        Wrapper wrapper = null;
-//        try {
-
         Context ctx = tomcat.addContext(tomcat.getHost(),"/indexing","/");
 
         ((StandardContext)ctx).setProcessTlds(false);  // disable tld processing.. we don't use any
         ctx.addParameter("com.sun.faces.forceLoadConfiguration","false");
 
-        wrapper = tomcat.addServlet("/indexing","Indexing","org.greencheek.relatedproduct.indexing.web.RelatedPurchaseIndexOrderServlet");
+        Wrapper wrapper = tomcat.addServlet("/indexing","Indexing","org.greencheek.relatedproduct.indexing.web.RelatedPurchaseIndexOrderServlet");
         wrapper.setAsyncSupported(true);
         wrapper.addMapping("/relatedproducts");
 
-        ctx.getServletContext().setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,new TestBootstrapApplicationCtx());
+        ctx.getServletContext().setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
 
         //declare an alternate location for your "WEB-INF/classes" dir:
         File additionWebInfClasses = new File("target/classes");
@@ -91,6 +95,13 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     @After
     public final void teardown() throws Throwable {
+        System.clearProperty("related-product.index.batch.size");
+        System.clearProperty("related-product.number.of.indexing.request.processors");
+        shutdownTomcat();
+
+    }
+
+    public final void shutdownTomcat() throws Exception  {
         if (tomcat.getServer() != null
                 && tomcat.getServer().getState() != LifecycleState.DESTROYED) {
             if (tomcat.getServer().getState() != LifecycleState.STOPPED) {
@@ -102,8 +113,87 @@ public class RelatedPurchaseIndexOrderServletTest {
     }
 
     @Test
-    public void testTomcatUp() {
-        System.out.println(getTomcatPort());
+    public void testIndexingSingleItemWithSingleRequestProcessor() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+
+
+        Response response1 = sendPost();
+
+        try {
+            latch.await(5000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+
+
+        int i = 0;
+        for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+        }
+
+        assertEquals(3,i);
+    }
+
+    @Test
+    public void testIndexingSingleItemWithMultipleRequestProcessor() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","2");
+
+        final CountDownLatch latch = new CountDownLatch(5);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+
+
+        Response response = sendPost();
+        response = sendPost();
+        response = sendPost();
+        response = sendPost();
+        response = sendPost();
+
+        try {
+            latch.await(5000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+
+
+        int i = 0;
+        for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+        }
+
+        assertEquals(15,i);
+    }
+
+    private Response sendPost() {
+
 
         Response response=null;
         try {
@@ -128,9 +218,11 @@ public class RelatedPurchaseIndexOrderServletTest {
                             "}        "
             ).execute().get();
 
-            System.out.println(response.getStatusCode());
+            assertEquals(202, response.getStatusCode());
         } catch (Exception e ) {
             fail(e.getMessage());
+        } finally {
+            return response;
         }
     }
 
@@ -141,19 +233,46 @@ public class RelatedPurchaseIndexOrderServletTest {
 
 
     public class TestBootstrapApplicationCtx extends BootstrapApplicationCtx {
+
+        private final CountDownLatch latch;
+        private volatile TestRelatedProductStorageRepositoryFactory repository;
+
+        public TestBootstrapApplicationCtx(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
         public RelatedProductStorageRepositoryFactory getStorageRepositoryFactory(Configuration applicationConfiguration) {
-            return new TestRelatedProductStorageRepositoryFactory();
+            repository = new TestRelatedProductStorageRepositoryFactory(latch);
+            return repository;
+        }
+
+        public Configuration createConfiguration() {
+            return new SystemPropertiesConfiguration();
+        }
+
+        public TestRelatedProductStorageRepositoryFactory getRepository() {
+            return repository;
         }
     }
 
     public class TestRelatedProductStorageRepositoryFactory implements RelatedProductStorageRepositoryFactory {
         List<TestRelatedProductStorageRepository> repos = new CopyOnWriteArrayList<>();
 
+        private final CountDownLatch latch;
+
+        public TestRelatedProductStorageRepositoryFactory(CountDownLatch latch) {
+            this.latch = latch;
+        }
+
         @Override
         public RelatedProductStorageRepository getRepository(Configuration configuration) {
-            TestRelatedProductStorageRepository repo = new TestRelatedProductStorageRepository();
+            TestRelatedProductStorageRepository repo = new TestRelatedProductStorageRepository(latch);
             repos.add(repo);
             return repo;
+        }
+
+        public List<TestRelatedProductStorageRepository> getRepos() {
+            return repos;
         }
     }
 
@@ -161,10 +280,17 @@ public class RelatedPurchaseIndexOrderServletTest {
         AtomicInteger productsRequestedToBeStored = new AtomicInteger(0);
         AtomicBoolean shutdown = new AtomicBoolean(false);
 
+        private final CountDownLatch latch;
+
+        public TestRelatedProductStorageRepository(CountDownLatch latch)
+        {
+            this.latch = latch;
+        }
 
         @Override
         public void store(RelatedProductStorageLocationMapper indexToMapper, List<RelatedProduct> relatedProducts) {
-            productsRequestedToBeStored.incrementAndGet();
+            productsRequestedToBeStored.addAndGet(relatedProducts.size());
+            latch.countDown();
         }
 
         @Override

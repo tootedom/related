@@ -33,19 +33,26 @@ import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 public class BootstrapApplicationCtx implements ApplicationCtx {
 
     private final Configuration applicationConfiguration;
-    private final IndexRequestProcessorFactory indexingRequestProcessingFactory;
+    private volatile IndexRequestProcessorFactory indexingRequestProcessingFactory;
 
     public BootstrapApplicationCtx()
     {
-        this.applicationConfiguration = new SystemPropertiesConfiguration();
+        this.applicationConfiguration = createConfiguration();
+    }
 
-        IndexingRequestConverterFactory requestBytesConverter = new JsonSmartIndexingRequestConverterFactory(new JodaISO8601UTCCurrentDateAndTimeFormatter());
+    public RelatedProductReferenceMessageFactory createRelatedProductReferenceFactory() {
+        return new RelatedProductReferenceMessageFactory();
+    }
 
-        RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(applicationConfiguration);
-        RelatedProductReferenceMessageFactory indexingReferenceMessageFactory = new RelatedProductReferenceMessageFactory();
 
-        RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter = new BasicRelatedProductIndexingMessageConverter(applicationConfiguration);
-        RelatedProductStorageRepositoryFactory repoFactory = getStorageRepositoryFactory(applicationConfiguration);
+    public RelatedProductReferenceEventHandlerFactory createRelatedProductReferenceFactory(Configuration applicationConfiguration,
+                                                                                           RelatedProductStorageLocationMapper locationMapper,
+                                                                                           RelatedProductStorageRepositoryFactory repoFactory) {
+
+        return new BatchingRelatedProductReferenceEventHanderFactory(applicationConfiguration,repoFactory,locationMapper);
+    }
+
+    public RelatedProductStorageLocationMapper createIndexNameLocationMapper(Configuration applicationConfiguration) {
 
         RelatedProductStorageLocationMapper locationMapper;
 
@@ -58,20 +65,24 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
             locationMapper = new MinuteBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourAndMinuteFormatter());
         }
 
-        RelatedProductReferenceEventHandlerFactory factory = new BatchingRelatedProductReferenceEventHanderFactory(applicationConfiguration,
-                repoFactory,locationMapper);
+        return locationMapper;
+    }
 
-        RelatedProductIndexingMessageEventHandler roundRobinMessageStorage = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
-                indexingMessageToRelatedProductsConverter,indexingReferenceMessageFactory,factory);
+    public RelatedProductIndexingMessageConverter createIndexingMessageToRelatedProduct(Configuration applicationConfiguration) {
+        return new BasicRelatedProductIndexingMessageConverter(applicationConfiguration);
+    }
 
-        RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration,
-                indexingMessageToRelatedProductsConverter,repoFactory.getRepository(applicationConfiguration),locationMapper);
+    public RelatedProductIndexingMessageFactory createIndexingMessageFactory() {
+        return new RelatedProductIndexingMessageFactory(applicationConfiguration);
 
-        this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,
-                indexingMessageFactory,roundRobinMessageStorage,singleMessageStorage);
+    }
 
+    public IndexingRequestConverterFactory createBytesToIndexingMessageConverterFactory() {
+        return new JsonSmartIndexingRequestConverterFactory(new JodaISO8601UTCCurrentDateAndTimeFormatter());
+    }
 
-
+    public Configuration createConfiguration() {
+         return new SystemPropertiesConfiguration();
     }
 
     /**
@@ -85,7 +96,23 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
 
 
     @Override
-    public RelatedProductIndexRequestProcessor getIndexRequestProcessor() {
+    public synchronized RelatedProductIndexRequestProcessor getIndexRequestProcessor() {
+        if(indexingRequestProcessingFactory==null) {
+            RelatedProductStorageLocationMapper locationMapper = createIndexNameLocationMapper(applicationConfiguration);
+            RelatedProductStorageRepositoryFactory repoFactory = getStorageRepositoryFactory(applicationConfiguration);
+            RelatedProductReferenceEventHandlerFactory factory = createRelatedProductReferenceFactory(applicationConfiguration,locationMapper,repoFactory);
+            RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter = createIndexingMessageToRelatedProduct(applicationConfiguration);
+
+            RelatedProductIndexingMessageEventHandler roundRobinMessageStorage = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
+                    indexingMessageToRelatedProductsConverter,createRelatedProductReferenceFactory(),factory);
+
+            RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration,
+                    indexingMessageToRelatedProductsConverter,repoFactory.getRepository(applicationConfiguration),locationMapper);
+
+            this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(createBytesToIndexingMessageConverterFactory(),
+                    createIndexingMessageFactory(),roundRobinMessageStorage,singleMessageStorage);
+        }
+
         return indexingRequestProcessingFactory.createProcessor(getConfiguration());
     }
 
