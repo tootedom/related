@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.indexing.requestprocessorfactory;
 
+import com.lmax.disruptor.EventFactory;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
@@ -8,22 +10,34 @@ import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIn
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 15/06/2013
- * Time: 14:05
- * To change this template use File | Settings | File Templates.
+ * chooses between the backend processing that is done to turn the request data into a
+ * {@link org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage}
+ * that is stored in the backend.
+ *
+ * The processing is in either one of two ways:
+ *
+ * <pre>
+ * 1)  ---->  Request --->  Ring buffer (to IndexingMessage)  --->  Storage repository
+ *
+ * OR
+ *
+ * 2)  ---->  Request --->  Ring buffer (to IndexingMessage)  --->  Ring Buffer (Reference) ---> Storage Repo
+ *                                                            --->  Ring Buffer (Reference) ---> Storage Repo
+ *                                                            --->  Ring Buffer (Reference) ---> Storage Repo
+ * </pre>
+ *
+ * The choice between the two request processor is done based upon the value set for {@link org.greencheek.relatedproduct.util.config.Configuration#getNumberOfIndexingRequestProcessors()}
  */
 public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProcessorFactory{
 
     private final IndexingRequestConverterFactory requestBytesConverter;
-    private final RelatedProductIndexingMessageFactory indexingMessageFactory;
+    private final  EventFactory<RelatedProductIndexingMessage> indexingMessageFactory;
 
     private final RelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler;
     private final RelatedProductIndexingMessageEventHandler singleIndexingEventHandler;
 
     public RoundRobinIndexRequestProcessorFactory(IndexingRequestConverterFactory requestBytesConverter,
-                                                  RelatedProductIndexingMessageFactory indexingMessageFactory,
+                                                  EventFactory<RelatedProductIndexingMessage> indexingMessageFactory,
                                                   RelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler,
                                                   RelatedProductIndexingMessageEventHandler singleIndexingEventHandler) {
         this.requestBytesConverter = requestBytesConverter;
