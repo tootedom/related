@@ -13,11 +13,14 @@ import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,6 +62,14 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
                 new RelatedProductReferenceMessageFactory(),repo);
     }
 
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.max.number.related.products.per.product");
+        System.clearProperty("related-product.index.batch.size");
+        System.clearProperty("related-product.number.of.indexing.request.processors");
+        handler.shutdown();
+    }
+
 
     private RelatedProductIndexingMessage getMessage() {
         RelatedProductIndexingMessage message = new RelatedProductIndexingMessage(configuration);
@@ -88,14 +99,18 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @Test
     public void testSendingOneItem() {
+        CountDownLatch latch = new CountDownLatch(1);
+        repo.handlers.get(0).setEndOfBatchCountDownLatch(latch);
+        repo.handlers.get(1).setEndOfBatchCountDownLatch(latch);
         try {
             handler.onEvent(getMessage(),1,true);
         } catch(Exception e) {
             fail();
         }
         try {
-            Thread.sleep(1000);
+            latch.await(5000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         assertEquals(3,repo.handlers.get(0).getNumberOfCalls());
@@ -105,6 +120,10 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @Test
     public void testSendingManyItemsButBelowBatchSize() {
+        CountDownLatch latch = new CountDownLatch(1);
+        repo.handlers.get(0).setEndOfBatchCountDownLatch(latch);
+        repo.handlers.get(1).setEndOfBatchCountDownLatch(latch);
+
         try {
             for(int i=0;i<7;i++) {
                 handler.onEvent(getMessage(),i,false);
@@ -114,8 +133,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
         try {
-            Thread.sleep(1000);
+            latch.await(5000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
@@ -126,6 +146,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @Test
     public void testSendingManyItemsExceedingBatchSize() {
+        CountDownLatch latch = new CountDownLatch(3);
+        repo.handlers.get(0).setEndOfBatchCountDownLatch(latch);
+        repo.handlers.get(1).setEndOfBatchCountDownLatch(latch);
         try {
             for(int i=0;i<25;i++) {
                 handler.onEvent(getMessage(),i,false);
@@ -137,9 +160,10 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
         }
 
         try {
-            Thread.sleep(2000);
+            latch.await(5000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            fail("Timed out waiting for messages to be sent through the ring buffer");
+            e.printStackTrace();
         }
 
         assertEquals(51,repo.handlers.get(0).getNumberOfCalls());
@@ -203,7 +227,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
         AtomicInteger endOfBatchCalls = new AtomicInteger(0);
         AtomicInteger calls = new AtomicInteger(0);
         AtomicBoolean shutdownCalled = new AtomicBoolean(false);
-
+        volatile CountDownLatch endOfBatchCountDowns = new CountDownLatch(1);
 
 
         @Override
@@ -219,6 +243,10 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
             return endOfBatchCalls.get();
         }
 
+        public void setEndOfBatchCountDownLatch(CountDownLatch latch) {
+            endOfBatchCountDowns = latch;
+        }
+
 
         public boolean isShutdown() {
             return shutdownCalled.get();
@@ -227,7 +255,10 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
         @Override
         public void onEvent(RelatedProductReference event, long sequence, boolean endOfBatch) throws Exception {
             calls.incrementAndGet();
-            if(endOfBatch) endOfBatchCalls.incrementAndGet();
+            if(endOfBatch) {
+                endOfBatchCalls.incrementAndGet();
+                endOfBatchCountDowns.countDown();
+            }
         }
     }
 }

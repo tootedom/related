@@ -29,7 +29,8 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
 
     protected final int batchSize;
 
-    protected int count;
+    private final int[] count = new int[30];
+    private static final int COUNTER_POS = 14;
 
     public SingleRelatedProductIndexingMessageEventHandler(Configuration configuration,
                                                            RelatedProductIndexingMessageConverter converter,
@@ -40,7 +41,7 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
         this.storageRepository = repository;
         this.locationMapper = locationMapper;
         this.batchSize = configuration.getIndexBatchSize();
-        this.count = batchSize;
+        this.count[COUNTER_POS] = batchSize;
         this.relatedProducts = new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());
     }
 
@@ -61,12 +62,12 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
         try {
 
             RelatedProduct[] products = indexConverter.convertFrom(request);
-            count-=products.length;
+            this.count[COUNTER_POS]-=products.length;
             for(RelatedProduct p : products) {
                 relatedProducts.add(p);
             }
 
-            if(endOfBatch || count<1) {
+            if(endOfBatch || this.count[COUNTER_POS]<1) {
                 try {
                     log.debug("Sending indexing requests to the storage repository");
                     try {
@@ -76,7 +77,7 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
                     }
                 }
                 finally {
-                    count = batchSize;
+                    this.count[COUNTER_POS] = batchSize;
                     relatedProducts.clear();
                 }
             }

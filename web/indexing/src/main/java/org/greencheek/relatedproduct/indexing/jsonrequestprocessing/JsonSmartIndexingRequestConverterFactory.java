@@ -11,11 +11,8 @@ import javax.inject.Named;
 import java.nio.ByteBuffer;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 06/06/2013
- * Time: 21:00
- * To change this template use File | Settings | File Templates.
+ * Creates a Json Smart based IndexingRequestConverter, that will transform json into
+ * RelatedProductIndexingMessage objects.
  */
 public class JsonSmartIndexingRequestConverterFactory implements IndexingRequestConverterFactory {
 

@@ -40,12 +40,12 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
     private final JSONObject object;
 
-    public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, ByteBuffer requestData) {
+    public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, ByteBuffer requestData) throws InvalidIndexingRequestException {
         this(config,dateCreator,requestData,config.getMaxNumberOfRelatedProductProperties(), config.getMaxNumberOfRelatedProductsPerPurchase());
     }
 
     public JsonSmartIndexingRequestConverter(Configuration config, ISO8601UTCCurrentDateAndTimeFormatter dateCreator, ByteBuffer requestData,
-        int maxNumberOfAllowedProperties,int maxNumberOfRelatedProducts) {
+        int maxNumberOfAllowedProperties,int maxNumberOfRelatedProducts) throws InvalidIndexingRequestException {
 
         this.maxNumberOfAdditionalProperties = maxNumberOfAllowedProperties;
 
@@ -72,8 +72,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             throw new InvalidIndexingRequestException("No parsable products in request.  Product list must be an array of related products");
         } else {
             Object[] relatedProducts = ((JSONArray)products).toArray();
-            int numberOfRelatedProducts = Math.min(relatedProducts.length,maxNumberOfRelatedProducts);
-            if(numberOfRelatedProducts>maxNumberOfRelatedProducts) {
+            if(relatedProducts.length>maxNumberOfRelatedProducts) {
                 if(config.shouldDiscardIndexRequestWithTooManyRelations()) {
                     throw new InvalidIndexingRequestException("Too many related products in request.  Not Parsing.");
                 }
@@ -81,6 +80,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
                     log.warn("Too many related products in request.  Ignored later related prodcuts");
                 }
             }
+            int numberOfRelatedProducts = Math.min(relatedProducts.length,maxNumberOfRelatedProducts);
 
             this.products = new Object[numberOfRelatedProducts];
             for(int i=0;i<numberOfRelatedProducts;i++) {
@@ -123,13 +123,9 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
         for(String key : map.keySet()) {
             Object value = map.get(key);
+            // currently only support string values.. future... more
             if(value instanceof String) {
-                try {
-                    properties.setProperty(key,(String)value,i);
-                } catch (Exception e) {
-                    log.error("map: {}",map.toJSONString());
-                    log.error("additional property: {}, {}",new Object[]{key,value,e});
-                }
+                properties.setProperty(key,(String)value,i);
             } else {
                 safeNumberOfProperties--;
             }

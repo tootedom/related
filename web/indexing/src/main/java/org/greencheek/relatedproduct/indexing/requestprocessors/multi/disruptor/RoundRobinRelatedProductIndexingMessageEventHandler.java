@@ -37,6 +37,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
     protected final RelatedProductIndexingMessageConverter converter;
 
     private final int[] nextDisruptor = new int[30];
+    private static final int COUNTER_POS = 14;
 
 
     public RoundRobinRelatedProductIndexingMessageEventHandler(final Configuration configuration,
@@ -75,7 +76,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
             disruptor.start();
 
         }
-        nextDisruptor[7] = 1;
+        nextDisruptor[COUNTER_POS] = 1;
         batchSize = configuration.getIndexBatchSize();
 
         batchMessages= new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());
@@ -96,7 +97,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
                 if(endOfBatch || batchMessages.size()>=batchSize) {
                     log.debug("handing off request to indexing processor");
                     try {
-                        disruptors[nextDisruptor[7]++ & mask].publishEvents(BatchCopyingRelatedProductIndexMessageTranslator.INSTANCE,batchMessages.toArray(new RelatedProduct[batchMessages.size()]));
+                        disruptors[nextDisruptor[COUNTER_POS]++ & mask].publishEvents(BatchCopyingRelatedProductIndexMessageTranslator.INSTANCE,batchMessages.toArray(new RelatedProduct[batchMessages.size()]));
                     } finally {
                         batchMessages.clear();
                     }

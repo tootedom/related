@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.indexing.locationmappers;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
@@ -38,6 +39,12 @@ public class DayBasedStorageLocationMapperTest {
         System.setProperty("related-product.indexname.date.caching.enabled","false");
         noncachingDayConfig = new SystemPropertiesConfiguration();
         nonCachingDayBasedMapper = new DayBasedStorageLocationMapper(noncachingDayConfig,new JodaUTCCurrentDateFormatter());
+    }
+
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.indexname.date.caching.enabled");
+        System.clearProperty("related-product.number.of.indexname.to.cache");
     }
 
     @Test

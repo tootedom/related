@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.api;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,6 +11,11 @@ import static org.junit.Assert.assertEquals;
  *
  */
 public class RelatedProductInfoIdentifierTest {
+
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.related.product.id.length");
+    }
 
     @Test
     public void testIdTruncation() {

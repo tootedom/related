@@ -4,15 +4,21 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the conversion of a json indexing request into a RelatedProductIndexingMessage
@@ -29,10 +35,50 @@ public abstract class JsonIndexingRequestConverterTest {
 
     @Before
     public void setUp() {
-
+        System.setProperty("related-product.discard.storage.requests.with.too.many.relations", "false");
+        System.setProperty("related-product.max.number.related.products.per.product","10");
         message = new RelatedProductIndexingMessage(new SystemPropertiesConfiguration());
     }
 
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.discard.storage.requests.with.too.many.relations");
+        System.clearProperty("related-product.max.number.related.products.per.product");
+    }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void testProductsIsNotAnArray() {
+        String json =
+                "{" +
+                        "    \"channel\" : \"uk\"," +
+                        "    \"site\" : \"amazon\"," +
+                        "    \"products\" : { \"p\" : [\"B009S4IJCK\",  \"B0076UICIO\" ,\"B0096TJCXW\"] }"+
+                        "}";
+
+        thrown.expect(InvalidIndexingRequestException.class);
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
+    }
+
+    @Test
+    public void testDateIsGenerated() throws Exception {
+
+        String json =
+                "{" +
+                        "    \"channel\" : \"uk\"," +
+                        "    \"site\" : \"amazon\"," +
+                        "    \"products\" : [ \"B009S4IJCK\",  \"B0076UICIO\" ,\"B0096TJCXW\" ]"+
+                        "}";
+
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
+        converter.translateTo(message,(short)10);
+
+        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+        assertNotNull(message.getUTCFormattedDate());
+        assertTrue(message.getUTCFormattedDate().startsWith(f.format(new Date())));
+    }
 
     @Test
     public void testConvertRequestWithIdArrayObjectsIntoIndexingMessage() throws Exception {

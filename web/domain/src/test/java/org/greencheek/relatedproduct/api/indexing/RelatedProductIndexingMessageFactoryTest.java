@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.api.indexing;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -11,6 +12,13 @@ import static org.junit.Assert.assertEquals;
  * accordance with the set configuration.
  */
 public class RelatedProductIndexingMessageFactoryTest {
+
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.max.number.related.products.per.product");
+        System.clearProperty("related-product.max.number.related.product.properties");
+
+    }
 
     @Test
     public void testRelatedProductIndexingMessageWith4RelatedProducts() throws Exception {

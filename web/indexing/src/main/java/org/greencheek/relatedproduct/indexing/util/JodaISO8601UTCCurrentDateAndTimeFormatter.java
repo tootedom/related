@@ -9,11 +9,22 @@ import java.io.IOException;
 
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 11/06/2013
- * Time: 22:48
- * To change this template use File | Settings | File Templates.
+ * Formats a given range of string dates to a UTC time:
+ *
+ * <ul>
+ *  <li>"2008-02-07T09:30:00.000+11:00"  converts to  "2008-02-06T22:30:00.000Z"</li>
+ *  <li>"2008-02-07T09:30:00.000+09:00"  converts to  "2008-02-07T00:30:00.000Z"</li>
+ * </ul>
+ *
+ * Other examples include:
+ * <pre>
+ * formatter.formatToUTC("20080207T093000+0000")          converts to "2008-02-07T09:30:00.000Z"
+ * formatter.formatToUTC("2008-02-07T09:30:00")           converts to "2008-02-07T09:30:00.000Z"
+ * formatter.formatToUTC("2008-02-07T09:30:00+00:00")     converts to "2008-02-07T09:30:00.000Z"
+ * formatter.formatToUTC("2008-02-07T09:30:00.000+00:00") converts to "2008-02-07T09:30:00.000Z"
+ * formatter.formatToUTC("2008-02-07T09:30:00+00:00")     converts to "2008-02-07T09:30:00.000Z"
+ * formatter.formatToUTC("2008-02-07")                    converts to "2008-02-07T00:00:00.000Z"
+ * </pre>
  */
 public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurrentDateAndTimeFormatter {
     private final DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
@@ -53,21 +64,4 @@ public class JodaISO8601UTCCurrentDateAndTimeFormatter implements ISO8601UTCCurr
         }
         return b.toString();
     }
-
-    public static void main(String[] args) {
-        System.out.println("2008-02-07'T'09:30:00.000 +11:00");
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00.000+11:00"));
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00.000+09:00"));
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00+09:00"));
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("20080207T093000+0900"));
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07T09:30:00"));
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().formatToUTC("2008-02-07"));
-
-        System.out.println(new JodaISO8601UTCCurrentDateAndTimeFormatter().getCurrentDay());
-    }
-
-
-
-
-
 }

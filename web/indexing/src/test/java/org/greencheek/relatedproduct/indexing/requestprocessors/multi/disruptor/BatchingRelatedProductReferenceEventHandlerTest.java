@@ -12,6 +12,7 @@ import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,6 +44,12 @@ public class BatchingRelatedProductReferenceEventHandlerTest {
         repo = new TestRelatedProductStorageRepository();
         handler = new BatchingRelatedProductReferenceEventHandler(configuration.getIndexBatchSize(),repo,
                 new DayBasedStorageLocationMapper(configuration,new JodaUTCCurrentDateFormatter()));
+    }
+
+    @After
+    public void tearDown() {
+        System.clearProperty("related-product.index.batch.size");
+        handler.shutdown();
     }
 
     public RelatedProductReference getMessage() {

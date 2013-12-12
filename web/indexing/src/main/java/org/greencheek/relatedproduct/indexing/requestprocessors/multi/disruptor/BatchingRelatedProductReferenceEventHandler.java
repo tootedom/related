@@ -27,7 +27,8 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
 
     protected final int batchSize;
 
-    protected int count;
+    private final int[] count = new int[30];
+    private static final int COUNTER_POS = 14;
 
     public BatchingRelatedProductReferenceEventHandler(int batchSize,
                                                        RelatedProductStorageRepository repository,
@@ -36,7 +37,7 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
         this.storageRepository = repository;
         this.locationMapper = locationMapper;
         this.batchSize = batchSize;
-        this.count = batchSize;
+        this.count[COUNTER_POS] = batchSize;
         this.relatedProducts = new ArrayList<RelatedProduct>(batchSize);
     }
 
@@ -46,7 +47,7 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
         try {
             relatedProducts.add(request.getReference());
 
-            if(endOfBatch || --count==0) {
+            if(endOfBatch || --this.count[COUNTER_POS] ==0) {
                 try {
                     log.debug("Sending indexing requests to the storage repository");
                     try {
@@ -56,7 +57,7 @@ public class BatchingRelatedProductReferenceEventHandler implements RelatedProdu
                     }
                 }
                 finally {
-                    count = batchSize;
+                    this.count[COUNTER_POS]  = batchSize;
                     relatedProducts.clear();
                 }
             }
