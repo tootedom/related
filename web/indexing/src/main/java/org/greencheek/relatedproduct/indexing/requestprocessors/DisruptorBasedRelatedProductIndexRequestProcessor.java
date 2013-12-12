@@ -30,7 +30,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
 
     public DisruptorBasedRelatedProductIndexRequestProcessor(Configuration configuration,
                                                              IndexingRequestConverterFactory requestConverter,
-                                                             RelatedProductIndexingMessageFactory indexingMessageFactory,
+                                                             EventFactory<RelatedProductIndexingMessage> indexingMessageFactory,
                                                              RelatedProductIndexingMessageEventHandler eventHandler
     ) {
 
@@ -51,7 +51,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
     public void processRequest(Configuration config, ByteBuffer data) {
         try {
             disruptor.publishEvent(requestConverter.createConverter(config,data));
-        } catch(InvalidRelatedProductJsonException e) {
+        } catch(InvalidIndexingRequestException e) {
             log.warn("Invalid json content, unable to process request.  Length of data:{}", data.remaining());
 
             if(log.isDebugEnabled()) {

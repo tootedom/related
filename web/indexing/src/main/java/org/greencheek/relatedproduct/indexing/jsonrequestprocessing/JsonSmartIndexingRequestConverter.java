@@ -6,8 +6,7 @@ import net.minidev.json.parser.JSONParser;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductInfo;
-import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
-import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
+import org.greencheek.relatedproduct.indexing.*;
 import org.greencheek.relatedproduct.indexing.util.ISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -56,7 +55,7 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
         }
         catch (Exception e)
         {
-            throw new InvalidIndexingRequestException(e);
+            throw new InvalidIndexingRequestParsingException(e);
         }
 
         productKey = config.getKeyForIndexRequestProductArrayAttr();
@@ -65,16 +64,16 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
 
         Object products = object.remove(productKey);
         if(products == null) {
-            throw new InvalidIndexingRequestException("No products in request data");
+            throw new InvalidIndexingRequestNoProductsFoundException("No products in request data");
         }
 
         if(!(products instanceof JSONArray)) {
-            throw new InvalidIndexingRequestException("No parsable products in request.  Product list must be an array of related products");
+            throw new InvalidIndexingRequestNoProductsFoundException("No parsable products in request.  Product list must be an array of related products");
         } else {
             Object[] relatedProducts = ((JSONArray)products).toArray();
             if(relatedProducts.length>maxNumberOfRelatedProducts) {
                 if(config.shouldDiscardIndexRequestWithTooManyRelations()) {
-                    throw new InvalidIndexingRequestException("Too many related products in request.  Not Parsing.");
+                    throw new InvalidIndexingRequestTooManyProductsFoundException("Too many related products in request.  Not Parsing.");
                 }
                 else {
                     log.warn("Too many related products in request.  Ignored later related prodcuts");
