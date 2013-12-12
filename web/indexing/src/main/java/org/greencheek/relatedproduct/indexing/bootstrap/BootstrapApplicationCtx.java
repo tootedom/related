@@ -24,15 +24,11 @@ import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 02/06/2013
- * Time: 15:03
- * To change this template use File | Settings | File Templates.
+ * Basic Bootstrap, that performs the wiring up of application.
+ * It's the class that performs the dependency injection
  */
 public class BootstrapApplicationCtx implements ApplicationCtx {
 
@@ -43,14 +39,13 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
     {
         this.applicationConfiguration = new SystemPropertiesConfiguration();
 
-        IndexingRequestConverterFactory requestBytesConverter = new JsonSmartIndexingRequestConverterFactory(
-                new JodaISO8601UTCCurrentDateAndTimeFormatter());
+        IndexingRequestConverterFactory requestBytesConverter = new JsonSmartIndexingRequestConverterFactory(new JodaISO8601UTCCurrentDateAndTimeFormatter());
 
         RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(applicationConfiguration);
         RelatedProductReferenceMessageFactory indexingReferenceMessageFactory = new RelatedProductReferenceMessageFactory();
 
         RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter = new BasicRelatedProductIndexingMessageConverter(applicationConfiguration);
-        RelatedProductStorageRepositoryFactory repoFactory = new ElasticSearchRelatedProductStorageRepositoryFactory(applicationConfiguration);
+        RelatedProductStorageRepositoryFactory repoFactory = getStorageRepositoryFactory(applicationConfiguration);
 
         RelatedProductStorageLocationMapper locationMapper;
 
@@ -77,6 +72,14 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
 
 
 
+    }
+
+    /**
+     * Returns the factory that is responsible for creating the backend storage repository objects, that
+     * basically store the {@link org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage}
+     */
+    public RelatedProductStorageRepositoryFactory getStorageRepositoryFactory(Configuration applicationConfiguration) {
+        return new ElasticSearchRelatedProductStorageRepositoryFactory(applicationConfiguration);
     }
 
 
