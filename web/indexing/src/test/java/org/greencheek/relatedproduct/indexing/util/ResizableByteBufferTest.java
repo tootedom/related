@@ -130,6 +130,33 @@ public abstract class ResizableByteBufferTest {
 
 
     @Test
+    public void testCannotGrowOverMaxSizeWithSameMinMaxInitialisation() {
+        ResizableByteBuffer buffer = getResizeableByteBuffer(2,2);
+        buffer.append((byte)88);
+        buffer.append((byte)89);
+        try {
+            buffer.append((byte)90);
+            fail("should not be able to append more than the maximum");
+        } catch(BufferOverflowException e) {
+
+        }
+
+
+        ByteBuffer b =  buffer.toByteBuffer();
+        assertEquals(2,b.limit());
+
+        assertEquals(88,b.get());
+        assertEquals(89,b.get());
+
+        try {
+            b.get();
+            fail("should not be able to get another byte");
+        } catch(BufferUnderflowException e) {
+
+        }
+    }
+
+    @Test
     public void testCannotGrowOverMaxSizeWithByteArrayAppend() {
         ResizableByteBuffer buffer = getResizeableByteBuffer(1,2);
         buffer.append((byte)88);
@@ -194,6 +221,61 @@ public abstract class ResizableByteBufferTest {
         assertEquals(8,b.get());
         assertEquals(9,b.get());
         assertEquals(10,b.get());
+
+        try {
+            b.get();
+            fail("should not be able to get another byte");
+        } catch(BufferUnderflowException e) {
+
+        }
+    }
+
+    @Test
+    public void testCanResetBufferWithPartialByteArrayAppend() {
+        ResizableByteBuffer buffer = getResizeableByteBuffer(1,10);
+        buffer.append((byte)90);
+        buffer.append(new byte[]{91,92,93,94,95,96,97,98,99});
+
+
+
+        try {
+            buffer.append((byte)100);
+            fail("should not be able to add another byte");
+        } catch(BufferOverflowException e) {
+
+        }
+
+        buffer.reset();
+        buffer.append(new byte[]{1,2,3,4,5,6,7,8,9,10},0,5);
+        buffer.append(new byte[]{1,2,3,4,5,6,7,8,9,10},6,4);
+
+        try {
+            buffer.append((byte)6);
+        } catch(BufferOverflowException e) {
+            fail("should be able to add another byte");
+        }
+
+        try {
+            buffer.append((byte)11);
+            fail("should not be able to add another byte");
+
+        } catch(BufferOverflowException e) {
+        }
+
+        ByteBuffer b =  buffer.toByteBuffer();
+        assertEquals(10,b.limit());
+
+
+        assertEquals(1,b.get());
+        assertEquals(2,b.get());
+        assertEquals(3,b.get());
+        assertEquals(4,b.get());
+        assertEquals(5,b.get());
+        assertEquals(7,b.get());
+        assertEquals(8,b.get());
+        assertEquals(9,b.get());
+        assertEquals(10,b.get());
+        assertEquals(6,b.get());
 
         try {
             b.get();
