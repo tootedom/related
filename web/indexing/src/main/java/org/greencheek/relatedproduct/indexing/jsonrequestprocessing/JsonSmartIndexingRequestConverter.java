@@ -71,6 +71,11 @@ public class JsonSmartIndexingRequestConverter implements IndexingRequestConvert
             throw new InvalidIndexingRequestNoProductsFoundException("No parsable products in request.  Product list must be an array of related products");
         } else {
             Object[] relatedProducts = ((JSONArray)products).toArray();
+
+            if(relatedProducts.length==0) {
+                throw new InvalidIndexingRequestNoProductsFoundException("No products in request data");
+            }
+
             if(relatedProducts.length>maxNumberOfRelatedProducts) {
                 if(config.shouldDiscardIndexRequestWithTooManyRelations()) {
                     throw new InvalidIndexingRequestTooManyProductsFoundException("Too many related products in request.  Not Parsing.");

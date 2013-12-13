@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.indexing.jsonrequestprocessing;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
+import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestNoProductsFoundException;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -16,9 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Tests the conversion of a json indexing request into a RelatedProductIndexingMessage
@@ -158,11 +157,16 @@ public abstract class JsonIndexingRequestConverterTest {
                         "    \"date\" : \"2013-05-02T15:31:31\","+
                         "    \"products\" : [ ]"+
                         "}";
-        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
-        converter.translateTo(message,(short)10);
+        try {
+            IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
+            fail("A No Products Found Exception should be generated");
+//            converter.translateTo(message,(short)10);
+//            assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
+//            assertEquals("Message should have no related product",0,message.getRelatedProducts().getNumberOfRelatedProducts());
+        } catch(InvalidIndexingRequestNoProductsFoundException e) {
 
-        assertEquals("Message should be invalid, no related products",false,message.isValidMessage());
-        assertEquals("Message should have no related product",0,message.getRelatedProducts().getNumberOfRelatedProducts());
+        }
+
 
     }
 

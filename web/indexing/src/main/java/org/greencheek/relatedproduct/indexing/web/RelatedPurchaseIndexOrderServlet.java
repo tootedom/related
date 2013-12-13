@@ -161,6 +161,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
                 accumLength+=lengthRead;
                 if(accumLength>maxPostData) {
                     response.setStatus(413);
+                    response.setContentLength(0);
                     canProcess = false;
                     log.warn("Post data is larger than max allowed : {}",maxPostData);
                     break;
@@ -172,17 +173,20 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
             if(accumLength==0) {
                 response.setStatus(400);
+                response.setContentLength(0);
                 canProcess = false;
                 log.warn("No indexing content found in request");
             }
         } catch (BufferOverflowException e) {
             response.setStatus(413);
+            response.setContentLength(0);
             canProcess = false;
             log.warn("Post data is larger than max allowed : {}",maxPostData);
         } catch (IOException exception) {
+            response.setStatus(400);
+            response.setContentLength(0);
+            canProcess = false;
             log.warn("Error obtaining content from request to index");
-            ctx.complete();
-            return;
         } finally {
             try {
                 inputStream.close();

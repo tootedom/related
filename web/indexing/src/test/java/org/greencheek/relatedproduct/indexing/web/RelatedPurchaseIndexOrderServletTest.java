@@ -75,6 +75,12 @@ public class RelatedPurchaseIndexOrderServletTest {
             "   ]\n" +
             "}";
 
+    private final String POST_JSON_NO_PRODUCTS = "{\n" +
+            "   \"channel\":\"de\",\n" +
+            "   \"site\":\"amazon\",\n" +
+            "   \"products\":[]\n" +
+            "}";
+
     @Before
     public void setUp() {
 
@@ -124,6 +130,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.clearProperty("related-product.number.of.indexing.request.processors");
         System.clearProperty("related-product.min.related.product.post.data.size.in.bytes");
         System.clearProperty("related-product.max.related.product.post.data.size.in.bytes");
+        System.clearProperty("related-product.size.of.incoming.request.queue");
         try {
             shutdownTomcat();
         } catch (Exception e) {
@@ -425,6 +432,34 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     }
 
+    /**
+     * Test that if we the maximum post size, a 413 is sent
+     * back to the client
+     */
+    @Test
+    public void testInvalidContentWithNoProducts() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes","16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes","1024");
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        sendPostWithGivenBody(400,POST_JSON_NO_PRODUCTS.getBytes());
+
+    }
+
     @Test
     public void testBackPressureResultsIn503() {
         System.setProperty("related-product.index.batch.size","3");
@@ -606,6 +641,31 @@ public class RelatedPurchaseIndexOrderServletTest {
         }
         return null;
     }
+
+    /**
+     * Sends the indexing request and asserts that the given http status code
+     * was received.  However, no data is
+     * actually sent in the request.
+     *
+     * @return
+     */
+    private Response sendPostWithGivenBody(int statusExpected, byte[] body) {
+
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePost(indexingurl).setBody(body).execute().get();
+            assertEquals(statusExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
 
     protected int getTomcatPort() {
         return tomcat.getConnector().getLocalPort();
