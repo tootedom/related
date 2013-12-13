@@ -115,4 +115,10 @@ public interface Configuration {
     }
 
     public boolean useSharedSearchRepository();
+
+    /**
+     * Is it safe to output the indexing request data sent by the client
+     * @return
+     */
+    public boolean isSafeToOutputRequestData();
 }

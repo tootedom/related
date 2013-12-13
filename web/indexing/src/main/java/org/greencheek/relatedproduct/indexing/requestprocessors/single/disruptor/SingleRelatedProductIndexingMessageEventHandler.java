@@ -32,6 +32,8 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
     private final int[] count = new int[30];
     private static final int COUNTER_POS = 14;
 
+    private volatile boolean shutdown = false;
+
     public SingleRelatedProductIndexingMessageEventHandler(Configuration configuration,
                                                            RelatedProductIndexingMessageConverter converter,
                                                            RelatedProductStorageRepository repository,
@@ -90,10 +92,13 @@ public class SingleRelatedProductIndexingMessageEventHandler implements RelatedP
 
     @Override
     public void shutdown() {
-        try {
-            storageRepository.shutdown();
-        } catch(Exception e) {
-            log.warn("Unable to shutdown respository client");
+        if(!shutdown) {
+            shutdown = true;
+            try {
+                storageRepository.shutdown();
+            } catch(Exception e) {
+                log.warn("Unable to shutdown respository client");
+            }
         }
     }
 }

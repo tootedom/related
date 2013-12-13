@@ -24,9 +24,14 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
 
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
+    private final RingBuffer<RelatedProductIndexingMessage> ringBuffer;
 
     private final IndexingRequestConverterFactory requestConverter;
     private final RelatedProductIndexingMessageEventHandler eventHandler;
+
+    private volatile boolean canIndex = true;
+
+    private final boolean canOutputRequestData;
 
     public DisruptorBasedRelatedProductIndexRequestProcessor(Configuration configuration,
                                                              IndexingRequestConverterFactory requestConverter,
@@ -34,7 +39,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                                                              RelatedProductIndexingMessageEventHandler eventHandler
     ) {
 
-
+        this.canOutputRequestData = configuration.isSafeToOutputRequestData();
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
                 indexingMessageFactory,
@@ -42,32 +47,43 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                 ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
 
         this.eventHandler = eventHandler;
+        disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
-        disruptor.start();
+        ringBuffer = disruptor.start();
 
     }
 
     @Override
-    public void processRequest(Configuration config, ByteBuffer data) {
-        try {
-            disruptor.publishEvent(requestConverter.createConverter(config,data));
-        } catch(InvalidIndexingRequestException e) {
-            log.warn("Invalid json content, unable to process request.  Length of data:{}", data.remaining());
+    public IndexRequestPublishingStatus processRequest(Configuration config, ByteBuffer data) {
+        if(canIndex) {
+            try {
+                boolean published = ringBuffer.tryPublishEvent(requestConverter.createConverter(config,data));
+                return published ? IndexRequestPublishingStatus.PUBLISHED : IndexRequestPublishingStatus.NO_SPACE_AVALIABLE;
+            } catch(InvalidIndexingRequestException e) {
+                log.warn("Invalid json content, unable to process request: {}", e.getMessage());
 
-            if(log.isDebugEnabled()) {
-                if(data.hasArray())
-                    log.debug("Invalid content as byte array: {}", Arrays.toString(data.array()));
+                if(log.isDebugEnabled()) {
+                    if(canOutputRequestData && data.hasArray()) {
+                        log.debug("content requested to be indexed: {}", Arrays.toString(data.array()));
+                    }
+                }
+
+                return IndexRequestPublishingStatus.FAILED;
             }
+        } else {
+            log.error("The indexing processor has been shutdown, and cannot accept requests.");
+            return IndexRequestPublishingStatus.PUBLISHER_SHUTDOWN;
         }
     }
 
 
     @PreDestroy
     public void shutdown() {
+        canIndex = false;
 
         try {
             log.info("Attempting to shut down executor thread pool in index request processor");
-            executorService.shutdown();
+            executorService.shutdownNow();
         } catch (Exception e) {
             log.warn("Unable to shut down executor thread pool in index request processor",e);
         }
@@ -75,7 +91,6 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         log.info("Shutting down index request processor");
         try {
             log.info("Attempting to shut down disruptor in index request processor");
-            disruptor.halt();
             disruptor.shutdown();
         } catch (Exception e) {
             log.warn("Unable to shut down disruptor in index request processor",e);

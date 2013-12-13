@@ -17,8 +17,10 @@ import org.mockito.stubbing.Answer;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
@@ -86,7 +88,7 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
         try {
             verify(requestBytesConverter,times(1)).createConverter(any(Configuration.class),any(ByteBuffer.class));
             verify(singleIndexingEventHandler).onEvent(any(RelatedProductIndexingMessage.class),anyLong(),anyBoolean());
-            verifyZeroInteractions(roundRobinIndexingEventHandler);
+            verify(roundRobinIndexingEventHandler,times(1)).shutdown();
         } catch (Exception e){
             fail("No exception should have been throw");
         }
@@ -123,10 +125,10 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
             }
 
 
-            verify(requestBytesConverter,times(1)).createConverter(any(Configuration.class),any(ByteBuffer.class));
+            verify(requestBytesConverter,times(1)).createConverter(any(Configuration.class), any(ByteBuffer.class));
 
             assertEquals(1, singleIndexingEventHandler.getLatch().getCount());
-
+            assertTrue(singleIndexingEventHandler.isShutdown());
         } catch (Exception e){
             fail("No exception should have been throw");
         }
@@ -148,10 +150,15 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
 
     private class TestRelatedProductIndexingMessageEventHandler implements RelatedProductIndexingMessageEventHandler {
 
+        final AtomicBoolean shutdown = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
         @Override
         public void shutdown() {
+            shutdown.set(true);
+        }
 
+        public boolean isShutdown() {
+            return shutdown.get();
         }
 
         @Override

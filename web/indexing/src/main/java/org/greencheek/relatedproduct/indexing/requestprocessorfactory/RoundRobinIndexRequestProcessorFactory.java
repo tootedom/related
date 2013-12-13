@@ -8,6 +8,8 @@ import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcesso
 import org.greencheek.relatedproduct.indexing.requestprocessors.DisruptorBasedRelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * chooses between the backend processing that is done to turn the request data into a
@@ -28,7 +30,9 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  *
  * The choice between the two request processor is done based upon the value set for {@link org.greencheek.relatedproduct.util.config.Configuration#getNumberOfIndexingRequestProcessors()}
  */
-public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProcessorFactory{
+public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProcessorFactory {
+    private static final Logger log = LoggerFactory.getLogger(RoundRobinIndexRequestProcessorFactory.class);
+
 
     private final IndexingRequestConverterFactory requestBytesConverter;
     private final  EventFactory<RelatedProductIndexingMessage> indexingMessageFactory;
@@ -51,14 +55,40 @@ public class RoundRobinIndexRequestProcessorFactory implements IndexRequestProce
         int requestedNumberOfRequestProcessors = configuration.getNumberOfIndexingRequestProcessors();
 
         if(requestedNumberOfRequestProcessors>1) {
-            // needs to be passed in.
+            try {
+                // shutdown the redundant handler
+                singleIndexingEventHandler.shutdown();
+            } catch(Exception e) {
+
+            }
             return new DisruptorBasedRelatedProductIndexRequestProcessor(configuration,
                     requestBytesConverter,indexingMessageFactory,roundRobinIndexingEventHandler);
         }
         else {
+            try {
+                // shutdown the redundant handler
+                roundRobinIndexingEventHandler.shutdown();
+            } catch(Exception e) {
+
+            }
+
             return new DisruptorBasedRelatedProductIndexRequestProcessor(configuration,
                     requestBytesConverter,indexingMessageFactory,singleIndexingEventHandler);
+        }
+    }
 
+    @Override
+    public void shutdown() {
+        try {
+            roundRobinIndexingEventHandler.shutdown();
+        } catch(Exception e) {
+            log.error("Exception shutting down round robin event handler: {}", e.getMessage());
+        }
+
+        try {
+            singleIndexingEventHandler.shutdown();
+        } catch(Exception e) {
+            log.error("Exception shutting down single event handler: {}", e.getMessage());
         }
     }
 }

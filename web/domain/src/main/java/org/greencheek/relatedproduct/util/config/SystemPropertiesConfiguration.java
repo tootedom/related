@@ -56,7 +56,7 @@ import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
  */
 public class SystemPropertiesConfiguration implements Configuration {
 
-
+    private final boolean SAFE_TO_OUTPUT_REQUEST_DATA = Boolean.valueOf(System.getProperty("related-product.safe.to.output.index.request.data","false"));
 
     private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
 
@@ -460,5 +460,10 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public boolean useSharedSearchRepository() {
         return USE_SHARED_SEARCH_REPOSITORY;
+    }
+
+    @Override
+    public boolean isSafeToOutputRequestData() {
+        return SAFE_TO_OUTPUT_REQUEST_DATA;
     }
 }

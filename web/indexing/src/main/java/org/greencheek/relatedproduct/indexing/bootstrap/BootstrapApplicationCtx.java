@@ -96,7 +96,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
 
 
     @Override
-    public synchronized RelatedProductIndexRequestProcessor getIndexRequestProcessor() {
+    public synchronized IndexRequestProcessorFactory getIndexRequestProcessorFactory() {
         if(indexingRequestProcessingFactory==null) {
             RelatedProductStorageLocationMapper locationMapper = createIndexNameLocationMapper(applicationConfiguration);
             RelatedProductStorageRepositoryFactory repoFactory = getStorageRepositoryFactory(applicationConfiguration);
@@ -113,7 +113,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
                     createIndexingMessageFactory(),roundRobinMessageStorage,singleMessageStorage);
         }
 
-        return indexingRequestProcessingFactory.createProcessor(getConfiguration());
+        return indexingRequestProcessingFactory;
     }
 
     @Override

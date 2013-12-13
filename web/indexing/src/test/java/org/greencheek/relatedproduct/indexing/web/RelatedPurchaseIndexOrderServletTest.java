@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -154,7 +155,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.number.of.indexing.request.processors", "1");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -171,7 +172,9 @@ public class RelatedPurchaseIndexOrderServletTest {
         Response response1 = sendPost();
 
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (Exception e) {
             fail("Storage Repository not called in required time");
         }
@@ -200,7 +203,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.number.of.indexing.request.processors","2");
 
         final CountDownLatch latch = new CountDownLatch(15);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -219,7 +222,8 @@ public class RelatedPurchaseIndexOrderServletTest {
         response = sendPost();
 
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
         } catch (Exception e) {
             fail("Storage Repository not called in required time");
         }
@@ -247,7 +251,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.max.related.product.post.data.size.in.bytes", "1024");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -264,7 +268,9 @@ public class RelatedPurchaseIndexOrderServletTest {
         Response response1 = sendPost();
 
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (Exception e) {
             fail("Storage Repository not called in required time");
         }
@@ -296,7 +302,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.max.related.product.post.data.size.in.bytes","1024");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -311,7 +317,9 @@ public class RelatedPurchaseIndexOrderServletTest {
         Response response1 = sendPostChunked();
 
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (Exception e) {
             fail("Storage Repository not called in required time");
         }
@@ -343,7 +351,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -371,7 +379,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -401,7 +409,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
 
         final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -417,16 +425,72 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     }
 
+    @Test
+    public void testBackPressureResultsIn503() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.size.of.incoming.request.queue","2");
+
+        final CountDownLatch latch = new CountDownLatch(6);
+        TestBootstrapApplicationCtx bootstrap = getSlowTestBootStrap(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        Response response = sendPost(202);
+        response = sendPost(202);
+        response = sendPost(503);
+        response = sendPost(503);
+        response = sendPost(503);
+
+
+        try {
+            boolean countedDown = latch.await(6000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+
+        int i = 0;
+        int reposCalled = 0;
+
+        for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>0) reposCalled++;
+
+        }
+
+        assertEquals(6,i);
+        assertEquals(1,reposCalled);
+    }
+
 
     /**
      * sends the indexing request and asserts that a http 202 was received.
      * @return
      */
     private Response sendPost() {
+        return sendPost(202);
+    }
+
+
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * @return
+     */
+    private Response sendPost(int statusCodeExpected) {
         Response response=null;
         try {
             response = asyncHttpClient.preparePost(indexingurl).setBody(POST_JSON).execute().get();
-            assertEquals(202, response.getStatusCode());
+            assertEquals(statusCodeExpected, response.getStatusCode());
             return response;
         } catch (IOException e ) {
             fail(e.getMessage());
@@ -549,17 +613,23 @@ public class RelatedPurchaseIndexOrderServletTest {
 
 
 
+    public TestBootstrapApplicationCtx getTestBootStrap(CountDownLatch latch) {
+        return new TestBootstrapApplicationCtx(new TestRelatedProductStorageRepositoryFactory(latch));
+    }
+
+    public TestBootstrapApplicationCtx getSlowTestBootStrap(CountDownLatch latch) {
+        return new TestBootstrapApplicationCtx(new SlowTestRelatedProductStorageRepositoryFactory(latch));
+    }
+
     public class TestBootstrapApplicationCtx extends BootstrapApplicationCtx {
 
-        private final CountDownLatch latch;
         private volatile TestRelatedProductStorageRepositoryFactory repository;
 
-        public TestBootstrapApplicationCtx(CountDownLatch latch) {
-            this.latch = latch;
+        public TestBootstrapApplicationCtx(TestRelatedProductStorageRepositoryFactory repositoryFactory) {
+            this.repository = repositoryFactory;
         }
 
         public RelatedProductStorageRepositoryFactory getStorageRepositoryFactory(Configuration applicationConfiguration) {
-            repository = new TestRelatedProductStorageRepositoryFactory(latch);
             return repository;
         }
 
@@ -575,7 +645,7 @@ public class RelatedPurchaseIndexOrderServletTest {
     public class TestRelatedProductStorageRepositoryFactory implements RelatedProductStorageRepositoryFactory {
         List<TestRelatedProductStorageRepository> repos = new CopyOnWriteArrayList<>();
 
-        private final CountDownLatch latch;
+        final CountDownLatch latch;
 
         public TestRelatedProductStorageRepositoryFactory(CountDownLatch latch) {
             this.latch = latch;
@@ -583,9 +653,13 @@ public class RelatedPurchaseIndexOrderServletTest {
 
         @Override
         public RelatedProductStorageRepository getRepository(Configuration configuration) {
-            TestRelatedProductStorageRepository repo = new TestRelatedProductStorageRepository(latch);
+            TestRelatedProductStorageRepository repo = createRepo();
             repos.add(repo);
             return repo;
+        }
+
+        public TestRelatedProductStorageRepository createRepo() {
+            return new TestRelatedProductStorageRepository(latch);
         }
 
         public List<TestRelatedProductStorageRepository> getRepos() {
@@ -597,7 +671,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         AtomicInteger productsRequestedToBeStored = new AtomicInteger(0);
         AtomicBoolean shutdown = new AtomicBoolean(false);
 
-        private final CountDownLatch latch;
+        final CountDownLatch latch;
 
         public TestRelatedProductStorageRepository(CountDownLatch latch)
         {
@@ -622,6 +696,48 @@ public class RelatedPurchaseIndexOrderServletTest {
         public boolean isShutdown() {
             return shutdown.get();
         }
+    }
+
+    public class SlowTestRelatedProductStorageRepositoryFactory extends TestRelatedProductStorageRepositoryFactory {
+
+        public SlowTestRelatedProductStorageRepositoryFactory(CountDownLatch latch) {
+            super(latch);
+        }
+
+        public TestRelatedProductStorageRepository createRepo() {
+            return new SlowTestRelatedProductStorageRepository(latch);
+        }
+    }
+
+    public class SlowTestRelatedProductStorageRepository extends TestRelatedProductStorageRepository {
+        AtomicInteger productsRequestedToBeStored = new AtomicInteger(0);
+        AtomicBoolean shutdown = new AtomicBoolean(false);
+        private final long sleepTime;
+
+        public SlowTestRelatedProductStorageRepository(CountDownLatch latch)
+        {
+            super(latch);
+            long sleepTime;
+            try {
+                sleepTime = Long.parseLong(System.getProperty("test.slow.repo.sleepTime","3000"));
+            } catch(NumberFormatException e) {
+                sleepTime = 2000;
+            }
+            this.sleepTime = sleepTime;
+        }
+
+        @Override
+        public void store(RelatedProductStorageLocationMapper indexToMapper, List<RelatedProduct> relatedProducts) {
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                System.err.println("sleep interuptted");
+                System.err.flush();
+            }
+            super.store(indexToMapper,relatedProducts);
+        }
+
+
     }
 
 }

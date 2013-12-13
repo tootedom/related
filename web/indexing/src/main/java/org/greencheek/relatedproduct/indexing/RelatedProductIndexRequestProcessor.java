@@ -9,6 +9,6 @@ import java.nio.ByteBuffer;
  */
 public interface RelatedProductIndexRequestProcessor {
 
-    public void processRequest(Configuration config, ByteBuffer indexRequestMessage);
+    public IndexRequestPublishingStatus processRequest(Configuration config, ByteBuffer indexRequestMessage);
     public void shutdown();
 }

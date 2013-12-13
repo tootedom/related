@@ -39,6 +39,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
     private final int[] nextDisruptor = new int[30];
     private static final int COUNTER_POS = 14;
 
+    private volatile boolean shutdown = false;
 
     public RoundRobinRelatedProductIndexingMessageEventHandler(final Configuration configuration,
                                                                RelatedProductIndexingMessageConverter converter,
@@ -112,27 +113,31 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
 
 
     public void shutdown() {
-        for(ExecutorService executorService : executors) {
-            try {
-                executorService.shutdownNow();
-            } catch(Exception e) {
-                log.error("Problem during shutdown terminating the executorservice",e);
+        if(!shutdown) {
+            shutdown=true;
+            for(RelatedProductReferenceEventHandler handler : handlers) {
+                try {
+                    handler.shutdown();
+                } catch(Exception e) {
+                    log.error("Issue terminating handler",e);
+                }
             }
-        }
 
-        for(Disruptor disruptor : disruptors) {
-            try {
-                disruptor.shutdown();
-            } catch(Exception e) {
-                log.error("Problem during shutdown of the disruptor",e);
+            for(ExecutorService executorService : executors) {
+                try {
+                    executorService.shutdownNow();
+                } catch(Exception e) {
+                    log.error("Problem during shutdown terminating the executorservice",e);
+                }
             }
-        }
 
-        for(RelatedProductReferenceEventHandler handler : handlers) {
-            try {
-                handler.shutdown();
-            } catch(Exception e) {
-                log.error("Issue terminating handler",e);
+
+            for(Disruptor disruptor : disruptors) {
+                try {
+                    disruptor.shutdown();
+                } catch(Exception e) {
+                    log.error("Problem during shutdown of the disruptor",e);
+                }
             }
         }
     }

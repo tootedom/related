@@ -1,8 +1,10 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 
+import org.greencheek.relatedproduct.indexing.IndexRequestPublishingStatus;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
 import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.util.ResizableByteBuffer;
 import org.greencheek.relatedproduct.indexing.util.ResizableByteBufferNoBoundsChecking;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -27,6 +29,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     private static final String CONTENT_LENGTH_HEADER = "Content-Length";
 
+    private IndexRequestProcessorFactory indexerFactory;
     private RelatedProductIndexRequestProcessor indexer;
 
     private Configuration configuration;
@@ -41,12 +44,14 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         applicationCtx = (ApplicationCtx)servletConfig.getServletContext().getAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME);
 
         configuration = applicationCtx.getConfiguration();
-        indexer = applicationCtx.getIndexRequestProcessor();
+        indexerFactory = applicationCtx.getIndexRequestProcessorFactory();
+        indexer = indexerFactory.createProcessor(configuration);
     }
 
     public void destroy() {
-        super.destroy();
         indexer.shutdown();
+        indexerFactory.shutdown();
+        super.destroy();
     }
 
 
@@ -114,7 +119,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         if(length==-1) {
             response.setStatus(413);
             response.setContentLength(0);
-            log.warn("Indexing Request is larger ({}) than max allowed post data: {}",len,maxPostData);
+            log.warn("Indexing Request is larger ({}) than max allowed post data: {}", len, maxPostData);
             ctx.complete();
             return;
         } else if(length == 0) {
@@ -169,13 +174,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
                 response.setStatus(400);
                 canProcess = false;
                 log.warn("No indexing content found in request");
-            } else {
-                if(canProcess) {
-                    response.setStatus(202);
-                    response.setContentLength(0);
-                }
             }
-
         } catch (BufferOverflowException e) {
             response.setStatus(413);
             canProcess = false;
@@ -194,8 +193,24 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
         try {
             if(canProcess) {
-                if(content.size()>0);
-                    indexer.processRequest(configuration,content.toByteBuffer());
+                IndexRequestPublishingStatus status = indexer.processRequest(configuration,content.toByteBuffer());
+
+                switch(status) {
+                    case FAILED:
+                        response.setStatus(400);
+                        response.setContentLength(0);
+                        break;
+                    case NO_SPACE_AVALIABLE:
+                    case PUBLISHER_SHUTDOWN:
+                        response.setStatus(503);
+                        response.setContentLength(0);
+                        break;
+                    default:
+                        response.setStatus(202);
+                        response.setContentLength(0);
+                        break;
+
+                }
             }
         } finally {
             ctx.complete();
