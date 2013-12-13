@@ -1,7 +1,9 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.ByteArrayPart;
 import com.ning.http.client.Response;
+import com.ning.http.client.generators.InputStreamBodyGenerator;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
@@ -23,11 +25,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,6 +54,25 @@ public class RelatedPurchaseIndexOrderServletTest {
     private Tomcat tomcat;
     private AsyncHttpClient asyncHttpClient;
     private String indexingurl;
+
+    private final String POST_JSON = "{\n" +
+            "   \"channel\":\"de\",\n" +
+            "   \"site\":\"amazon\",\n" +
+            "   \"products\":[\n" +
+            "      {\n" +
+            "         \"id\":\"1\",\n" +
+            "         \"type\":\"map\"\n" +
+            "      },\n" +
+            "      {\n" +
+            "         \"id\":\"2\",\n" +
+            "         \"type\":\"compass\"\n" +
+            "      },\n" +
+            "      {\n" +
+            "         \"id\":\"3\",\n" +
+            "         \"type\":\"torch\"\n" +
+            "      }\n" +
+            "   ]\n" +
+            "}";
 
     @Before
     public void setUp() {
@@ -97,7 +121,15 @@ public class RelatedPurchaseIndexOrderServletTest {
     public final void teardown() throws Throwable {
         System.clearProperty("related-product.index.batch.size");
         System.clearProperty("related-product.number.of.indexing.request.processors");
-        shutdownTomcat();
+        System.clearProperty("related-product.min.related.product.post.data.size.in.bytes");
+        System.clearProperty("related-product.max.related.product.post.data.size.in.bytes");
+        try {
+            shutdownTomcat();
+        } catch (Exception e) {
+
+        }
+
+        asyncHttpClient.close();
 
     }
 
@@ -112,12 +144,16 @@ public class RelatedPurchaseIndexOrderServletTest {
         tomcat.getServer().await();
     }
 
+    /**
+     * Test that indexing requests are sent to a single storage repository
+     * i.e. traverses the ring buffer to the storage repo
+     */
     @Test
     public void testIndexingSingleItemWithSingleRequestProcessor() {
         System.setProperty("related-product.index.batch.size","3");
-        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.number.of.indexing.request.processors", "1");
 
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
         try {
             startTomcat(bootstrap);
@@ -143,19 +179,74 @@ public class RelatedPurchaseIndexOrderServletTest {
 
 
         int i = 0;
+        int reposCalled = 0;
         for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
             i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>1) reposCalled++;
         }
 
         assertEquals(3,i);
+        assertEquals(1,reposCalled);
     }
 
+
+    /**
+     * Test that indexing requests are round robin to both the storage repositories
+     * i.e. traverses the ring buffers to the storage repo
+     */
     @Test
     public void testIndexingSingleItemWithMultipleRequestProcessor() {
         System.setProperty("related-product.index.batch.size","3");
         System.setProperty("related-product.number.of.indexing.request.processors","2");
 
-        final CountDownLatch latch = new CountDownLatch(5);
+        final CountDownLatch latch = new CountDownLatch(15);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        Response response = sendPost();
+        response = sendPost();
+        response = sendPost();
+        response = sendPost();
+        response = sendPost();
+
+        try {
+            latch.await(5000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+        int i = 0;
+        int reposCalled = 0;
+        for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>0) reposCalled++;
+        }
+
+        assertEquals(15,i);
+        assertEquals(2,reposCalled);
+    }
+
+    /**
+     * Test that we can exceed the minimum post size
+     *
+     */
+    @Test
+    public void testIndexingLargePostDataGreaterThanMinimum() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes", "16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes", "1024");
+
+        final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
         try {
             startTomcat(bootstrap);
@@ -170,11 +261,7 @@ public class RelatedPurchaseIndexOrderServletTest {
 
 
 
-        Response response = sendPost();
-        response = sendPost();
-        response = sendPost();
-        response = sendPost();
-        response = sendPost();
+        Response response1 = sendPost();
 
         try {
             latch.await(5000, TimeUnit.MILLISECONDS);
@@ -185,45 +272,275 @@ public class RelatedPurchaseIndexOrderServletTest {
 
 
         int i = 0;
+        int reposCalled = 0;
+
         for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
             i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>0) reposCalled++;
+
         }
 
-        assertEquals(15,i);
+        assertEquals(3,i);
+        assertEquals(1,reposCalled);
     }
 
-    private Response sendPost() {
+    /**
+     * Test that we can exceed the minimum post size
+     *
+     */
+    @Test
+    public void testChunkedEncoding() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes","16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes","1024");
 
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        Response response1 = sendPostChunked();
+
+        try {
+            latch.await(5000, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+
+
+        int i = 0;
+        int reposCalled = 0;
+
+        for(TestRelatedProductStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>0) reposCalled++;
+
+        }
+
+        assertEquals(3,i);
+        assertEquals(1,reposCalled);
+    }
+
+    /**
+     * Test that if we the maximum post size, a 413 is sent
+     * back to the client
+     */
+    @Test
+    public void testChunkedEncodingWithLargerThanMaxPostSize() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes","16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        Response response1 = sendPostChunked(413);
+
+    }
+
+    /**
+     * Test that if we the maximum post size, a 413 is sent
+     * back to the client
+     */
+    @Test
+    public void testEmptyPostDataResultsInA400() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes","16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        Response response1 = sendPostNoData(400);
+
+        response1 = sendPostNoDataChunked(400);
+    }
+
+
+    /**
+     * Test that if we the maximum post size, a 413 is sent
+     * back to the client
+     */
+    @Test
+    public void testInvalidContentLengthHeader() {
+        System.setProperty("related-product.index.batch.size","3");
+        System.setProperty("related-product.number.of.indexing.request.processors","1");
+        System.setProperty("related-product.min.related.product.post.data.size.in.bytes","16");
+        System.setProperty("related-product.max.related.product.post.data.size.in.bytes","32");
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = new TestBootstrapApplicationCtx(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        sendPostWithLargeContentLength(413);
+
+    }
+
+
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * @return
+     */
+    private Response sendPost() {
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePost(indexingurl).setBody(POST_JSON).execute().get();
+            assertEquals(202, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * This sends the post data chunked
+     * @return
+     */
+    private Response sendPostChunked() {
+        return sendPostChunked(202);
+    }
+
+
+    /**
+     * sends the indexing request and asserts that the given http status code
+     * was received.  The post request is sent using chunked encoding.
+     * @return
+     */
+    private Response sendPostChunked(int statusExpected) {
 
         Response response=null;
         try {
-            response = asyncHttpClient.preparePost(indexingurl).setBody(
-                    "{\n" +
-                            "   \"channel\":\"de\",\n" +
-                            "   \"site\":\"amazon\",\n" +
-                            "   \"products\":[\n" +
-                            "      {\n" +
-                            "         \"id\":\"1\",\n" +
-                            "         \"type\":\"map\"\n" +
-                            "      },\n" +
-                            "      {\n" +
-                            "         \"id\":\"2\",\n" +
-                            "         \"type\":\"compass\"\n" +
-                            "      },\n" +
-                            "      {\n" +
-                            "         \"id\":\"3\",\n" +
-                            "         \"type\":\"torch\"\n" +
-                            "      }\n" +
-                            "   ]\n" +
-                            "}        "
-            ).execute().get();
-
-            assertEquals(202, response.getStatusCode());
-        } catch (Exception e ) {
-            fail(e.getMessage());
-        } finally {
+            response = asyncHttpClient.preparePost(indexingurl).setBody(new
+                    InputStreamBodyGenerator(new ByteArrayInputStream(POST_JSON.getBytes()))).setContentLength(-1).execute().get();
+            assertEquals(statusExpected, response.getStatusCode());
             return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
         }
+        return null;
+    }
+
+    /**
+     * Sends the indexing request and asserts that the given http status code
+     * was received.  However, no data is
+     * actually sent in the request.
+     *
+     * @return
+     */
+    private Response sendPostNoData(int statusExpected) {
+
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePost(indexingurl).setBody(new byte[0]).setContentLength(0).execute().get();
+            assertEquals(statusExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Sends the indexing request and asserts that the given http status code
+     * was received.  However, no data is
+     * actually sent in the request.
+     *
+     * @return
+     */
+    private Response sendPostNoDataChunked(int statusExpected) {
+
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePost(indexingurl).setBody(new InputStreamBodyGenerator(new ByteArrayInputStream(new byte[0]))).execute().get();
+            assertEquals(statusExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Sends the indexing request and asserts that the given http status code
+     * was received.  However, no data is
+     * actually sent in the request.
+     *
+     * @return
+     */
+    private Response sendPostWithLargeContentLength(int statusExpected) {
+
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePost(indexingurl).setHeader("Content-Length","" + Long.MAX_VALUE).execute().get();
+            assertEquals(statusExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
     }
 
     protected int getTomcatPort() {
@@ -290,7 +607,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         @Override
         public void store(RelatedProductStorageLocationMapper indexToMapper, List<RelatedProduct> relatedProducts) {
             productsRequestedToBeStored.addAndGet(relatedProducts.size());
-            latch.countDown();
+            for(int i=0;i<relatedProducts.size();i++) latch.countDown();
         }
 
         @Override

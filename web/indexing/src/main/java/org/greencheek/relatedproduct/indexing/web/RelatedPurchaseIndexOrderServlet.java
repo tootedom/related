@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.BufferOverflowException;
 
 /**
  *
@@ -92,6 +93,9 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
                 if(size>maxPostDataSize) return -1;
                 else return size;
             } catch(NumberFormatException e) {
+                // should never occur.  invalid content length i.e. abc, is usually
+                // caught by the container.  However, a user could specify a Content-Length with
+                // a value larger than an int max size
                 return -1;
             }
         } else {
@@ -104,16 +108,17 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         int maxPostData = configuration.getMaxRelatedProductPostDataSizeInBytes();
         HttpServletRequest request = (HttpServletRequest)ctx.getRequest();
         HttpServletResponse response = (HttpServletResponse)ctx.getResponse();
-        int length = parseContentLength(maxPostData,request.getHeader(CONTENT_LENGTH_HEADER));
+        String len = request.getHeader(CONTENT_LENGTH_HEADER);
+        int length = parseContentLength(maxPostData,len);
 
         if(length==-1) {
             response.setStatus(413);
             response.setContentLength(0);
-            log.warn("Post data is larger than max allowed : {}",maxPostData);
+            log.warn("Indexing Request is larger ({}) than max allowed post data: {}",len,maxPostData);
             ctx.complete();
             return;
         } else if(length == 0) {
-            response.setStatus(413);
+            response.setStatus(400);
             response.setContentLength(0);
             log.warn("No post data.");
             ctx.complete();
@@ -136,33 +141,45 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
         try {
             inputStream = request.getInputStream();
         } catch (IOException exception) {
-            response.setStatus(413);
+            response.setStatus(400);
             response.setContentLength(0);
             log.warn("Error obtaining content from request to index");
             ctx.complete();
             return;
         }
 
-        int lengthRead = 0;
         int accumLength = 0;
         boolean canProcess = true;
         try {
+            int lengthRead = 0;
             while ((lengthRead = inputStream.read(buffer)) != -1) {
-                content.append(buffer, 0, lengthRead);
                 accumLength+=lengthRead;
                 if(accumLength>maxPostData) {
                     response.setStatus(413);
                     canProcess = false;
                     log.warn("Post data is larger than max allowed : {}",maxPostData);
                     break;
+                }
 
+                content.append(buffer, 0, lengthRead);
+
+            }
+
+            if(accumLength==0) {
+                response.setStatus(400);
+                canProcess = false;
+                log.warn("No indexing content found in request");
+            } else {
+                if(canProcess) {
+                    response.setStatus(202);
+                    response.setContentLength(0);
                 }
             }
-            if(canProcess) {
-                response.setStatus(202);
-                response.setContentLength(0);
-            }
 
+        } catch (BufferOverflowException e) {
+            response.setStatus(413);
+            canProcess = false;
+            log.warn("Post data is larger than max allowed : {}",maxPostData);
         } catch (IOException exception) {
             log.warn("Error obtaining content from request to index");
             ctx.complete();
