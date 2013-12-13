@@ -83,21 +83,19 @@ public class BasicRelatedProductIndexingMessageConverter implements RelatedProdu
      */
     public static RelatedProductInfo[][] relatedIds(RelatedProductInfo[] ids, int length) {
         int len = length;
-        int lenMinOne = len-1;
         RelatedProductInfo[][] idSets = new RelatedProductInfo[len][len];
+        for(int j = 0;j<len;j++) {
+            idSets[0][j] = ids[j];
+        }
 
-        int missingElem = lenMinOne;
-        for(int i=0;i<len;i++) {
-            int start = i;
-            for(int j = 0;j<lenMinOne;j++) {
-                int elem = start++;
-                if(elem>lenMinOne) {
-                    elem-=len;
-                }
-                idSets[i][j] = ids[elem];
+        for(int i=1;i<len;i++) {
+            int k=0;
+            for(int j=i;j<len;j++) {
+                idSets[i][k++] = ids[j];
             }
-            idSets[i][lenMinOne] = ids[missingElem];
-            missingElem = i;
+            for(int j=0;j<i;j++) {
+                idSets[i][k++] = ids[j];
+            }
         }
 
         return idSets;
