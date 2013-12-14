@@ -9,6 +9,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessage
 import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.domain.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
+import org.greencheek.relatedproduct.indexing.util.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
         }
         int i = numberOfIndexingRequestProcessors;
         while(i--!=0) {
-            ExecutorService executorService = newSingleThreadExecutor();
+            ExecutorService executorService = getExecutorService();
             executors[i]  = executorService;
             Disruptor<RelatedProductReference> disruptor = new Disruptor<RelatedProductReference>(
                     messageFactory,
@@ -81,6 +82,11 @@ public class RoundRobinRelatedProductIndexingMessageEventHandler implements Rela
         batchSize = configuration.getIndexBatchSize();
 
         batchMessages= new ArrayList<RelatedProduct>(batchSize + configuration.getMaxNumberOfRelatedProductsPerPurchase());
+    }
+
+
+    private ExecutorService getExecutorService() {
+        return newSingleThreadExecutor(new DefaultNameableThreadFactory("IndexingMessageEventHandler"));
     }
 
     @Override

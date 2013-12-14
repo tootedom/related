@@ -10,8 +10,8 @@ import org.greencheek.relatedproduct.indexing.jsonrequestprocessing.JsonSmartInd
 import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.locationmappers.HourBasedStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.locationmappers.MinuteBasedStorageLocationMapper;
+import org.greencheek.relatedproduct.indexing.requestprocessorfactory.DisruptorIndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
-import org.greencheek.relatedproduct.indexing.requestprocessorfactory.RoundRobinIndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.BatchingRelatedProductReferenceEventHanderFactory;
 import org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor.RelatedProductReferenceEventHandlerFactory;
@@ -93,8 +93,25 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
         return new ElasticSearchRelatedProductStorageRepositoryFactory(applicationConfiguration);
     }
 
-
-
+   /**
+    * chooses between the backend processing that is done to turn the request data into a
+    * {@link org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage}
+    * that is stored in the backend.
+    *
+    * The processing is in either one of two ways:
+    *
+    * <pre>
+    * 1)  ---->  Request --->  Ring buffer (to IndexingMessage)  --->  Storage repository
+    *
+    * OR
+    *
+    * 2)  ---->  Request --->  Ring buffer (to IndexingMessage)  --->  Ring Buffer (Reference) ---> Storage Repo
+    *                                                            --->  Ring Buffer (Reference) ---> Storage Repo
+    *                                                            --->  Ring Buffer (Reference) ---> Storage Repo
+    * </pre>
+    *
+    * The choice between the two request processor is done based upon the value set for {@link org.greencheek.relatedproduct.util.config.Configuration#getNumberOfIndexingRequestProcessors()}
+    */
     @Override
     public synchronized IndexRequestProcessorFactory getIndexRequestProcessorFactory() {
         if(indexingRequestProcessingFactory==null) {
@@ -103,14 +120,18 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
             RelatedProductReferenceEventHandlerFactory factory = createRelatedProductReferenceFactory(applicationConfiguration,locationMapper,repoFactory);
             RelatedProductIndexingMessageConverter indexingMessageToRelatedProductsConverter = createIndexingMessageToRelatedProduct(applicationConfiguration);
 
-            RelatedProductIndexingMessageEventHandler roundRobinMessageStorage = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
+            RelatedProductIndexingMessageEventHandler eventHandler = null;
+
+            if(applicationConfiguration.getNumberOfIndexingRequestProcessors()>1) {
+                eventHandler = new RoundRobinRelatedProductIndexingMessageEventHandler(applicationConfiguration,
                     indexingMessageToRelatedProductsConverter,createRelatedProductReferenceFactory(),factory);
-
-            RelatedProductIndexingMessageEventHandler singleMessageStorage = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration,
+            } else {
+                eventHandler = new SingleRelatedProductIndexingMessageEventHandler(applicationConfiguration,
                     indexingMessageToRelatedProductsConverter,repoFactory.getRepository(applicationConfiguration),locationMapper);
+            }
 
-            this.indexingRequestProcessingFactory = new RoundRobinIndexRequestProcessorFactory(createBytesToIndexingMessageConverterFactory(),
-                    createIndexingMessageFactory(),roundRobinMessageStorage,singleMessageStorage);
+            this.indexingRequestProcessingFactory = new DisruptorIndexRequestProcessorFactory(createBytesToIndexingMessageConverterFactory(),
+                    createIndexingMessageFactory(),eventHandler);
         }
 
         return indexingRequestProcessingFactory;

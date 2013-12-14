@@ -6,6 +6,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
+import org.greencheek.relatedproduct.indexing.util.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.*;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
@@ -22,7 +23,7 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 public class DisruptorBasedRelatedProductIndexRequestProcessor implements RelatedProductIndexRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductIndexRequestProcessor.class);
 
-    private final ExecutorService executorService = newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final Disruptor<RelatedProductIndexingMessage> disruptor;
     private final RingBuffer<RelatedProductIndexingMessage> ringBuffer;
 
@@ -38,7 +39,7 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
                                                              EventFactory<RelatedProductIndexingMessage> indexingMessageFactory,
                                                              RelatedProductIndexingMessageEventHandler eventHandler
     ) {
-
+        this.executorService = getExecutorService();
         this.canOutputRequestData = configuration.isSafeToOutputRequestData();
         this.requestConverter = requestConverter;
         disruptor = new Disruptor<RelatedProductIndexingMessage>(
@@ -51,6 +52,10 @@ public class DisruptorBasedRelatedProductIndexRequestProcessor implements Relate
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         ringBuffer = disruptor.start();
 
+    }
+
+    private ExecutorService getExecutorService() {
+        return newSingleThreadExecutor(new DefaultNameableThreadFactory("IndexRequestProcessor"));
     }
 
     @Override

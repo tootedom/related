@@ -45,58 +45,7 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
     }
 
     @Test
-    public void testSingleRequestProcessorIsCreated() {
-        System.setProperty("related-product.number.of.indexing.request.processors","1");
-        Configuration configuration = new SystemPropertiesConfiguration();
-
-        IndexingRequestConverterFactory requestBytesConverter = mock(IndexingRequestConverterFactory.class);
-        when(requestBytesConverter.createConverter(any(Configuration.class),any(ByteBuffer.class))).thenReturn(new TestIndexingRequestConverter());
-
-        RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(configuration);
-        RelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler = mock(RelatedProductIndexingMessageEventHandler.class);
-        RelatedProductIndexingMessageEventHandler singleIndexingEventHandler = mock(RelatedProductIndexingMessageEventHandler.class);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        try {
-            doAnswer(new Answer<Object>() {
-                    @Override
-                    public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                        latch.countDown();
-                        return null;
-                    }
-                }).when(singleIndexingEventHandler).onEvent(any(RelatedProductIndexingMessage.class),anyLong(),anyBoolean());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        RoundRobinIndexRequestProcessorFactory factory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,
-                indexingMessageFactory,roundRobinIndexingEventHandler,singleIndexingEventHandler);
-
-        RelatedProductIndexRequestProcessor processor = factory.createProcessor(configuration);
-
-
-        processor.processRequest(configuration, ByteBuffer.wrap(new byte[0]));
-
-        try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            fail("Message failed to be propogated around the Ring buffer.");
-            e.printStackTrace();
-        }
-
-        try {
-            verify(requestBytesConverter,times(1)).createConverter(any(Configuration.class),any(ByteBuffer.class));
-            verify(singleIndexingEventHandler).onEvent(any(RelatedProductIndexingMessage.class),anyLong(),anyBoolean());
-            verify(roundRobinIndexingEventHandler,times(1)).shutdown();
-        } catch (Exception e){
-            fail("No exception should have been throw");
-        }
-
-    }
-
-    @Test
-    public void testRoundRobinRequestProcessorIsCreated() {
+    public void testRequestProcessorIsCalled() {
         System.setProperty("related-product.number.of.indexing.request.processors","2");
         Configuration configuration = new SystemPropertiesConfiguration();
 
@@ -104,13 +53,12 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
         when(requestBytesConverter.createConverter(any(Configuration.class),any(ByteBuffer.class))).thenReturn(new TestIndexingRequestConverter());
 
         RelatedProductIndexingMessageFactory indexingMessageFactory = new RelatedProductIndexingMessageFactory(configuration);
-        TestRelatedProductIndexingMessageEventHandler roundRobinIndexingEventHandler = new TestRelatedProductIndexingMessageEventHandler();
-        TestRelatedProductIndexingMessageEventHandler singleIndexingEventHandler = new TestRelatedProductIndexingMessageEventHandler();
+        TestRelatedProductIndexingMessageEventHandler indexingEventHandler = new TestRelatedProductIndexingMessageEventHandler();
 
 
 
-        RoundRobinIndexRequestProcessorFactory factory = new RoundRobinIndexRequestProcessorFactory(requestBytesConverter,
-                indexingMessageFactory,roundRobinIndexingEventHandler,singleIndexingEventHandler);
+        DisruptorIndexRequestProcessorFactory factory = new DisruptorIndexRequestProcessorFactory(requestBytesConverter,
+                indexingMessageFactory,indexingEventHandler);
 
         RelatedProductIndexRequestProcessor processor = factory.createProcessor(configuration);
 
@@ -119,7 +67,7 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
 
         try {
             try {
-                roundRobinIndexingEventHandler.getLatch().await(5000,TimeUnit.MILLISECONDS);
+                indexingEventHandler.getLatch().await(5000,TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 fail("Message failed to be propogated around the Ring buffer, to the round robin indexing handler");
             }
@@ -127,8 +75,7 @@ public class RoundRobinIndexRequestProcessorFactoryTest {
 
             verify(requestBytesConverter,times(1)).createConverter(any(Configuration.class), any(ByteBuffer.class));
 
-            assertEquals(1, singleIndexingEventHandler.getLatch().getCount());
-            assertTrue(singleIndexingEventHandler.isShutdown());
+
         } catch (Exception e){
             fail("No exception should have been throw");
         }

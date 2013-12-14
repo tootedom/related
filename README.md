@@ -15,6 +15,7 @@ curl -XPUT http://macmini:9200/_template/relatedproducts -d '{
     "mappings" : {
         "relatedproduct" : {
            "_all" : {"enabled" : false},
+           "dynamic" : false,
            "properties" : {
               "id": { "type": "string", "index": "not_analyzed" },
               "related-with": { "type": "string", "index": "not_analyzed" },
