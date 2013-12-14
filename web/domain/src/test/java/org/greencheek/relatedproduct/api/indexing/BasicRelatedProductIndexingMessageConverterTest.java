@@ -10,9 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -155,6 +153,47 @@ public class BasicRelatedProductIndexingMessageConverterTest {
         assertEquals("apple mac",props.get("name"));
 
 
+
+    }
+
+    public RelatedProductInfo createRelatedProductInfoObj(String id) {
+        RelatedProductInfo info1 = new RelatedProductInfo(new SystemPropertiesConfiguration());
+        info1.setId(id);
+        return info1;
+    }
+
+    @Test
+    public void testRelatedProductIds() {
+        RelatedProductInfo info1 = createRelatedProductInfoObj("1");
+        RelatedProductInfo info2 = createRelatedProductInfoObj("2");
+        RelatedProductInfo info3 = createRelatedProductInfoObj("3");
+        RelatedProductInfo info4 = createRelatedProductInfoObj("4");
+        RelatedProductInfo info5 = createRelatedProductInfoObj("5");
+
+        RelatedProductInfo[][] relatedProductIds = BasicRelatedProductIndexingMessageConverter.relatedIds(new RelatedProductInfo[]{info1,info2,info3,info4,info5},5);
+
+        String[] concatIds = new String[relatedProductIds.length];
+        for(int i = 0;i<relatedProductIds.length;i++) {
+            StringBuilder b = new StringBuilder(5);
+            for(int j=0;j<relatedProductIds[i].length;j++) {
+                b.append(relatedProductIds[i][j].getId().toString());
+            }
+            concatIds[i] = b.toString();
+        }
+
+        System.out.println(Arrays.toString(concatIds));
+
+        assertSame(info5, relatedProductIds[0][4]);
+        assertSame(info1, relatedProductIds[1][4]);
+        assertSame(info2, relatedProductIds[2][4]);
+        assertSame(info3, relatedProductIds[3][4]);
+        assertSame(info4, relatedProductIds[4][4]);
+
+        assertEquals("12345",concatIds[0]);
+        assertEquals("23451",concatIds[1]);
+        assertEquals("34512",concatIds[2]);
+        assertEquals("45123",concatIds[3]);
+        assertEquals("51234",concatIds[4]);
 
     }
 
