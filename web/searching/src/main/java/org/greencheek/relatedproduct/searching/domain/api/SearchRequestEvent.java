@@ -1,5 +1,8 @@
 package org.greencheek.relatedproduct.searching.domain.api;
 
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+
 import javax.servlet.AsyncContext;
 
 /**
@@ -11,14 +14,32 @@ import javax.servlet.AsyncContext;
  */
 public class SearchRequestEvent {
     public final AsyncContext requestContext;
+    public final RelatedProductSearch searchRequest;
+    public final RelatedProductSearchExecutor searchExecutor;
 
 
-    public SearchRequestEvent(AsyncContext context) {
+    public SearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest) {
         this.requestContext = context;
+        this.searchRequest = searchRequest;
+        this.searchExecutor = null;
+    }
+
+    public SearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest,RelatedProductSearchExecutor searchExecutor) {
+        this.requestContext = context;
+        this.searchRequest = searchRequest;
+        this.searchExecutor = searchExecutor;
+    }
+
+    public RelatedProductSearchExecutor getSearchExecutor() {
+        return searchExecutor;
     }
 
     public AsyncContext getRequestContext() {
         return requestContext;
+    }
+
+    public RelatedProductSearch getSearchRequest() {
+        return this.searchRequest;
     }
 
 }

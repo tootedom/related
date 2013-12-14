@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchRequestEvent;
@@ -31,7 +32,6 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
         this.config = config;
         this.contextStorage = contextStorage;
         this.resultsResponseProcessor = resultsProcessor;
-
         eventHandlers[SearchEventType.SEARCH_REQUEST.getIndex()] = new SearchRequestHandler();
         eventHandlers[SearchEventType.SEARCH_RESULT.getIndex()] = new SearchResultHandler();
     }
@@ -60,7 +60,11 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
     private class SearchRequestHandler implements SearchEventHandler {
         @Override
         public void handle(SearchEvent event) {
-            contextStorage.addContext(event.getRequestKey(), event.getSearchRequestEvent().getRequestContext());
+            boolean executeSearch = contextStorage.addContext(event.getRequestKey(), event.getSearchRequestEvent().getRequestContext());
+            if(executeSearch) {
+                RelatedProductSearchExecutor executor = event.getSearchRequestEvent().getSearchExecutor();
+                executor.executeSearch(event.getSearchRequestEvent().getSearchRequest());
+            }
         }
     }
 

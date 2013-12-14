@@ -25,11 +25,11 @@ import java.util.concurrent.ExecutorService;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:14
- * To change this template use File | Settings | File Templates.
+ * Main entry point for dealing with user searches.  A Search request is published onto the disruptor ring buffer.
+ * The search request is translated into a {@link RelatedProductSearchRequest} with is dealt with by a
+ * {@link RelatedContentSearchRequestProcessorHandler}.  The handler is responsible for dealing with the user request,
+ * and also returning the search result to the user.
+ *
  */
 public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearchRequestProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedSearchRequestProcessor.class);

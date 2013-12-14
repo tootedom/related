@@ -108,7 +108,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (InterruptedException e) {
             fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -133,7 +135,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
             fail();
         }
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(10000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (InterruptedException e) {
             fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -160,7 +164,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
         }
 
         try {
-            latch.await(5000, TimeUnit.MILLISECONDS);
+            boolean countedDown = latch.await(10000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
         } catch (InterruptedException e) {
             fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();

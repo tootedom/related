@@ -5,8 +5,10 @@ import com.lmax.disruptor.IgnoreExceptionHandler;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -20,11 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:14
- * To change this template use File | Settings | File Templates.
+ * Handles users search request and processes the responses for those requests.
  */
 public class DisruptorBasedRequestResponseProcessor implements RelatedProductSearchRequestResponseProcessor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRequestResponseProcessor.class);
@@ -36,7 +34,7 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
     private final Configuration configuration;
 
 
-    public DisruptorBasedRequestResponseProcessor(EventHandler<SearchEvent>  eventHandler,
+    public DisruptorBasedRequestResponseProcessor(SearchEventHandler eventHandler,
                                                   Configuration configuration
     ) {
         this.configuration = configuration;
@@ -52,8 +50,10 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
     }
 
     @Override
-    public void handleRequest(SearchRequestLookupKey requestKey, AsyncContext requestCtx) {
-        disruptor.publishEvent(new SearchRequestTranslator(requestKey,requestCtx));
+    public void handleRequest(RelatedProductSearchRequest searchRequest) {
+//        RelatedProductSearch search = searchRequest.searchRequest;
+        disruptor.publishEvent(SearchRequestTranslator.INSTANCE, searchRequest);
+//                new SearchRequestTranslator(search.getLookupKey(),searchRequest.getRequestContext()));
     }
 
     @Override

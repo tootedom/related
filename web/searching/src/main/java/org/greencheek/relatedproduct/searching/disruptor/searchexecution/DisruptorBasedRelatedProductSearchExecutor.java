@@ -75,6 +75,6 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 
     @Override
     public void executeSearch(RelatedProductSearch searchRequest) {
-        disruptor.publishEvent(new RelatedProductSearchTranslator(searchRequest));
+        disruptor.publishEvent(RelatedProductSearchTranslator.INSTANCE,searchRequest);
     }
 }

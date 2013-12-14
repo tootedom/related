@@ -30,17 +30,16 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
     @Override
     public RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, ApplicationCtx appContext) {
         int numberOfSearchProcessors = config.getNumberOfSearchingRequestProcessors();
+        RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient();
+        RelatedProductSearchRequestResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(appContext.createAsyncContextLookup(),responseProcessor);
+
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
-            AsyncContextLookup asyncContextStorage = appContext.createAsyncContextLookup();
-            RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient();
-            RelatedProductSearchRequestResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(asyncContextStorage,responseProcessor);
+
             RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(requestAndResponseProcessor);
             return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestAndResponseProcessor,searchExecutor);
         } else {
-            AsyncContextLookup asyncContextStorage = appContext.createAsyncContextLookup();
-            RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient();
-            RelatedProductSearchRequestResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(asyncContextStorage,responseProcessor);
+
 
             numberOfSearchProcessors = Util.ceilingNextPowerOfTwo(numberOfSearchProcessors);
 

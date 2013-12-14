@@ -42,8 +42,8 @@ public class RelatedProductSearchRequestTranslator implements EventTranslator<Re
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence) {
         event.setRequestContext(clientCtx);
-        relatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest, searchRequestType,parameters);
+        relatedProductSearchFactory.populateSearchObject(configuration, event.getSearchRequest(), searchRequestType,parameters);
 
-        log.debug("Creating Related Product Search Request {}, {}",event.searchRequest.getLookupKey(),parameters);
+        log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),parameters);
     }
 }

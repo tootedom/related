@@ -13,5 +13,12 @@ import javax.servlet.AsyncContext;
  */
 public interface AsyncContextLookup {
     public AsyncContext[] removeContexts(SearchRequestLookupKey key);
-    public void addContext(SearchRequestLookupKey key, AsyncContext context);
+
+    /**
+     * Returns false if the search key already existed.
+     * @param key
+     * @param context
+     * @return
+     */
+    public boolean addContext(SearchRequestLookupKey key, AsyncContext context);
 }

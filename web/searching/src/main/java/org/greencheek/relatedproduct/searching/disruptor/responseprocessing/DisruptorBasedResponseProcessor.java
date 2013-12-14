@@ -55,7 +55,15 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
 
     }
 
-    @PreDestroy
+
+    @Override
+    public void processSearchResults(AsyncContext[] context, SearchResultsEvent results) {
+        disruptor.publishEvent(new SearchResponseEventTranslator(context,results));
+    }
+
+
+
+
     public void shutdown() {
         if(shutdown.compareAndSet(false,true)) {
             try {
@@ -76,8 +84,4 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
         }
     }
 
-    @Override
-    public void processSearchResults(AsyncContext[] context, SearchResultsEvent results) {
-        disruptor.publishEvent(new SearchResponseEventTranslator(context,results));
-    }
 }

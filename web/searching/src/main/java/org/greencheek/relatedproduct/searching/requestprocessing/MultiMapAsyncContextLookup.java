@@ -43,15 +43,17 @@ public class MultiMapAsyncContextLookup implements AsyncContextLookup {
     }
 
     @Override
-    public void addContext(SearchRequestLookupKey key, AsyncContext context) {
+    public boolean addContext(SearchRequestLookupKey key, AsyncContext context) {
         log.debug("adding context to key {}",key.toString());
         List<AsyncContext> ctxs = contexts.get(key);
         if(ctxs==null) {
             ctxs = new ArrayList<AsyncContext>(expectedNumberOfSimilarRequests);
             ctxs.add(context);
             contexts.put(key,ctxs);
+            return true;
         } else {
             ctxs.add(context);
+            return false;
         }
 
     }

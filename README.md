@@ -86,3 +86,9 @@ Sample curl request for indexing:
 '''
 curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '{ "channel" : "uk", "site" : "amazon", "date" : "2013-05-22T20:31:35", "products" : [ { "id" : "111","type":"coat"}, { "id" : "123","type":"socks"}, { "id" : "23334","type":"button"} ]  }'
 '''
+
+Sample indexing configuration params:
+
+'''
+-Drelated-product.wait.strategy=busy -Drelated-product.size.of.incoming.request.queue=131072 -Drelated-product.number.of.indexing.request.processors=8 -Drelated-product.index.batch.size=125 -Drelated-product.elastic.search.transport.hosts=10.0.1.19:9300
+'''
