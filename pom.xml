@@ -61,6 +61,12 @@
             <artifactId>elasticsearch-test</artifactId>
             <version>0.90.6</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.elasticsearch</groupId>
+                    <artifactId>elasticsearch</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

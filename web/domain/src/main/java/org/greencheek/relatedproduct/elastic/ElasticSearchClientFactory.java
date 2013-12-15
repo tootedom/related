@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.elastic;
 
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
 
 /**
  * Created with IntelliJ IDEA.

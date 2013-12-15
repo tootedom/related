@@ -4,7 +4,9 @@ import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.*;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedSearchRequestProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
@@ -17,8 +19,10 @@ import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.Disr
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.RelatedProductSearchEventHandler;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
+import org.greencheek.relatedproduct.searching.repository.ElasticSearchClientFactoryCreator;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
+import org.greencheek.relatedproduct.searching.repository.NodeOrTransportBasedElasticSearchClientFactoryCreator;
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
@@ -56,7 +60,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
         useSharedSearchRepository = config.useSharedSearchRepository();
         if(useSharedSearchRepository) {
-            this.searchRepository = new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+            this.searchRepository = getRepository(config);
         } else {
             this.searchRepository = null;
         }
@@ -67,6 +71,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
 
     }
+
 
     public void shutdown() {
 
@@ -92,9 +97,6 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     public SearchRequestParameterValidatorLocator getSearchRequestParameterValidator() {
         return this.validatorLocator;
     }
-
-
-
 
     @Override
     public AsyncContextLookup createAsyncContextLookup() {
@@ -143,11 +145,23 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         if(useSharedSearchRepository) {
             return searchRepository;
         } else {
-            return new ElasticSearchRelatedProductSearchRepository(new NodeBasedElasticSearchClientFactory(config),new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
+            return getRepository(config);
         }
     }
 
-    @Override
+    private ElasticSearchClientFactoryCreator getClientFactoryCreator() {
+        return NodeOrTransportBasedElasticSearchClientFactoryCreator.INSTANCE;
+    }
+
+    private RelatedProductSearchRepository getRepository(Configuration configuration) {
+        return new ElasticSearchRelatedProductSearchRepository(
+                getClientFactoryCreator().getElasticSearchClientConnectionFactory(configuration),
+                new ElasticSearchFrequentlyRelatedProductSearchProcessor(config)
+        );
+    }
+
+
+        @Override
     public SearchResultsConverterFactory createSearchResultsConverterFactory() {
         return new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
     }
