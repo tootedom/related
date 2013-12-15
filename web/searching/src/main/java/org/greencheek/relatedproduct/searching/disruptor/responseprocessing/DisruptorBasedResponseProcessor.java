@@ -40,7 +40,7 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
     private final Configuration configuration;
 
 
-    public DisruptorBasedResponseProcessor(EventHandler<ResponseEvent> eventHandler,
+    public DisruptorBasedResponseProcessor(ResponseEventHandler eventHandler,
                                            Configuration configuration
     ) {
         this.configuration = configuration;

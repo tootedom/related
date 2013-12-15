@@ -10,6 +10,8 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsRespon
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -24,7 +26,7 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
     private final AsyncContextLookup contextStorage;
     private final RelatedProductSearchResultsResponseProcessor resultsResponseProcessor;
     private final SearchEventHandler[] eventHandlers = new SearchEventHandler[2];
-
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
     public DisruptorBasedSearchEventHandler(Configuration config,
                                             AsyncContextLookup contextStorage,
                                             RelatedProductSearchResultsResponseProcessor resultsProcessor)
@@ -50,7 +52,13 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
 
     @Override
     public void shutdown() {
-        resultsResponseProcessor.shutdown();
+        if(shutdown.compareAndSet(false,true)) {
+            try {
+                resultsResponseProcessor.shutdown();
+            } catch(Exception e) {
+
+            }
+        }
     }
 
     private interface SearchEventHandler {

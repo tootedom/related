@@ -14,7 +14,7 @@ import javax.inject.Inject;
  * Time: 13:28
  * To change this template use File | Settings | File Templates.
  */
-public class DisruptorBasedResponseEventHandler implements EventHandler<ResponseEvent> {
+public class DisruptorBasedResponseEventHandler implements ResponseEventHandler {
 
     private final RelatedProductSearchResultsResponseProcessor resultsResponseProcessor;
 

@@ -12,15 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:14
- * To change this template use File | Settings | File Templates.
+ * Ring buffer that batches up the user search requests as RelatedProductSearch objects.
+ * These are then handled by the {@link RelatedProductSearchDisruptorEventHandler}
  */
 public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProductSearchExecutor {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductSearchExecutor.class);
@@ -31,14 +29,16 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 
     private final Configuration configuration;
 
-//    private final EventHandler<RelatedProductSearch> eventHandler;
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
+
+    private final RelatedProductSearchDisruptorEventHandler eventHandler;
 
 
     public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,EventFactory<RelatedProductSearch> eventFactory,
                                                       RelatedProductSearchDisruptorEventHandler eventHandler
     ) {
         this.configuration = configuration;
-//        this.eventHandler = eventHandler;
+        this.eventHandler = eventHandler;
 
         disruptor = new Disruptor<RelatedProductSearch>(
                 eventFactory,
@@ -52,29 +52,39 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 
 
 
-    @PreDestroy
     public void shutdown() {
+        if(shutdown.compareAndSet(false,true)) {
 
-        try {
-            log.info("Attempting to shut down executor thread pool in search handler processor");
-            executorService.shutdown();
-        } catch (Exception e) {
-            log.warn("Unable to shut down executor thread pool in search handler processor",e);
+            log.info("Shutting down index request processor");
+            try {
+                log.info("Attempting to shut down disruptor in search handler processor");
+                disruptor.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to shut down disruptor in search handler processor",e);
+            }
+
+            try {
+                log.info("Attempting to shutdown the event handler");
+                eventHandler.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to/Exception during shutdown of the search event handler");
+            }
+
+            try {
+                log.info("Attempting to shut down executor thread pool in search handler processor");
+                executorService.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to shut down executor thread pool in search handler processor",e);
+            }
         }
-
-        log.info("Shutting down index request processor");
-        try {
-            log.info("Attempting to shut down disruptor in search handler processor");
-            disruptor.halt();
-            disruptor.shutdown();
-        } catch (Exception e) {
-            log.warn("Unable to shut down disruptor in search handler processor",e);
-        }
-
     }
 
     @Override
     public void executeSearch(RelatedProductSearch searchRequest) {
-        disruptor.publishEvent(RelatedProductSearchTranslator.INSTANCE,searchRequest);
+        if(!shutdown.get()) {
+            disruptor.publishEvent(RelatedProductSearchTranslator.INSTANCE,searchRequest);
+        } else {
+            log.warn("Unable to publish events, as the search executor has been shutdown");
+        }
     }
 }

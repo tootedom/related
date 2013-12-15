@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -9,6 +10,6 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  * to forward the results of the search to the listener.
  */
 public interface RelatedProductSearchRepository {
-    public void findRelatedProducts(Configuration config, RelatedProductSearch[] searches, RelatedProductSearchRequestResponseProcessor handler);
+    public SearchResultEventWithSearchRequestKey[] findRelatedProducts(Configuration config, RelatedProductSearch[] searches);
     public void shutdown();
 }

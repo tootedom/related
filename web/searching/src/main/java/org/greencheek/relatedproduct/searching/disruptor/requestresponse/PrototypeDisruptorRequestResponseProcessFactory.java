@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventHandler;
+import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.ResponseEventHandler;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessorFactory;
@@ -34,7 +35,7 @@ public class PrototypeDisruptorRequestResponseProcessFactory implements RelatedP
 
         AsyncContextLookup ctxStorage =  new MultiMapAsyncContextLookup(config);
 
-        EventHandler<ResponseEvent> searchResultsHandler  = new DisruptorBasedResponseEventHandler(
+        ResponseEventHandler searchResultsHandler  = new DisruptorBasedResponseEventHandler(
                 new HttpBasedRelatedProductSearchResultsResponseProcessor(config,new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config))));
 
         RelatedProductSearchResultsResponseProcessor searchResultsProcessor = new DisruptorBasedResponseProcessor(searchResultsHandler,config);

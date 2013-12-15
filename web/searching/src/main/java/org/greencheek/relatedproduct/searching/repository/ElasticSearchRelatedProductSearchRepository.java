@@ -42,9 +42,8 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
 
     @Override
-    public void findRelatedProducts(Configuration configuration,
-                                    RelatedProductSearch[] searches,
-                                    RelatedProductSearchRequestResponseProcessor handler) {
+    public SearchResultEventWithSearchRequestKey[] findRelatedProducts(Configuration configuration,
+                                    RelatedProductSearch[] searches) {
         log.debug("request to execute {} searches",searches.length);
         SearchResultEventWithSearchRequestKey[] results;
         MultiSearchResponse sr;
@@ -71,7 +70,7 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
 
         }
 
-        handler.handleResponse(results);
+        return results;
     }
 
     @Override
