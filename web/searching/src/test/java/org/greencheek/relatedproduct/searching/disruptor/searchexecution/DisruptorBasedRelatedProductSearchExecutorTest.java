@@ -18,9 +18,11 @@ import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLoo
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -56,6 +58,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
     AtomicInteger searchRepositoryCallCount;
     CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch searchRequestPerformed = new CountDownLatch(1);
     SearchRequestLookupKey key = new SipHashSearchRequestLookupKey("1");
 
     @After
@@ -96,7 +99,13 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
             @Override
             public SearchResultEventWithSearchRequestKey[] answer(InvocationOnMock invocation) throws Throwable {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1500);
+                } catch (Exception e) {
+
+                }
+                searchRequestPerformed.countDown();
+                try {
+                    Thread.sleep(500);
                 } catch (Exception e) {
 
                 }
@@ -133,6 +142,16 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
         requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
         requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
         requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
+        try {
+            boolean completed = searchRequestPerformed.await(3000,TimeUnit.MILLISECONDS);
+            if(!completed) {
+                fail("Timeout waiting for search results to be returned");
+            }
+            requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
+            requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
+        } catch(Exception e) {
+            fail("Interrupted during waiting for search request to be performed");
+        }
 
         try {
             boolean completed = latch.await(5000, TimeUnit.MILLISECONDS);
@@ -146,7 +165,34 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
         assertEquals(1,searchRepositoryCallCount.get());
         assertTrue(contextLookup.addContext(key,mock(AsyncContext.class)));
+
+        verify(responseProcessor).processSearchResults(argThat(new GivenAnArrayOfAsyncContextsOfLength(7)),any(SearchResultsEvent.class));
     }
+
+    private class GivenAnArrayOfAsyncContextsOfLength extends ArgumentMatcher<AsyncContext[]> {
+
+        private int argLength;
+        public GivenAnArrayOfAsyncContextsOfLength(int length) {
+            argLength = length;
+        }
+
+        @Override
+        public boolean matches(Object argument) {
+            if(argument instanceof AsyncContext[]) {
+                AsyncContext[] contexts = (AsyncContext[])argument;
+                return contexts.length==argLength;
+            }
+            return false;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        public void describeTo(Description description) {
+            super.describeTo(description);
+            description.appendText(" "+argLength);
+        }
+
+
+
+        }
 
     @Test
     public void testShutdown() {
