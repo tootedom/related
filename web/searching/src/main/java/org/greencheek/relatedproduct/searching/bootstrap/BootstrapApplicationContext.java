@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventTranslatorVararg;
 import org.greencheek.relatedproduct.api.searching.*;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
@@ -10,6 +11,7 @@ import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFa
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedSearchRequestProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedProductSearchRequestTranslator;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RoundRobinRelatedContentSearchRequestProcessorHandlerFactory;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedSearchEventHandler;
@@ -18,6 +20,7 @@ import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.Disr
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.RelatedProductSearchEventHandler;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchClientFactoryCreator;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
@@ -84,8 +87,13 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchRequestProcessor getRequestProcessor() {
-       return new DisruptorBasedSearchRequestProcessor(getSearchRequestProcessingHandlerFactory().createHandler(config,this),
-               createRelatedSearchRequestFactory(),createRelatedProductSearchFactory(),config,getSearchRequestParameterValidator());
+       RelatedProductSearchFactory factory = createRelatedProductSearchFactory();
+       return new DisruptorBasedSearchRequestProcessor(getSearchRequestTranslator(factory),getSearchRequestProcessingHandlerFactory().createHandler(config,this),
+               createRelatedSearchRequestFactory(),factory,config,getSearchRequestParameterValidator());
+    }
+
+    private EventTranslatorVararg<RelatedProductSearchRequest> getSearchRequestTranslator(RelatedProductSearchFactory searchRequestHandlerFactory) {
+        return new RelatedProductSearchRequestTranslator(searchRequestHandlerFactory);
     }
 
     @Override
@@ -130,7 +138,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         return new EventFactory<RelatedProductSearch>() {
             @Override
             public RelatedProductSearch newInstance() {
-                return relatedProductSearchFactory.createSearchObject(config);
+                return relatedProductSearchFactory.createSearchObject();
             }
         };
     }

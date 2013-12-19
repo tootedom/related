@@ -40,15 +40,19 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     private final SearchRequestParameterValidatorLocator requestValidators;
     private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
     private final RelatedProductSearchFactory searchFactory;
+    private final EventTranslatorVararg<RelatedProductSearchRequest> searchRequestTranslator;
 
+    private final RingBuffer<RelatedProductSearchRequest> ringBuffer;
     private final Configuration configuration;
 
 
-    public DisruptorBasedSearchRequestProcessor(RelatedContentSearchRequestProcessorHandler eventHandler,
+    public DisruptorBasedSearchRequestProcessor(EventTranslatorVararg<RelatedProductSearchRequest> searchRequestTranslator ,
+                                                RelatedContentSearchRequestProcessorHandler eventHandler,
                                                 RelatedProductSearchRequestFactory relatedProductSearchRequestFactory,
                                                 RelatedProductSearchFactory searchFactory,
                                                 Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
+        this.searchRequestTranslator = searchRequestTranslator;
         this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
         this.configuration = configuration;
@@ -60,7 +64,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
-        disruptor.start();
+        ringBuffer = disruptor.start();
 
     }
 
@@ -77,7 +81,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         }
 
         log.debug("Processing requesttype {} with parameters {}",requestType,parameters);
-        disruptor.publishEvent(new RelatedProductSearchRequestTranslator(configuration,searchFactory,requestType,parameters,context));
+        ringBuffer.publishEvents(searchRequestTranslator,new Object[]{requestType,parameters,context});
 
     }
 

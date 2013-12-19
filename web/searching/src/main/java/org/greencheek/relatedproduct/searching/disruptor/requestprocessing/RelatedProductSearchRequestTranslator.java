@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.EventTranslatorVararg;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
@@ -18,32 +19,30 @@ import java.util.Map;
  * Time: 20:46
  * To change this template use File | Settings | File Templates.
  */
-public class RelatedProductSearchRequestTranslator implements EventTranslator<RelatedProductSearchRequest> {
+public class RelatedProductSearchRequestTranslator implements EventTranslatorVararg<RelatedProductSearchRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchRequestTranslator.class);
 
-    private final AsyncContext clientCtx;
-    private final Map<String,String> parameters;
-    private final RelatedProductSearchType searchRequestType;
-    private final Configuration configuration;
     private final RelatedProductSearchFactory relatedProductSearchFactory;
 
-    public RelatedProductSearchRequestTranslator(Configuration configuration,
-                                                 RelatedProductSearchFactory relatedProductSearchFactory,
-                                                 RelatedProductSearchType requestType,
-                                                 Map<String, String> parameters,
-                                                 AsyncContext context) {
-        this.configuration = configuration;
-        this.searchRequestType = requestType;
-        this.parameters = parameters;
-        this.clientCtx = context;
+    public RelatedProductSearchRequestTranslator(RelatedProductSearchFactory relatedProductSearchFactory) {
         this.relatedProductSearchFactory = relatedProductSearchFactory;
     }
-    @Override
-    public void translateTo(RelatedProductSearchRequest event, long sequence) {
-        event.setRequestContext(clientCtx);
-        relatedProductSearchFactory.populateSearchObject(configuration, event.getSearchRequest(), searchRequestType,parameters);
 
-        log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),parameters);
+    @Override
+    public void translateTo(RelatedProductSearchRequest event, long sequence,
+                            Object[] translationArgs) {
+        translateTo(event,sequence,
+                    (RelatedProductSearchType)translationArgs[0],
+                    (Map<String,String>)translationArgs[1],
+                    (AsyncContext)translationArgs[2]);
+    }
+
+    public void translateTo(RelatedProductSearchRequest event, long sequence,
+                            RelatedProductSearchType type, Map<String,String> params,
+                            AsyncContext context) {
+        log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),params);
+        event.setRequestContext(context);
+        relatedProductSearchFactory.populateSearchObject(event.getSearchRequest(), type,params);
     }
 }

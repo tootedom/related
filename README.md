@@ -92,3 +92,37 @@ Sample indexing configuration params:
 '''
 -Drelated-product.wait.strategy=busy -Drelated-product.size.of.incoming.request.queue=131072 -Drelated-product.number.of.indexing.request.processors=8 -Drelated-product.index.batch.size=125 -Drelated-product.elastic.search.transport.hosts=10.0.1.19:9300
 '''
+
+
+---
+
+Sample search request
+'''
+http://10.0.1.29:8080/searching/frequentlyrelatedto/8855?channel=uk
+'''
+
+
+in elastic this would be:
+
+'''
+curl -XPOST http://macmini:9200/relatedproducts*/relatedproduct/_search -d '
+{
+  "query" :
+        {
+            "bool" : {
+                "must" : [
+                    {"field" : {"id" : "338906"} },
+                    {"field" : {"channel" : "uk"} },
+                    {"field" : {"site" : "amazon"} }
+                ]
+            }
+        },
+        "facets" : {
+            "frequently-related-with" : {
+                "terms" : {"field" : "related-with", "size" : 5 }
+            }
+        },
+        "size":0
+}
+'
+'''

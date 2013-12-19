@@ -17,10 +17,9 @@ public interface RelatedProductSearchFactory extends EventFactory<RelatedProduct
     /**
      * Creates an empty RelatedProductSearch object, for use with the disruptor, when it creates
      * up front the domain objects for the ring buffer.
-     * @param configuration
      * @return
      */
-    public RelatedProductSearch createSearchObject(Configuration configuration);
+    public RelatedProductSearch createSearchObject();
 
 
     /**
@@ -28,12 +27,11 @@ public interface RelatedProductSearchFactory extends EventFactory<RelatedProduct
      * the key,value pair properties that are passed.  These properties represent the user's search criteria
      * for performing a lookup for frequently related products.
      *
-     * @param configuration    Configurtion object that contains default settings for search values.
      * @param objectToPopulate The RelatedProductSearch object that is to be populated from the given properties
      * @param type             The type of search that is being performed
      * @param properties       The key/value pairs for the search criteria (product id to find, extra filter parameters)
      */
-    public void populateSearchObject(Configuration configuration,RelatedProductSearch objectToPopulate,
+    public void populateSearchObject(RelatedProductSearch objectToPopulate,
                                      RelatedProductSearchType type,
                                      Map<String, String> properties);
 

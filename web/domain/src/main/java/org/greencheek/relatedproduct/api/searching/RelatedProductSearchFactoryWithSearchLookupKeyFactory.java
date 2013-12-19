@@ -8,11 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 14:19
- * To change this template use File | Settings | File Templates.
+
  */
 public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements RelatedProductSearchFactory {
 
@@ -26,11 +22,13 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
 
     }
 
-    public RelatedProductSearch createSearchObject(Configuration configuration) {
+    @Override
+    public RelatedProductSearch createSearchObject() {
         return new RelatedProductSearch(configuration);
     }
 
-    public void populateSearchObject(Configuration configuration,RelatedProductSearch objectToPopulate,
+    @Override
+    public void populateSearchObject(RelatedProductSearch objectToPopulate,
                                             RelatedProductSearchType type,
                                             Map<String, String> properties) {
         objectToPopulate.setValidMessage(false);
@@ -69,7 +67,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
 
     @Override
     public RelatedProductSearch newInstance() {
-        return createSearchObject(configuration);
+        return createSearchObject();
     }
 //
 //    public static void main(String[] args) {

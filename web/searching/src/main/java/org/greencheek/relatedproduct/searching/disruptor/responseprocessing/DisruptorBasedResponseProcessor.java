@@ -1,9 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.IgnoreExceptionHandler;
-import com.lmax.disruptor.SleepingWaitStrategy;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.domain.searching.SearchResult;
@@ -52,6 +49,7 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();
+
 
     }
 
