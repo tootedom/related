@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import com.lmax.disruptor.EventTranslator;
+import com.lmax.disruptor.EventTranslatorThreeArg;
 import com.lmax.disruptor.EventTranslatorVararg;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
@@ -13,13 +14,10 @@ import javax.servlet.AsyncContext;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 10/06/2013
- * Time: 20:46
- * To change this template use File | Settings | File Templates.
+ * Implementation that converts an
+ * incoming user search request into a RelatedProductSearchRequest object.
  */
-public class RelatedProductSearchRequestTranslator implements EventTranslatorVararg<RelatedProductSearchRequest> {
+public class RelatedProductSearchRequestTranslator implements IncomingSearchRequestTranslator {
 
     private static final Logger log = LoggerFactory.getLogger(RelatedProductSearchRequestTranslator.class);
 
@@ -30,14 +28,6 @@ public class RelatedProductSearchRequestTranslator implements EventTranslatorVar
     }
 
     @Override
-    public void translateTo(RelatedProductSearchRequest event, long sequence,
-                            Object[] translationArgs) {
-        translateTo(event,sequence,
-                    (RelatedProductSearchType)translationArgs[0],
-                    (Map<String,String>)translationArgs[1],
-                    (AsyncContext)translationArgs[2]);
-    }
-
     public void translateTo(RelatedProductSearchRequest event, long sequence,
                             RelatedProductSearchType type, Map<String,String> params,
                             AsyncContext context) {

@@ -63,8 +63,13 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
     }
 
     @After
-    public void shutdownElastic() {
+    public void tearDown() {
         System.clearProperty("related-product-storage.index.name.alias");
+        shutdownElastic();
+        clientFactory.shutdown();
+    }
+
+    public void shutdownElastic() {
         esSetup.terminate();
     }
 

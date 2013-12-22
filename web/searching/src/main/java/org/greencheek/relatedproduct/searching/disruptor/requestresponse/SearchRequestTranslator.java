@@ -1,14 +1,10 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
-import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorOneArg;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchRequestEvent;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-
-import javax.servlet.AsyncContext;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,9 +23,9 @@ public class SearchRequestTranslator implements EventTranslatorOneArg<SearchEven
 
     @Override
     public void translateTo(SearchEvent event, long sequence, RelatedProductSearchRequest searchRequest) {
-        event.setSearchRequestEvent(new SearchRequestEvent(searchRequest.getRequestContext(),searchRequest.getSearchRequest(),searchRequest.getSearchExecutor()));
+        event.getSearchRequestEvent().populateSearchRequestEvent(searchRequest.getRequestContext(),searchRequest.getSearchRequest(),searchRequest.getSearchExecutor());
         event.setEventType(SearchEventType.SEARCH_REQUEST);
-        event.setRequestKey(searchRequest.getSearchRequest().getLookupKey());
+        event.setRequestKeyReference(searchRequest.getSearchRequest().getLookupKey());
     }
 
 

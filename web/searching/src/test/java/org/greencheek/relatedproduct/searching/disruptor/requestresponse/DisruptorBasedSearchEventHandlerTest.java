@@ -39,16 +39,16 @@ public class DisruptorBasedSearchEventHandlerTest {
     private SearchEvent getSearchRequest(RelatedProductSearchExecutor executor) {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_REQUEST);
-        event.setRequestKey(new SipHashSearchRequestLookupKey("1"));
-        event.setSearchRequestEvent(new SearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor));
+        event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
+        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
     private SearchEvent getSearchResult(RelatedProductSearchExecutor executor) {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_RESULT);
-        event.setRequestKey(new SipHashSearchRequestLookupKey("1"));
-        event.setSearchRequestEvent(new SearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor));
+        event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
+        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
         return event;
     }
 

@@ -38,26 +38,19 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<RelatedProductSearchRequest> disruptor;
     private final SearchRequestParameterValidatorLocator requestValidators;
-    private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
-    private final RelatedProductSearchFactory searchFactory;
-    private final EventTranslatorVararg<RelatedProductSearchRequest> searchRequestTranslator;
+    private final IncomingSearchRequestTranslator searchRequestTranslator;
 
     private final RingBuffer<RelatedProductSearchRequest> ringBuffer;
-    private final Configuration configuration;
 
 
-    public DisruptorBasedSearchRequestProcessor(EventTranslatorVararg<RelatedProductSearchRequest> searchRequestTranslator ,
+    public DisruptorBasedSearchRequestProcessor(IncomingSearchRequestTranslator searchRequestTranslator ,
                                                 RelatedContentSearchRequestProcessorHandler eventHandler,
                                                 RelatedProductSearchRequestFactory relatedProductSearchRequestFactory,
-                                                RelatedProductSearchFactory searchFactory,
                                                 Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
         this.searchRequestTranslator = searchRequestTranslator;
         this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
-        this.configuration = configuration;
-        this.searchFactory = searchFactory;
-        this.relatedProductSearchRequestFactory = relatedProductSearchRequestFactory;
         disruptor = new Disruptor<RelatedProductSearchRequest>(
                 relatedProductSearchRequestFactory,
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
@@ -81,7 +74,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         }
 
         log.debug("Processing requesttype {} with parameters {}",requestType,parameters);
-        ringBuffer.publishEvents(searchRequestTranslator,new Object[]{requestType,parameters,context});
+        ringBuffer.publishEvent(searchRequestTranslator,requestType,parameters,context);
 
     }
 
@@ -100,7 +93,6 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         log.info("Shutting down index request processor");
         try {
             log.info("Attempting to shut down disruptor in search request/response processor");
-            disruptor.halt();
             disruptor.shutdown();
             log.info("disruptor search request/response processor is shut down");
         } catch (Exception e) {

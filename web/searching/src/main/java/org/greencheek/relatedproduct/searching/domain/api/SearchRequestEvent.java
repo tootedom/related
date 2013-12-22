@@ -13,18 +13,15 @@ import javax.servlet.AsyncContext;
  * To change this template use File | Settings | File Templates.
  */
 public class SearchRequestEvent {
-    public final AsyncContext requestContext;
-    public final RelatedProductSearch searchRequest;
-    public final RelatedProductSearchExecutor searchExecutor;
+    public AsyncContext requestContext = null;
+    public RelatedProductSearch searchRequest = null;
+    public RelatedProductSearchExecutor searchExecutor = null;
 
+    public SearchRequestEvent() {
 
-    public SearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest) {
-        this.requestContext = context;
-        this.searchRequest = searchRequest;
-        this.searchExecutor = null;
     }
 
-    public SearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest,RelatedProductSearchExecutor searchExecutor) {
+    public void populateSearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest,RelatedProductSearchExecutor searchExecutor) {
         this.requestContext = context;
         this.searchRequest = searchRequest;
         this.searchExecutor = searchExecutor;

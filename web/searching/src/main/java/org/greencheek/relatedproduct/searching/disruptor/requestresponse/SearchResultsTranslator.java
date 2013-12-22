@@ -18,8 +18,7 @@ public class SearchResultsTranslator implements EventTranslatorOneArg<SearchEven
     @Override
     public void translateTo(SearchEvent event, long sequence, SearchResultEventWithSearchRequestKey searchResult) {
         event.setEventType(SearchEventType.SEARCH_RESULT);
-        event.setSearchRequestEvent(null);
-        event.setSearchResultsEvent(searchResult.getResponse());
-        event.setRequestKey(searchResult.getRequest());
+        event.setSearchResultsEventReference(searchResult.getResponse());
+        event.setRequestKeyReference(searchResult.getRequest());
     }
 }

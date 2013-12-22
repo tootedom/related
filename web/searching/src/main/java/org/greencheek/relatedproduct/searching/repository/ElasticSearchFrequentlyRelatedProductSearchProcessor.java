@@ -58,6 +58,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedProductSearch[] searches) {
         MultiSearchRequestBuilder multiSearch = elasticClient.prepareMultiSearch();
         for(RelatedProductSearch search : searches) {
+
             if(search.getRelatedProductSearchType() == RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
                 multiSearch.add(createFrequentlyRelatedContentSearch(search,elasticClient));
             }
@@ -138,7 +139,9 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
      */
     private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedProductSearch search, Client searchClient) {
         SearchRequestBuilder sr = searchClient.prepareSearch();
-        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),search.getRelatedContentId()));
+        String id = search.getRelatedContentId();
+        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
+        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
 
         RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
         int numberOfProps = searchProps.getNumberOfProperties();

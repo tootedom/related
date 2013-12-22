@@ -80,7 +80,7 @@ public class HttpBasedRelatedProductSearchResultsResponseProcessor implements Re
                 try {
                     ctx.complete();
                 } catch (IllegalStateException e) {
-                    log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred");
+                    log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred",e);
                 }
             }
         }

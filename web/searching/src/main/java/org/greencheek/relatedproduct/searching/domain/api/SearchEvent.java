@@ -9,16 +9,20 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
  * The search event has a type to distinguish the two.
  *
  * As a result if the {@see #getEventType} is a {@link SearchEventType#SEARCH_REQUEST} then
- * the {@see #getSearchResultsEvent} will be null.  Like wise if it is {@link SearchEventType#SEARCH_RESULT}
+ * the {@see #getSearchResultsEventReference} will be null.  Like wise if it is {@link SearchEventType#SEARCH_RESULT}
  * then {@see #getSearchRequestEvent} will be null.
  */
 public class SearchEvent {
 
-    private SearchEventType eventType;
-    private SearchRequestLookupKey requestKey;
-    private SearchRequestEvent searchRequestEvent;
-    private SearchResultsEvent searchResultsEvent;
+    private final SearchRequestEvent searchRequestEvent;
 
+    private SearchEventType eventType;
+    private SearchRequestLookupKey requestKeyReference;
+    private SearchResultsEvent searchResultsEventReference;
+
+    public SearchEvent() {
+        searchRequestEvent = new SearchRequestEvent();
+    }
 
     public SearchEventType getEventType() {
         return eventType;
@@ -28,28 +32,25 @@ public class SearchEvent {
         this.eventType = eventType;
     }
 
-    public SearchRequestLookupKey getRequestKey() {
-        return requestKey;
-    }
-
-    public void setRequestKey(SearchRequestLookupKey requestKey) {
-        this.requestKey = requestKey;
-    }
-
     public SearchRequestEvent getSearchRequestEvent() {
         return searchRequestEvent;
     }
 
-    public void setSearchRequestEvent(SearchRequestEvent event) {
-        this.searchRequestEvent = event;
+
+    public SearchRequestLookupKey getRequestKeyReference() {
+        return requestKeyReference;
     }
 
-    public SearchResultsEvent getSearchResultsEvent() {
-        return this.searchResultsEvent;
+    public void setRequestKeyReference(SearchRequestLookupKey requestKeyReference) {
+        this.requestKeyReference = requestKeyReference;
     }
 
-    public void setSearchResultsEvent(SearchResultsEvent event) {
-        searchResultsEvent = event;
+    public SearchResultsEvent getSearchResultsEventReference() {
+        return this.searchResultsEventReference;
+    }
+
+    public void setSearchResultsEventReference(SearchResultsEvent event) {
+        searchResultsEventReference = event;
     }
 
 
