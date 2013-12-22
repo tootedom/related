@@ -31,13 +31,10 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<SearchEvent> disruptor;
 
-    private final Configuration configuration;
-
 
     public DisruptorBasedRequestResponseProcessor(SearchEventHandler eventHandler,
                                                   Configuration configuration
     ) {
-        this.configuration = configuration;
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
@@ -51,9 +48,7 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
 
     @Override
     public void handleRequest(RelatedProductSearchRequest searchRequest) {
-//        RelatedProductSearch search = searchRequest.searchRequest;
         disruptor.publishEvent(SearchRequestTranslator.INSTANCE, searchRequest);
-//                new SearchRequestTranslator(search.getLookupKey(),searchRequest.getRequestContext()));
     }
 
     @Override

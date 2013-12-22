@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventTranslatorThreeArg;
 import com.lmax.disruptor.EventTranslatorVararg;
 import org.greencheek.relatedproduct.api.searching.*;
 import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
@@ -9,10 +10,7 @@ import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.*;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedSearchRequestProcessor;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedProductSearchRequestTranslator;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RoundRobinRelatedContentSearchRequestProcessorHandlerFactory;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedSearchEventHandler;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchEventHandler;
@@ -36,6 +34,9 @@ import org.greencheek.relatedproduct.searching.responseprocessing.resultsconvert
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+
+import javax.servlet.AsyncContext;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -89,10 +90,10 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     public RelatedProductSearchRequestProcessor getRequestProcessor() {
        RelatedProductSearchFactory factory = createRelatedProductSearchFactory();
        return new DisruptorBasedSearchRequestProcessor(getSearchRequestTranslator(factory),getSearchRequestProcessingHandlerFactory().createHandler(config,this),
-               createRelatedSearchRequestFactory(),factory,config,getSearchRequestParameterValidator());
+               createRelatedSearchRequestFactory(),config,getSearchRequestParameterValidator());
     }
 
-    private EventTranslatorVararg<RelatedProductSearchRequest> getSearchRequestTranslator(RelatedProductSearchFactory searchRequestHandlerFactory) {
+    private IncomingSearchRequestTranslator getSearchRequestTranslator(RelatedProductSearchFactory searchRequestHandlerFactory) {
         return new RelatedProductSearchRequestTranslator(searchRequestHandlerFactory);
     }
 

@@ -225,8 +225,8 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
     private SearchEvent getSearchRequest(RelatedProductSearchExecutor executor) {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_REQUEST);
-        event.setRequestKey(key);
-        event.setSearchRequestEvent(new SearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor));
+        event.setRequestKeyReference(key);
+        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
