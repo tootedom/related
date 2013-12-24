@@ -14,7 +14,7 @@ import org.greencheek.relatedproduct.searching.disruptor.requestresponse.Disrupt
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchEventHandler;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.*;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
@@ -49,7 +49,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
     RelatedProductSearchRepository searchRepositoryWith2SecondDelay;
     SearchResultEventWithSearchRequestKey[] searchResults;
     RelatedProductSearchRequestResponseProcessor requestResponseProcessor;
-    AsyncContextLookup contextLookup;
+    SearchResponseContextLookup contextLookup;
     SearchEventHandler handler;
     RelatedProductSearchFactory relatedProductSearchFactory;
 

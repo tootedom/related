@@ -5,8 +5,6 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.AsyncContext;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +16,7 @@ import java.util.Map;
  * The AsyncContext can then be retrieved using the {@link SearchRequestLookupKey}
  * and the responses sent to the client that is waiting on the AsyncContext to be completed.
  */
-public class MultiMapAsyncContextLookup implements AsyncContextLookup {
+public class MultiMapAsyncContextLookup implements SearchResponseContextLookup {
 
     private static final Logger log = LoggerFactory.getLogger(MultiMapAsyncContextLookup.class);
     private static final AsyncContext[] EMPTY_CONTEXT = new AsyncContext[0];

@@ -5,13 +5,13 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
 import javax.servlet.AsyncContext;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 13:16
- * To change this template use File | Settings | File Templates.
+ * Represents a multi-map type lookup service that stores user search requests,
+ * against the response context.  The response context allows us to obtain the
+ * response based object through which we can send the results of the user search.
+ *
+ *
  */
-public interface AsyncContextLookup {
+public interface SearchResponseContextLookup {
     public AsyncContext[] removeContexts(SearchRequestLookupKey key);
 
     /**

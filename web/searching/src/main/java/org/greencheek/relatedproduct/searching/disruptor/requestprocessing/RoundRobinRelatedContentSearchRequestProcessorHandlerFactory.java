@@ -3,15 +3,11 @@ package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * Created with IntelliJ IDEA.

@@ -8,7 +8,7 @@ import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFact
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -28,10 +28,10 @@ public interface ApplicationCtx
     public SearchRequestParameterValidatorLocator getSearchRequestParameterValidator();
 
 
-    public AsyncContextLookup createAsyncContextLookup();
+    public SearchResponseContextLookup createAsyncContextLookup();
     public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient();
 
-    public RelatedProductSearchRequestResponseProcessor createSearchRequestAndResponseGateway(AsyncContextLookup asyncContextStorage,
+    public RelatedProductSearchRequestResponseProcessor createSearchRequestAndResponseGateway(SearchResponseContextLookup asyncContextStorage,
                                                                                               RelatedProductSearchResultsResponseProcessor responseProcessor);
 
     /**

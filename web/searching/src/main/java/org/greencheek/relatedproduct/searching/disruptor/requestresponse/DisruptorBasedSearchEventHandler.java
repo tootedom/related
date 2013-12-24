@@ -4,7 +4,7 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,12 +20,12 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
 
 
     private final Configuration config;
-    private final AsyncContextLookup contextStorage;
+    private final SearchResponseContextLookup contextStorage;
     private final RelatedProductSearchResultsResponseProcessor resultsResponseProcessor;
     private final SearchEventHandler[] eventHandlers = new SearchEventHandler[2];
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     public DisruptorBasedSearchEventHandler(Configuration config,
-                                            AsyncContextLookup contextStorage,
+                                            SearchResponseContextLookup contextStorage,
                                             RelatedProductSearchResultsResponseProcessor resultsProcessor)
     {
         this.config = config;

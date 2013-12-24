@@ -106,13 +106,12 @@ public class RelatedProductSearchServlet extends HttpServlet {
     }
 
     /**
-     * Returns a sort List of key to value String objects.
-     * List<String[2]> where String[0] is the key and String[1] is the value
+     *
      * @param params
      * @return
      */
     private Map<String,String> convertToFirstParameterValueMap(Map<String,String[]> params) {
-        Map<String,String> parms = new HashMap<String,String>((int)Math.ceil(params.size()/0.75));
+        Map<String,String> parms = new HashMap<String,String>((int)Math.ceil(params.size()+1/0.75));
         for(String key : params.keySet()) {
             String[] values = params.get(key);
             if(values!=null && values.length>0) {

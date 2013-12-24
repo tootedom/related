@@ -6,9 +6,8 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
-import org.greencheek.relatedproduct.searching.domain.api.SearchRequestEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.requestprocessing.AsyncContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
@@ -31,7 +30,7 @@ public class DisruptorBasedSearchEventHandlerTest {
 //
 
     private Configuration configuration = new SystemPropertiesConfiguration();
-    private AsyncContextLookup lookup = new MultiMapAsyncContextLookup(configuration);
+    private SearchResponseContextLookup lookup = new MultiMapAsyncContextLookup(configuration);
     private TestRelatedProductSearchResultsResponseProcessor responseProcessor = new TestRelatedProductSearchResultsResponseProcessor();
     private SearchEventHandler handler = new DisruptorBasedSearchEventHandler(configuration,lookup,responseProcessor);
     private TestRelatedProductSearchExecutor searchExecutor = new TestRelatedProductSearchExecutor();

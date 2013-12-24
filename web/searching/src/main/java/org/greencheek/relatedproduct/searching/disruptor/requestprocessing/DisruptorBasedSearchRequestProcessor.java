@@ -3,7 +3,6 @@ package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.servlet.AsyncContext;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -56,7 +54,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
                 configuration.getSizeOfRelatedContentSearchRequestQueue(), executorService,
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
-        disruptor.handleEventsWith(new EventHandler[] {eventHandler});
+        disruptor.handleEventsWith(eventHandler);
         ringBuffer = disruptor.start();
 
     }
@@ -64,18 +62,19 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
 
     @Override
-    public void processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, AsyncContext context) throws InvalidSearchRequestException {
+    public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, AsyncContext context) throws InvalidSearchRequestException {
         SearchRequestParameterValidator validator = requestValidators.getValidatorForType(requestType);
         if(validator !=null) {
             ValidationMessage isValid = validator.validateParameters(parameters);
             if(!isValid.isValid) {
-                throw new InvalidSearchRequestException("Invalid parameter :"+isValid.invalidProperty + " for search request type " + requestType);
+                log.warn("Invalid parameter :{} for search request type {}",isValid.invalidProperty, requestType);
+                return SearchRequestSubmissionStatus.REQUEST_VALIDATION_FAILURE;
             }
         }
 
         log.debug("Processing requesttype {} with parameters {}",requestType,parameters);
-        ringBuffer.publishEvent(searchRequestTranslator,requestType,parameters,context);
-
+        ringBuffer.publishEvent(searchRequestTranslator, requestType, parameters, context);
+        return SearchRequestSubmissionStatus.PROCESSING;
     }
 
     @PreDestroy
