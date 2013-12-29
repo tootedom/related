@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 
 import javax.servlet.AsyncContext;
 
@@ -18,9 +20,9 @@ public class SearchResultsToResponseEventTranslator implements SearchResponseEve
     }
 
     @Override
-    public void translateTo(ResponseEvent event, long sequence,AsyncContext[] waitingRequests,
+    public void translateTo(ResponseEvent event, long sequence, SearchResponseContextHolder[] waitingRequests,
                             SearchResultsEvent searchResults) {
-        event.setContext(waitingRequests);
+        event.setContexts(waitingRequests);
         event.setResults(searchResults);
     }
 }

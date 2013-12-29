@@ -2,8 +2,10 @@ package org.greencheek.relatedproduct.searching.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.*;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.RelatedProductSearchFactoryWithSearchLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.RelatedProductSearchLookupKeyGenerator;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedRequestResponseProcessor;
@@ -18,11 +20,12 @@ import org.greencheek.relatedproduct.searching.repository.ElasticSearchClientFac
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.repository.NodeOrTransportBasedElasticSearchClientFactoryCreator;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
-import org.greencheek.relatedproduct.searching.responseprocessing.HttpBasedRelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.responseprocessing.HttpAsyncSearchResponseContextHandler;
+import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
@@ -100,14 +103,16 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
     @Override
     public SearchResponseContextLookup createAsyncContextLookup() {
-        return new MultiMapAsyncContextLookup(config);
+        return new MultiMapSearchResponseContextLookup(config);
     }
 
     @Override
     public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient() {
-        return new DisruptorBasedResponseProcessor(new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(config,createSearchResultsConverterFactory())),config);
-
+        return new DisruptorBasedResponseProcessor(
+                new DisruptorBasedResponseEventHandler(
+                        new MapBasedSearchResponseContextHandlerLookup(config),
+                        createSearchResultsConverterFactory()),
+                config);
     }
 
 

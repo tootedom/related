@@ -14,9 +14,9 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
@@ -26,9 +26,6 @@ import org.greencheek.relatedproduct.searching.responseprocessing.resultsconvert
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.*;
-
-import java.nio.ByteBuffer;
-import java.util.Map;
 
 import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
 import static org.junit.Assert.assertEquals;

@@ -4,7 +4,7 @@ package org.greencheek.relatedproduct.searching.bootstrap;
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;

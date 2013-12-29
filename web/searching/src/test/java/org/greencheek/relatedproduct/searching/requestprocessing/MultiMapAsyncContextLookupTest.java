@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.requestprocessing;
 
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Test;
 
@@ -17,19 +17,19 @@ public class MultiMapAsyncContextLookupTest {
 
     @Test
     public void testRemoveContexts() throws Exception {
-        MultiMapAsyncContextLookup map = new MultiMapAsyncContextLookup(new SystemPropertiesConfiguration());
+        MultiMapSearchResponseContextLookup map = new MultiMapSearchResponseContextLookup(new SystemPropertiesConfiguration());
 
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
         SearchRequestLookupKey key1234 = new SipHashSearchRequestLookupKey("1234");
-        AsyncContext context = new StubAsyncCntext();
-        AsyncContext context2 = new StubAsyncCntext();
-        AsyncContext context3 = new StubAsyncCntext();
+        SearchResponseContextHolder context = createHolder();
+        SearchResponseContextHolder context2 = createHolder();
+        SearchResponseContextHolder context3 = createHolder();
 
         map.addContext(key123,context);
         map.addContext(key1234,context2);
         map.addContext(key1234,context3);
 
-        AsyncContext[] contexts = map.removeContexts(key123);
+        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
         assertEquals(1,contexts.length);
         assertSame(contexts[0],context);
 
@@ -45,26 +45,33 @@ public class MultiMapAsyncContextLookupTest {
 
     @Test
     public void testRemoveNonExistentContext() {
-        MultiMapAsyncContextLookup map = new MultiMapAsyncContextLookup(new SystemPropertiesConfiguration());
+        MultiMapSearchResponseContextLookup map = new MultiMapSearchResponseContextLookup(new SystemPropertiesConfiguration());
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
 
-        AsyncContext[] contexts = map.removeContexts(key123);
+        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
         assertEquals(0,contexts.length);
+    }
+
+    private SearchResponseContextHolder createHolder() {
+        SearchResponseContextHolder holder1 = new SearchResponseContextHolder();
+        SearchResponseContext context = new AsyncServletSearchResponseContext(new StubAsyncCntext());
+        holder1.setContexts(new SearchResponseContext[]{context});
+        return holder1;
     }
 
     @Test
     public void testAddAndRemoveContextForSingleItems() throws Exception {
-        MultiMapAsyncContextLookup map = new MultiMapAsyncContextLookup(new SystemPropertiesConfiguration());
+        MultiMapSearchResponseContextLookup map = new MultiMapSearchResponseContextLookup(new SystemPropertiesConfiguration());
 
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
         SearchRequestLookupKey key1234 = new SipHashSearchRequestLookupKey("1234");
-        AsyncContext context = new StubAsyncCntext();
-        AsyncContext context2 = new StubAsyncCntext();
+        SearchResponseContextHolder context = createHolder();
+        SearchResponseContextHolder context2 = createHolder();
 
         map.addContext(key123,context);
         map.addContext(key1234,context2);
 
-        AsyncContext[] contexts = map.removeContexts(key123);
+        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
         assertEquals(1,contexts.length);
         assertSame(contexts[0],context);
 

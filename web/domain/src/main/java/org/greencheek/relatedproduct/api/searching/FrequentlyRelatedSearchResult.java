@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.domain.searching;
+package org.greencheek.relatedproduct.api.searching;
 
 /**
  * Represents a results that contains the frequency of the id occurring.

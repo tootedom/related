@@ -2,11 +2,11 @@ package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.IgnoreExceptionHandler;
+import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.SleepingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
@@ -15,7 +15,6 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.AsyncContext;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,6 +29,7 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<SearchEvent> disruptor;
+    private final RingBuffer<SearchEvent> ringBuffer;
 
 
     public DisruptorBasedRequestResponseProcessor(SearchEventHandler eventHandler,
@@ -41,14 +41,14 @@ public class DisruptorBasedRequestResponseProcessor implements RelatedProductSea
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
-        disruptor.handleEventsWith(new EventHandler[] {eventHandler});
-        disruptor.start();
+        disruptor.handleEventsWith(eventHandler);
+        ringBuffer = disruptor.start();
 
     }
 
     @Override
-    public void handleRequest(RelatedProductSearchRequest searchRequest) {
-        disruptor.publishEvent(SearchRequestTranslator.INSTANCE, searchRequest);
+    public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
+        ringBuffer.publishEvent(SearchRequestTranslator.INSTANCE, searchRequest, searchExecutor);
     }
 
     @Override

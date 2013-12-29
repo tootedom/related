@@ -1,5 +1,8 @@
 package org.greencheek.relatedproduct.domain.searching;
 
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell

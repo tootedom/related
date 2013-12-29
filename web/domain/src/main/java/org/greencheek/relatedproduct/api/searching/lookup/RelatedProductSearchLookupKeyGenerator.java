@@ -1,6 +1,6 @@
-package org.greencheek.relatedproduct.api.searching;
+package org.greencheek.relatedproduct.api.searching.lookup;
 
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,7 +28,7 @@ public interface RelatedProductSearchLookupKeyGenerator {
      * object.
      *
      * This method has the side effect of modifying the RelatedProductSearch object to set it's lookupKey (
-     * @see RelatedProductSearch#setLookupKey(org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey)
+     * @see RelatedProductSearch#setLookupKey(org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey)
      *
      * @param userSearch The user search.
      * @return the SearchRequestLookupKey that represents that userSearch.

@@ -1,6 +1,4 @@
-package org.greencheek.relatedproduct.domain.searching;
-
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
+package org.greencheek.relatedproduct.api.searching;
 
 /**
  * Created with IntelliJ IDEA.

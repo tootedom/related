@@ -2,7 +2,7 @@ package org.greencheek.relatedproduct.indexing.requestprocessors.single.disrupto
 
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 
 
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;

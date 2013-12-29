@@ -1,9 +1,9 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 
 
-import org.greencheek.relatedproduct.domain.RelatedProductReference;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.slf4j.Logger;

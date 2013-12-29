@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.domain.api;
 
 import com.lmax.disruptor.EventFactory;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 
 
 /**

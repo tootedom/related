@@ -6,9 +6,10 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestRespon
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseEventHandler;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
-import org.greencheek.relatedproduct.searching.responseprocessing.HttpBasedRelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.responseprocessing.HttpAsyncSearchResponseContextHandler;
+import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -22,25 +23,29 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  */
 public class PrototypeDisruptorRequestResponseProcessFactory implements RelatedProductSearchRequestResponseProcessorFactory {
 
-    private final Configuration config;
+    private final Configuration configuration;
 
     public PrototypeDisruptorRequestResponseProcessFactory(Configuration configuration) {
-        this.config = configuration;
+        this.configuration = configuration;
     }
 
     @Override
     public RelatedProductSearchRequestResponseProcessor createProcessor() {
 
-        SearchResponseContextLookup ctxStorage =  new MultiMapAsyncContextLookup(config);
+        SearchResponseContextLookup ctxStorage =  new MultiMapSearchResponseContextLookup(configuration);
 
         ResponseEventHandler searchResultsHandler  = new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(config,new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(config))));
+                new MapBasedSearchResponseContextHandlerLookup(configuration),
+                new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(configuration)));
 
-        RelatedProductSearchResultsResponseProcessor searchResultsProcessor = new DisruptorBasedResponseProcessor(searchResultsHandler,config);
 
-        SearchEventHandler searchEventRequestOrResponseOccurredHandler = new DisruptorBasedSearchEventHandler(config,
+
+
+        RelatedProductSearchResultsResponseProcessor searchResultsProcessor = new DisruptorBasedResponseProcessor(searchResultsHandler,configuration);
+
+        SearchEventHandler searchEventRequestOrResponseOccurredHandler = new DisruptorBasedSearchEventHandler(configuration,
                 ctxStorage,searchResultsProcessor);
 
-        return new DisruptorBasedRequestResponseProcessor(searchEventRequestOrResponseOccurredHandler,config);
+        return new DisruptorBasedRequestResponseProcessor(searchEventRequestOrResponseOccurredHandler,configuration);
     }
 }

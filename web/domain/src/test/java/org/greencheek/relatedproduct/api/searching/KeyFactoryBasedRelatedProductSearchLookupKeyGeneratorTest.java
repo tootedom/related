@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.api.searching;
 
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.RelatedProductSearchLookupKeyGenerator;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 

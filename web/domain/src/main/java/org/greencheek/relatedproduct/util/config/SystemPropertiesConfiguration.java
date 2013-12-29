@@ -146,6 +146,8 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final boolean USE_SHARED_SEARCH_REPOSITORY = Boolean.parseBoolean(System.getProperty("related-product.use.shared.search.repository","false"));
 
+    private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = Boolean.parseBoolean(System.getProperty("related-product.search.response.debug.output.enabled","false"));
+
     private final WaitStrategyFactory waitStrategyFactory;
 
     private final ElasticeSearchClientType esClientType;
@@ -395,6 +397,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getRelatedProductAdditionalPropertyValueLength() {
         return RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH;
+    }
+
+    @Override
+    public boolean isSearchResponseDebugOutputEnabled() {
+        return RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED;
     }
 
     @Override

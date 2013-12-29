@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.api.indexing;
 
 import com.lmax.disruptor.EventFactory;
-import org.greencheek.relatedproduct.domain.RelatedProductReference;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

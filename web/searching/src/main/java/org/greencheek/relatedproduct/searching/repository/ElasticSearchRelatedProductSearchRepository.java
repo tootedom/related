@@ -4,18 +4,14 @@ import org.elasticsearch.ElasticSearchTimeoutException;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.

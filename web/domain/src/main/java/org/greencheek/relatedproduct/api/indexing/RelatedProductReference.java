@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.domain;
+package org.greencheek.relatedproduct.api.indexing;
 
 /**
  * Created with IntelliJ IDEA.

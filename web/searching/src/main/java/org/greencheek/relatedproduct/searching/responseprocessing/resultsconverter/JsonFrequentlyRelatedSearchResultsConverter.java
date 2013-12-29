@@ -3,9 +3,8 @@ package org.greencheek.relatedproduct.searching.responseprocessing.resultsconver
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;

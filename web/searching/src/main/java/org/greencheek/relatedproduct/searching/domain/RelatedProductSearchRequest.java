@@ -1,12 +1,13 @@
 package org.greencheek.relatedproduct.searching.domain;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 import javax.servlet.AsyncContext;
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,23 +19,23 @@ import java.nio.ByteBuffer;
 public class RelatedProductSearchRequest {
 
 //    private RelatedProductSearchType requestType;
-    private AsyncContext requestContext;
+    private final SearchResponseContextHolder requestContext = new SearchResponseContextHolder();
     private final RelatedProductSearch searchRequest;
-    private RelatedProductSearchExecutor searchExecutor;
+//    private RelatedProductSearchExecutor searchExecutor;
 
 //    private Map<String,String> requestProperties;
 
     public RelatedProductSearchRequest(Configuration configuration) {
         searchRequest = new RelatedProductSearch(configuration);
     }
-
-    public void setSearchExecutor(RelatedProductSearchExecutor searchExecutor) {
-        this.searchExecutor = searchExecutor;
-    }
-
-    public RelatedProductSearchExecutor getSearchExecutor() {
-        return this.searchExecutor;
-    }
+//
+//    public void setSearchExecutor(RelatedProductSearchExecutor searchExecutor) {
+//        this.searchExecutor = searchExecutor;
+//    }
+//
+//    public RelatedProductSearchExecutor getSearchExecutor() {
+//        return this.searchExecutor;
+//    }
 
     public RelatedProductSearch getSearchRequest() {
         return this.searchRequest;
@@ -48,11 +49,11 @@ public class RelatedProductSearchRequest {
 //        return requestProperties;
 //    }
 
-    public void setRequestContext(AsyncContext clientCtx) {
-        this.requestContext = clientCtx;
-    }
+//    public void setRequestContext(SearchResponseContextHolder clientCtx) {
+//        this.requestContext = clientCtx;
+//    }
 
-    public AsyncContext getRequestContext() {
+    public SearchResponseContextHolder getRequestContext() {
         return requestContext;
     }
 //

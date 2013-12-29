@@ -1,6 +1,5 @@
 package org.greencheek.relatedproduct.api.indexing;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Test;

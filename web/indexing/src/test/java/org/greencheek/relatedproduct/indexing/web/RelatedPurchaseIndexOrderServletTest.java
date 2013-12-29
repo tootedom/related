@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.indexing.web;
 
 import com.ning.http.client.AsyncHttpClient;
-import com.ning.http.client.ByteArrayPart;
 import com.ning.http.client.Response;
 import com.ning.http.client.generators.InputStreamBodyGenerator;
 import org.apache.catalina.Context;
@@ -11,12 +10,10 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.naming.resources.VirtualDirContext;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
-import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
-import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.indexing.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
@@ -24,11 +21,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;

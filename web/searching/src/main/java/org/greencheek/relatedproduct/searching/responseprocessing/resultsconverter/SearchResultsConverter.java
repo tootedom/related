@@ -1,6 +1,5 @@
 package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
-import org.greencheek.relatedproduct.domain.searching.SearchResult;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 
 /**

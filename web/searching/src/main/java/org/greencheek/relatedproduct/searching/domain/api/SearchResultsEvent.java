@@ -2,7 +2,7 @@ package org.greencheek.relatedproduct.searching.domain.api;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
-import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
 
 /**
  *

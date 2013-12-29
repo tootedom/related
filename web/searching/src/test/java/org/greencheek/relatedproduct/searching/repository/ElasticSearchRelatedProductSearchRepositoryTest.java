@@ -4,7 +4,7 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;

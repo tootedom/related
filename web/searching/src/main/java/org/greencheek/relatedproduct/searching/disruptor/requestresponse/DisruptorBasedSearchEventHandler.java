@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
@@ -10,11 +11,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 13:28
- * To change this template use File | Settings | File Templates.
+
  */
 public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
 

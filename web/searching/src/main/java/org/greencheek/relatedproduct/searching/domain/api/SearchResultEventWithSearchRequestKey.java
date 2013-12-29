@@ -1,9 +1,9 @@
 package org.greencheek.relatedproduct.searching.domain.api;
 
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 
 /**
- * A {@link SearchResultsEvent} associated with the {@link org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey}
+ * A {@link SearchResultsEvent} associated with the {@link org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey}
  * that was responsible for that search result
  */
 public class SearchResultEventWithSearchRequestKey {

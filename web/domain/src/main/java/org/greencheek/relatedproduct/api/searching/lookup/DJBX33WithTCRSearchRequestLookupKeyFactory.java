@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.domain.searching;
+package org.greencheek.relatedproduct.api.searching.lookup;
 
 /**
  * Created with IntelliJ IDEA.
@@ -7,9 +7,9 @@ package org.greencheek.relatedproduct.domain.searching;
  * Time: 13:18
  * To change this template use File | Settings | File Templates.
  */
-public class SipHashSearchRequestLookupKeyFactory implements SearchRequestLookupKeyFactory {
+public class DJBX33WithTCRSearchRequestLookupKeyFactory implements SearchRequestLookupKeyFactory {
     @Override
     public SearchRequestLookupKey createSearchRequestLookupKey(String key) {
-        return new SipHashSearchRequestLookupKey(key);
+        return new DJBX33AWithTCRSearchRequestLookupKey(key);
     }
 }

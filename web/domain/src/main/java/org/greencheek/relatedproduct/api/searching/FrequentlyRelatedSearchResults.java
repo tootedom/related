@@ -1,8 +1,4 @@
-package org.greencheek.relatedproduct.domain.searching;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+package org.greencheek.relatedproduct.api.searching;
 
 /**
  * Created with IntelliJ IDEA.

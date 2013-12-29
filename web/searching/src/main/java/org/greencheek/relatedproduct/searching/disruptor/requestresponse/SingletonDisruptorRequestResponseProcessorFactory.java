@@ -5,9 +5,10 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestRespon
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseEventHandler;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
-import org.greencheek.relatedproduct.searching.responseprocessing.HttpBasedRelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.responseprocessing.HttpAsyncSearchResponseContextHandler;
+import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -27,9 +28,11 @@ public class SingletonDisruptorRequestResponseProcessorFactory implements Relate
     private final RelatedProductSearchResultsResponseProcessor searchResultsResponseProcessor;
 
     public SingletonDisruptorRequestResponseProcessorFactory(Configuration configuration) {
-        this.asyncContextLookup = new MultiMapAsyncContextLookup(configuration);
-        this.searchResultsResponseProcessor = new DisruptorBasedResponseProcessor(new DisruptorBasedResponseEventHandler(
-                new HttpBasedRelatedProductSearchResultsResponseProcessor(configuration,new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(configuration)))),
+        this.asyncContextLookup = new MultiMapSearchResponseContextLookup(configuration);
+        this.searchResultsResponseProcessor = new DisruptorBasedResponseProcessor(
+                new DisruptorBasedResponseEventHandler(
+                        new MapBasedSearchResponseContextHandlerLookup(configuration),
+                        new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(configuration))),
                 configuration);
 
         processor = new DisruptorBasedRequestResponseProcessor(new DisruptorBasedSearchEventHandler(configuration,asyncContextLookup,searchResultsResponseProcessor),

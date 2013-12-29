@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.domain.searching;
 
 
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

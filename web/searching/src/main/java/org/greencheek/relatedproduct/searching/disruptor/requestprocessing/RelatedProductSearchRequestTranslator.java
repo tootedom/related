@@ -6,6 +6,8 @@ import com.lmax.disruptor.EventTranslatorVararg;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +32,9 @@ public class RelatedProductSearchRequestTranslator implements IncomingSearchRequ
     @Override
     public void translateTo(RelatedProductSearchRequest event, long sequence,
                             RelatedProductSearchType type, Map<String,String> params,
-                            AsyncContext context) {
+                            SearchResponseContext[] contexts) {
         log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),params);
-        event.setRequestContext(context);
+        event.getRequestContext().setContexts(contexts);
         relatedProductSearchFactory.populateSearchObject(event.getSearchRequest(), type,params);
     }
 }

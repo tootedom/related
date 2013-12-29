@@ -22,31 +22,25 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     private volatile boolean shutdown = false;
 
     private final Configuration configuration;
-    private final RelatedProductSearchRequestResponseProcessor[] asyncContextStorage;
+    private final RelatedProductSearchRequestResponseProcessor asyncContextStorage;
     private final RelatedProductSearchExecutor[] searchRequestExecutor;
 
     private int currentIndex = 0;
     private final int mask;
 
     public RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(Configuration configuration,
-                                                                               RelatedProductSearchRequestResponseProcessor[] asyncContextStorage,
+                                                                               RelatedProductSearchRequestResponseProcessor asyncContextStorage,
                                                                                RelatedProductSearchExecutor[] searchExecutor) {
-        check(asyncContextStorage, searchExecutor);
+        check(searchExecutor);
         this.configuration = configuration;
         this.asyncContextStorage = asyncContextStorage;
         this.searchRequestExecutor = searchExecutor;
 
-        mask = asyncContextStorage.length-1;
-
+        mask = searchExecutor.length-1;
     }
 
-    private void check( RelatedProductSearchRequestResponseProcessor[] asyncContextStorage,
-                        RelatedProductSearchExecutor[] searchExecutor) throws InstantiationError {
-        if(asyncContextStorage.length!=searchExecutor.length) {
-            throw new InstantiationError("AsyncContextLookup array must be the same size as the searchExecutors array");
-        }
-
-        int length = asyncContextStorage.length;
+    private void check(RelatedProductSearchExecutor[] searchExecutor) throws InstantiationError {
+        int length = searchExecutor.length;
 
         if(length != Util.ceilingNextPowerOfTwo(length)) {
             throw new InstantiationError("The length of the context lookup and search executors array must be a power of 2");
@@ -61,12 +55,11 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 //            RelatedProductSearch search = RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest,event.getRequestType(), event.getRequestProperties());
 //            RelatedProductSearch search = event.searchRequest;
             int currentIndex = this.currentIndex++ & mask;
-            event.setSearchExecutor(searchRequestExecutor[currentIndex]);
-            asyncContextStorage[currentIndex].handleRequest(event);
+//            event.setSearchExecutor(searchRequestExecutor[currentIndex]);
+            asyncContextStorage.handleRequest(event, searchRequestExecutor[currentIndex]);
 
 //            searchRequestExecutor[currentIndex].executeSearch(search);
         } finally {
-            event.setRequestContext(null);
             event.getSearchRequest().setValidMessage(false);
 
         }
@@ -76,13 +69,12 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
         if(!this.shutdown) {
             this.shutdown = true;
 
-            for(RelatedProductSearchRequestResponseProcessor processor : asyncContextStorage) {
-                try {
-                    processor.shutdown();
-                } catch (Exception e) {
-                    log.warn("Unable to stop RequestAndRequest Gateway (AsyncContextStorage)");
-                }
+            try {
+                asyncContextStorage.shutdown();
+            } catch (Exception e) {
+                log.warn("Unable to stop RequestAndRequest Gateway (AsyncContextStorage)");
             }
+
 
             for (RelatedProductSearchExecutor searchExecutor : searchRequestExecutor) {
                 try {

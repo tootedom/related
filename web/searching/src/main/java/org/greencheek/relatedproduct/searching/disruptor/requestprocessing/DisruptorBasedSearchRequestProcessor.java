@@ -7,10 +7,7 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
-import org.greencheek.relatedproduct.searching.requestprocessing.InvalidSearchRequestException;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidator;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
-import org.greencheek.relatedproduct.searching.requestprocessing.ValidationMessage;
+import org.greencheek.relatedproduct.searching.requestprocessing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +59,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
 
     @Override
-    public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, AsyncContext context) throws InvalidSearchRequestException {
+    public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, SearchResponseContext[] context) throws InvalidSearchRequestException {
         SearchRequestParameterValidator validator = requestValidators.getValidatorForType(requestType);
         if(validator !=null) {
             ValidationMessage isValid = validator.validateParameters(parameters);

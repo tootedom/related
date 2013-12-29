@@ -1,7 +1,5 @@
 package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
-import org.greencheek.relatedproduct.domain.searching.FrequentlyRelatedSearchResults;
-
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell

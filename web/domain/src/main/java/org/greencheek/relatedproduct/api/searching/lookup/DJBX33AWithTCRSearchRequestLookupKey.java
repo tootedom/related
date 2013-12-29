@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.domain.searching;
+package org.greencheek.relatedproduct.api.searching.lookup;
 
 import java.util.Random;
 

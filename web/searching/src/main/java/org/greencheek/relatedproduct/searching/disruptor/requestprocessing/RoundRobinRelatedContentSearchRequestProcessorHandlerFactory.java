@@ -41,14 +41,12 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
 
             log.debug("Creating {} Search Request Processor",numberOfSearchProcessors);
             RelatedProductSearchExecutor[] searchExecutors = new RelatedProductSearchExecutor[numberOfSearchProcessors];
-            RelatedProductSearchRequestResponseProcessor[]  requestResponseGateways = new RelatedProductSearchRequestResponseProcessor[numberOfSearchProcessors];
             int i = numberOfSearchProcessors;
             while(i-- !=0) {
                 searchExecutors[i] = appContext.createSearchExecutor(requestAndResponseProcessor);
-                requestResponseGateways[i] = requestAndResponseProcessor;
             }
 
-            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestResponseGateways,searchExecutors);
+            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestAndResponseProcessor,searchExecutors);
         }
     }
 }

@@ -5,11 +5,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;

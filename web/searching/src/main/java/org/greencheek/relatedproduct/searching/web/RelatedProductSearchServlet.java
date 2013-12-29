@@ -4,7 +4,7 @@ package org.greencheek.relatedproduct.searching.web;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
 import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
-import org.greencheek.relatedproduct.searching.requestprocessing.InvalidSearchRequestException;
+import org.greencheek.relatedproduct.searching.requestprocessing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +98,20 @@ public class RelatedProductSearchServlet extends HttpServlet {
         params.put(configuration.getRequestParameterForId(), getId(request.getPathInfo()));
         try {
             log.debug("Request {}",params);
-            productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,ctx);
+            SearchResponseContext[] contexts;
+            if(configuration.isSearchResponseDebugOutputEnabled()) {
+                contexts = new SearchResponseContext[] {
+                        new AsyncServletSearchResponseContext(ctx),
+                        LogDebuggingSearchResponseContext.INSTANCE
+                };
+
+            } else {
+                contexts = new SearchResponseContext[] {
+                        new AsyncServletSearchResponseContext(ctx)
+                };
+            }
+            productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,contexts);
+
         } catch (InvalidSearchRequestException invalidRequestException) {
             log.warn("Invalid search request",invalidRequestException);
             ctx.complete();

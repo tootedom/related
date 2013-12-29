@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.searching.domain.api;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 
 import javax.servlet.AsyncContext;
 
@@ -13,7 +15,7 @@ import javax.servlet.AsyncContext;
  * To change this template use File | Settings | File Templates.
  */
 public class SearchRequestEvent {
-    public AsyncContext requestContext = null;
+    public SearchResponseContextHolder requestContext = null;
     public RelatedProductSearch searchRequest = null;
     public RelatedProductSearchExecutor searchExecutor = null;
 
@@ -21,7 +23,7 @@ public class SearchRequestEvent {
 
     }
 
-    public void populateSearchRequestEvent(AsyncContext context, RelatedProductSearch searchRequest,RelatedProductSearchExecutor searchExecutor) {
+    public void populateSearchRequestEvent(SearchResponseContextHolder context, RelatedProductSearch searchRequest,RelatedProductSearchExecutor searchExecutor) {
         this.requestContext = context;
         this.searchRequest = searchRequest;
         this.searchExecutor = searchExecutor;
@@ -31,7 +33,7 @@ public class SearchRequestEvent {
         return searchExecutor;
     }
 
-    public AsyncContext getRequestContext() {
+    public SearchResponseContextHolder getRequestContext() {
         return requestContext;
     }
 

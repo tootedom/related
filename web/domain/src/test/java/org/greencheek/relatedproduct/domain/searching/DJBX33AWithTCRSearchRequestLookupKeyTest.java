@@ -1,5 +1,8 @@
 package org.greencheek.relatedproduct.domain.searching;
 
+import org.greencheek.relatedproduct.api.searching.lookup.DJBX33WithTCRSearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell

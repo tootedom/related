@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
 import com.lmax.disruptor.EventHandler;
-import org.greencheek.relatedproduct.domain.RelatedProductReference;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 
 /**
  * for use by the {@link RoundRobinRelatedProductIndexingMessageEventHandler} for taking {@link RelatedProductReference}

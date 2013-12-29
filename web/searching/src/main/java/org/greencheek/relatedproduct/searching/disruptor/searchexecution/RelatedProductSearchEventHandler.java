@@ -1,7 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;

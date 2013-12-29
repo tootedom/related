@@ -1,14 +1,15 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class DisruptorBasedSearchEventHandlerTest {
 //
 
     private Configuration configuration = new SystemPropertiesConfiguration();
-    private SearchResponseContextLookup lookup = new MultiMapAsyncContextLookup(configuration);
+    private SearchResponseContextLookup lookup = new MultiMapSearchResponseContextLookup(configuration);
     private TestRelatedProductSearchResultsResponseProcessor responseProcessor = new TestRelatedProductSearchResultsResponseProcessor();
     private SearchEventHandler handler = new DisruptorBasedSearchEventHandler(configuration,lookup,responseProcessor);
     private TestRelatedProductSearchExecutor searchExecutor = new TestRelatedProductSearchExecutor();
@@ -39,7 +40,7 @@ public class DisruptorBasedSearchEventHandlerTest {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_REQUEST);
         event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
-        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
+        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
@@ -47,7 +48,7 @@ public class DisruptorBasedSearchEventHandlerTest {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_RESULT);
         event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
-        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
+        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
@@ -132,7 +133,7 @@ public class DisruptorBasedSearchEventHandlerTest {
         private AtomicBoolean shutdown = new AtomicBoolean(false);
 
         @Override
-        public void processSearchResults(AsyncContext[] context, SearchResultsEvent results) {
+        public void processSearchResults(SearchResponseContextHolder[] context, SearchResultsEvent results) {
             noOfCalls.incrementAndGet();
         }
 

@@ -1,8 +1,7 @@
 package org.greencheek.relatedproduct.indexing.locationmappers;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.util.UTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;

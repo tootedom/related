@@ -1,6 +1,9 @@
-package org.greencheek.relatedproduct.api.searching;
+package org.greencheek.relatedproduct.api.searching.lookup;
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

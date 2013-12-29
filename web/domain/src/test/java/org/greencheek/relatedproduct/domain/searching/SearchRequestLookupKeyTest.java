@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.domain.searching;
 
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
 import org.junit.Before;
 import org.junit.Test;
 

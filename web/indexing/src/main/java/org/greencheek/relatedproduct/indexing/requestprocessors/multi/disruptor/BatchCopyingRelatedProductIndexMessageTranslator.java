@@ -1,10 +1,8 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
-import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.EventTranslatorOneArg;
-import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
-import org.greencheek.relatedproduct.domain.RelatedProductReference;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

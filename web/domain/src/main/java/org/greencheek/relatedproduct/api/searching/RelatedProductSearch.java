@@ -2,8 +2,7 @@ package org.greencheek.relatedproduct.api.searching;
 
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.RelatedProductInfoIdentifier;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKeyFactory;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 

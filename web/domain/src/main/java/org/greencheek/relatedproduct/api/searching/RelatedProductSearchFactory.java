@@ -6,11 +6,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 13/10/2013
- * Time: 17:42
- * To change this template use File | Settings | File Templates.
+ *
  */
 public interface RelatedProductSearchFactory extends EventFactory<RelatedProductSearch> {
 
@@ -24,7 +20,9 @@ public interface RelatedProductSearchFactory extends EventFactory<RelatedProduct
 
     /**
      * Given a RelatedProductSearch object, it populates that object with the passed type information,
-     * the key,value pair properties that are passed.  These properties represent the user's search criteria
+     * and the key,value pair properties that are passed.
+     *
+     * These properties represent the user's search criteria
      * for performing a lookup for frequently related products.
      *
      * @param objectToPopulate The RelatedProductSearch object that is to be populated from the given properties

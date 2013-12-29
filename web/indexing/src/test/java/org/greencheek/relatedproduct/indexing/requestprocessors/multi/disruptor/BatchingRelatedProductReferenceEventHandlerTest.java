@@ -1,14 +1,10 @@
 package org.greencheek.relatedproduct.indexing.requestprocessors.multi.disruptor;
 
-import org.greencheek.relatedproduct.api.indexing.BasicRelatedProductIndexingMessageConverter;
-import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
-import org.greencheek.relatedproduct.domain.RelatedProduct;
-import org.greencheek.relatedproduct.domain.RelatedProductReference;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLocationMapper;
-import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
-import org.greencheek.relatedproduct.indexing.requestprocessors.single.disruptor.SingleRelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;

@@ -25,6 +25,12 @@ public interface Configuration {
     public int getRelatedProductAdditionalPropertyKeyLength();
     public int getRelatedProductAdditionalPropertyValueLength();
 
+    /**
+     * Can be used as a mechanism of whether or not a
+     * @return
+     */
+    public boolean isSearchResponseDebugOutputEnabled();
+
     public int getIndexBatchSize();
 
     /**

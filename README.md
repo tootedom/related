@@ -99,6 +99,9 @@ Sample indexing configuration params:
 Sample search request
 '''
 http://10.0.1.29:8080/searching/frequentlyrelatedto/8855?channel=uk
+
+curl http://localhost:8080/searching/frequentlyrelatedto/123?channel=uk
+
 '''
 
 

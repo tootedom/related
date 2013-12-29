@@ -3,8 +3,8 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.domain.searching.SipHashSearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
@@ -14,8 +14,10 @@ import org.greencheek.relatedproduct.searching.disruptor.requestresponse.Disrupt
 import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchEventHandler;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.domain.api.*;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapAsyncContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.hamcrest.Description;
@@ -87,10 +89,10 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
                 latch.countDown();
                 return null;
             }
-        }).when(responseProcessor).processSearchResults(any(AsyncContext[].class), any(SearchResultsEvent.class));
+        }).when(responseProcessor).processSearchResults(any(SearchResponseContextHolder[].class), any(SearchResultsEvent.class));
 
         searchRepositoryWith2SecondDelay = mock(RelatedProductSearchRepository.class);
-        contextLookup = new MultiMapAsyncContextLookup(configuration);
+        contextLookup = new MultiMapSearchResponseContextLookup(configuration);
         searchResults = createResults();
 
         // Simulate a delay.  This is so that request contexts can build
@@ -137,18 +139,18 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
     @Test
     public void testMultipleLookupsForSameKeyResultsInOnSearchRequest() {
-        requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
-        requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
-        requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
-        requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
-        requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
+        requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
+        requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
+        requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
+        requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
+        requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
         try {
             boolean completed = searchRequestPerformed.await(3000,TimeUnit.MILLISECONDS);
             if(!completed) {
                 fail("Timeout waiting for search results to be returned");
             }
-            requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
-            requestResponseProcessor.handleRequest(createSearchRequest(searchExecutor));
+            requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
+            requestResponseProcessor.handleRequest(createSearchRequest(),searchExecutor);
         } catch(Exception e) {
             fail("Interrupted during waiting for search request to be performed");
         }
@@ -164,12 +166,12 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
 
         assertEquals(1,searchRepositoryCallCount.get());
-        assertTrue(contextLookup.addContext(key,mock(AsyncContext.class)));
+        assertTrue(contextLookup.addContext(key,mock(SearchResponseContextHolder.class)));
 
         verify(responseProcessor).processSearchResults(argThat(new GivenAnArrayOfAsyncContextsOfLength(7)),any(SearchResultsEvent.class));
     }
 
-    private class GivenAnArrayOfAsyncContextsOfLength extends ArgumentMatcher<AsyncContext[]> {
+    private class GivenAnArrayOfAsyncContextsOfLength extends ArgumentMatcher<SearchResponseContextHolder[]> {
 
         private int argLength;
         public GivenAnArrayOfAsyncContextsOfLength(int length) {
@@ -178,8 +180,8 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
         @Override
         public boolean matches(Object argument) {
-            if(argument instanceof AsyncContext[]) {
-                AsyncContext[] contexts = (AsyncContext[])argument;
+            if(argument instanceof SearchResponseContextHolder[]) {
+                SearchResponseContextHolder[] contexts = (SearchResponseContextHolder[])argument;
                 return contexts.length==argLength;
             }
             return false;  //To change body of implemented methods use File | Settings | File Templates.
@@ -203,10 +205,8 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
     }
 
 
-    private RelatedProductSearchRequest createSearchRequest(RelatedProductSearchExecutor searchExecutor) {
+    private RelatedProductSearchRequest createSearchRequest() {
         RelatedProductSearchRequest request = new RelatedProductSearchRequest(configuration);
-        request.setSearchExecutor(searchExecutor);
-        request.setRequestContext(mock(AsyncContext.class));
         request.getSearchRequest().setLookupKey(key);
         request.getSearchRequest().setMaxResults(10);
         request.getSearchRequest().setRelatedContentId("1");
@@ -226,7 +226,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
         SearchEvent event = new SearchEvent();
         event.setEventType(SearchEventType.SEARCH_REQUEST);
         event.setRequestKeyReference(key);
-        event.getSearchRequestEvent().populateSearchRequestEvent(mock(AsyncContext.class),mock(RelatedProductSearch.class),executor);
+        event.getSearchRequestEvent().populateSearchRequestEvent(mock(SearchResponseContextHolder.class),mock(RelatedProductSearch.class),executor);
         return event;
     }
 

@@ -6,7 +6,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
  * performs a number of searches, either in batch fasion to others,
- * and calls {@link RelatedProductSearchRequestResponseProcessor#handleResponse(org.greencheek.relatedproduct.domain.searching.SearchRequestLookupKey, org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent)}
+ * and calls {@link RelatedProductSearchRequestResponseProcessor#handleResponse(org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey, org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent)}
  * to forward the results of the search to the listener.
  */
 public interface RelatedProductSearchRepository {

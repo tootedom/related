@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.indexing;
 
-import org.greencheek.relatedproduct.domain.RelatedProduct;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 
 import java.util.List;
 
