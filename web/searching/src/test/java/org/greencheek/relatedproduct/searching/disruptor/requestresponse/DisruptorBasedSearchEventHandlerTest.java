@@ -4,8 +4,9 @@ import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
@@ -14,7 +15,6 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Test;
 
-import javax.servlet.AsyncContext;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,19 +36,19 @@ public class DisruptorBasedSearchEventHandlerTest {
     private SearchEventHandler handler = new DisruptorBasedSearchEventHandler(configuration,lookup,responseProcessor);
     private TestRelatedProductSearchExecutor searchExecutor = new TestRelatedProductSearchExecutor();
 
-    private SearchEvent getSearchRequest(RelatedProductSearchExecutor executor) {
-        SearchEvent event = new SearchEvent();
-        event.setEventType(SearchEventType.SEARCH_REQUEST);
+    private SearchResponseEvent getSearchRequest(RelatedProductSearchExecutor executor) {
+        SearchResponseEvent event = new SearchResponseEvent();
+//        event.setEventType(SearchEventType.SEARCH_REQUEST);
         event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
-        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
+//        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
-    private SearchEvent getSearchResult(RelatedProductSearchExecutor executor) {
-        SearchEvent event = new SearchEvent();
-        event.setEventType(SearchEventType.SEARCH_RESULT);
+    private SearchResponseEvent getSearchResult(RelatedProductSearchExecutor executor) {
+        SearchResponseEvent event = new SearchResponseEvent();
+//        event.setEventType(SearchEventType.SEARCH_RESULT);
         event.setRequestKeyReference(new SipHashSearchRequestLookupKey("1"));
-        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
+//        event.getSearchRequestEvent().populateSearchRequestEvent(new SearchResponseContextHolder(),mock(RelatedProductSearch.class),executor);
         return event;
     }
 
@@ -132,13 +132,15 @@ public class DisruptorBasedSearchEventHandlerTest {
         private AtomicInteger noOfCalls = new AtomicInteger(0);
         private AtomicBoolean shutdown = new AtomicBoolean(false);
 
-        @Override
-        public void processSearchResults(SearchResponseContextHolder[] context, SearchResultsEvent results) {
-            noOfCalls.incrementAndGet();
-        }
 
         public int getNoOfCalls() {
             return noOfCalls.get();
+        }
+
+        @Override
+        public void handleResponse(SearchResultEventWithSearchRequestKey[] results) {
+            noOfCalls.incrementAndGet();
+
         }
 
         @Override

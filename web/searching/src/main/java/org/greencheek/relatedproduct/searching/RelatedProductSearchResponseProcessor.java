@@ -9,11 +9,7 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithS
  * processor that sends that response to the waiting request.
  *
  */
-public interface RelatedProductSearchRequestResponseProcessor {
-
-    public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor);
+public interface RelatedProductSearchResponseProcessor {
 
     public void handleResponse(SearchResultEventWithSearchRequestKey[] results);
-
-    public void shutdown();
 }

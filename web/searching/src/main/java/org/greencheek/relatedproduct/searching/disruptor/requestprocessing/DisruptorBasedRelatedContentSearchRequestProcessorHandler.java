@@ -1,12 +1,8 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
-import org.greencheek.relatedproduct.util.config.Configuration;
-
-import javax.servlet.AsyncContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,20 +11,16 @@ import javax.servlet.AsyncContext;
  * Time: 21:32
  * To change this template use File | Settings | File Templates.
  */
-public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler{
+public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler {
 
-    private volatile boolean shutdown = false;
 
-    private final Configuration configuration;
-    private final RelatedProductSearchRequestResponseProcessor asyncContextStorage;
     private final RelatedProductSearchExecutor searchRequestExecutor;
+    private final SearchResponseContextLookup contextStorage;
 
-    public DisruptorBasedRelatedContentSearchRequestProcessorHandler(Configuration configuration,
-                                                                     RelatedProductSearchRequestResponseProcessor asyncContextStorage,
+    public DisruptorBasedRelatedContentSearchRequestProcessorHandler(SearchResponseContextLookup contextStorage,
                                                                      RelatedProductSearchExecutor searchExecutor) {
-        this.configuration = configuration;
-        this.asyncContextStorage = asyncContextStorage;
         this.searchRequestExecutor = searchExecutor;
+        this.contextStorage = contextStorage;
     }
 
     @Override
@@ -40,8 +32,10 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
 //            RelatedProductSearch search = event.searchRequest;
 //            event.setSearchExecutor(searchRequestExecutor);
-            asyncContextStorage.handleRequest(event,searchRequestExecutor);
+//            asyncContextStorage.handleRequest(event,searchRequestExecutor);
 //            searchRequestExecutor.executeSearch(search);
+            handleRequest(event,searchRequestExecutor);
+
         } finally {
             event.getSearchRequest().setValidMessage(false);
 //            event.setRequestProperties(null);
@@ -50,8 +44,15 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
     }
 
+    public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
+        boolean executeSearch = contextStorage.addContext(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
+        if(executeSearch) {
+            searchRequestExecutor.executeSearch(searchRequest.getSearchRequest());
+        }
+    }
+
+
     public void shutdown() {
-        this.shutdown = true;
     }
 
 }

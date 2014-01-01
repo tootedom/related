@@ -12,30 +12,13 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
  * the {@see #getSearchResultsEventReference} will be null.  Like wise if it is {@link SearchEventType#SEARCH_RESULT}
  * then {@see #getSearchRequestEvent} will be null.
  */
-public class SearchEvent {
+public class SearchResponseEvent {
 
-    private final SearchRequestEvent searchRequestEvent;
-
-    private SearchEventType eventType;
     private SearchRequestLookupKey requestKeyReference;
     private SearchResultsEvent searchResultsEventReference;
 
-    public SearchEvent() {
-        searchRequestEvent = new SearchRequestEvent();
+    public SearchResponseEvent() {
     }
-
-    public SearchEventType getEventType() {
-        return eventType;
-    }
-
-    public void setEventType(SearchEventType eventType) {
-        this.eventType = eventType;
-    }
-
-    public SearchRequestEvent getSearchRequestEvent() {
-        return searchRequestEvent;
-    }
-
 
     public SearchRequestLookupKey getRequestKeyReference() {
         return requestKeyReference;
@@ -54,12 +37,12 @@ public class SearchEvent {
     }
 
 
-    public final static EventFactory<SearchEvent> FACTORY = new EventFactory<SearchEvent>()
+    public final static EventFactory<SearchResponseEvent> FACTORY = new EventFactory<SearchResponseEvent>()
     {
         @Override
-        public SearchEvent newInstance()
+        public SearchResponseEvent newInstance()
         {
-            return new SearchEvent();
+            return new SearchResponseEvent();
         }
     };
 

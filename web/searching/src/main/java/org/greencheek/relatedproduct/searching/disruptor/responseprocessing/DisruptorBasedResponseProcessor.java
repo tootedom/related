@@ -5,9 +5,12 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResponseEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +33,14 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
     private final ExecutorService executorService = newSingleThreadExecutor();
     private final Disruptor<ResponseEvent> disruptor;
     private final RingBuffer<ResponseEvent> ringBuffer;
-
+    private final SearchResponseContextLookup searchResponseContextLookup;
 
 
     public DisruptorBasedResponseProcessor(ResponseEventHandler eventHandler,
-                                           Configuration configuration
+                                           Configuration configuration,
+                                           SearchResponseContextLookup contextStorage
+
+
     ) {
         disruptor = new Disruptor<ResponseEvent>(
                 ResponseEvent.FACTORY,
@@ -44,18 +50,24 @@ public class DisruptorBasedResponseProcessor implements RelatedProductSearchResu
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         ringBuffer = disruptor.start();
+        this.searchResponseContextLookup = contextStorage;
 
 
     }
-
 
     @Override
-    public void processSearchResults(SearchResponseContextHolder[] contexts, SearchResultsEvent results) {
-        ringBuffer.publishEvent(SearchResultsToResponseEventTranslator.INSTANCE,contexts,results);
+    public void handleResponse(SearchResultEventWithSearchRequestKey[] results) {
+        SearchResponseContextHolder[][] responseContexts =  new SearchResponseContextHolder[results.length][];
+        SearchResultsEvent[] searchResults = new SearchResultsEvent[results.length];
+
+        for(int i=0;i<results.length;i++) {
+            SearchResultEventWithSearchRequestKey res = results[i];
+            responseContexts[i] = searchResponseContextLookup.removeContexts(res.getRequest());
+            searchResults[i] = res.getResponse();
+        }
+
+        ringBuffer.publishEvents(SearchResultsToResponseEventTranslator.INSTANCE,responseContexts,searchResults);
     }
-
-
-
 
     public void shutdown() {
         if(shutdown.compareAndSet(false,true)) {

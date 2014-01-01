@@ -8,5 +8,5 @@ package org.greencheek.relatedproduct.searching;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedProductSearchRequestResponseProcessorFactory {
-    public RelatedProductSearchRequestResponseProcessor createProcessor();
+    public RelatedProductSearchResponseProcessor createProcessor();
 }

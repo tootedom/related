@@ -24,7 +24,6 @@ import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchR
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
-import org.greencheek.relatedproduct.searching.responseprocessing.HttpAsyncSearchResponseContextHandler;
 import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
@@ -106,26 +105,27 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         return new MultiMapSearchResponseContextLookup(config);
     }
 
+    // HEHHHHEEEERRREEE
     @Override
-    public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient() {
+    public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient(SearchResponseContextLookup asyncContextStorage) {
         return new DisruptorBasedResponseProcessor(
                 new DisruptorBasedResponseEventHandler(
                         new MapBasedSearchResponseContextHandlerLookup(config),
                         createSearchResultsConverterFactory()),
-                config);
+                config,
+                asyncContextStorage);
     }
 
 
     @Override
-    public RelatedProductSearchRequestResponseProcessor createSearchRequestAndResponseGateway(SearchResponseContextLookup asyncContextStorage,
-                                                                                              RelatedProductSearchResultsResponseProcessor responseProcessor) {
+    public RelatedProductSearchResponseProcessor createSearchRequestAndResponseGateway(SearchResponseContextLookup asyncContextStorage,
+                                                                                       RelatedProductSearchResultsResponseProcessor responseProcessor) {
 
-        SearchEventHandler searchEventHandler = new DisruptorBasedSearchEventHandler(config,asyncContextStorage,responseProcessor);
-        return new DisruptorBasedRequestResponseProcessor(searchEventHandler,config);
+        return new DisruptorBasedRequestResponseProcessor(asyncContextStorage,responseProcessor);
     }
 
     @Override
-    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchRequestResponseProcessor requestAndResponseGateway) {
+    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsResponseProcessor requestAndResponseGateway) {
         return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),requestAndResponseGateway));
 
     }

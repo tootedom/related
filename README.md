@@ -1,7 +1,7 @@
 Indexing info
 
 '''
-curl -XPUT http://macmini:9200/_template/relatedproducts -d '{
+curl -XPUT http://localhost:9200/_template/relatedproducts -d '{
     "template" : "relatedproducts*",
     "settings" : {
         "number_of_shards" : 1,
@@ -23,6 +23,31 @@ curl -XPUT http://macmini:9200/_template/relatedproducts -d '{
               "channel" : {"type" : "string" , "index" : "not_analyzed" },
               "site" : {"type" : "string" , "index" : "not_analyzed" },
               "type" : {"type" : "string" , "index" : "not_analyzed" }
+           }
+        }
+   }
+}'
+'''
+
+'''
+curl -XPUT http://localhost:9200/_template/tweets -d '{
+    "template" : "tweets*",
+    "settings" : {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1,
+        "index.cache.field.type" : "soft",
+        "index.refresh_interval" : "5s",
+        "index.store.compress.stored" : true,
+        "index.query.default_field" : "id",
+        "index.routing.allocation.total_shards_per_node" : 1
+    },
+    "mappings" : {
+        "tweet" : {
+           "_all" : {"enabled" : false},
+           "dynamic" : false,
+           "properties" : {
+              "tweet": { "type": "string" },
+              "locations": { "type": "string", "index": "not_analyzed" }
            }
         }
    }

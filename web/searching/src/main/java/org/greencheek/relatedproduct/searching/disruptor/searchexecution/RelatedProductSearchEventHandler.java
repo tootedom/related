@@ -3,7 +3,8 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Event Handler that receives event from the ring buffer in the form of {@link RelatedProductSearch} objects.
  * This are the sent in batches to the {@link RelatedProductSearchRepository} that performs the users search,
- * returning the batch of search results.  The {@link RelatedProductSearchRequestResponseProcessor} is called
+ * returning the batch of search results.  The {@link org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor} is called
  * to deal with processing those results.
  */
 public class RelatedProductSearchEventHandler implements RelatedProductSearchDisruptorEventHandler {
@@ -26,13 +27,13 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
 
     private final Map<SearchRequestLookupKey, RelatedProductSearch> searchMap;
     private final RelatedProductSearchRepository searchRespository;
-    private final RelatedProductSearchRequestResponseProcessor searchResultsHandler;
+    private final RelatedProductSearchResultsResponseProcessor searchResultsHandler;
     private final Configuration configuration;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public RelatedProductSearchEventHandler(Configuration config,
                                             RelatedProductSearchRepository searcher,
-                                            RelatedProductSearchRequestResponseProcessor handler) {
+                                            RelatedProductSearchResultsResponseProcessor handler) {
         this.searchRespository = searcher;
         this.configuration = config;
         this.searchResultsHandler = handler;

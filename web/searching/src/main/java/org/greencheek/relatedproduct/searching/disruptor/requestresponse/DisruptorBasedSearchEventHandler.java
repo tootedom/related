@@ -1,8 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
-import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
@@ -13,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
 
  */
+@Deprecated
 public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
 
 
@@ -33,14 +33,14 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
     }
 
     @Override
-    public void onEvent(SearchEvent event, long sequence, boolean endOfBatch) throws Exception {
-        try {
-            eventHandlers[event.getEventType().getIndex()].handle(event);
-        } finally {
-            event.setSearchResultsEventReference(null);
-            event.setEventType(null);
-            event.setRequestKeyReference(null);
-        }
+    public void onEvent(SearchResponseEvent event, long sequence, boolean endOfBatch) throws Exception {
+//        try {
+//            eventHandlers[event.getEventType().getIndex()].handle(event);
+//        } finally {
+//            event.setSearchResultsEventReference(null);
+//            event.setEventType(null);
+//            event.setRequestKeyReference(null);
+//        }
     }
 
     @Override
@@ -55,25 +55,25 @@ public class DisruptorBasedSearchEventHandler implements SearchEventHandler {
     }
 
     private interface SearchEventHandler {
-        public void handle(SearchEvent event);
+        public void handle(SearchResponseEvent event);
     }
 
     private class SearchRequestHandler implements SearchEventHandler {
         @Override
-        public void handle(SearchEvent event) {
-            boolean executeSearch = contextStorage.addContext(event.getRequestKeyReference(), event.getSearchRequestEvent().getRequestContext());
-            if(executeSearch) {
-                RelatedProductSearchExecutor executor = event.getSearchRequestEvent().getSearchExecutor();
-                executor.executeSearch(event.getSearchRequestEvent().getSearchRequest());
-            }
+        public void handle(SearchResponseEvent event) {
+//            boolean executeSearch = contextStorage.addContext(event.getRequestKeyReference(), event.getSearchRequestEvent().getRequestContext());
+//            if(executeSearch) {
+//                RelatedProductSearchExecutor executor = event.getSearchRequestEvent().getSearchExecutor();
+//                executor.executeSearch(event.getSearchRequestEvent().getSearchRequest());
+//            }
         }
     }
 
     private class SearchResultHandler implements  SearchEventHandler {
 
         @Override
-        public void handle(SearchEvent event) {
-            resultsResponseProcessor.processSearchResults(contextStorage.removeContexts(event.getRequestKeyReference()),event.getSearchResultsEventReference());
+        public void handle(SearchResponseEvent event) {
+//            resultsResponseProcessor.processSearchResults(contextStorage.removeContexts(event.getRequestKeyReference()),event.getSearchResultsEventReference());
         }
     }
 }

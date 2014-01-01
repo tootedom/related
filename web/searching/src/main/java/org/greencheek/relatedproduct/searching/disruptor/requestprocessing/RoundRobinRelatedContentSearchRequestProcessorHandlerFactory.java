@@ -1,8 +1,9 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
@@ -25,15 +26,16 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
 
     @Override
     public RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, ApplicationCtx appContext) {
+        SearchResponseContextLookup lookup = appContext.createAsyncContextLookup();
         int numberOfSearchProcessors = config.getNumberOfSearchingRequestProcessors();
-        RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient();
-        RelatedProductSearchRequestResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(appContext.createAsyncContextLookup(),responseProcessor);
+        RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient(lookup);
+//        RelatedProductSearchResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(lookup,responseProcessor);
 
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
 
-            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(requestAndResponseProcessor);
-            return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestAndResponseProcessor,searchExecutor);
+            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(responseProcessor);
+            return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(lookup,searchExecutor);
         } else {
 
 
@@ -43,10 +45,10 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
             RelatedProductSearchExecutor[] searchExecutors = new RelatedProductSearchExecutor[numberOfSearchProcessors];
             int i = numberOfSearchProcessors;
             while(i-- !=0) {
-                searchExecutors[i] = appContext.createSearchExecutor(requestAndResponseProcessor);
+                searchExecutors[i] = appContext.createSearchExecutor(responseProcessor);
             }
 
-            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestAndResponseProcessor,searchExecutors);
+            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(lookup,searchExecutors);
         }
     }
 }

@@ -1,15 +1,13 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestResponseProcessor;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.servlet.AsyncContext;
 
 /**
  *
@@ -21,19 +19,16 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 
     private volatile boolean shutdown = false;
 
-    private final Configuration configuration;
-    private final RelatedProductSearchRequestResponseProcessor asyncContextStorage;
+    private final SearchResponseContextLookup contextStorage;
     private final RelatedProductSearchExecutor[] searchRequestExecutor;
 
     private int currentIndex = 0;
     private final int mask;
 
-    public RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(Configuration configuration,
-                                                                               RelatedProductSearchRequestResponseProcessor asyncContextStorage,
+    public RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(SearchResponseContextLookup contextStorage,
                                                                                RelatedProductSearchExecutor[] searchExecutor) {
         check(searchExecutor);
-        this.configuration = configuration;
-        this.asyncContextStorage = asyncContextStorage;
+        this.contextStorage = contextStorage;
         this.searchRequestExecutor = searchExecutor;
 
         mask = searchExecutor.length-1;
@@ -56,7 +51,9 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 //            RelatedProductSearch search = event.searchRequest;
             int currentIndex = this.currentIndex++ & mask;
 //            event.setSearchExecutor(searchRequestExecutor[currentIndex]);
-            asyncContextStorage.handleRequest(event, searchRequestExecutor[currentIndex]);
+            handleRequest(event,searchRequestExecutor[currentIndex]);
+
+//            asyncContextStorage.handleRequest(event, searchRequestExecutor[currentIndex]);
 
 //            searchRequestExecutor[currentIndex].executeSearch(search);
         } finally {
@@ -65,15 +62,23 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
         }
     }
 
+    public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
+        boolean executeSearch = contextStorage.addContext(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
+        if(executeSearch) {
+            searchExecutor.executeSearch(searchRequest.getSearchRequest());
+        }
+    }
+
+
     public void shutdown() {
         if(!this.shutdown) {
             this.shutdown = true;
 
-            try {
-                asyncContextStorage.shutdown();
-            } catch (Exception e) {
-                log.warn("Unable to stop RequestAndRequest Gateway (AsyncContextStorage)");
-            }
+//            try {
+//                contextStorage.shutdown();
+//            } catch (Exception e) {
+//                log.warn("Unable to stop RequestAndRequest Gateway (AsyncContextStorage)");
+//            }
 
 
             for (RelatedProductSearchExecutor searchExecutor : searchRequestExecutor) {
