@@ -8,14 +8,10 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 import javax.servlet.AsyncContext;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 14:01
- * To change this template use File | Settings | File Templates.
+ * Is responsible for dealing with the array of search results, and sending those search results to
+ * awaiting parties
  */
 public interface RelatedProductSearchResultsResponseProcessor {
     public void handleResponse(SearchResultEventWithSearchRequestKey[] results);
-//    public void processSearchResults(SearchResponseContextHolder[] context, SearchResultsEvent results);
     public void shutdown();
 }

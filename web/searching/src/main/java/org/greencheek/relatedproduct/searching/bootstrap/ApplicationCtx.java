@@ -31,9 +31,6 @@ public interface ApplicationCtx
     public SearchResponseContextLookup createAsyncContextLookup();
     public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient(SearchResponseContextLookup asyncContextStorage);
 
-    public RelatedProductSearchResponseProcessor createSearchRequestAndResponseGateway(SearchResponseContextLookup asyncContextStorage,
-                                                                                              RelatedProductSearchResultsResponseProcessor responseProcessor);
-
     /**
      * Creates the executor that is responsible for taking search requests, executing them,
      * and sending the results onwards for processing.

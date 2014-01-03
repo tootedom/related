@@ -8,9 +8,6 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.*;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedRequestResponseProcessor;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.DisruptorBasedSearchEventHandler;
-import org.greencheek.relatedproduct.searching.disruptor.requestresponse.SearchEventHandler;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseEventHandler;
 import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
@@ -116,13 +113,6 @@ public class BootstrapApplicationContext implements ApplicationCtx {
                 asyncContextStorage);
     }
 
-
-    @Override
-    public RelatedProductSearchResponseProcessor createSearchRequestAndResponseGateway(SearchResponseContextLookup asyncContextStorage,
-                                                                                       RelatedProductSearchResultsResponseProcessor responseProcessor) {
-
-        return new DisruptorBasedRequestResponseProcessor(asyncContextStorage,responseProcessor);
-    }
 
     @Override
     public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsResponseProcessor requestAndResponseGateway) {

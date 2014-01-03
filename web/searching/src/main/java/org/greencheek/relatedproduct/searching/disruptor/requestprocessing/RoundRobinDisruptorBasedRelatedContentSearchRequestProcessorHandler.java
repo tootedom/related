@@ -1,11 +1,9 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
-import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,16 +44,7 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     @Override
     public void onEvent(RelatedProductSearchRequest event, long sequence, boolean endOfBatch) throws Exception {
         try {
-//            AsyncContext clientContext = event.getRequestContext();
-//            RelatedProductSearch search = RelatedProductSearchFactory.populateSearchObject(configuration, event.searchRequest,event.getRequestType(), event.getRequestProperties());
-//            RelatedProductSearch search = event.searchRequest;
-            int currentIndex = this.currentIndex++ & mask;
-//            event.setSearchExecutor(searchRequestExecutor[currentIndex]);
-            handleRequest(event,searchRequestExecutor[currentIndex]);
-
-//            asyncContextStorage.handleRequest(event, searchRequestExecutor[currentIndex]);
-
-//            searchRequestExecutor[currentIndex].executeSearch(search);
+            handleRequest(event,searchRequestExecutor[this.currentIndex++ & mask]);
         } finally {
             event.getSearchRequest().setValidMessage(false);
 
@@ -73,13 +62,6 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     public void shutdown() {
         if(!this.shutdown) {
             this.shutdown = true;
-
-//            try {
-//                contextStorage.shutdown();
-//            } catch (Exception e) {
-//                log.warn("Unable to stop RequestAndRequest Gateway (AsyncContextStorage)");
-//            }
-
 
             for (RelatedProductSearchExecutor searchExecutor : searchRequestExecutor) {
                 try {

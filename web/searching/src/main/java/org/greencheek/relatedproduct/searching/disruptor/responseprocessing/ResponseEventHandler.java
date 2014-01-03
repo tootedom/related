@@ -11,4 +11,5 @@ import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
  * To change this template use File | Settings | File Templates.
  */
 public interface ResponseEventHandler extends EventHandler<ResponseEvent> {
+    public void handleResponseEvent(ResponseEvent event);
 }

@@ -41,6 +41,11 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
     @Override
     public void onEvent(ResponseEvent event, long sequence, boolean endOfBatch) throws Exception {
+        handleResponseEvent(event);
+    }
+
+    @Override
+    public void handleResponseEvent(ResponseEvent event) {
         try {
             SearchResultsEvent results = event.getResults();
             SearchResultsConverter converter = converterLookup.getConverter(results.getSearchType());

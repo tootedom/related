@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResponseProcessor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
@@ -29,7 +28,6 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
         SearchResponseContextLookup lookup = appContext.createAsyncContextLookup();
         int numberOfSearchProcessors = config.getNumberOfSearchingRequestProcessors();
         RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient(lookup);
-//        RelatedProductSearchResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(lookup,responseProcessor);
 
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
