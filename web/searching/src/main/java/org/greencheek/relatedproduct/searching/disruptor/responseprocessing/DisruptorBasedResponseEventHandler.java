@@ -1,8 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
-import com.lmax.disruptor.EventHandler;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
@@ -10,19 +8,14 @@ import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponse
 import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
-import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.servlet.AsyncContext;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 13:28
- * To change this template use File | Settings | File Templates.
+ * Responsible for the processing of ResponseEvents from the ring buffer.
+ * The response events represent search responses from the storage repository
+ * for related products
  */
 public class DisruptorBasedResponseEventHandler implements ResponseEventHandler {
 

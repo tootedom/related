@@ -127,4 +127,10 @@ public interface Configuration {
      * @return
      */
     public boolean isSafeToOutputRequestData();
+
+    /**
+     * provides a repository specific execution hint for
+     * when faceting is performed.
+     */
+    public String getStorageFacetExecutionHint();
 }

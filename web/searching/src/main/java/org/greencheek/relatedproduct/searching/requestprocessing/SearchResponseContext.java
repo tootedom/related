@@ -23,4 +23,12 @@ public interface SearchResponseContext<T> {
      * close, in whatever way, appropriate for the held context object.
      */
     public void close();
+
+    /**
+     * creation nano timestamp; used for timing the time is takes to complete
+     * requests.
+     *
+     * If the creation time is not supported, then return -1
+     */
+    public long getCreationTime();
 }

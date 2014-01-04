@@ -27,7 +27,7 @@ public class MapBasedSearchResponseContextHandlerLookup implements SearchRespons
 
     }
 
-    private static Map<Class, SearchResponseContextHandler> createDefaultHandlerMap(SearchResponseContextHandler defaultHandler,
+    public static Map<Class, SearchResponseContextHandler> createDefaultHandlerMap(SearchResponseContextHandler defaultHandler,
                                                                                     Configuration config) {
         Map<Class,SearchResponseContextHandler> mappings = new HashMap<Class,SearchResponseContextHandler>(4);
         mappings.put(AsyncContext.class,new HttpAsyncSearchResponseContextHandler(config));

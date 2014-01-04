@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.*;
 /**
  * More of an integration test.  Checking that the wire of the components works
  */
-@Deprecated
 public class DisruptorBasedRelatedProductSearchExecutorTest {
 //
 //
@@ -71,7 +71,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
         }
     }
-//
+
     @Before
     public void setUp() {
 
@@ -91,17 +91,6 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
         }
 
-
-
-//        responseProcessor = mock(RelatedProductSearchResultsResponseProcessor.class);
-//
-//        doAnswer(new Answer() {
-//            @Override
-//            public Object answer(InvocationOnMock invocation) throws Throwable {
-//                latch.countDown();
-//                return null;
-//            }
-//        }).when(responseProcessor).handleResponse(any(SearchResultEventWithSearchRequestKey[].class));
 
         searchRepositoryWith2SecondDelay = mock(RelatedProductSearchRepository.class);
         contextLookup = new MultiMapSearchResponseContextLookup(configuration);
@@ -207,40 +196,15 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
         }
     }
 
-//
-//    private class GivenAnArrayOfAsyncContextsOfLength extends ArgumentMatcher<SearchResponseContextHolder[]> {
-//
-//        private int argLength;
-//        public GivenAnArrayOfAsyncContextsOfLength(int length) {
-//            argLength = length;
-//        }
-//
-//        @Override
-//        public boolean matches(Object argument) {
-//            if(argument instanceof SearchResponseContextHolder[]) {
-//                SearchResponseContextHolder[] contexts = (SearchResponseContextHolder[])argument;
-//                return contexts.length==argLength;
-//            }
-//            return false;  //To change body of implemented methods use File | Settings | File Templates.
-//        }
-//
-//        public void describeTo(Description description) {
-//            super.describeTo(description);
-//            description.appendText(" "+argLength);
-//        }
-//
-//
-//
-//        }
-//
-//    @Test
-//    public void testShutdown() {
-//
-//        requestResponseProcessor.shutdown();
-//        eventHandler.shutdown();
-//        verify(searchRepositoryWith2SecondDelay, times(1)).shutdown();
-//    }
-//
+
+    @Test
+    public void testShutdown() {
+
+        responseProcessor.shutdown();
+        eventHandler.shutdown();
+        verify(searchRepositoryWith2SecondDelay, times(1)).shutdown();
+    }
+
 //
     private RelatedProductSearchRequest createSearchRequest() {
         RelatedProductSearchRequest request = new RelatedProductSearchRequest(configuration);
@@ -254,19 +218,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
         return request;
     }
 
-//    /**
-//     * Creates a search request for the key "1"
-//     * @param executor
-//     * @return
-//     */
-//    private SearchResponseEvent getSearchRequest(RelatedProductSearchExecutor executor) {
-//        SearchResponseEvent event = new SearchResponseEvent();
-////        event.setEventType(SearchEventType.SEARCH_REQUEST);
-//        event.setRequestKeyReference(key);
-////        event.getSearchRequestEvent().populateSearchRequestEvent(mock(SearchResponseContextHolder.class),mock(RelatedProductSearch.class),executor);
-//        return event;
-//    }
-//
+
     /**
      * Creates a search result for the key "1"
      * @return

@@ -1,16 +1,18 @@
 Indexing info
 
 '''
-curl -XPUT http://localhost:9200/_template/relatedproducts -d '{
+HOST=localhost
+curl -XPUT http://$HOST:9200/_template/relatedproducts -d '{
     "template" : "relatedproducts*",
     "settings" : {
         "number_of_shards" : 1,
         "number_of_replicas" : 1,
         "index.cache.field.type" : "soft",
         "index.refresh_interval" : "5s",
-        "index.store.compress.stored" : true,
+        "index.store.compress.stored" : false,
         "index.query.default_field" : "id",
-        "index.routing.allocation.total_shards_per_node" : 1
+        "index.routing.allocation.total_shards_per_node" : 1,
+        "indices.memory.index_buffer_size" : 30
     },
     "mappings" : {
         "relatedproduct" : {
@@ -123,9 +125,9 @@ Sample indexing configuration params:
 
 Sample search request
 '''
-http://10.0.1.29:8080/searching/frequentlyrelatedto/8855?channel=uk
+curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/8855?channel=uk
 
-curl http://localhost:8080/searching/frequentlyrelatedto/123?channel=uk
+curl -v -N http://localhost:8080/searching/frequentlyrelatedto/123?channel=uk
 
 '''
 

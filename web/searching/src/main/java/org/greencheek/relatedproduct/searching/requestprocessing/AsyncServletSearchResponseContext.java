@@ -11,9 +11,15 @@ import javax.servlet.AsyncContext;
 public class AsyncServletSearchResponseContext implements SearchResponseContext<AsyncContext> {
 
     private final AsyncContext context;
+    private final long creationTime;
 
     public AsyncServletSearchResponseContext(AsyncContext context) {
+        this(context, System.nanoTime());
+    }
+
+    public AsyncServletSearchResponseContext(AsyncContext context, long creationTime) {
         this.context = context;
+        this.creationTime = creationTime;
     }
 
     @Override
@@ -35,5 +41,10 @@ public class AsyncServletSearchResponseContext implements SearchResponseContext<
                 //
             }
         }
+    }
+
+    @Override
+    public long getCreationTime() {
+        return creationTime;
     }
 }

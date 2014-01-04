@@ -11,6 +11,7 @@ public class LogDebuggingSearchResponseContext implements SearchResponseContext<
 
     private LogDebuggingSearchResponseContext() {}
 
+
     @Override
     public Class<LogDebuggingSearchResponseContext> getContextType() {
         return LogDebuggingSearchResponseContext.class;
@@ -25,4 +26,11 @@ public class LogDebuggingSearchResponseContext implements SearchResponseContext<
     public void close() {
 
     }
+
+    @Override
+    public long getCreationTime() {
+        return -1;
+    }
+
+
 }

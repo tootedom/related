@@ -1,5 +1,7 @@
 package org.greencheek.relatedproduct.searching.responseprocessing;
 
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
@@ -28,7 +30,6 @@ public class HttpAsyncSearchResponseContextHandler implements SearchResponseCont
 
     @Override
     public void sendResults(String resultsAsString, String mediaType, SearchResultsEvent results, SearchResponseContext<AsyncContext> sctx) {
-        int statusCode = configuration.getResponseCode(results.getOutcomeType());
         AsyncContext ctx  = sctx.getSearchResponseContext();
         HttpServletResponse r = null;
         try {
@@ -38,11 +39,16 @@ public class HttpAsyncSearchResponseContextHandler implements SearchResponseCont
             }
 
             r = (HttpServletResponse)ctx.getResponse();
-            r.setStatus(statusCode);
-            r.setContentType(mediaType);
-            r.getWriter().write(resultsAsString);
+            if(r!=null) {
+                int statusCode = configuration.getResponseCode(results.getOutcomeType());
+                r.setStatus(statusCode);
+                r.setContentType(mediaType);
+                r.getWriter().write(resultsAsString);
+            }
         } catch (IOException e) {
-            r.setStatus(500);
+            if(r!=null) {
+                r.setStatus(500);
+            }
         } catch (IllegalStateException e) {
             log.warn("Async Context not available",e);
         } finally {

@@ -100,7 +100,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String STORAGE_INDEX_NAME_ALIAS = System.getProperty("related-product-storage.index.name.alias","");
     private final String STORAGE_CONTENT_TYPE_NAME = System.getProperty("related-product.storage.content.type.name","relatedproduct");
     private final String STORAGE_CLUSTER_NAME = System.getProperty("related-product.storage.cluster.name","relatedproducts");
-    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  System.getProperty("related-product.storage..frequently.related.products.facet.results.facet.name","frequently-related-with");
+    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  System.getProperty("related-product.storage.frequently.related.products.facet.results.facet.name","frequently-related-with");
+    private final String STORAGE_FACET_SEARCH_EXECUTION_HINT = System.getProperty("related-product.storage.facet.search.execution.hint");
 
     private final String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = System.getProperty("related-product.key.for.index.request.related.with.attr","related-with");
     private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty("related-product.key.for.index.request.date.attr","date");
@@ -472,5 +473,10 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public boolean isSafeToOutputRequestData() {
         return SAFE_TO_OUTPUT_REQUEST_DATA;
+    }
+
+    @Override
+    public String getStorageFacetExecutionHint() {
+        return STORAGE_FACET_SEARCH_EXECUTION_HINT;
     }
 }

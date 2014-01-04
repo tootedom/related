@@ -6,10 +6,10 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
@@ -41,6 +41,9 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
     private final String indexName;
     private final String facetResultName;
     private final long searchTimeout;
+    private final String executionHint;
+    private final boolean hasExecutionHint;
+//    private final Map<String,SearchFieldType> searchFieldType;
 
     public ElasticSearchFrequentlyRelatedProductSearchProcessor(Configuration configuration) {
         this.configuration = configuration;
@@ -53,6 +56,20 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         this.facetResultName = configuration.getStorageFrequentlyRelatedProductsFacetResultsFacetName();
         this.searchTimeout = configuration.getFrequentlyRelatedProductsSearchTimeoutInMillis();
 
+        String executionHint = configuration.getStorageFacetExecutionHint();
+
+        if(executionHint == null) {
+            hasExecutionHint = false;
+        } else {
+            executionHint = executionHint.trim();
+            if(executionHint.length()==0) {
+                hasExecutionHint = false;
+            } else {
+                hasExecutionHint=true;
+            }
+        }
+
+        this.executionHint = executionHint;
     }
 
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedProductSearch[] searches) {
@@ -137,24 +154,61 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
      * @param search
      * @return
      */
+//    private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedProductSearch search, Client searchClient) {
+//        SearchRequestBuilder sr = searchClient.prepareSearch();
+//        String id = search.getRelatedContentId();
+//        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
+//        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
+//
+//        RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
+//        int numberOfProps = searchProps.getNumberOfProperties();
+//
+//        for(int i = 0;i<numberOfProps;i++) {
+//            bool.must(QueryBuilders.fieldQuery(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
+//        }
+//
+//        sr.setIndices(indexName);
+//        sr.setSize(0);
+//        sr.setQuery(bool);
+//        sr.setTimeout(TimeValue.timeValueMillis(searchTimeout));
+//        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults()));
+//        log.debug("Executing Query {}",sr);
+//        return sr;
+//
+//    }
+
     private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedProductSearch search, Client searchClient) {
-        SearchRequestBuilder sr = searchClient.prepareSearch();
         String id = search.getRelatedContentId();
-        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
-        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
+
+//        BoolQueryBuilder b = QueryBuilders.boolQuery();
+
+        BoolFilterBuilder b = FilterBuilders.boolFilter();
+        b.must(FilterBuilders.termFilter(configuration.getKeyForIndexRequestIdAttr(), id));
+
+        SearchRequestBuilder sr = searchClient.prepareSearch();
+
+//        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
+//        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
 
         RelatedProductAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
         int numberOfProps = searchProps.getNumberOfProperties();
 
         for(int i = 0;i<numberOfProps;i++) {
-            bool.must(QueryBuilders.fieldQuery(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
+            b.must(FilterBuilders.termFilter(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
+        }
+        ConstantScoreQueryBuilder cs = QueryBuilders.constantScoreQuery(b);
+
+
+        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults());
+        if(hasExecutionHint) {
+            facetBuilder.executionHint(executionHint);
         }
 
         sr.setIndices(indexName);
         sr.setSize(0);
-        sr.setQuery(bool);
+        sr.setQuery(cs);
         sr.setTimeout(TimeValue.timeValueMillis(searchTimeout));
-        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults()));
+        sr.addFacet(facetBuilder);
         log.debug("Executing Query {}",sr);
         return sr;
 
