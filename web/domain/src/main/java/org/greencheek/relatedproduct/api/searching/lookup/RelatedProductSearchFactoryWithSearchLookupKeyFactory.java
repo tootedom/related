@@ -76,58 +76,5 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
     public RelatedProductSearch newInstance() {
         return createSearchObject();
     }
-//
-//    public static void main(String[] args) {
-//        Configuration config = new SystemPropertiesConfiguration();
-//        RelatedProductSearch obj = new RelatedProductSearch(config);
-//        Map<String,String> ob = new HashMap<String,String>() {{
-//            put("id","8676");
-//        }};
-//
-//        RelatedProductAdditionalProperties props = obj.getAdditionalSearchCriteria();
-//
-//        populateSearchObject(config,obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config, obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config, obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config, obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH, ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config,obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config,obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config,obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(obj.createLookupKey(config));
-//        populateSearchObject(config,obj,
-//                RelatedProductSearchType.FREQUENTLY_RELATED_WITH,ob);
-//        System.out.println(props.getNumberOfProperties());
-//        System.out.println(props.toString());
-//
-//        System.out.println(obj.createLookupKey(config) + ""  + Math.ceil(3 / 0.75));
-//
-//
-//
-//    }
+
 }
