@@ -22,7 +22,7 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
 import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.ExplicitSearchResultsConverterFactory;
+import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.FrequentlyRelatedSearchResultsArrayConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -158,7 +158,7 @@ public class BootstrapApplicationContext implements ApplicationCtx {
 
         @Override
     public SearchResultsConverterFactory createSearchResultsConverterFactory() {
-        return new ExplicitSearchResultsConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
+        return new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
     }
 
     @Override

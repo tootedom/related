@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.searching.repository;
 
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
@@ -29,7 +30,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
     ElasticSearchServer server;
     Configuration configuration;
     ElasticSearchClientFactory factory;
-    RelatedProductSearchRepository repository;
+    RelatedProductSearchRepository<FrequentlyRelatedSearchResult[]> repository;
 
 
     @After
@@ -247,7 +248,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         RelatedProductSearch[] searches = createSearch();
 
         // search 2 is for the raid
-        SearchResultEventWithSearchRequestKey[] results = repository.findRelatedProducts(configuration, searches);
+        SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]>[] results = repository.findRelatedProducts(configuration, searches);
 
         assertEquals(2,results.length);
 
@@ -263,8 +264,8 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
 
 
 
-        assertEquals(2,results[0].getResponse().getFrequentlyRelatedSearchResults().getNumberOfResults());
-        assertEquals("blades of glory",results[0].getResponse().getFrequentlyRelatedSearchResults().getResults()[0].getRelatedProductId());
-        assertEquals("enter the dragon",results[1].getResponse().getFrequentlyRelatedSearchResults().getResults()[0].getRelatedProductId());
+        assertEquals(2, results[0].getResponse().getSearchResults().length);
+        assertEquals("blades of glory",results[0].getResponse().getSearchResults()[0].getRelatedProductId());
+        assertEquals("enter the dragon",results[1].getResponse().getSearchResults()[0].getRelatedProductId());
     }
 }

@@ -11,9 +11,10 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
@@ -227,10 +228,10 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
         SearchResultEventWithSearchRequestKey[] result = searcher.processMultiSearchResponse(search,response);
 
         SearchRequestLookupKey key = result[0].getRequest();
-        SearchResultsEvent event = result[0].getResponse();
+        SearchResultsEvent<FrequentlyRelatedSearchResult[]> event = result[0].getResponse();
 
-        assertEquals(0, event.getFrequentlyRelatedSearchResults().getNumberOfResults());
-        assertEquals(SearchResultsOutcomeType.FAILED_REQUEST, event.getOutcomeType());
+        assertEquals(0, event.getSearchResults().length);
+        assertEquals(SearchResultsOutcome.FAILED_REQUEST, event.getOutcomeType());
     }
 
     /**
@@ -250,13 +251,13 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
         MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
 
-        SearchResultEventWithSearchRequestKey[] result = searcher.processMultiSearchResponse(search,response);
+        SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]>[] result = searcher.processMultiSearchResponse(search,response);
 
         SearchRequestLookupKey key = result[0].getRequest();
-        SearchResultsEvent event = result[0].getResponse();
+        SearchResultsEvent<FrequentlyRelatedSearchResult[]> event = result[0].getResponse();
 
-        assertEquals(0, event.getFrequentlyRelatedSearchResults().getNumberOfResults());
-        assertEquals(SearchResultsOutcomeType.EMPTY_RESULTS,event.getOutcomeType());
+        assertEquals(0, event.getSearchResults().length);
+        assertEquals(SearchResultsOutcome.EMPTY_RESULTS,event.getOutcomeType());
     }
 
     @Test

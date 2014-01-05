@@ -1,46 +1,40 @@
 package org.greencheek.relatedproduct.searching.domain.api;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 
 /**
  *
  */
-public class SearchResultsEvent {
+public class SearchResultsEvent<T> {
 
-    public final static SearchResultsEvent EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.EMPTY_RESULTS, FrequentlyRelatedSearchResults.EMPTY_RESULTS);
-    public final static SearchResultsEvent EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.FAILED_REQUEST, FrequentlyRelatedSearchResults.EMPTY_RESULTS);
-    public final static SearchResultsEvent EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.REQUEST_TIMEOUT, FrequentlyRelatedSearchResults.EMPTY_RESULTS);
+    private static FrequentlyRelatedSearchResult[] EMPTY_FRSR= new FrequentlyRelatedSearchResult[0];
 
-    private final SearchResultsOutcomeType outcomeType;
-    private final RelatedProductSearchType searchType;
-    private final FrequentlyRelatedSearchResults frequentlyRelatedSearchResults;
+    public final static SearchResultsEvent<FrequentlyRelatedSearchResult[]> EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent<FrequentlyRelatedSearchResult[]>(SearchResultsOutcome.EMPTY_RESULTS, EMPTY_FRSR);
+    public final static SearchResultsEvent<FrequentlyRelatedSearchResult[]> EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent<FrequentlyRelatedSearchResult[]>(SearchResultsOutcome.FAILED_REQUEST,EMPTY_FRSR);
+    public final static SearchResultsEvent<FrequentlyRelatedSearchResult[]> EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent<FrequentlyRelatedSearchResult[]>(SearchResultsOutcome.REQUEST_TIMEOUT, EMPTY_FRSR);
 
-    public SearchResultsEvent(RelatedProductSearchType searchType,
-                              SearchResultsOutcomeType outcomeType,
-                              Object results) {
-        this.searchType = searchType;
+    private final SearchResultsOutcome outcomeType;
+    private final Class searchResultsType;
+    private final T searchResults;
+
+    public SearchResultsEvent(SearchResultsOutcome outcomeType,
+                              T results) {
         this.outcomeType = outcomeType;
+        this.searchResults = results;
+        this.searchResultsType = results.getClass();
 
-        if(searchType == RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
-            frequentlyRelatedSearchResults = (FrequentlyRelatedSearchResults)results;
-        } else if (searchType == RelatedProductSearchType.MOST_RECENTLY_RELATED_WITH) {
-            frequentlyRelatedSearchResults = null;
-        } else {
-            frequentlyRelatedSearchResults = null;
-        }
     }
 
-    public SearchResultsOutcomeType getOutcomeType() {
+    public SearchResultsOutcome getOutcomeType() {
         return this.outcomeType;
     }
 
-    public RelatedProductSearchType getSearchType() {
-        return searchType;
+    public Class<T> getSearchResultsType() {
+        return searchResultsType;
     }
 
-    public FrequentlyRelatedSearchResults getFrequentlyRelatedSearchResults() {
-        return frequentlyRelatedSearchResults;
+    public T getSearchResults() {
+        return searchResults;
     }
 }

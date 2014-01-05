@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching.repository;
 import org.elasticsearch.ElasticSearchTimeoutException;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Time: 15:17
  * To change this template use File | Settings | File Templates.
  */
-public class ElasticSearchRelatedProductSearchRepository implements RelatedProductSearchRepository {
+public class ElasticSearchRelatedProductSearchRepository implements RelatedProductSearchRepository<FrequentlyRelatedSearchResult[]> {
 
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedProductSearchRepository.class);

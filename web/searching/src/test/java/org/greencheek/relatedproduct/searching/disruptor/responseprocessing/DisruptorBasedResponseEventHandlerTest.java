@@ -1,9 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
@@ -40,7 +38,7 @@ public class DisruptorBasedResponseEventHandlerTest {
 
         ResponseEvent responseEvent = new ResponseEvent();
         responseEvent.setContexts(holders);
-        responseEvent.setResults(new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.HAS_RESULTS,new FrequentlyRelatedSearchResults(results)));
+        responseEvent.setResults(new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,results));
 
         return responseEvent;
     }
@@ -49,13 +47,13 @@ public class DisruptorBasedResponseEventHandlerTest {
     public void testHandleResponseEvent() throws Exception {
         Configuration config = new SystemPropertiesConfiguration();
         SearchResultsConverterFactory resultsConverterFactory =  mock(SearchResultsConverterFactory.class);
-        when(resultsConverterFactory.getConverter(RelatedProductSearchType.FREQUENTLY_RELATED_WITH)).thenReturn(new NumberOfSearchResultsConverter("application/json"));
+        when(resultsConverterFactory.getConverter(FrequentlyRelatedSearchResult[].class)).thenReturn(new NumberOfSearchResultsConverter("application/json"));
         DisruptorBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(config),resultsConverterFactory);
 
 
     }
 
-    private class NumberOfSearchResultsConverter implements SearchResultsConverter {
+    private class NumberOfSearchResultsConverter implements SearchResultsConverter<FrequentlyRelatedSearchResult[]> {
 
         private final String mediaType;
 
@@ -69,8 +67,8 @@ public class DisruptorBasedResponseEventHandlerTest {
         }
 
         @Override
-        public String convertToString(SearchResultsEvent results) {
-            return "{ \"num\": \""+Integer.toString(results.getFrequentlyRelatedSearchResults().getNumberOfResults()) +"\" }";
+        public String convertToString(SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
+            return "{ \"num\": \""+Integer.toString(results.getSearchResults().length) +"\" }";
         }
     }
 }

@@ -6,11 +6,11 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
  * A {@link SearchResultsEvent} associated with the {@link org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey}
  * that was responsible for that search result
  */
-public class SearchResultEventWithSearchRequestKey {
-    private final SearchResultsEvent result;
+public class SearchResultEventWithSearchRequestKey<T> {
+    private final SearchResultsEvent<T> result;
     private final SearchRequestLookupKey request;
 
-    public SearchResultEventWithSearchRequestKey(SearchResultsEvent result, SearchRequestLookupKey requestKey) {
+    public SearchResultEventWithSearchRequestKey(SearchResultsEvent<T> result, SearchRequestLookupKey requestKey) {
         this.request = requestKey;
         this.result = result;
     }
@@ -20,7 +20,7 @@ public class SearchResultEventWithSearchRequestKey {
         return request;
     }
 
-    public SearchResultsEvent getResponse() {
+    public SearchResultsEvent<T> getResponse() {
         return result;
     }
 

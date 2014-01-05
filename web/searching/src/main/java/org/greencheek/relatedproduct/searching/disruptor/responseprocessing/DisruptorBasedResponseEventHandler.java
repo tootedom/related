@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
@@ -41,19 +42,18 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
     public void handleResponseEvent(ResponseEvent event) {
         try {
             SearchResultsEvent results = event.getResults();
-            SearchResultsConverter converter = converterLookup.getConverter(results.getSearchType());
+            SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
 
             if (converter == null) {
                 if (log.isWarnEnabled()) {
-                    log.warn("No factory available for converting search results of type : {}", results.getSearchType());
+                    log.warn("No factory available for converting search results of type : {}", results.getSearchResultsType());
                 }
-                return;
             }
 
             SearchResponseContextHolder[] awaitingResponses = event.getContexts();
 
             if (awaitingResponses == null) {
-                if (log.isWarnEnabled()) {
+                if (log.isWarnEnabled() && converter!=null) {
                     String res = converter.convertToString(results);
                     log.warn("No async responses waiting for search results : {}", res);
                 }
@@ -63,23 +63,31 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
             log.debug("Sending search results to {} waiting responses", awaitingResponses.length);
 
-            String response = converter.convertToString(results);
-            String mediaType = converter.contentType();
+            String response = "{}";
+            String mediaType = "application/json";
+
+            if(converter!=null) {
+                response = converter.convertToString(results);
+                mediaType = converter.contentType();
+            } else {
+                results = new SearchResultsEvent(SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER,results.getSearchResults());
+            }
 
             for(SearchResponseContextHolder contextHolder : awaitingResponses) {
                 SearchResponseContext[] responseContexts = contextHolder.getContexts();
                 log.debug("Sending search results to {} pending response listeners", responseContexts.length);
 
                 for (SearchResponseContext sctx : responseContexts) {
-                    SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
-                    if(handler==null) {
-                        log.error("No response handler defined for waiting response type: {}",sctx.getContextType());
-                    } else {
-                        try {
+                    try {
+                        SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
+
+                        if(handler==null) {
+                            log.error("No response handler defined for waiting response type: {}",sctx.getContextType());
+                        } else {
                             handler.sendResults(response, mediaType, results, sctx);
-                        } finally {
-                            sctx.close();
                         }
+                    } finally {
+                        sctx.close();
                     }
 
                 }

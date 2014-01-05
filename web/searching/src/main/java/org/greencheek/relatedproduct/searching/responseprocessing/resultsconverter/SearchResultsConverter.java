@@ -9,7 +9,7 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
  * Time: 12:08
  * To change this template use File | Settings | File Templates.
  */
-public interface SearchResultsConverter {
+public interface SearchResultsConverter<T> {
     public String contentType();
-    public String convertToString(SearchResultsEvent results);
+    public String convertToString(SearchResultsEvent<T> results);
 }

@@ -1,8 +1,7 @@
 package org.greencheek.relatedproduct.searching.responseprocessing;
 
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.AsyncServletSearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
@@ -42,13 +41,13 @@ public class HttpAsyncSearchResponseContextHandlerTest {
 
 
     public SearchResultsEvent createSearchResultEvent() {
-        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.HAS_RESULTS,mock(FrequentlyRelatedSearchResults.class));
+        return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,new FrequentlyRelatedSearchResult[]{mock(FrequentlyRelatedSearchResult.class)});
     }
 
     @Test
     public void testResultsSent() {
         Configuration configuration = mock(Configuration.class);
-        when(configuration.getResponseCode(any(SearchResultsOutcomeType.class))).thenReturn(200);
+        when(configuration.getResponseCode(any(SearchResultsOutcome.class))).thenReturn(200);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -107,7 +106,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
     @Test
     public void testResultsNotSentWhenRequestOrResponseNotAvailable() {
         Configuration configuration = mock(Configuration.class);
-        when(configuration.getResponseCode(any(SearchResultsOutcomeType.class))).thenReturn(200);
+        when(configuration.getResponseCode(any(SearchResultsOutcome.class))).thenReturn(200);
         AsyncContext userResponse = getAsyncContext(null,null);
 
         SearchResponseContext responseHolder = new AsyncServletSearchResponseContext(userResponse,System.nanoTime());
@@ -116,7 +115,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
 
         handler.sendResults("results","appplication/json",null,responseHolder);
 
-        verify(configuration,times(0)).getResponseCode(any(SearchResultsOutcomeType.class));
+        verify(configuration,times(0)).getResponseCode(any(SearchResultsOutcome.class));
 
         verify(userResponse,times(1)).complete();
     }
@@ -124,7 +123,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
     @Test
     public void testIOExceptionIsHandled() {
         Configuration configuration = mock(Configuration.class);
-        when(configuration.getResponseCode(any(SearchResultsOutcomeType.class))).thenReturn(200);
+        when(configuration.getResponseCode(any(SearchResultsOutcome.class))).thenReturn(200);
 
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -147,7 +146,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
 
 
         verify(response,times(1)).setStatus(500);
-        verify(userResponse,times(1)).complete();
+        verify(userResponse, times(1)).complete();
     }
 
 

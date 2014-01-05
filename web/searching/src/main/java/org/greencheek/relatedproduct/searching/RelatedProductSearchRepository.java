@@ -9,7 +9,7 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  * and calls {@link RelatedProductSearchResponseProcessor#handleResponse(org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey, org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent)}
  * to forward the results of the search to the listener.
  */
-public interface RelatedProductSearchRepository {
-    public SearchResultEventWithSearchRequestKey[] findRelatedProducts(Configuration config, RelatedProductSearch[] searches);
+public interface RelatedProductSearchRepository<T> {
+    public SearchResultEventWithSearchRequestKey<T>[] findRelatedProducts(Configuration config, RelatedProductSearch[] searches);
     public void shutdown();
 }

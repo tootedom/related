@@ -1,10 +1,8 @@
 package org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.Before;
@@ -58,14 +56,14 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
     }
 
 
-    private SearchResultsEvent buildManyFrequentlyRelatedSearchResults(int sizeOfResults) {
+    private SearchResultsEvent<FrequentlyRelatedSearchResult[]> buildManyFrequentlyRelatedSearchResults(int sizeOfResults) {
 
         FrequentlyRelatedSearchResult[] resultList = new FrequentlyRelatedSearchResult[sizeOfResults];
         for(int i = 0;i<sizeOfResults;i++) {
             FrequentlyRelatedSearchResult result = new FrequentlyRelatedSearchResult(UUID.randomUUID().toString(),i+10);
             resultList[i] = result;
         }
-        return new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH, SearchResultsOutcomeType.HAS_RESULTS,new FrequentlyRelatedSearchResults(resultList));
+        return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,resultList);
     }
 
     public abstract SearchResultsConverter getConverter();
@@ -110,19 +108,19 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
 
     }
 
-    private void testConversionOfResults(SearchResultsConverter converter, SearchResultsEvent results) {
+    private void testConversionOfResults(SearchResultsConverter converter, SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
         String s = converter.convertToString(results);
 
         assertTrue(s.contains("\"" + configuration.getKeyForFrequencyResults() +"\""));
         System.out.println(s);
 
-        for(FrequentlyRelatedSearchResult res : results.getFrequentlyRelatedSearchResults().getResults()) {
+        for(FrequentlyRelatedSearchResult res : results.getSearchResults()) {
             assertTrue(s.contains("\""+res.getRelatedProductId()+"\""));
             assertTrue(s.contains("\""+res.getFrequency()+"\""));
         }
 
         System.out.println(s);
-        assertTrue(s.contains("" + results.getFrequentlyRelatedSearchResults().getResults().length));
+        assertTrue(s.contains("" + results.getSearchResults().length));
 
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultOccurrence() +"'",s.contains("\""+configuration.getKeyForFrequencyResultOccurrence()+"\""));
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultOverallResultsSize()+"'",s.contains("\""+configuration.getKeyForFrequencyResultOverallResultsSize()+"\""));

@@ -2,9 +2,7 @@ package org.greencheek.relatedproduct.searching.responseprocessing.resultsconver
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -20,7 +18,7 @@ import java.util.Map;
  * Time: 18:54
  * To change this template use File | Settings | File Templates.
  */
-public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResultsConverter {
+public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResultsConverter<FrequentlyRelatedSearchResult[]> {
 
     private static final Logger log = LoggerFactory.getLogger(JsonFrequentlyRelatedSearchResultsConverter.class);
 
@@ -32,9 +30,9 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
         this.configuration = configuration;
     }
 
-    private Map<String,Object> createJson(FrequentlyRelatedSearchResults results) {
+    private Map<String,Object> createJson(FrequentlyRelatedSearchResult[] results) {
         if(results==null) return createEmptyJson();
-        int resultsSize = results.getNumberOfResults();
+        int resultsSize = results.length;
         if(resultsSize==0) return createEmptyJson();
 
         Map<String,Object> resultsMap = new HashMap<String,Object>((int)Math.ceil((2 + (resultsSize*2))/0.75));
@@ -42,7 +40,7 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
         Map<String, String>[] relatedProducts = new HashMap[resultsSize];
         int i = 0;
-        for (FrequentlyRelatedSearchResult res : results.getResults()) {
+        for (FrequentlyRelatedSearchResult res : results) {
             Map<String, String> product = new HashMap<String, String>(3);
 
             product.put(configuration.getKeyForFrequencyResultOccurrence(), Long.toString(res.getFrequency()));
@@ -69,18 +67,14 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
     }
 
     @Override
-    public String convertToString(SearchResultsEvent results) {
+    public String convertToString(SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
         Map<String,Object> jsonResults = null;
 
         if(results==null) {
             jsonResults = createEmptyJson();
         }
         else {
-            if(results.getSearchType()!= RelatedProductSearchType.FREQUENTLY_RELATED_WITH) {
-                jsonResults = createEmptyJson();
-            } else {
-                jsonResults = createJson(results.getFrequentlyRelatedSearchResults());
-            }
+            jsonResults = createJson(results.getSearchResults());
         }
         return JSONObject.toJSONString(jsonResults,JSONStyle.LT_COMPRESS);
     }

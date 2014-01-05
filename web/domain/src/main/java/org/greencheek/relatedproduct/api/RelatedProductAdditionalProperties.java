@@ -24,7 +24,6 @@ public class RelatedProductAdditionalProperties {
     private int numberOfProperties = 0;
     private final RelatedProductAdditionalProperty[] additionalProperties;
 
-
     /**
      * Builds a properties object, that holds the given maximum number of properties.
      * The configuration is required to make sure that the property name and value are of a

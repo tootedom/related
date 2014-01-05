@@ -47,7 +47,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
         objectToPopulate.setRelatedContentId(properties.remove(idKey));
 
         RelatedProductAdditionalProperties props = objectToPopulate.getAdditionalSearchCriteria();
-        int maxPropertiesToCopy = Math.min(props.getNumberOfProperties(),properties.size());
+        int maxPropertiesToCopy = Math.min(props.getMaxNumberOfAvailableProperties(),properties.size());
         log.debug("max properties to copy {}, from properties {}",maxPropertiesToCopy,properties);
 
         int i=0;

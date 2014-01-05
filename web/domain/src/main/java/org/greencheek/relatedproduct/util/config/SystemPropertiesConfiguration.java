@@ -1,10 +1,6 @@
 package org.greencheek.relatedproduct.util.config;
 
-import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.SleepingWaitStrategy;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.YieldingWaitStrategy;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 
 
 /**
@@ -118,14 +114,15 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
 
     private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.timed.out.search.request.status.code", "504"));
-    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","500"));
+    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","502"));
     private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.no.found.search.request.status.code","404"));
     private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.found.search.request.status.code","200"));
+    private final int MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.missing.search.results.handler.status.code","500"));
 
     // string Encoding for the properties
     private final String PROPERTY_ENCODING = System.getProperty("related-product..additional.prop.string.encoding","UTF-8");
 
-    private final int[] searchRequestResponseCodes = new int[4];
+    private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
 
     private final String WAIT_STRATEGY = System.getProperty("related-product.wait.strategy","yield").toLowerCase();
 
@@ -154,10 +151,12 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final ElasticeSearchClientType esClientType;
 
     public SystemPropertiesConfiguration() {
-        searchRequestResponseCodes[SearchResultsOutcomeType.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcomeType.FAILED_REQUEST.getIndex()] = FAILED_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcomeType.REQUEST_TIMEOUT.getIndex()] = TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcomeType.HAS_RESULTS.getIndex()] = FOUND_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcome.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcome.FAILED_REQUEST.getIndex()] = FAILED_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcome.REQUEST_TIMEOUT.getIndex()] = TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcome.HAS_RESULTS.getIndex()] = FOUND_SEARCH_REQUEST_STATUS_CODE;
+        searchRequestResponseCodes[SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER.getIndex()] = MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE;
+
 
         if(WAIT_STRATEGY.contains("yield")) {
             waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
@@ -331,7 +330,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
-    public int getResponseCode(SearchResultsOutcomeType type) {
+    public int getResponseCode(SearchResultsOutcome type) {
         return  searchRequestResponseCodes[type.getIndex()];
     }
 

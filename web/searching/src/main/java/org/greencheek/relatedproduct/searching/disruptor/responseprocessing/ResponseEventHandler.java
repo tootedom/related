@@ -13,3 +13,4 @@ import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 public interface ResponseEventHandler extends EventHandler<ResponseEvent> {
     public void handleResponseEvent(ResponseEvent event);
 }
+

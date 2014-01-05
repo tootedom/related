@@ -1,21 +1,19 @@
 package org.greencheek.relatedproduct.api.searching;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 30/06/2013
- * Time: 21:40
- * To change this template use File | Settings | File Templates.
+ * Enum to represent the success or otherwise
+ * of the search.
  */
-public enum SearchResultsOutcomeType {
+public enum SearchResultsOutcome {
     HAS_RESULTS(0),
     REQUEST_TIMEOUT(1),
     EMPTY_RESULTS(2),
-    FAILED_REQUEST(3);
+    FAILED_REQUEST(3),
+    MISSING_SEARCH_RESULTS_HANDLER(4);
 
     private final int ordinalIndex;
 
-    private SearchResultsOutcomeType(int code) {
+    private SearchResultsOutcome(int code) {
         this.ordinalIndex = code;
     }
 

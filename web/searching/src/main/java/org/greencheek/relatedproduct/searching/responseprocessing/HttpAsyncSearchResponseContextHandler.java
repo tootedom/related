@@ -1,10 +1,7 @@
 package org.greencheek.relatedproduct.searching.responseprocessing;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
-import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

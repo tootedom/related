@@ -11,14 +11,11 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.greencheek.relatedproduct.api.RelatedProductAdditionalProperties;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResults;
+import org.greencheek.relatedproduct.api.searching.*;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
+import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * Time: 19:47
  * To change this template use File | Settings | File Templates.
  */
-public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
+public class ElasticSearchFrequentlyRelatedProductSearchProcessor implements MultiSearchResponseProcessor<FrequentlyRelatedSearchResult[]> {
 
     private static final Logger log = LoggerFactory.getLogger(ElasticSearchFrequentlyRelatedProductSearchProcessor.class);
 
@@ -84,7 +81,8 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         return multiSearch.execute().actionGet(searchTimeout, TimeUnit.MILLISECONDS);
     }
 
-    public SearchResultEventWithSearchRequestKey[] processMultiSearchResponse(RelatedProductSearch[] searches,MultiSearchResponse searchResponse) {
+    @Override
+    public SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]>[] processMultiSearchResponse(RelatedProductSearch[] searches,MultiSearchResponse searchResponse) {
         int i = 0;
         SearchResultEventWithSearchRequestKey[] results = new SearchResultEventWithSearchRequestKey[searches.length];
         for(MultiSearchResponse.Item item : searchResponse.getResponses()) {
@@ -95,12 +93,12 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
         return results;
     }
 
-    private SearchResultEventWithSearchRequestKey frequentlyRelatedWithResultsConverter(SearchRequestLookupKey key,
+    private SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> frequentlyRelatedWithResultsConverter(SearchRequestLookupKey key,
                                                                      SearchResponse searchResponse,
                                                                      String failureMessage,
                                                                      boolean isFailure) {
-        final FrequentlyRelatedSearchResults results;
-        SearchResultsOutcomeType outcome;
+        final FrequentlyRelatedSearchResult[] results;
+        SearchResultsOutcome outcome;
         if(isFailure) {
             log.error("Search response failure for search request key : {}",key,failureMessage);
             return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
@@ -110,14 +108,13 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
             List<TermsFacet.Entry> facets = (List<TermsFacet.Entry>) f.getEntries();
             int noOfFacets = facets==null ? 0 : facets.size();
             if(noOfFacets!=0) {
-                FrequentlyRelatedSearchResult[] mostFrequentItems = new FrequentlyRelatedSearchResult[noOfFacets];
+                results = new FrequentlyRelatedSearchResult[noOfFacets];
 
                 while(noOfFacets--!=0) {
                     TermsFacet.Entry entry = facets.get(noOfFacets);
-                    mostFrequentItems[noOfFacets] = new FrequentlyRelatedSearchResult(entry.getTerm().string(), entry.getCount());
+                    results[noOfFacets] = new FrequentlyRelatedSearchResult(entry.getTerm().string(), entry.getCount());
                 }
-                results = new FrequentlyRelatedSearchResults(mostFrequentItems);
-                outcome = SearchResultsOutcomeType.HAS_RESULTS;
+                outcome = SearchResultsOutcome.HAS_RESULTS;
             } else {
                 log.debug("no related content found for search key {}",key);
                 return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
@@ -125,8 +122,8 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor {
 
         }
 
-        return new SearchResultEventWithSearchRequestKey(new SearchResultsEvent(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,
-                                      outcome,results),key);
+        return new SearchResultEventWithSearchRequestKey(new SearchResultsEvent(outcome,results),
+                                                         key);
 
     }
 

@@ -5,6 +5,8 @@ package org.greencheek.relatedproduct.api.searching;
  */
 public class FrequentlyRelatedSearchResult {
 
+
+
     private final long frequency;
     private final String relatedProductId;
 

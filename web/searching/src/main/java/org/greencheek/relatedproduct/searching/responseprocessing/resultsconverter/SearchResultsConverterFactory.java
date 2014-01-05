@@ -14,5 +14,5 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface SearchResultsConverterFactory  {
 
-    SearchResultsConverter getConverter(RelatedProductSearchType searchType);
+    <T> SearchResultsConverter<T> getConverter(Class<T> searchType);
 }

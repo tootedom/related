@@ -3,7 +3,6 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
-import org.greencheek.relatedproduct.api.searching.SearchResultsOutcomeType;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
