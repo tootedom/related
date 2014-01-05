@@ -11,7 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
-
+ * Converts from a map of properties and a search type, to a RelatedProductSearch object.
+ * The RelatedProductSearch object passed to the {@link #populateSearchObject(org.greencheek.relatedproduct.api.searching.RelatedProductSearch, org.greencheek.relatedproduct.api.searching.RelatedProductSearchType, java.util.Map)}
+ * method for population.
+ *
+ *
  */
 public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements RelatedProductSearchFactory {
 

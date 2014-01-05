@@ -10,6 +10,7 @@ import javax.servlet.AsyncContext;
  */
 public class AsyncServletSearchResponseContext implements SearchResponseContext<AsyncContext> {
 
+    private static final Class<AsyncContext> contextType = AsyncContext.class;
     private final AsyncContext context;
     private final long creationTime;
 
@@ -24,7 +25,7 @@ public class AsyncServletSearchResponseContext implements SearchResponseContext<
 
     @Override
     public Class<AsyncContext> getContextType() {
-        return AsyncContext.class;
+        return contextType;
     }
 
     @Override

@@ -14,13 +14,17 @@ package org.greencheek.relatedproduct.searching.requestprocessing;
  */
 public class SearchResponseContextHolder {
 
+    private static SearchResponseContext[] EMPTY_RESPONSES = new SearchResponseContext[0];
     private SearchResponseContext[] contexts;
 
     public SearchResponseContextHolder() {
     }
 
 
-    public void setContexts(SearchResponseContext[] contexts) {
+    public void setContexts(SearchResponseContext... contexts) {
+        if(contexts==null) {
+            contexts = EMPTY_RESPONSES;
+        }
         this.contexts = contexts;
     }
 

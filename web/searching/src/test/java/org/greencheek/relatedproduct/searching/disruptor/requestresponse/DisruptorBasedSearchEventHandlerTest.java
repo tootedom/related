@@ -1,23 +1,5 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestresponse;
 
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKey;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResponseEvent;
-import org.greencheek.relatedproduct.searching.domain.api.SearchEventType;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
-import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-import org.junit.Test;
-
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

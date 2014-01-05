@@ -20,6 +20,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DisruptorBasedResponseEventHandler implements ResponseEventHandler {
 
+
+    public static final String ERROR_RESPONSE = "{}";
+    public static final String ERROR_MEDIA_TYPE = "application/json";
+
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedResponseEventHandler.class);
 
 
@@ -52,7 +56,7 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
             SearchResponseContextHolder[] awaitingResponses = event.getContexts();
 
-            if (awaitingResponses == null) {
+            if (awaitingResponses == null || awaitingResponses.length==0) {
                 if (log.isWarnEnabled() && converter!=null) {
                     String res = converter.convertToString(results);
                     log.warn("No async responses waiting for search results : {}", res);
@@ -63,9 +67,8 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
             log.debug("Sending search results to {} waiting responses", awaitingResponses.length);
 
-            String response = "{}";
-            String mediaType = "application/json";
-
+            String response = ERROR_RESPONSE;
+            String mediaType = ERROR_MEDIA_TYPE;
             if(converter!=null) {
                 response = converter.convertToString(results);
                 mediaType = converter.contentType();
@@ -75,9 +78,10 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
             for(SearchResponseContextHolder contextHolder : awaitingResponses) {
                 SearchResponseContext[] responseContexts = contextHolder.getContexts();
-                log.debug("Sending search results to {} pending response listeners", responseContexts.length);
 
                 for (SearchResponseContext sctx : responseContexts) {
+                    log.debug("Sending search results to {} pending response listener", sctx.getContextType());
+
                     try {
                         SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
 
