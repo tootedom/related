@@ -1,7 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
-import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
@@ -18,34 +17,34 @@ import org.slf4j.LoggerFactory;
  * The response events represent search responses from the storage repository
  * for related products
  */
-public class DisruptorBasedResponseEventHandler implements ResponseEventHandler {
+public class ResponseContextTypeBasedResponseEventHandler implements ResponseEventHandler {
 
 
     public static final String ERROR_RESPONSE = "{}";
     public static final String ERROR_MEDIA_TYPE = "application/json";
 
-    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedResponseEventHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(ResponseContextTypeBasedResponseEventHandler.class);
 
 
     private final SearchResultsConverterFactory converterLookup;
     private final SearchResponseContextHandlerLookup contextHandlerLookup;
 
-    public DisruptorBasedResponseEventHandler(SearchResponseContextHandlerLookup responseContextHandler,
-                                              SearchResultsConverterFactory factory)
+    public ResponseContextTypeBasedResponseEventHandler(SearchResponseContextHandlerLookup responseContextHandler,
+                                                        SearchResultsConverterFactory factory)
     {
         this.converterLookup = factory;
         this.contextHandlerLookup = responseContextHandler;
     }
 
     @Override
-    public void onEvent(ResponseEvent event, long sequence, boolean endOfBatch) throws Exception {
-        handleResponseEvent(event);
+    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContextHolder[][] responseContexts) {
+        for(int i=0;i<responseContexts.length;i++) {
+            handleResponseEvent(searchResults[i],responseContexts[i]);
+        }
+
     }
 
-    @Override
-    public void handleResponseEvent(ResponseEvent event) {
-        try {
-            SearchResultsEvent results = event.getResults();
+    public void handleResponseEvent(SearchResultsEvent results,SearchResponseContextHolder[] awaitingResponses) {
             SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
 
             if (converter == null) {
@@ -53,8 +52,6 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
                     log.warn("No factory available for converting search results of type : {}", results.getSearchResultsType());
                 }
             }
-
-            SearchResponseContextHolder[] awaitingResponses = event.getContexts();
 
             if (awaitingResponses == null || awaitingResponses.length==0) {
                 if (log.isWarnEnabled() && converter!=null) {
@@ -96,9 +93,6 @@ public class DisruptorBasedResponseEventHandler implements ResponseEventHandler 
 
                 }
             }
-        } finally {
-            event.setContexts(null);
-            event.setResults(null);
-        }
+
     }
 }

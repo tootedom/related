@@ -1,6 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**

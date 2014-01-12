@@ -6,11 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 25/06/2013
- * Time: 23:14
- * To change this template use File | Settings | File Templates.
+ * Given a search results class type, a SearchResultsConverter is returned that is able to
+ * deal with converting that search response.
  */
 public interface SearchResultsConverterFactory  {
 

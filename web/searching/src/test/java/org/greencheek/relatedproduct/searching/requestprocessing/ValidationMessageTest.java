@@ -20,13 +20,13 @@ public class ValidationMessageTest {
         ValidationMessage validMessage = new ValidationMessage(true,"id","all good");
         ValidationMessage invalidMessage = new ValidationMessage(false,"bob","all bad");
 
-        assertTrue(validMessage.isValid);
-        assertFalse(invalidMessage.isValid);
+        assertTrue(validMessage.isValid());
+        assertFalse(invalidMessage.isValid());
 
-        assertEquals("property should be 'id'","id",validMessage.invalidProperty);
-        assertEquals("property should be 'bob'","bob",invalidMessage.invalidProperty);
-        assertEquals("Error message should be 'all good","all good",validMessage.invalidMessage);
-        assertEquals("Error message should be 'all bad","all bad",invalidMessage.invalidMessage);
+        assertEquals("property should be 'id'","id",validMessage.getInvalidProperty());
+        assertEquals("property should be 'bob'","bob",invalidMessage.getInvalidProperty());
+        assertEquals("Error message should be 'all good","all good",validMessage.getInvalidMessage());
+        assertEquals("Error message should be 'all bad","all bad",invalidMessage.getInvalidMessage());
 
 
 

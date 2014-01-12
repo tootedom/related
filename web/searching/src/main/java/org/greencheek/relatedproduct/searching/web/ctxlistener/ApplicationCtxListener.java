@@ -1,8 +1,8 @@
 package org.greencheek.relatedproduct.searching.web.ctxlistener;
 
-import org.greencheek.relatedproduct.searching.bootstrap.BootstrapApplicationContext;
+import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -22,7 +22,7 @@ public class ApplicationCtxListener implements ServletContextListener{
     private final ApplicationCtx applicationCtx;
 
     public ApplicationCtxListener() {
-        applicationCtx = new BootstrapApplicationContext();
+        applicationCtx = new SearchBootstrapApplicationCtx();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
@@ -15,9 +16,9 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
 
     private final RelatedProductSearchExecutor searchRequestExecutor;
-    private final SearchResponseContextLookup contextStorage;
+    private final RelatedProductSearchResultsToResponseGateway contextStorage;
 
-    public DisruptorBasedRelatedContentSearchRequestProcessorHandler(SearchResponseContextLookup contextStorage,
+    public DisruptorBasedRelatedContentSearchRequestProcessorHandler(RelatedProductSearchResultsToResponseGateway contextStorage,
                                                                      RelatedProductSearchExecutor searchExecutor) {
         this.searchRequestExecutor = searchExecutor;
         this.contextStorage = contextStorage;
@@ -45,10 +46,8 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
     }
 
     public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
-        boolean executeSearch = contextStorage.addContext(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
-        if(executeSearch) {
-            searchRequestExecutor.executeSearch(searchRequest.getSearchRequest());
-        }
+        contextStorage.storeResponseContextForSearchRequest(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
+        searchRequestExecutor.executeSearch(searchRequest.getSearchRequest());
     }
 
 

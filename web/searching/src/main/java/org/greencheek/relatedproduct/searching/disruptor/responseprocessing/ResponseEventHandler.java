@@ -2,15 +2,13 @@ package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 
 import com.lmax.disruptor.EventHandler;
 import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
+import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 15/12/2013
- * Time: 10:42
- * To change this template use File | Settings | File Templates.
+ *
  */
-public interface ResponseEventHandler extends EventHandler<ResponseEvent> {
-    public void handleResponseEvent(ResponseEvent event);
+public interface ResponseEventHandler {
+    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContextHolder[][] responseContexts);
 }
 

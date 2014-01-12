@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.searching.bootstrap;
+package org.greencheek.relatedproduct.searching.web.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.*;
@@ -8,8 +8,7 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
 import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.*;
-import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseEventHandler;
-import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.DisruptorBasedResponseProcessor;
+import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.*;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.RelatedProductSearchEventHandler;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
@@ -22,6 +21,7 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
 import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
+import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.FrequentlyRelatedSearchResultsArrayConverterFactory;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
@@ -35,7 +35,7 @@ import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
  * Time: 21:44
  * To change this template use File | Settings | File Templates.
  */
-public class BootstrapApplicationContext implements ApplicationCtx {
+public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
     private final Configuration config;
     private final SearchRequestParameterValidatorLocator validatorLocator;
@@ -45,9 +45,16 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
     private final RelatedProductSearchFactory relatedProductSearchFactory;
     private final RelatedProductSearchLookupKeyGenerator relatedProductSearchLookupKeyGenerator;
+    private final RelatedProductSearchResultsToResponseGateway responseGateway;
+    private final SearchResponseContextLookup responseContextLookup;
+    private final ResponseEventHandler responseEventHandler;
+    private final SearchResultsConverterFactory resultsConverterFactory;
+    private final SearchResponseContextHandlerLookup responseContextHandlerLookup;
+
+
     private final boolean useSharedSearchRepository;
 
-    public BootstrapApplicationContext() {
+    public SearchBootstrapApplicationCtx() {
         this.config = new SystemPropertiesConfiguration();
         this.validatorLocator = new MapBasedSearchRequestParameterValidatorLookup(config);
         this.searchRequestProcessorHandlerFactory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
@@ -62,6 +69,20 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         this.relatedProductSearchRequestFactory = new RelatedProductSearchRequestFactory(config);
         this.relatedProductSearchLookupKeyGenerator = new KeyFactoryBasedRelatedProductSearchLookupKeyGenerator(config,searchRequestLookupKeyFactory);
         this.relatedProductSearchFactory = new RelatedProductSearchFactoryWithSearchLookupKeyFactory(config,relatedProductSearchLookupKeyGenerator);
+        this.responseContextLookup = new MultiMapSearchResponseContextLookup(config);
+        this.resultsConverterFactory =  new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
+
+        this.responseContextHandlerLookup = new MapBasedSearchResponseContextHandlerLookup(config);
+
+        responseEventHandler = new ResponseContextTypeBasedResponseEventHandler(
+                responseContextHandlerLookup,
+                resultsConverterFactory);
+
+
+        this.responseGateway = new DisruptorRelatedProductSearchResultsToResponseGateway(config,
+                new RequestSearchEventProcessor(responseContextLookup),
+                new ResponseSearchEventProcessor(responseContextLookup,responseEventHandler));
+
 
 
     }
@@ -70,6 +91,21 @@ public class BootstrapApplicationContext implements ApplicationCtx {
     public void shutdown() {
 
     }
+
+    public SearchResponseContextLookup getAsyncContextLookup() {
+        return this.responseContextLookup;
+    }
+
+    @Override
+    public SearchResultsConverterFactory getSearchResultsConverterFactory() {
+        return resultsConverterFactory;
+    }
+
+    @Override
+    public RelatedProductSearchResultsToResponseGateway getSearchResultsToReponseGateway() {
+        return responseGateway;
+    }
+
 
     @Override
     public RelatedContentSearchRequestProcessorHandlerFactory getSearchRequestProcessingHandlerFactory() {
@@ -97,26 +133,10 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         return this.validatorLocator;
     }
 
-    @Override
-    public SearchResponseContextLookup createAsyncContextLookup() {
-        return new MultiMapSearchResponseContextLookup(config);
-    }
-
-    // HEHHHHEEEERRREEE
-    @Override
-    public RelatedProductSearchResultsResponseProcessor createProcessorForSendingSearchResultsSendToClient(SearchResponseContextLookup asyncContextStorage) {
-        return new DisruptorBasedResponseProcessor(
-                new DisruptorBasedResponseEventHandler(
-                        new MapBasedSearchResponseContextHandlerLookup(config),
-                        createSearchResultsConverterFactory()),
-                config,
-                asyncContextStorage);
-    }
-
 
     @Override
-    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsResponseProcessor requestAndResponseGateway) {
-        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),requestAndResponseGateway));
+    public RelatedProductSearchExecutor createSearchExecutor() {
+        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),getSearchResultsToReponseGateway()));
 
     }
 
@@ -155,11 +175,6 @@ public class BootstrapApplicationContext implements ApplicationCtx {
         );
     }
 
-
-        @Override
-    public SearchResultsConverterFactory createSearchResultsConverterFactory() {
-        return new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
-    }
 
     @Override
     public RelatedProductSearchRequestFactory createRelatedSearchRequestFactory() {

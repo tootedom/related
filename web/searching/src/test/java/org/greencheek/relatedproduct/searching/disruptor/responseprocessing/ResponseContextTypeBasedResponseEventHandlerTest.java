@@ -26,37 +26,28 @@ import static org.mockito.Mockito.*;
 /**
  * Created by dominictootell on 04/01/2014.
  */
-public class DisruptorBasedResponseEventHandlerTest {
+public class ResponseContextTypeBasedResponseEventHandlerTest {
 
 
 
-    private final DisruptorBasedResponseEventHandler createResponseEventHandler(SearchResponseContextHandlerLookup responseContextHandler,
+    private final ResponseContextTypeBasedResponseEventHandler createResponseEventHandler(SearchResponseContextHandlerLookup responseContextHandler,
                                                                                 SearchResultsConverterFactory factory) {
-        return new DisruptorBasedResponseEventHandler(responseContextHandler,factory);
+        return new ResponseContextTypeBasedResponseEventHandler(responseContextHandler,factory);
     }
 
 
-    private ResponseEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency, SearchResponseContextHolder... holders) {
+    private SearchResultsEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency, SearchResponseContextHolder... holders) {
 
         FrequentlyRelatedSearchResult[] results = new FrequentlyRelatedSearchResult[id.length];
         for(int i =id.length-1;i!=-1;i--) {
             results[i] = new FrequentlyRelatedSearchResult(id[i],frequency[i]);
         }
 
-        ResponseEvent responseEvent = new ResponseEvent();
-        responseEvent.setContexts(holders);
-        responseEvent.setResults(new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,results));
-
-        return responseEvent;
+        return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,results);
     }
 
-    private ResponseEvent createStringResponse(SearchResponseContextHolder... holders) {
-
-        ResponseEvent responseEvent = new ResponseEvent();
-        responseEvent.setContexts(holders);
-        responseEvent.setResults(new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,new String("s")));
-
-        return responseEvent;
+    private SearchResultsEvent createStringResponse(SearchResponseContextHolder... holders) {
+        return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,new String("s"));
     }
 
     private static class CountingSearchResponseContextHandler implements SearchResponseContextHandler{
@@ -95,16 +86,20 @@ public class DisruptorBasedResponseEventHandlerTest {
         mappings.put(AsyncContext.class,contextHandler);
 
 
-        DisruptorBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContextHolder holder = new SearchResponseContextHolder();
         holder.setContexts(context);
-        ResponseEvent frequentlyRelatedSearchResultsResponse = createFrequentlyRelatedSearchResultResponse(new String[]{"1", "2", "3"}, new long[]{1, 2, 3}, holder);
-        SearchResultsEvent searchResultsEvent = frequentlyRelatedSearchResultsResponse.getResults();
 
-        eventHandler.onEvent(frequentlyRelatedSearchResultsResponse, 2, true);
+        SearchResultsEvent searchResultsEvent = createFrequentlyRelatedSearchResultResponse(new String[]{"1", "2", "3"}, new long[]{1, 2, 3}, holder);
+
+        SearchResponseContextHolder[][] contexts = new SearchResponseContextHolder[1][1];
+        contexts[0] = new SearchResponseContextHolder[]{holder};
+
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{searchResultsEvent},contexts);
+//        eventHandler.onEvent(frequentlyRelatedSearchResultsResponse, 2, true);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -136,23 +131,24 @@ public class DisruptorBasedResponseEventHandlerTest {
         mappings.put(AsyncContext.class,contextHandler);
 
 
-        DisruptorBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContextHolder holder = new SearchResponseContextHolder();
         holder.setContexts(context);
 
-        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
+//        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
 
-        eventHandler.handleResponseEvent(frequentlyRelatedSearchResultsResponse);
+        SearchResultsEvent searchResultsEvent =  createStringResponse(holder);
+        eventHandler.handleResponseEvent(searchResultsEvent,new SearchResponseContextHolder[]{holder});
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 
 
-        verify(contextHandler,times(1)).sendResults(eq(DisruptorBasedResponseEventHandler.ERROR_RESPONSE),eq(DisruptorBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
+        verify(contextHandler,times(1)).sendResults(eq(ResponseContextTypeBasedResponseEventHandler.ERROR_RESPONSE),eq(ResponseContextTypeBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
         verify(defaultHandler,times(0)).sendResults(anyString(),anyString(),any(SearchResultsEvent.class),any(SearchResponseContext.class));
 
 
@@ -169,16 +165,14 @@ public class DisruptorBasedResponseEventHandlerTest {
 
         SearchResponseContextHandlerLookup handlerLookup = mock(SearchResponseContextHandlerLookup.class);
         when(handlerLookup.getHandler(any(Class.class))).thenReturn(null);
-        DisruptorBasedResponseEventHandler eventHandler = createResponseEventHandler(handlerLookup,resultsConverterFactory);
+        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(handlerLookup,resultsConverterFactory);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContextHolder holder = new SearchResponseContextHolder();
         holder.setContexts(context);
 
-        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
-
-        eventHandler.handleResponseEvent(frequentlyRelatedSearchResultsResponse);
+        eventHandler.handleResponseEvent(createStringResponse(holder),new SearchResponseContextHolder[]{holder});
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -205,35 +199,32 @@ public class DisruptorBasedResponseEventHandlerTest {
         mappings.put(AsyncContext.class,contextHandler);
 
 
-        DisruptorBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContextHolder holder = new SearchResponseContextHolder();
         holder.setContexts(null);
 
-        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(null);
-
-        eventHandler.handleResponseEvent(frequentlyRelatedSearchResultsResponse);
+        eventHandler.handleResponseEvent(createStringResponse(null),new SearchResponseContextHolder[]{holder});
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 
 
-        verify(contextHandler,times(0)).sendResults(eq(DisruptorBasedResponseEventHandler.ERROR_RESPONSE),eq(DisruptorBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
+        verify(contextHandler,times(0)).sendResults(eq(ResponseContextTypeBasedResponseEventHandler.ERROR_RESPONSE),eq(ResponseContextTypeBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
         verify(defaultHandler,times(0)).sendResults(anyString(),anyString(),any(SearchResultsEvent.class),any(SearchResponseContext.class));
 
 
         reset(contextHandler,defaultHandler);
 
-        frequentlyRelatedSearchResultsResponse = createStringResponse(new SearchResponseContextHolder[0]);
 
-        eventHandler.handleResponseEvent(frequentlyRelatedSearchResultsResponse);
+        eventHandler.handleResponseEvent(createStringResponse(new SearchResponseContextHolder[0]),new SearchResponseContextHolder[]{holder});
 
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 
-        verify(contextHandler,times(0)).sendResults(eq(DisruptorBasedResponseEventHandler.ERROR_RESPONSE),eq(DisruptorBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
+        verify(contextHandler,times(0)).sendResults(eq(ResponseContextTypeBasedResponseEventHandler.ERROR_RESPONSE),eq(ResponseContextTypeBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
         verify(defaultHandler,times(0)).sendResults(anyString(),anyString(),any(SearchResultsEvent.class),any(SearchResponseContext.class));
 
 

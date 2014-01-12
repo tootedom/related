@@ -63,8 +63,8 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         SearchRequestParameterValidator validator = requestValidators.getValidatorForType(requestType);
         if(validator !=null) {
             ValidationMessage isValid = validator.validateParameters(parameters);
-            if(!isValid.isValid) {
-                log.warn("Invalid parameter :{} for search request type {}",isValid.invalidProperty, requestType);
+            if(!isValid.isValid()) {
+                log.warn("Invalid parameter :{} for search request type {}",isValid.getInvalidProperty(), requestType);
                 return SearchRequestSubmissionStatus.REQUEST_VALIDATION_FAILURE;
             }
         }

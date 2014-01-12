@@ -8,14 +8,26 @@ package org.greencheek.relatedproduct.searching.requestprocessing;
  * To change this template use File | Settings | File Templates.
  */
 public class ValidationMessage {
-    public final boolean isValid;
-    public final String invalidMessage;
-    public final String invalidProperty;
+    private final boolean isValid;
+    private final String invalidMessage;
+    private final String invalidProperty;
 
     public ValidationMessage(boolean valid,String property, String message)
     {
         isValid = valid;
         invalidProperty = property;
         invalidMessage = message;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public String getInvalidMessage() {
+        return invalidMessage;
+    }
+
+    public String getInvalidProperty() {
+        return invalidProperty;
     }
 }

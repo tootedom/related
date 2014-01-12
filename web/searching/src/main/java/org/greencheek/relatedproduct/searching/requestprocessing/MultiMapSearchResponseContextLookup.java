@@ -5,8 +5,11 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 /**
  * Stores SearchResponseContext objects against a request url.
@@ -18,40 +21,37 @@ public class MultiMapSearchResponseContextLookup implements SearchResponseContex
     private static final Logger log = LoggerFactory.getLogger(MultiMapSearchResponseContextLookup.class);
     private static final SearchResponseContextHolder[] EMPTY_CONTEXT = new SearchResponseContextHolder[0];
 
-    private final ConcurrentMap<SearchRequestLookupKey,SearchResponseContextHolder[]> contexts;
+    private final Map<SearchRequestLookupKey,List<SearchResponseContextHolder>> contexts;
+    private final int expectedNumberOfSimilarRequests;
 
     public MultiMapSearchResponseContextLookup(Configuration config) {
-        contexts = new ConcurrentHashMap<>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
+        contexts = new HashMap<SearchRequestLookupKey,List<SearchResponseContextHolder>>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
+        expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
     }
 
     @Override
     public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key) {
-        SearchResponseContextHolder[] ctxs = contexts.remove(key);
+        List<SearchResponseContextHolder> ctxs = contexts.remove(key);
         if(ctxs==null) {
             return EMPTY_CONTEXT;
         }
         else {
-           return ctxs;
+            return ctxs.toArray(new SearchResponseContextHolder[ctxs.size()]);
         }
     }
 
     @Override
     public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context) {
 
-        SearchResponseContextHolder[] ctxs = contexts.get(key);
+        List<SearchResponseContextHolder> ctxs = contexts.get(key);
         if(ctxs==null) {
-            contexts.put(key, new SearchResponseContextHolder[] { context });
+            ctxs = new ArrayList<SearchResponseContextHolder>(expectedNumberOfSimilarRequests);
+            ctxs.add(context);
+            contexts.put(key,ctxs);
             log.debug("added context to new key {}",key.toString());
             return true;
         } else {
-            int length = ctxs.length;
-            SearchResponseContextHolder[] newCtxs = new SearchResponseContextHolder[length+1];
-            System.arraycopy(ctxs,0,newCtxs,0,length);
-            newCtxs[length] = context;
-            SearchResponseContextHolder[] oldReplaced = contexts.replace(key,newCtxs);
-            if(oldReplaced==null) {
-                contexts.put(key,new SearchResponseContextHolder[] { context });
-            }
+            ctxs.add(context);
             log.debug("added context to existing key {}",key.toString());
             return false;
         }

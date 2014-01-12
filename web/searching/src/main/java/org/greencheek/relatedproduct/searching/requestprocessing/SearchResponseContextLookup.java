@@ -7,15 +7,10 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
  * against the response context.  The response context allows us to obtain the
  * response based object through which we can send the results of the user search.
  *
- * The implementation must be thread safe.
- * There will NOT be multiple threads calling removeContexts
- * There will NOT be multiple threads calling addContext
- *
- * There will be a single thread calling removeContexts, and a single thread calling addContext.
- * These two threads will be running concurrently.  Therefore, the implementation must be thread
- * safe, as the remove and add methods will be called concurrently.
+ * There will only be one thread calling this data structure.  It will either be removing Contexts
+ * or adding them.
  */
-public interface SearchResponseContextLookup<T> {
+public interface SearchResponseContextLookup {
 
     /**
      * Removes the context holder.
@@ -26,10 +21,12 @@ public interface SearchResponseContextLookup<T> {
     public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key);
 
     /**
-     * Returns false if the search key already existed.
-     * @param key
+     * adds the given SearchResponseContextHolder against the given key.  If the key already exists,
+     * then the context is added to that pre-existing list of contexts for that key (the key represents
+     * a search request)
+     *
+     * @param key the search key representing  a user search request
      * @param context the search context to add.
-     * @return
      */
     public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context);
 }

@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
@@ -17,13 +18,13 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 
     private volatile boolean shutdown = false;
 
-    private final SearchResponseContextLookup contextStorage;
+    private final RelatedProductSearchResultsToResponseGateway contextStorage;
     private final RelatedProductSearchExecutor[] searchRequestExecutor;
 
     private int currentIndex = 0;
     private final int mask;
 
-    public RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(SearchResponseContextLookup contextStorage,
+    public RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(RelatedProductSearchResultsToResponseGateway contextStorage,
                                                                                RelatedProductSearchExecutor[] searchExecutor) {
         check(searchExecutor);
         this.contextStorage = contextStorage;
@@ -52,10 +53,8 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     }
 
     public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
-        boolean executeSearch = contextStorage.addContext(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
-        if(executeSearch) {
-            searchExecutor.executeSearch(searchRequest.getSearchRequest());
-        }
+        contextStorage.storeResponseContextForSearchRequest(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
+        searchExecutor.executeSearch(searchRequest.getSearchRequest());
     }
 
 

@@ -3,11 +3,7 @@ package org.greencheek.relatedproduct.searching.responseprocessing.resultsconver
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 12:08
- * To change this template use File | Settings | File Templates.
+ * Converts a SearchResultsEvent to a String representation.
  */
 public interface SearchResultsConverter<T> {
     public String contentType();

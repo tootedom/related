@@ -3,7 +3,7 @@ package org.greencheek.relatedproduct.searching.web;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
-import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.searching.requestprocessing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -16,15 +16,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * *
+ * Main Servlet responsible for taking search request for related products and submitting them to the backend for
+ * processing.
+ *
+ * uses servlet 3
+ *
  */
 @WebServlet(urlPatterns = "/frequentlyrelatedto/*", name="relatedPurchaseIndexOrderHandler",
         asyncSupported = true, loadOnStartup = 1)

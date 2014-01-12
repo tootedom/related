@@ -1,11 +1,10 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.searching.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +24,15 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
 
     @Override
     public RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, ApplicationCtx appContext) {
-        SearchResponseContextLookup lookup = appContext.createAsyncContextLookup();
+
+        RelatedProductSearchResultsToResponseGateway gateway = appContext.getSearchResultsToReponseGateway();
         int numberOfSearchProcessors = config.getNumberOfSearchingRequestProcessors();
-        RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient(lookup);
 
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
 
-            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(responseProcessor);
-            return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(lookup,searchExecutor);
+            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor();
+            return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(gateway,searchExecutor);
         } else {
 
 
@@ -43,10 +42,10 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
             RelatedProductSearchExecutor[] searchExecutors = new RelatedProductSearchExecutor[numberOfSearchProcessors];
             int i = numberOfSearchProcessors;
             while(i-- !=0) {
-                searchExecutors[i] = appContext.createSearchExecutor(responseProcessor);
+                searchExecutors[i] = appContext.createSearchExecutor();
             }
 
-            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(lookup,searchExecutors);
+            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(gateway,searchExecutors);
         }
     }
 }

@@ -3,7 +3,7 @@ package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Event Handler that receives event from the ring buffer in the form of {@link RelatedProductSearch} objects.
  * This are the sent in batches to the {@link RelatedProductSearchRepository} that performs the users search,
- * returning the batch of search results.  The {@link org.greencheek.relatedproduct.searching.RelatedProductSearchResultsResponseProcessor} is called
+ * returning the batch of search results.  The {@link org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway} is called
  * to deal with processing those results.
  */
 public class RelatedProductSearchEventHandler implements RelatedProductSearchDisruptorEventHandler {
@@ -26,13 +26,13 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
 
     private final Map<SearchRequestLookupKey, RelatedProductSearch> searchMap;
     private final RelatedProductSearchRepository searchRespository;
-    private final RelatedProductSearchResultsResponseProcessor searchResultsHandler;
+    private final RelatedProductSearchResultsToResponseGateway searchResultsHandler;
     private final Configuration configuration;
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     public RelatedProductSearchEventHandler(Configuration config,
                                             RelatedProductSearchRepository searcher,
-                                            RelatedProductSearchResultsResponseProcessor handler) {
+                                            RelatedProductSearchResultsToResponseGateway handler) {
         this.searchRespository = searcher;
         this.configuration = config;
         this.searchResultsHandler = handler;
@@ -52,7 +52,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
                 // Just return.  We could do .put(key,event.copy), but there is no
                 // point in creating the object copy if the event already exists. (that search has
                 // already been requested)
-                log.debug("Search for key {} already being existed", key.toString(), true);
+                log.debug("Search for key {} already being processed", key.toString());
             } else {
                 log.debug("Added search for key {}", key.toString());
                 searchMap.put(key, event.copy(configuration));
@@ -67,7 +67,7 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
                         searches[i++] = r;
                     }
                     SearchResultEventWithSearchRequestKey[] results = searchRespository.findRelatedProducts(configuration, searches);
-                    searchResultsHandler.handleResponse(results);
+                    searchResultsHandler.sendSearchResultsToResponseContexts(results);
                 } finally {
                     searchMap.clear();
                 }
