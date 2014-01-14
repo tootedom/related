@@ -77,7 +77,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessor implements Mul
                 multiSearch.add(createFrequentlyRelatedContentSearch(search,elasticClient));
             }
         }
-        log.debug("executing searches");
+        log.debug("executing search {} request(s)",searches.length);
         return multiSearch.execute().actionGet(searchTimeout, TimeUnit.MILLISECONDS);
     }
 

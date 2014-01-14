@@ -6,6 +6,8 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithS
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes SearchEvents for which {@link org.greencheek.relatedproduct.searching.domain.api.SearchEvent#getEventType()}
@@ -17,6 +19,8 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
  * for processing
  */
 public class ResponseSearchEventProcessor implements SearchEventProcessor {
+    private static final Logger log = LoggerFactory.getLogger(ResponseSearchEventProcessor.class);
+
     private final SearchResponseContextLookup searchContext;
     private final ResponseEventHandler responseEventHandler;
 
@@ -29,6 +33,7 @@ public class ResponseSearchEventProcessor implements SearchEventProcessor {
 
     @Override
     public void processSearchEvent(SearchEvent event) {
+        log.debug("Distributing search response to awaiting parties");
         SearchResultEventWithSearchRequestKey[] results = event.getSearchResponse();
 
         SearchResponseContextHolder[][] responseContexts = new SearchResponseContextHolder[results.length][];

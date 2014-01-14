@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.searching.web;
 
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.SearchRequestSubmissionStatus;
 import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.searching.requestprocessing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -49,8 +50,8 @@ public class RelatedProductSearchServlet extends HttpServlet {
 
 
     public void destroy() {
-        super.destroy();
         productSearchRequestProcessor.shutdown();
+        super.destroy();
     }
 
     protected void doGet(final HttpServletRequest request,HttpServletResponse response)
@@ -89,6 +90,7 @@ public class RelatedProductSearchServlet extends HttpServlet {
     // string
     private static String getId(String path) {
         log.debug("obtaining id from endpoint {}",path);
+        if(path==null) return "";
         int index = path.lastIndexOf('/');
         return (index==-1) ? "" : path.substring(index+1);
     }
@@ -96,7 +98,7 @@ public class RelatedProductSearchServlet extends HttpServlet {
     private void submitRequestForProcessing(AsyncContext ctx, HttpServletRequest request) {
         Map<String,String> params = convertToFirstParameterValueMap(request.getParameterMap());
         params.put(configuration.getRequestParameterForId(), getId(request.getPathInfo()));
-        try {
+//        try {
             log.debug("Request {}",params);
             SearchResponseContext[] contexts;
             if(configuration.isSearchResponseDebugOutputEnabled()) {
@@ -110,12 +112,34 @@ public class RelatedProductSearchServlet extends HttpServlet {
                         new AsyncServletSearchResponseContext(ctx)
                 };
             }
-            productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,contexts);
+            SearchRequestSubmissionStatus status = productSearchRequestProcessor.processRequest(RelatedProductSearchType.FREQUENTLY_RELATED_WITH,params,contexts);
 
-        } catch (InvalidSearchRequestException invalidRequestException) {
-            log.warn("Invalid search request",invalidRequestException);
+            HttpServletResponse response = (HttpServletResponse)ctx.getResponse();
+
+            boolean completeRequest = false;
+            switch (status) {
+               case PROCESSING_REJECTED_AT_MAX_CAPACITY:
+                   response.setStatus(503);
+                   response.setContentLength(0);
+                   completeRequest = true;
+                   break;
+               case REQUEST_VALIDATION_FAILURE:
+                   response.setStatus(400);
+                   response.setContentLength(0);
+                   completeRequest = true;
+                   break;
+               case PROCESSING:
+                   completeRequest=false;
+            }
+
+        if(completeRequest) {
             ctx.complete();
         }
+
+//        } catch (InvalidSearchRequestException invalidRequestException) {
+//            log.warn("Invalid search request",invalidRequestException);
+//            ctx.complete();
+//        }
     }
 
     /**

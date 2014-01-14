@@ -25,9 +25,9 @@ public interface ApplicationCtx
      * @return
      */
     public RelatedProductSearchRequestProcessor getRequestProcessor();
-
-
     public Configuration getConfiguration();
+
+
     public RelatedContentSearchRequestProcessorHandlerFactory getSearchRequestProcessingHandlerFactory();
     public SearchRequestParameterValidatorLocator getSearchRequestParameterValidator();
 
@@ -43,7 +43,7 @@ public interface ApplicationCtx
      *
      * @return
      */
-    public SearchResponseContextLookup getAsyncContextLookup();
+    public SearchResponseContextLookup getResponseContextLookup();
 
     /**
      * returns the factory object that is able to lookup and return a SearchResultsConvert that
@@ -72,7 +72,7 @@ public interface ApplicationCtx
      * Creates the executor that is responsible for taking search requests, executing them,
      * and sending the results onwards for processing.
      */
-    public RelatedProductSearchExecutor createSearchExecutor();
+    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway);
 
     /**
      * Class that physically performs the search requests, and marshalls the incoming results

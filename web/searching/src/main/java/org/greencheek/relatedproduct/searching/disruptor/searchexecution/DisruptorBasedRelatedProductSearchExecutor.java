@@ -34,7 +34,8 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
     private final RelatedProductSearchDisruptorEventHandler eventHandler;
 
 
-    public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,EventFactory<RelatedProductSearch> eventFactory,
+    public DisruptorBasedRelatedProductSearchExecutor(final Configuration configuration,
+                                                      EventFactory<RelatedProductSearch> eventFactory,
                                                       RelatedProductSearchDisruptorEventHandler eventHandler
     ) {
         this.configuration = configuration;
@@ -50,7 +51,14 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
 
     }
 
-
+    @Override
+    public void executeSearch(RelatedProductSearch searchRequest) {
+        if(!shutdown.get()) {
+            disruptor.publishEvent(RelatedProductSearchTranslator.INSTANCE,searchRequest);
+        } else {
+            log.warn("Unable to publish events, as the search executor has been shutdown");
+        }
+    }
 
     public void shutdown() {
         if(shutdown.compareAndSet(false,true)) {
@@ -76,15 +84,6 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
             } catch (Exception e) {
                 log.warn("Unable to shut down executor thread pool in search handler processor",e);
             }
-        }
-    }
-
-    @Override
-    public void executeSearch(RelatedProductSearch searchRequest) {
-        if(!shutdown.get()) {
-            disruptor.publishEvent(RelatedProductSearchTranslator.INSTANCE,searchRequest);
-        } else {
-            log.warn("Unable to publish events, as the search executor has been shutdown");
         }
     }
 }

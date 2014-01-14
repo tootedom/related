@@ -31,7 +31,7 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
 
-            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor();
+            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(gateway);
             return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(gateway,searchExecutor);
         } else {
 
@@ -42,7 +42,7 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
             RelatedProductSearchExecutor[] searchExecutors = new RelatedProductSearchExecutor[numberOfSearchProcessors];
             int i = numberOfSearchProcessors;
             while(i-- !=0) {
-                searchExecutors[i] = appContext.createSearchExecutor();
+                searchExecutors[i] = appContext.createSearchExecutor(gateway);
             }
 
             return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(gateway,searchExecutors);

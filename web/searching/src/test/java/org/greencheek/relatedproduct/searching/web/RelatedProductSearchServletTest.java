@@ -1,9 +1,15 @@
 package org.greencheek.relatedproduct.searching.web;
 
+import com.ning.http.client.AsyncHttpClientConfig;
+import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
@@ -24,8 +30,14 @@ import org.apache.naming.resources.VirtualDirContext;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +52,7 @@ public class RelatedProductSearchServletTest {
 
     private Tomcat tomcat;
     private AsyncHttpClient asyncHttpClient;
-    private String indexingurl;
+    private String searchurl;
     private Configuration configuration;
 
     private ElasticSearchServer server;
@@ -85,6 +97,10 @@ public class RelatedProductSearchServletTest {
         } catch(Exception e)  {
             fail("Cannot create test date for search test");
         }
+
+        System.out.println("===========");
+        System.out.println("Setup");
+        System.out.println("===========");
     }
 
     @After
@@ -149,14 +165,14 @@ public class RelatedProductSearchServletTest {
         tomcat.getHost().setAutoDeploy(true);
         tomcat.getHost().setDeployOnStartup(true);
 
-        Context ctx = tomcat.addContext(tomcat.getHost(),"/indexing","/");
+        Context ctx = tomcat.addContext(tomcat.getHost(),"/search","/");
 
         ((StandardContext)ctx).setProcessTlds(false);  // disable tld processing.. we don't use any
         ctx.addParameter("com.sun.faces.forceLoadConfiguration","false");
 
-        Wrapper wrapper = tomcat.addServlet("/indexing","Indexing","org.greencheek.relatedproduct.indexing.web.RelatedPurchaseIndexOrderServlet");
+        Wrapper wrapper = tomcat.addServlet("/search","Searching","org.greencheek.relatedproduct.searching.web.RelatedProductSearchServlet");
         wrapper.setAsyncSupported(true);
-        wrapper.addMapping("/relatedproducts");
+        wrapper.addMapping("/frequentlyrelatedto/*");
 
         ctx.getServletContext().setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
 
@@ -172,12 +188,34 @@ public class RelatedProductSearchServletTest {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        asyncHttpClient = new AsyncHttpClient();
-        indexingurl = "http://localhost:" + getTomcatPort() +"/indexing/relatedproducts";
+        AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder();
+        b.setRequestTimeoutInMs(10000);
+        b.setConnectionTimeoutInMs(5000);
+        asyncHttpClient = new AsyncHttpClient(b.build());
+        searchurl = "http://localhost:" + getTomcatPort() +"/search/frequentlyrelatedto";
 
     }
 
 
+    /**
+     * Test that with an empty id, a 400 is thrown by the servlet
+     */
+    @Test
+    public void test400ReturnedForNoId() {
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        sendGet(400, "");
+    }
 
     /**
      * Test that indexing requests are sent to a single storage repository
@@ -189,21 +227,22 @@ public class RelatedProductSearchServletTest {
         System.setProperty("related-product.number.of.indexing.request.processors", "1");
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
-//        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
-//        try {
-//            startTomcat(bootstrap);
-//        } catch(Exception e) {
-//            try {
-//                shutdownTomcat();
-//            } catch (Exception shutdown) {
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
 //
-//            }
-//            fail("Unable to start tomcat");
-//        }
 //
-//
-//
-//        Response response1 = sendPost();
+        Response response1 = sendGet(200, "anchorman"); 
+        
 //
 //        try {
 //            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
@@ -226,6 +265,25 @@ public class RelatedProductSearchServletTest {
 //        assertEquals(1,reposCalled);
     }
 
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * @return
+     */
+    private Response sendGet(int statusCodeExpected,String id) {
+        Response response=null;
+        try {
+            response = asyncHttpClient.prepareGet(searchurl+"/"+id).execute().get();
+            assertEquals(statusCodeExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
 
 
     private final static String RELATED_CONTENT_BLADES1_PURCHASEa = "{\n"+
@@ -263,6 +321,76 @@ public class RelatedProductSearchServletTest {
             "\"site\": \"amazon\",\n"+
             "\"channel\": \"uk\"\n"+
             "}";
+
+
+
+    public TestBootstrapApplicationCtx getTestBootStrap() {
+        return new TestBootstrapApplicationCtx(false,false);
+    }
+
+    public TestBootstrapApplicationCtx getTestBootStrapSlowGet() {
+        return new TestBootstrapApplicationCtx(true,false);
+    }
+
+    public TestBootstrapApplicationCtx getTestBootStrapSlowPut() {
+        return new TestBootstrapApplicationCtx(false,true);
+    }
+
+    public class TestBootstrapApplicationCtx extends SearchBootstrapApplicationCtx {
+
+        private final boolean slowGet;
+        private final boolean slowPut;
+
+        public TestBootstrapApplicationCtx(boolean slowGet,boolean slowPut) {
+            this.slowGet = slowGet;
+            this.slowPut = slowPut;
+        }
+
+        @Override
+        public SearchResponseContextLookup getResponseContextLookup() {
+            return new SlowMultiMapSearchResponseContextLookup(slowGet,slowPut,getConfiguration());
+        }
+
+    }
+
+    public class SlowMultiMapSearchResponseContextLookup extends MultiMapSearchResponseContextLookup {
+
+        private final long sleepTime;
+        private final boolean slowGet;
+        private final boolean slowPut;
+
+        public SlowMultiMapSearchResponseContextLookup(boolean slowGet, boolean slowPut, Configuration config) {
+            super(config);
+            this.slowGet = slowGet;
+            this.slowPut = slowPut;
+            long sleepTime;
+            try {
+                sleepTime = Long.parseLong(System.getProperty("test.slow.repo.sleepTime","3000"));
+            } catch(NumberFormatException e) {
+                sleepTime = 2000;
+            }
+            this.sleepTime = sleepTime;
+
+        }
+
+        public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key) {
+            try {
+                if(slowPut) Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+
+            }
+            return super.removeContexts(key);
+        }
+
+        public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context) {
+            try {
+                if(slowGet) Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+
+            }
+            return super.addContext(key,context);
+        }
+    }
 
 
 }

@@ -59,7 +59,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
 
     @Override
-    public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, SearchResponseContext[] context) throws InvalidSearchRequestException {
+    public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, SearchResponseContext[] context) {
         SearchRequestParameterValidator validator = requestValidators.getValidatorForType(requestType);
         if(validator !=null) {
             ValidationMessage isValid = validator.validateParameters(parameters);

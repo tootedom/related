@@ -46,7 +46,9 @@ public class ElasticSearchRelatedProductSearchRepository implements RelatedProdu
         MultiSearchResponse sr;
         try {
             sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
+            log.debug("Processing results for search {} request(s)",searches.length);
             results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
+            log.debug("Search Completed, returning processed results.");
         } catch(ElasticSearchTimeoutException timeoutException) {
             log.warn("Timeout exception executing search request: ",timeoutException);
             int size = searches.length;

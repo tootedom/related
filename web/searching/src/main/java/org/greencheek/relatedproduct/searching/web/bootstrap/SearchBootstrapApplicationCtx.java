@@ -45,11 +45,10 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
     private final RelatedProductSearchRequestFactory relatedProductSearchRequestFactory;
     private final RelatedProductSearchFactory relatedProductSearchFactory;
     private final RelatedProductSearchLookupKeyGenerator relatedProductSearchLookupKeyGenerator;
-    private final RelatedProductSearchResultsToResponseGateway responseGateway;
-    private final SearchResponseContextLookup responseContextLookup;
-    private final ResponseEventHandler responseEventHandler;
-    private final SearchResultsConverterFactory resultsConverterFactory;
-    private final SearchResponseContextHandlerLookup responseContextHandlerLookup;
+
+//    private final SearchResponseContextLookup responseContextLookup;
+
+
 
 
     private final boolean useSharedSearchRepository;
@@ -69,21 +68,6 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
         this.relatedProductSearchRequestFactory = new RelatedProductSearchRequestFactory(config);
         this.relatedProductSearchLookupKeyGenerator = new KeyFactoryBasedRelatedProductSearchLookupKeyGenerator(config,searchRequestLookupKeyFactory);
         this.relatedProductSearchFactory = new RelatedProductSearchFactoryWithSearchLookupKeyFactory(config,relatedProductSearchLookupKeyGenerator);
-        this.responseContextLookup = new MultiMapSearchResponseContextLookup(config);
-        this.resultsConverterFactory =  new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
-
-        this.responseContextHandlerLookup = new MapBasedSearchResponseContextHandlerLookup(config);
-
-        responseEventHandler = new ResponseContextTypeBasedResponseEventHandler(
-                responseContextHandlerLookup,
-                resultsConverterFactory);
-
-
-        this.responseGateway = new DisruptorRelatedProductSearchResultsToResponseGateway(config,
-                new RequestSearchEventProcessor(responseContextLookup),
-                new ResponseSearchEventProcessor(responseContextLookup,responseEventHandler));
-
-
 
     }
 
@@ -92,18 +76,33 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
     }
 
-    public SearchResponseContextLookup getAsyncContextLookup() {
-        return this.responseContextLookup;
+    public ResponseEventHandler getResponseEventHandler() {
+        return new ResponseContextTypeBasedResponseEventHandler(
+                getResponseContextHandlerLookup(),
+                getSearchResultsConverterFactory());
+    }
+
+    public SearchResponseContextHandlerLookup getResponseContextHandlerLookup() {
+        return new MapBasedSearchResponseContextHandlerLookup(config);
+    }
+
+    @Override
+    public SearchResponseContextLookup getResponseContextLookup() {
+        return new MultiMapSearchResponseContextLookup(config);
     }
 
     @Override
     public SearchResultsConverterFactory getSearchResultsConverterFactory() {
-        return resultsConverterFactory;
+        return new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
     }
 
     @Override
     public RelatedProductSearchResultsToResponseGateway getSearchResultsToReponseGateway() {
-        return responseGateway;
+
+        SearchResponseContextLookup responseContextStorage = getResponseContextLookup();
+        return new DisruptorRelatedProductSearchResultsToResponseGateway(config,
+                new RequestSearchEventProcessor(responseContextStorage),
+                new ResponseSearchEventProcessor(responseContextStorage,getResponseEventHandler()));
     }
 
 
@@ -135,8 +134,8 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
 
     @Override
-    public RelatedProductSearchExecutor createSearchExecutor() {
-        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),getSearchResultsToReponseGateway()));
+    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway) {
+        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),gateway));
 
     }
 
