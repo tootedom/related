@@ -113,6 +113,8 @@ public class RelatedProductSearchServletTest {
         System.clearProperty("related-product.size.of.related.content.search.request.and.response.queue");
         System.clearProperty("related-product.size.of.response.processing.queue");
 
+        factory.shutdown();
+
 
         if(server!=null) {
             server.shutdown();
@@ -140,7 +142,6 @@ public class RelatedProductSearchServletTest {
         System.clearProperty("related-product.frequently.related.search.timeout.in.millis");
 
 
-        factory.shutdown();
 
     }
 

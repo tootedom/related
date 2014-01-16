@@ -9,8 +9,6 @@ import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PreDestroy;
-
 
 /**
  * Created with IntelliJ IDEA.
@@ -103,7 +101,6 @@ public final class TransportBasedElasticSearchClientFactory implements ElasticSe
     }
 
     @Override
-    @PreDestroy
     public void shutdown() {
         log.debug("Shutting down ElasticSearch client");
         try {
