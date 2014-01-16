@@ -8,6 +8,8 @@ import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  *
  */
@@ -16,7 +18,7 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     private static final Logger log = LoggerFactory.getLogger(RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler.class);
 
 
-    private volatile boolean shutdown = false;
+    private final AtomicBoolean shutdown = new AtomicBoolean(false);
 
     private final RelatedProductSearchResultsToResponseGateway contextStorage;
     private final RelatedProductSearchExecutor[] searchRequestExecutor;
@@ -59,8 +61,14 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 
 
     public void shutdown() {
-        if(!this.shutdown) {
-            this.shutdown = true;
+        if(shutdown.compareAndSet(false,true)) {
+
+            try {
+                log.info("Shutting down response context gateway respository");
+                contextStorage.shutdown();
+            } catch(Exception e) {
+                log.warn("Problem shutting down response context gateway respository");
+            }
 
             for (RelatedProductSearchExecutor searchExecutor : searchRequestExecutor) {
                 log.debug("Shutting Down Related Product Search Executor");

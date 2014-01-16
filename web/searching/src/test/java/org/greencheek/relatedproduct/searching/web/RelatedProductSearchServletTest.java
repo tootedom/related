@@ -4,14 +4,23 @@ import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
 import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedRelatedContentSearchRequestProcessorHandler;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandler;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
+import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RoundRobinRelatedContentSearchRequestProcessorHandlerFactory;
+import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
@@ -112,6 +121,7 @@ public class RelatedProductSearchServletTest {
         System.clearProperty("related-product.number.of.searching.request.processors");
         System.clearProperty("related-product.size.of.related.content.search.request.and.response.queue");
         System.clearProperty("related-product.size.of.response.processing.queue");
+        System.clearProperty("related-product.size.of.related.content.search.request.and.response.queue");
 
         factory.shutdown();
 
@@ -324,9 +334,12 @@ public class RelatedProductSearchServletTest {
     public void testSearchingMultipleRequestsReturns503WhenQueueFull() {
         System.setProperty("related-product.size.of.related.content.search.request.queue","1");
         System.setProperty("related-product.number.of.searching.request.processors", "1");
+        System.setProperty("related-product.size.of.related.content.search.request.and.response.queue","1");
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
-        TestBootstrapApplicationCtx bootstrap = getTestBootStrapSlowGet();
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrapSlowGet(3000);
+        assertEquals(1, bootstrap.getConfiguration().getSizeOfRelatedContentSearchRequestQueue());
+
         try {
             startTomcat(bootstrap);
         } catch(Exception e) {
@@ -462,34 +475,75 @@ public class RelatedProductSearchServletTest {
 
 
     public TestBootstrapApplicationCtx getTestBootStrap() {
-        return new TestBootstrapApplicationCtx(false,false);
+        return new TestBootstrapApplicationCtx(false,false,0,0);
     }
 
-    public TestBootstrapApplicationCtx getTestBootStrapSlowGet() {
-        return new TestBootstrapApplicationCtx(true,false);
+    public TestBootstrapApplicationCtx getTestBootStrapSlowGet(int timeoutInMs) {
+        return new TestBootstrapApplicationCtx(true,false,timeoutInMs,0);
     }
 
-    public TestBootstrapApplicationCtx getTestBootStrapSlowPut() {
-        return new TestBootstrapApplicationCtx(false,true);
+    public TestBootstrapApplicationCtx getTestBootStrapSlowPut(int timeoutInMs) {
+        return new TestBootstrapApplicationCtx(false,true,0,timeoutInMs);
     }
 
     public class TestBootstrapApplicationCtx extends SearchBootstrapApplicationCtx {
 
         private final boolean slowGet;
         private final boolean slowPut;
+        private final long getTimeoutMs;
+        private final long putTimeoutMs;
 
-        public TestBootstrapApplicationCtx(boolean slowGet,boolean slowPut) {
+        public TestBootstrapApplicationCtx(boolean slowGet,boolean slowPut,int getTimeoutInMs, int putTimeoutInMs) {
             super();
             this.slowGet = slowGet;
             this.slowPut = slowPut;
+            this.getTimeoutMs = getTimeoutInMs;
+            this.putTimeoutMs = putTimeoutInMs;
         }
 
         @Override
         public SearchResponseContextLookup getResponseContextLookup() {
-            return new SlowMultiMapSearchResponseContextLookup(slowGet,slowPut,getConfiguration());
+            return new SlowMultiMapSearchResponseContextLookup(slowGet,slowPut,getConfiguration(),
+                    (getTimeoutMs==0) ? putTimeoutMs : getTimeoutMs );
         }
 
+        public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway) {
+            RelatedProductSearchExecutor executor = super.createSearchExecutor(gateway);
+            return new SlowRelatedProductSearchExecutor(executor,(getTimeoutMs==0) ? putTimeoutMs : getTimeoutMs);
+        }
+
+
+
+
     }
+
+    public class SlowRelatedProductSearchExecutor implements RelatedProductSearchExecutor {
+
+        private final long timeoutInMs;
+        private final RelatedProductSearchExecutor executor;
+        public SlowRelatedProductSearchExecutor(RelatedProductSearchExecutor executor,long timeoutInMs) {
+            this.executor = executor;
+            this.timeoutInMs = timeoutInMs;
+        }
+
+        @Override
+        public void executeSearch(RelatedProductSearch searchRequest) {
+            try {
+
+                Thread.sleep(timeoutInMs);
+            } catch (Exception e) {
+
+            }
+            executor.executeSearch(searchRequest);
+        }
+
+        @Override
+        public void shutdown() {
+            executor.shutdown();
+        }
+    }
+
+
 
     public class SlowMultiMapSearchResponseContextLookup extends MultiMapSearchResponseContextLookup {
 
@@ -497,15 +551,15 @@ public class RelatedProductSearchServletTest {
         private final boolean slowGet;
         private final boolean slowPut;
 
-        public SlowMultiMapSearchResponseContextLookup(boolean slowGet, boolean slowPut, Configuration config) {
+        public SlowMultiMapSearchResponseContextLookup(boolean slowGet, boolean slowPut, Configuration config, long timeout) {
             super(config);
             this.slowGet = slowGet;
             this.slowPut = slowPut;
             long sleepTime;
             try {
-                sleepTime = Long.parseLong(System.getProperty("test.slow.repo.sleepTime","3000"));
+                sleepTime = Long.parseLong(System.getProperty("test.slow.repo.sleepTime",""+timeout));
             } catch(NumberFormatException e) {
-                sleepTime = 2000;
+                sleepTime = timeout;
             }
             this.sleepTime = sleepTime;
 

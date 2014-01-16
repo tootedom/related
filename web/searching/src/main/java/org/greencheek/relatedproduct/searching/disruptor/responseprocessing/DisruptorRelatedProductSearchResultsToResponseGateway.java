@@ -105,7 +105,6 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
             log.info("Shutting down index request processor");
             try {
                 log.info("Attempting to shut down disruptor in search request/response processor");
-                disruptor.halt();
                 disruptor.shutdown();
             } catch (Exception e) {
                 log.warn("Unable to shut down disruptor in search request/response processor",e);

@@ -7,6 +7,8 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -17,7 +19,7 @@ import org.slf4j.LoggerFactory;
 public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler {
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedContentSearchRequestProcessorHandler.class);
 
-    private volatile boolean shutdown = false;
+    private AtomicBoolean shutdown = new AtomicBoolean(false);
     private final RelatedProductSearchExecutor searchRequestExecutor;
     private final RelatedProductSearchResultsToResponseGateway contextStorage;
 
@@ -55,7 +57,8 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
 
     public void shutdown() {
-        if(!shutdown) {
+        if(shutdown.compareAndSet(false,true)) {
+
             try {
                 log.info("Shutting down response context gateway respository");
                 contextStorage.shutdown();
