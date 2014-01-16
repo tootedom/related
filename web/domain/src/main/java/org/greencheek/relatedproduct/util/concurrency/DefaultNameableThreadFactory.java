@@ -1,4 +1,4 @@
-package org.greencheek.relatedproduct.indexing.util;
+package org.greencheek.relatedproduct.util.concurrency;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

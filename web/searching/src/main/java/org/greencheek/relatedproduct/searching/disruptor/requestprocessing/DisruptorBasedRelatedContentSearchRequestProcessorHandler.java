@@ -4,6 +4,8 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResp
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,8 +15,9 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
  * To change this template use File | Settings | File Templates.
  */
 public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implements RelatedContentSearchRequestProcessorHandler {
+    private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedContentSearchRequestProcessorHandler.class);
 
-
+    private volatile boolean shutdown = false;
     private final RelatedProductSearchExecutor searchRequestExecutor;
     private final RelatedProductSearchResultsToResponseGateway contextStorage;
 
@@ -52,6 +55,21 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
 
     public void shutdown() {
+        if(!shutdown) {
+            try {
+                log.info("Shutting down response context gateway respository");
+                contextStorage.shutdown();
+            } catch(Exception e) {
+                log.warn("Problem shutting down response context gateway respository");
+            }
+
+            try {
+                log.info("Shutting down search request executor");
+                searchRequestExecutor.shutdown();
+            } catch(Exception e) {
+                log.warn("Problem shutting down request executor");
+            }
+        }
     }
 
 }

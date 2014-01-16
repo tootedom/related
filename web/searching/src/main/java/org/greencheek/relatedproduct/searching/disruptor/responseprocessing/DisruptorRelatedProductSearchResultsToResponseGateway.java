@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResp
 import org.greencheek.relatedproduct.searching.domain.api.*;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
+import org.greencheek.relatedproduct.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
 
     private static final Logger log = LoggerFactory.getLogger(DisruptorRelatedProductSearchResultsToResponseGateway.class);
     private final AtomicBoolean shutdown = new AtomicBoolean(false);
-    private final ExecutorService executorService = newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final Disruptor<SearchEvent> disruptor;
     private final RingBuffer<SearchEvent> ringBuffer;
 
@@ -63,6 +64,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
                                                                  )
 
     {
+        this.executorService = getExecutorService();
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
@@ -74,6 +76,11 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
         eventProcessors[SearchEventType.REQUEST.getIndex()] = requestProcessor;
         eventProcessors[SearchEventType.RESPONSE.getIndex()] = responseProcessor;
     }
+
+    private ExecutorService getExecutorService() {
+        return newSingleThreadExecutor(new DefaultNameableThreadFactory("SearchResponseContextRepositoryGateway"));
+    }
+
 
     @Override
     public void storeResponseContextForSearchRequest(SearchRequestLookupKey key, SearchResponseContext[] context) {

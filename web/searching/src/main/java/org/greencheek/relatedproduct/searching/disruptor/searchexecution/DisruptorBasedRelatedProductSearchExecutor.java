@@ -6,6 +6,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+import org.greencheek.relatedproduct.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedRelatedProductSearchExecutor.class);
 
 
-    private final ExecutorService executorService = newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final Disruptor<RelatedProductSearch> disruptor;
 
     private final Configuration configuration;
@@ -41,6 +42,7 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
         this.configuration = configuration;
         this.eventHandler = eventHandler;
 
+        this.executorService = getExecutorService();
         disruptor = new Disruptor<RelatedProductSearch>(
                 eventFactory,
                 configuration.getSizeOfRelatedContentSearchRequestHandlerQueue(), executorService,
@@ -50,6 +52,11 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
         disruptor.start();
 
     }
+
+    private ExecutorService getExecutorService() {
+        return newSingleThreadExecutor(new DefaultNameableThreadFactory("SearchExecutor"));
+    }
+
 
     @Override
     public void executeSearch(RelatedProductSearch searchRequest) {
@@ -72,7 +79,7 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
             }
 
             try {
-                log.info("Attempting to shutdown the event handler");
+                log.info("Attempting to shutdown the search event handler");
                 eventHandler.shutdown();
             } catch (Exception e) {
                 log.warn("Unable to/Exception during shutdown of the search event handler");

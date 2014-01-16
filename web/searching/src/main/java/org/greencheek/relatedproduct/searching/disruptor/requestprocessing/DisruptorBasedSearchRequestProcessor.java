@@ -8,6 +8,7 @@ import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchReques
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRequestProcessor;
 import org.greencheek.relatedproduct.searching.requestprocessing.*;
+import org.greencheek.relatedproduct.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     private static final Logger log = LoggerFactory.getLogger(DisruptorBasedSearchRequestProcessor.class);
 
     private final RelatedContentSearchRequestProcessorHandler eventHandler;
-    private final ExecutorService executorService = newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final Disruptor<RelatedProductSearchRequest> disruptor;
     private final SearchRequestParameterValidatorLocator requestValidators;
     private final IncomingSearchRequestTranslator searchRequestTranslator;
@@ -43,6 +44,7 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
                                                 RelatedProductSearchRequestFactory relatedProductSearchRequestFactory,
                                                 Configuration configuration,
                                                 SearchRequestParameterValidatorLocator searchRequestValidator) {
+        this.executorService = getExecutorService();
         this.searchRequestTranslator = searchRequestTranslator;
         this.eventHandler = eventHandler;
         this.requestValidators= searchRequestValidator;
@@ -56,7 +58,9 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
 
     }
 
-
+    private ExecutorService getExecutorService() {
+        return newSingleThreadExecutor(new DefaultNameableThreadFactory("SearchRequestProcessor"));
+    }
 
     @Override
     public SearchRequestSubmissionStatus processRequest(RelatedProductSearchType requestType, Map<String,String> parameters, SearchResponseContext[] context) {
@@ -78,7 +82,12 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
     @PreDestroy
     public void shutdown() {
 
-        eventHandler.shutdown();
+        try {
+            log.info("Shutting down search request handler");
+            eventHandler.shutdown();
+        } catch (Exception e) {
+            log.warn("Unable to shut down search request handler",e);
+        }
 
         try {
             log.info("Attempting to shut down executor thread pool in search request/response processor");

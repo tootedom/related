@@ -63,6 +63,7 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
             this.shutdown = true;
 
             for (RelatedProductSearchExecutor searchExecutor : searchRequestExecutor) {
+                log.debug("Shutting Down Related Product Search Executor");
                 try {
                     searchExecutor.shutdown();
                 } catch(Exception e) {

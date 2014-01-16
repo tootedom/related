@@ -9,7 +9,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessage
 import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
-import org.greencheek.relatedproduct.indexing.util.DefaultNameableThreadFactory;
+import org.greencheek.relatedproduct.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;

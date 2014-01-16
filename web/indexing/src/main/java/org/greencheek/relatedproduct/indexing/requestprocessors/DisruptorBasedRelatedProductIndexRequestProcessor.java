@@ -6,7 +6,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessage;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.indexing.*;
-import org.greencheek.relatedproduct.indexing.util.DefaultNameableThreadFactory;
+import org.greencheek.relatedproduct.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
