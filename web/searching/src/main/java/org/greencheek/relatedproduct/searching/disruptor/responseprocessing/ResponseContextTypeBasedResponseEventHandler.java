@@ -37,14 +37,15 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
     }
 
     @Override
-    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContextHolder[][] responseContexts) {
-        for(int i=0;i<responseContexts.length;i++) {
+    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContext[][] responseContexts) {
+        for(int i=0;i<searchResults.length;i++) {
+            log.debug("handling search result {}",i);
             handleResponseEvent(searchResults[i],responseContexts[i]);
         }
 
     }
 
-    public void handleResponseEvent(SearchResultsEvent results,SearchResponseContextHolder[] awaitingResponses) {
+    public void handleResponseEvent(SearchResultsEvent results,SearchResponseContext[] awaitingResponses) {
             SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
 
             if (converter == null) {
@@ -73,11 +74,12 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                 results = new SearchResultsEvent(SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER,results.getSearchResults());
             }
 
-            for(SearchResponseContextHolder contextHolder : awaitingResponses) {
-                SearchResponseContext[] responseContexts = contextHolder.getContexts();
+            for(SearchResponseContext sctx : awaitingResponses) {
+                log.debug("contexthodler {}",sctx);
+//                SearchResponseContext[] responseContexts = contextHolder.getContexts();
 
-                for (SearchResponseContext sctx : responseContexts) {
-                    log.debug("Sending search results to {} pending response listener", sctx.getContextType());
+//                for (SearchResponseContext sctx : responseContexts) {
+                    log.debug("Sending search results to {} pending response listener: {}", sctx.getContextType(),sctx);
 
                     try {
                         SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
@@ -91,7 +93,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                         sctx.close();
                     }
 
-                }
+//                }
             }
 
     }

@@ -4,10 +4,13 @@ package org.greencheek.relatedproduct.searching.disruptor.responseprocessing;
 import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Processes SearchEvents for which {@link org.greencheek.relatedproduct.searching.domain.api.SearchEvent#getEventType()}
@@ -33,10 +36,10 @@ public class ResponseSearchEventProcessor implements SearchEventProcessor {
 
     @Override
     public void processSearchEvent(SearchEvent event) {
-        log.debug("Distributing search response to awaiting parties");
         SearchResultEventWithSearchRequestKey[] results = event.getSearchResponse();
+        log.debug("Distributing {} search response(s) to awaiting parties",results.length);
 
-        SearchResponseContextHolder[][] responseContexts = new SearchResponseContextHolder[results.length][];
+        SearchResponseContext[][] responseContexts = new SearchResponseContext[results.length][];
         SearchResultsEvent[] searchResults = new SearchResultsEvent[results.length];
 
         for (int i = 0; i < results.length; i++) {
@@ -45,6 +48,7 @@ public class ResponseSearchEventProcessor implements SearchEventProcessor {
             searchResults[i] = res.getResponse();
         }
 
+        log.debug("responseContexts {}", Arrays.toString(responseContexts[0]));
         responseEventHandler.handleResponseEvents(searchResults,responseContexts);
     }
 }

@@ -21,6 +21,6 @@ public class RequestSearchEventProcessor implements SearchEventProcessor {
 
     @Override
     public void processSearchEvent(SearchEvent event) {
-        searchContext.addContext(event.getSearchRequest(), event.getResponseContextHolder());
+        searchContext.addContext(event.getSearchRequest(), event.getResponseContexts());
     }
 }

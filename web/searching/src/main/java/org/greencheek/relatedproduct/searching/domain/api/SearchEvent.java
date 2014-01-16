@@ -2,6 +2,7 @@ package org.greencheek.relatedproduct.searching.domain.api;
 
 import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 
 /**
@@ -12,7 +13,7 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 public class SearchEvent {
     private SearchEventType eventType;
     private SearchRequestLookupKey searchRequest;
-    private SearchResponseContextHolder responseContextHolder;
+    private SearchResponseContext[] responseContexts;
     private SearchResultEventWithSearchRequestKey[] searchResponse;
 
     public final static EventFactory<SearchEvent> FACTORY = new EventFactory<SearchEvent>()
@@ -29,9 +30,9 @@ public class SearchEvent {
         this.eventType = eventType;
     }
 
-    public void setSearchRequest(SearchRequestLookupKey searchRequest, SearchResponseContextHolder holder) {
+    public void setSearchRequest(SearchRequestLookupKey searchRequest, SearchResponseContext[] holder) {
         this.searchRequest = searchRequest;
-        this.responseContextHolder = holder;
+        this.responseContexts = holder;
     }
 
     public void setSearchResponse(SearchResultEventWithSearchRequestKey[] searchResponse) {
@@ -50,7 +51,7 @@ public class SearchEvent {
         return searchResponse;
     }
 
-    public SearchResponseContextHolder getResponseContextHolder() {
-        return responseContextHolder;
+    public SearchResponseContext[] getResponseContexts() {
+        return responseContexts;
     }
 }

@@ -16,6 +16,7 @@ import org.greencheek.relatedproduct.searching.domain.api.ResponseEvent;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
@@ -85,7 +86,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
                 latch.countDown();
                 return null;
             }
-        }).when(responseEventHandler).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContextHolder[][].class));
+        }).when(responseEventHandler).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContext[][].class));
 
 
         searchRepositoryWith2SecondDelay = mock(RelatedProductSearchRepository.class);
@@ -167,10 +168,10 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
 
         assertEquals(1,searchRepositoryCallCount.get());
-        assertTrue(contextLookup.addContext(key,mock(SearchResponseContextHolder.class)));
+        assertTrue(contextLookup.addContext(key,new SearchResponseContext[0]));
 
         try {
-            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContextHolder[][].class));
+            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContext[][].class));
         } catch (Exception e) {
             e.printStackTrace();
         }

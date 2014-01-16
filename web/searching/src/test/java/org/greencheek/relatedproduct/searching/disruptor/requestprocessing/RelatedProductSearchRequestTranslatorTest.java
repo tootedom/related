@@ -44,7 +44,7 @@ public class RelatedProductSearchRequestTranslatorTest {
 
         translator.translateTo(request, 1,RelatedProductSearchType.FREQUENTLY_RELATED_WITH,properties,contexts);
 
-        assertSame(request.getRequestContext().getContexts(), contexts);
+        assertSame(request.getRequestContexts(), contexts);
 
         assertEquals(request.getSearchRequest().getRelatedContentId(),"id1");
 

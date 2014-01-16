@@ -5,10 +5,7 @@ import org.greencheek.relatedproduct.api.searching.lookup.SipHashSearchRequestLo
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.*;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
@@ -84,15 +81,15 @@ public class DisruptorRelatedProductSearchResultsToResponseGatewayTest {
         }
 
         @Override
-        public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key) {
-            SearchResponseContextHolder[] holders = lookup.removeContexts(key);
+        public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
+            SearchResponseContext[] holders = lookup.removeContexts(key);
             removeContextCount.incrementAndGet();
             removeContextExpected.countDown();
             return holders;
         }
 
         @Override
-        public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context) {
+        public boolean addContext(SearchRequestLookupKey key, SearchResponseContext[] context) {
             boolean addedNew = lookup.addContext(key, context);
             addContextCount.incrementAndGet();
             addContextExpected.countDown();
@@ -123,7 +120,8 @@ public class DisruptorRelatedProductSearchResultsToResponseGatewayTest {
                 new RequestSearchEventProcessor(contextLookup),
                 new ResponseSearchEventProcessor(contextLookup,responseHandler));
 
-        SearchResponseContextHolder holder = new SearchResponseContextHolder();
+        SearchResponseContext[] holder = new SearchResponseContext[] {
+            LogDebuggingSearchResponseContext.INSTANCE};
 
         gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),holder);
 
@@ -131,18 +129,18 @@ public class DisruptorRelatedProductSearchResultsToResponseGatewayTest {
 
         assertTrue(added);
 
-        SearchResponseContextHolder[] holders = contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1"));
+        SearchResponseContext[] holders = contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1"));
 
         assertEquals(1, holders.length);
 
-        assertSame(holders[0],holder);
+        assertSame(holders[0],holder[0]);
 
         contextLookup.reset(1,3);
 
 
-        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),new SearchResponseContextHolder());
-        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),new SearchResponseContextHolder());
-        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),new SearchResponseContextHolder());
+        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),holder);
+        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),holder);
+        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),holder);
 
 
         added = contextLookup.waitOnAddContexts(1000);
@@ -168,7 +166,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGatewayTest {
         SearchResponseContextHolder holder = new SearchResponseContextHolder();
 
 
-        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),holder);
+        gateway.storeResponseContextForSearchRequest(new SipHashSearchRequestLookupKey("1"),null);
 
         boolean added = contextLookup.waitOnAddContexts(1000);
 

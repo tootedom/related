@@ -19,39 +19,46 @@ import java.util.Map;
 public class MultiMapSearchResponseContextLookup implements SearchResponseContextLookup {
 
     private static final Logger log = LoggerFactory.getLogger(MultiMapSearchResponseContextLookup.class);
-    private static final SearchResponseContextHolder[] EMPTY_CONTEXT = new SearchResponseContextHolder[0];
+    private static final SearchResponseContext[] EMPTY_CONTEXT = new SearchResponseContext[0];
 
-    private final Map<SearchRequestLookupKey,List<SearchResponseContextHolder>> contexts;
+    private final Map<SearchRequestLookupKey,List<SearchResponseContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
 
     public MultiMapSearchResponseContextLookup(Configuration config) {
-        contexts = new HashMap<SearchRequestLookupKey,List<SearchResponseContextHolder>>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
+        contexts = new HashMap<SearchRequestLookupKey,List<SearchResponseContext>>((int)Math.ceil(config.getSizeOfRelatedContentSearchRequestAndResponseQueue()/0.75));
         expectedNumberOfSimilarRequests = config.getNumberOfExpectedLikeForLikeRequests();
     }
 
     @Override
-    public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key) {
-        List<SearchResponseContextHolder> ctxs = contexts.remove(key);
+    public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
+        List<SearchResponseContext> ctxs = contexts.remove(key);
         if(ctxs==null) {
+            log.debug("No awaiting contexts for key: {}",key);
             return EMPTY_CONTEXT;
         }
         else {
-            return ctxs.toArray(new SearchResponseContextHolder[ctxs.size()]);
+            log.debug("{} awaiting contexts for key: {}",ctxs.size(),key);
+            return ctxs.toArray(new SearchResponseContext[ctxs.size()]);
         }
     }
 
     @Override
-    public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context) {
-
-        List<SearchResponseContextHolder> ctxs = contexts.get(key);
+    public boolean addContext(SearchRequestLookupKey key, SearchResponseContext[] contextObjs) {
+        if(contextObjs == null) return false;
+        log.debug("adding context {}",contexts);
+        List<SearchResponseContext> ctxs = contexts.get(key);
         if(ctxs==null) {
-            ctxs = new ArrayList<SearchResponseContextHolder>(expectedNumberOfSimilarRequests);
-            ctxs.add(context);
+            ctxs = new ArrayList<SearchResponseContext>(expectedNumberOfSimilarRequests);
+            for(SearchResponseContext ctx : contextObjs) {
+                ctxs.add(ctx);
+            }
             contexts.put(key,ctxs);
             log.debug("added context to new key {}",key.toString());
             return true;
         } else {
-            ctxs.add(context);
+            for(SearchResponseContext ctx : contextObjs) {
+                ctxs.add(ctx);
+            }
             log.debug("added context to existing key {}",key.toString());
             return false;
         }

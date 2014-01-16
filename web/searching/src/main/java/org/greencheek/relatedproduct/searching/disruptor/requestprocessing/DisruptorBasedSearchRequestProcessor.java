@@ -70,8 +70,9 @@ public class DisruptorBasedSearchRequestProcessor implements RelatedProductSearc
         }
 
         log.debug("Processing requesttype {} with parameters {}",requestType,parameters);
-        ringBuffer.publishEvent(searchRequestTranslator, requestType, parameters, context);
-        return SearchRequestSubmissionStatus.PROCESSING;
+        boolean published = ringBuffer.tryPublishEvent(searchRequestTranslator, requestType, parameters, context);
+        if(published) return SearchRequestSubmissionStatus.PROCESSING;
+        else return SearchRequestSubmissionStatus.PROCESSING_REJECTED_AT_MAX_CAPACITY;
     }
 
     @PreDestroy

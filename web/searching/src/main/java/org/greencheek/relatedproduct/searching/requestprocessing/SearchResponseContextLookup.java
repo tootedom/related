@@ -18,7 +18,7 @@ public interface SearchResponseContextLookup {
      * @param key the search key, which represents the user's search request
      * @return
      */
-    public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key);
+    public SearchResponseContext[] removeContexts(SearchRequestLookupKey key);
 
     /**
      * adds the given SearchResponseContextHolder against the given key.  If the key already exists,
@@ -28,5 +28,5 @@ public interface SearchResponseContextLookup {
      * @param key the search key representing  a user search request
      * @param context the search context to add.
      */
-    public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context);
+    public boolean addContext(SearchRequestLookupKey key, SearchResponseContext[] context);
 }

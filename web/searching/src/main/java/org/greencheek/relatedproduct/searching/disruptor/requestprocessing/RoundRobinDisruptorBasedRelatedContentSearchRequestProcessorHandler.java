@@ -53,7 +53,7 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
     }
 
     public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {
-        contextStorage.storeResponseContextForSearchRequest(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContext());
+        contextStorage.storeResponseContextForSearchRequest(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContexts());
         searchExecutor.executeSearch(searchRequest.getSearchRequest());
     }
 

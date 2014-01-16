@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.web;
 
 import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.ListenableFuture;
 import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
@@ -8,6 +9,7 @@ import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
 import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
@@ -31,6 +33,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -105,11 +108,17 @@ public class RelatedProductSearchServletTest {
 
     @After
     public final void teardown() throws Throwable {
-        System.clearProperty("related-product.index.batch.size");
-        System.clearProperty("related-product.number.of.indexing.request.processors");
-        System.clearProperty("related-product.min.related.product.post.data.size.in.bytes");
-        System.clearProperty("related-product.max.related.product.post.data.size.in.bytes");
-        System.clearProperty("related-product.size.of.incoming.request.queue");
+        System.clearProperty("related-product.size.of.related.content.search.request.queue");
+        System.clearProperty("related-product.number.of.searching.request.processors");
+        System.clearProperty("related-product.size.of.related.content.search.request.and.response.queue");
+        System.clearProperty("related-product.size.of.response.processing.queue");
+
+
+        if(server!=null) {
+            server.shutdown();
+        }
+
+
         try {
             shutdownTomcat();
         } catch (Exception e) {
@@ -129,9 +138,7 @@ public class RelatedProductSearchServletTest {
         System.clearProperty("related-product.storage.cluster.name");
         System.clearProperty("related-product.elastic.search.transport.hosts");
         System.clearProperty("related-product.frequently.related.search.timeout.in.millis");
-        if(server!=null) {
-            server.shutdown();
-        }
+
 
         factory.shutdown();
 
@@ -191,6 +198,7 @@ public class RelatedProductSearchServletTest {
         AsyncHttpClientConfig.Builder b = new AsyncHttpClientConfig.Builder();
         b.setRequestTimeoutInMs(10000);
         b.setConnectionTimeoutInMs(5000);
+        b.setMaxRequestRetry(0);
         asyncHttpClient = new AsyncHttpClient(b.build());
         searchurl = "http://localhost:" + getTomcatPort() +"/search/frequentlyrelatedto";
 
@@ -202,6 +210,9 @@ public class RelatedProductSearchServletTest {
      */
     @Test
     public void test400ReturnedForNoId() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","1");
+        System.setProperty("related-product.number.of.searching.request.processors", "1");
+
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
         try {
             startTomcat(bootstrap);
@@ -222,9 +233,9 @@ public class RelatedProductSearchServletTest {
      * i.e. traverses the ring buffer to the storage repo
      */
     @Test
-    public void testSearchingSingleItemWithSingleRequestProcessor() {
-        System.setProperty("related-product.index.batch.size","3");
-        System.setProperty("related-product.number.of.indexing.request.processors", "1");
+    public void testSearchingSingleItemWithSingleRequestProcessorReturns200() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","1");
+        System.setProperty("related-product.number.of.searching.request.processors", "1");
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
@@ -239,10 +250,122 @@ public class RelatedProductSearchServletTest {
             fail("Unable to start tomcat");
         }
 
-//
-//
         Response response1 = sendGet(200, "anchorman"); 
-        
+    }
+
+    @Test
+    public void testBufferSizeIsAdjustedToAPowerOf2() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","10");
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        assertEquals(16, bootstrap.getConfiguration().getSizeOfRelatedContentSearchRequestQueue());
+    }
+
+    @Test
+    public void testBufferSizeIsKeptToSetPowerOf2() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","16");
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        assertEquals(16, bootstrap.getConfiguration().getSizeOfRelatedContentSearchRequestQueue());
+    }
+
+    /**
+     * Test that indexing requests are sent to a single storage repository
+     * i.e. traverses the ring buffer to the storage repo
+     */
+    @Test
+    public void testSearchingMultipleRequestsReturns200WhenQueueNot() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","10");
+        System.setProperty("related-product.number.of.searching.request.processors", "2");
+//
+//        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        List<ListenableFuture<Response>> resps = sendGet("anchorman",10);
+        int oks = 0;
+        int gatewayBusy = 0;
+        int unknown = 0;
+        for(ListenableFuture<Response> r : resps) {
+            Response res = null;
+            try {
+                res = r.get();
+                switch(res.getStatusCode()) {
+                    case 503:
+                        gatewayBusy++;
+                        break;
+                    case 200:
+                        oks++;
+                        break;
+                    default:
+                        unknown++;
+                        break;
+                }
+            } catch(Exception e) {
+                unknown++;
+            }
+
+        }
+
+        assertEquals("1 Request should have been ok",10,oks);
+        assertEquals("2 Requests should have been rejected",0,gatewayBusy);
+        assertEquals("No requests should have failed with unexpected statuscode",0,unknown);
+    }
+
+    @Test
+    public void testSearchingMultipleRequestsReturns503WhenQueueFull() {
+        System.setProperty("related-product.size.of.related.content.search.request.queue","1");
+        System.setProperty("related-product.number.of.searching.request.processors", "1");
+//
+//        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrapSlowGet();
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        List<ListenableFuture<Response>> resps = sendGet("anchorman",3);
+        int oks = 0;
+        int gatewayBusy = 0;
+        int unknown = 0;
+        for(ListenableFuture<Response> r : resps) {
+            Response res = null;
+            try {
+                res = r.get();
+                switch(res.getStatusCode()) {
+                    case 503:
+                        gatewayBusy++;
+                        break;
+                    case 200:
+                        oks++;
+                        break;
+                    default:
+                        unknown++;
+                        break;
+                }
+            } catch(Exception e) {
+                unknown++;
+            }
+
+        }
+
+        assertEquals("1 Request should have been ok",1,oks);
+        assertEquals("2 Requests should have been rejected",2,gatewayBusy);
+        assertEquals("No requests should have failed with unexpected statuscode",0,unknown);
+    }
 //
 //        try {
 //            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
@@ -263,7 +386,7 @@ public class RelatedProductSearchServletTest {
 //
 //        assertEquals(3,i);
 //        assertEquals(1,reposCalled);
-    }
+
 
     /**
      * sends the indexing request and asserts that a http 202 was received.
@@ -280,6 +403,19 @@ public class RelatedProductSearchServletTest {
         } catch (InterruptedException e) {
             fail(e.getMessage());
         } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
+    private List<ListenableFuture<Response>> sendGet(String id, int numberOfRequests) {
+
+        List<ListenableFuture<Response>> responses = new ArrayList<ListenableFuture<Response>>(numberOfRequests);
+        try {
+            for(int i =0;i<numberOfRequests;i++) responses.add(asyncHttpClient.prepareGet(searchurl+"/"+id).execute());
+
+            return responses;
+        } catch (IOException e ) {
             fail(e.getMessage());
         }
         return null;
@@ -342,6 +478,7 @@ public class RelatedProductSearchServletTest {
         private final boolean slowPut;
 
         public TestBootstrapApplicationCtx(boolean slowGet,boolean slowPut) {
+            super();
             this.slowGet = slowGet;
             this.slowPut = slowPut;
         }
@@ -373,7 +510,7 @@ public class RelatedProductSearchServletTest {
 
         }
 
-        public SearchResponseContextHolder[] removeContexts(SearchRequestLookupKey key) {
+        public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
             try {
                 if(slowPut) Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
@@ -382,7 +519,7 @@ public class RelatedProductSearchServletTest {
             return super.removeContexts(key);
         }
 
-        public boolean addContext(SearchRequestLookupKey key, SearchResponseContextHolder context) {
+        public boolean addContext(SearchRequestLookupKey key, SearchResponseContext[] context) {
             try {
                 if(slowGet) Thread.sleep(sleepTime);
             } catch (InterruptedException e) {

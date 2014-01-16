@@ -36,7 +36,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
     }
 
 
-    private SearchResultsEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency, SearchResponseContextHolder... holders) {
+    private SearchResultsEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency, SearchResponseContext[]... holders) {
 
         FrequentlyRelatedSearchResult[] results = new FrequentlyRelatedSearchResult[id.length];
         for(int i =id.length-1;i!=-1;i--) {
@@ -46,7 +46,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,results);
     }
 
-    private SearchResultsEvent createStringResponse(SearchResponseContextHolder... holders) {
+    private SearchResultsEvent createStringResponse(SearchResponseContext[]... holders) {
         return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,new String("s"));
     }
 
@@ -90,13 +90,13 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContextHolder holder = new SearchResponseContextHolder();
-        holder.setContexts(context);
+        SearchResponseContext[] holder = new SearchResponseContext[]{context};
+
 
         SearchResultsEvent searchResultsEvent = createFrequentlyRelatedSearchResultResponse(new String[]{"1", "2", "3"}, new long[]{1, 2, 3}, holder);
 
-        SearchResponseContextHolder[][] contexts = new SearchResponseContextHolder[1][1];
-        contexts[0] = new SearchResponseContextHolder[]{holder};
+        SearchResponseContext[][] contexts = new SearchResponseContext[1][1];
+        contexts[0] = holder;
 
         eventHandler.handleResponseEvents(new SearchResultsEvent[]{searchResultsEvent},contexts);
 //        eventHandler.onEvent(frequentlyRelatedSearchResultsResponse, 2, true);
@@ -135,13 +135,13 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContextHolder holder = new SearchResponseContextHolder();
-        holder.setContexts(context);
+        SearchResponseContext[] holder = new SearchResponseContext[]{context};
+
 
 //        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
 
         SearchResultsEvent searchResultsEvent =  createStringResponse(holder);
-        eventHandler.handleResponseEvent(searchResultsEvent,new SearchResponseContextHolder[]{holder});
+        eventHandler.handleResponseEvent(searchResultsEvent,holder);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -169,10 +169,10 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContextHolder holder = new SearchResponseContextHolder();
-        holder.setContexts(context);
+        SearchResponseContext[] holder = new SearchResponseContext[]{context};
 
-        eventHandler.handleResponseEvent(createStringResponse(holder),new SearchResponseContextHolder[]{holder});
+
+        eventHandler.handleResponseEvent(createStringResponse(holder),holder);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -203,10 +203,10 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContextHolder holder = new SearchResponseContextHolder();
-        holder.setContexts(null);
+        SearchResponseContext[] holder = new SearchResponseContext[0];
 
-        eventHandler.handleResponseEvent(createStringResponse(null),new SearchResponseContextHolder[]{holder});
+
+        eventHandler.handleResponseEvent(createStringResponse(null),holder);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -220,7 +220,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         reset(contextHandler,defaultHandler);
 
 
-        eventHandler.handleResponseEvent(createStringResponse(new SearchResponseContextHolder[0]),new SearchResponseContextHolder[]{holder});
+        eventHandler.handleResponseEvent(createStringResponse(new SearchResponseContext[0]),holder);
 
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 

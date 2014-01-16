@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class RelatedProductSearchRequest {
 
 //    private RelatedProductSearchType requestType;
-    private final SearchResponseContextHolder requestContext = new SearchResponseContextHolder();
+    private SearchResponseContext[] requestContexts;
     private final RelatedProductSearch searchRequest;
 //    private RelatedProductSearchExecutor searchExecutor;
 
@@ -53,9 +53,10 @@ public class RelatedProductSearchRequest {
 //        this.requestContext = clientCtx;
 //    }
 
-    public SearchResponseContextHolder getRequestContext() {
-        return requestContext;
+    public SearchResponseContext[] getRequestContexts() {
+        return requestContexts;
     }
+    public void setRequestContexts(SearchResponseContext[] contexts) { this.requestContexts = contexts; }
 //
 //    public void setRequestType(RelatedProductSearchType type) {
 //        this.requestType = type;

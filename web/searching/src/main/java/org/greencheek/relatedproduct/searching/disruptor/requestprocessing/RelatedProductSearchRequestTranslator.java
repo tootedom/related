@@ -34,7 +34,7 @@ public class RelatedProductSearchRequestTranslator implements IncomingSearchRequ
                             RelatedProductSearchType type, Map<String,String> params,
                             SearchResponseContext[] contexts) {
         log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),params);
-        event.getRequestContext().setContexts(contexts);
+        event.setRequestContexts(contexts);
         relatedProductSearchFactory.populateSearchObject(event.getSearchRequest(), type,params);
     }
 }

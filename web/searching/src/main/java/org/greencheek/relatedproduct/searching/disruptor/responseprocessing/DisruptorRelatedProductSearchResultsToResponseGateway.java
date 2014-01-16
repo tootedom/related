@@ -6,6 +6,7 @@ import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.searching.domain.api.*;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.slf4j.Logger;
@@ -28,10 +29,10 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
     private final RingBuffer<SearchEvent> ringBuffer;
 
 
-    private final EventTranslatorTwoArg<SearchEvent,SearchRequestLookupKey,SearchResponseContextHolder> storeResponseContextTranslator =
-            new EventTranslatorTwoArg<SearchEvent,SearchRequestLookupKey,SearchResponseContextHolder>() {
+    private final EventTranslatorTwoArg<SearchEvent,SearchRequestLookupKey,SearchResponseContext[]> storeResponseContextTranslator =
+            new EventTranslatorTwoArg<SearchEvent,SearchRequestLookupKey,SearchResponseContext[]>() {
                 @Override
-                public void translateTo(SearchEvent event, long sequence, SearchRequestLookupKey key, SearchResponseContextHolder contextHolder) {
+                public void translateTo(SearchEvent event, long sequence, SearchRequestLookupKey key, SearchResponseContext[] contextHolder) {
                     event.setEventType(SearchEventType.REQUEST);
                     event.setSearchRequest(key,contextHolder);
                 }
@@ -64,7 +65,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
     {
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
-                configuration.getSizeOfResponseProcessingQueue(), executorService,
+                configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
                 ProducerType.MULTI, new SleepingWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
@@ -75,7 +76,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
     }
 
     @Override
-    public void storeResponseContextForSearchRequest(SearchRequestLookupKey key, SearchResponseContextHolder context) {
+    public void storeResponseContextForSearchRequest(SearchRequestLookupKey key, SearchResponseContext[] context) {
         ringBuffer.publishEvent(storeResponseContextTranslator,key,context);
     }
 

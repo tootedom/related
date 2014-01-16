@@ -21,25 +21,25 @@ public class MultiMapAsyncContextLookupTest {
 
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
         SearchRequestLookupKey key1234 = new SipHashSearchRequestLookupKey("1234");
-        SearchResponseContextHolder context = createHolder();
-        SearchResponseContextHolder context2 = createHolder();
-        SearchResponseContextHolder context3 = createHolder();
+        SearchResponseContext[] context = createHolder();
+        SearchResponseContext[] context2 = createHolder();
+        SearchResponseContext[] context3 = createHolder();
 
         map.addContext(key123,context);
         map.addContext(key1234,context2);
         map.addContext(key1234,context3);
 
-        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
+        SearchResponseContext[] contexts = map.removeContexts(key123);
         assertEquals(1,contexts.length);
-        assertSame(contexts[0],context);
+        assertSame(contexts[0],context[0]);
 
         contexts = map.removeContexts(key123);
         assertEquals(0,contexts.length);
 
         contexts = map.removeContexts(key1234);
         assertEquals(2,contexts.length);
-        assertSame(contexts[0],context2);
-        assertSame(contexts[1],context3);
+        assertSame(contexts[0],context2[0]);
+        assertSame(contexts[1],context3[0]);
 
     }
 
@@ -48,15 +48,14 @@ public class MultiMapAsyncContextLookupTest {
         MultiMapSearchResponseContextLookup map = new MultiMapSearchResponseContextLookup(new SystemPropertiesConfiguration());
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
 
-        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
+        SearchResponseContext[] contexts = map.removeContexts(key123);
         assertEquals(0,contexts.length);
     }
 
-    private SearchResponseContextHolder createHolder() {
-        SearchResponseContextHolder holder1 = new SearchResponseContextHolder();
+    private SearchResponseContext[] createHolder() {
         SearchResponseContext context = new AsyncServletSearchResponseContext(new StubAsyncCntext());
-        holder1.setContexts(new SearchResponseContext[]{context});
-        return holder1;
+        return new SearchResponseContext[]{context};
+
     }
 
     @Test
@@ -65,21 +64,21 @@ public class MultiMapAsyncContextLookupTest {
 
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
         SearchRequestLookupKey key1234 = new SipHashSearchRequestLookupKey("1234");
-        SearchResponseContextHolder context = createHolder();
-        SearchResponseContextHolder context2 = createHolder();
+        SearchResponseContext[] context = createHolder();
+        SearchResponseContext[] context2 = createHolder();
 
         map.addContext(key123,context);
         map.addContext(key1234,context2);
 
-        SearchResponseContextHolder[] contexts = map.removeContexts(key123);
+        SearchResponseContext[] contexts = map.removeContexts(key123);
         assertEquals(1,contexts.length);
-        assertSame(contexts[0],context);
+        assertSame(contexts[0],context[0]);
 
         contexts = map.removeContexts(key123);
         assertEquals(0,contexts.length);
 
         contexts = map.removeContexts(key1234);
-        assertSame(contexts[0],context2);
+        assertSame(contexts[0],context2[0]);
     }
 
 
