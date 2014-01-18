@@ -1,35 +1,8 @@
 package org.greencheek.relatedproduct.searching.web;
 
+import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.ListenableFuture;
-import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
-import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
-import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
-import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
-import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
-import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.DisruptorBasedRelatedContentSearchRequestProcessorHandler;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandler;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
-import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RoundRobinRelatedContentSearchRequestProcessorHandlerFactory;
-import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequest;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
-import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
-import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
-import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
-import org.greencheek.relatedproduct.searching.util.elasticsearch.ElasticSearchServer;
-import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -38,21 +11,37 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.naming.resources.VirtualDirContext;
+import org.greencheek.relatedproduct.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.relatedproduct.elastic.ElasticSearchClientFactory;
+import org.greencheek.relatedproduct.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutor;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutorFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchRepository;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
+import org.greencheek.relatedproduct.searching.executor.SearchExecutorFactory;
+import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
+import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
+import org.greencheek.relatedproduct.searching.util.elasticsearch.ElasticSearchServer;
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
+import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -507,13 +496,26 @@ public class RelatedProductSearchServletTest {
                     (getTimeoutMs==0) ? putTimeoutMs : getTimeoutMs );
         }
 
-        public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway) {
-            RelatedProductSearchExecutor executor = super.createSearchExecutor(gateway);
-            return new SlowRelatedProductSearchExecutor(executor,(getTimeoutMs==0) ? putTimeoutMs : getTimeoutMs);
+        public RelatedProductSearchExecutorFactory createSearchExecutorFactory() {
+            return new SlowRelatedProductSearchExecutorFactory(this,(getTimeoutMs==0) ? putTimeoutMs : getTimeoutMs);
         }
 
 
 
+    }
+
+    public class SlowRelatedProductSearchExecutorFactory extends SearchExecutorFactory {
+
+        private final long timeout;
+        public SlowRelatedProductSearchExecutorFactory(ApplicationCtx ctx, long timeout) {
+            super(ctx);
+            this.timeout = timeout;
+        }
+
+        public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway) {
+            RelatedProductSearchExecutor executor = super.createSearchExecutor(gateway);
+            return new SlowRelatedProductSearchExecutor(executor,timeout);
+        }
 
     }
 
@@ -529,7 +531,6 @@ public class RelatedProductSearchServletTest {
         @Override
         public void executeSearch(RelatedProductSearch searchRequest) {
             try {
-
                 Thread.sleep(timeoutInMs);
             } catch (Exception e) {
 

@@ -14,7 +14,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProduct;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
-import org.greencheek.relatedproduct.indexing.bootstrap.BootstrapApplicationCtx;
+import org.greencheek.relatedproduct.indexing.web.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
@@ -32,9 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Really this is truely an integration test that checks:

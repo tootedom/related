@@ -1,8 +1,8 @@
 package org.greencheek.relatedproduct.searching.web.ctxlistener;
 
+import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
-import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

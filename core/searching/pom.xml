@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>related-web-searching</artifactId>
-    <packaging>war</packaging>
+    <artifactId>related-searching</artifactId>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>org.greencheek</groupId>
-        <artifactId>related-web</artifactId>
+        <artifactId>related-core</artifactId>
         <version>1.0.1-SNAPSHOT</version>
     </parent>
 
@@ -22,17 +22,11 @@
     <dependencies>
         <dependency>
             <groupId>org.greencheek</groupId>
-            <artifactId>related-searching</artifactId>
+            <artifactId>related-domain</artifactId>
             <version>${project.version}</version>
         </dependency>
 
 
-        <dependency>
-            <groupId>org.greencheek</groupId>
-            <artifactId>related-searching</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-        </dependency>
 
         <!-- For async 3 api servlet-api -->
         <dependency>

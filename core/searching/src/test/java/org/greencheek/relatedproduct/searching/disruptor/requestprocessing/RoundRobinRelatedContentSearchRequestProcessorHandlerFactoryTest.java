@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutorFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
@@ -31,7 +32,7 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactoryTest {
 
         RoundRobinRelatedContentSearchRequestProcessorHandlerFactory factory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
 
-        RelatedContentSearchRequestProcessorHandler handler = factory.createHandler(config,mock(ApplicationCtx.class));
+        RelatedContentSearchRequestProcessorHandler handler = factory.createHandler(config,mock(RelatedProductSearchResultsToResponseGateway.class),mock(RelatedProductSearchExecutorFactory.class));
 
         assertTrue(handler instanceof DisruptorBasedRelatedContentSearchRequestProcessorHandler);
     }
@@ -43,7 +44,7 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactoryTest {
 
         RoundRobinRelatedContentSearchRequestProcessorHandlerFactory factory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
 
-        RelatedContentSearchRequestProcessorHandler handler = factory.createHandler(config,mock(ApplicationCtx.class));
+        RelatedContentSearchRequestProcessorHandler handler = factory.createHandler(config,mock(RelatedProductSearchResultsToResponseGateway.class),mock(RelatedProductSearchExecutorFactory.class));
 
         assertTrue(handler instanceof RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler);
     }

@@ -1,10 +1,12 @@
-package org.greencheek.relatedproduct.indexing.bootstrap;
+package org.greencheek.relatedproduct.indexing.web.bootstrap;
 
 import org.greencheek.relatedproduct.api.indexing.BasicRelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageConverter;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductIndexingMessageFactory;
 import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessageFactory;
-import org.greencheek.relatedproduct.indexing.*;
+import org.greencheek.relatedproduct.indexing.IndexingRequestConverterFactory;
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageLocationMapper;
+import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.elasticsearch.ElasticSearchRelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.jsonrequestprocessing.JsonSmartIndexingRequestConverterFactory;
 import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLocationMapper;
@@ -23,7 +25,6 @@ import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateAndHourForm
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
-
 
 
 /**

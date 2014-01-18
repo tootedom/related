@@ -1,7 +1,9 @@
 package org.greencheek.relatedproduct.searching.web.bootstrap;
 
 import com.lmax.disruptor.EventFactory;
-import org.greencheek.relatedproduct.api.searching.*;
+import org.greencheek.relatedproduct.api.searching.KeyFactoryBasedRelatedProductSearchLookupKeyGenerator;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
+import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.lookup.RelatedProductSearchFactoryWithSearchLookupKeyFactory;
 import org.greencheek.relatedproduct.api.searching.lookup.RelatedProductSearchLookupKeyGenerator;
 import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKeyFactory;
@@ -12,14 +14,15 @@ import org.greencheek.relatedproduct.searching.disruptor.responseprocessing.*;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.DisruptorBasedRelatedProductSearchExecutor;
 import org.greencheek.relatedproduct.searching.disruptor.searchexecution.RelatedProductSearchEventHandler;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
+import org.greencheek.relatedproduct.searching.executor.SearchExecutorFactory;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchClientFactoryCreator;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchFrequentlyRelatedProductSearchProcessor;
 import org.greencheek.relatedproduct.searching.repository.ElasticSearchRelatedProductSearchRepository;
 import org.greencheek.relatedproduct.searching.repository.NodeOrTransportBasedElasticSearchClientFactoryCreator;
-import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
+import org.greencheek.relatedproduct.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.FrequentlyRelatedSearchResultsArrayConverterFactory;
@@ -113,8 +116,9 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
     @Override
     public RelatedProductSearchRequestProcessor getRequestProcessor() {
+       RelatedProductSearchResultsToResponseGateway gateway = getSearchResultsToReponseGateway();
        RelatedProductSearchFactory factory = createRelatedProductSearchFactory();
-       return new DisruptorBasedSearchRequestProcessor(getSearchRequestTranslator(factory),getSearchRequestProcessingHandlerFactory().createHandler(config,this),
+       return new DisruptorBasedSearchRequestProcessor(getSearchRequestTranslator(factory),getSearchRequestProcessingHandlerFactory().createHandler(config,gateway,createSearchExecutorFactory()),
                createRelatedSearchRequestFactory(),config,getSearchRequestParameterValidator());
     }
 
@@ -134,8 +138,8 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
 
     @Override
-    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway) {
-        return new DisruptorBasedRelatedProductSearchExecutor(config,createRelatedProductSearchEventFactory(),new RelatedProductSearchEventHandler(config,createSearchRepository(),gateway));
+    public RelatedProductSearchExecutorFactory createSearchExecutorFactory() {
+        return new SearchExecutorFactory(this);
 
     }
 

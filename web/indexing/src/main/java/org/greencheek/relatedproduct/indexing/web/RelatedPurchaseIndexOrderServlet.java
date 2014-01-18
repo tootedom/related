@@ -3,7 +3,7 @@ package org.greencheek.relatedproduct.indexing.web;
 
 import org.greencheek.relatedproduct.indexing.IndexRequestPublishingStatus;
 import org.greencheek.relatedproduct.indexing.RelatedProductIndexRequestProcessor;
-import org.greencheek.relatedproduct.indexing.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.indexing.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.indexing.requestprocessorfactory.IndexRequestProcessorFactory;
 import org.greencheek.relatedproduct.indexing.util.ResizableByteBuffer;
 import org.greencheek.relatedproduct.indexing.util.ResizableByteBufferNoBoundsChecking;
@@ -38,7 +38,7 @@ public class RelatedPurchaseIndexOrderServlet extends HttpServlet {
 
     private static final Logger log = LoggerFactory.getLogger(RelatedPurchaseIndexOrderServlet.class);
 
-    public void init(javax.servlet.ServletConfig servletConfig) throws javax.servlet.ServletException
+    public void init(javax.servlet.ServletConfig servletConfig) throws ServletException
     {
         super.init(servletConfig);
         applicationCtx = (ApplicationCtx)servletConfig.getServletContext().getAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME);

@@ -8,8 +8,8 @@ import org.greencheek.relatedproduct.api.searching.lookup.SearchRequestLookupKey
 import org.greencheek.relatedproduct.searching.*;
 import org.greencheek.relatedproduct.searching.disruptor.requestprocessing.RelatedContentSearchRequestProcessorHandlerFactory;
 import org.greencheek.relatedproduct.searching.domain.RelatedProductSearchRequestFactory;
-import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchRequestParameterValidatorLocator;
+import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
@@ -72,7 +72,7 @@ public interface ApplicationCtx
      * Creates the executor that is responsible for taking search requests, executing them,
      * and sending the results onwards for processing.
      */
-    public RelatedProductSearchExecutor createSearchExecutor(RelatedProductSearchResultsToResponseGateway gateway);
+    public RelatedProductSearchExecutorFactory createSearchExecutorFactory();
 
     /**
      * Class that physically performs the search requests, and marshalls the incoming results

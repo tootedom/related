@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.searching.disruptor.requestprocessing;
 
-import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchExecutorFactory;
+import org.greencheek.relatedproduct.searching.RelatedProductSearchResultsToResponseGateway;
 import org.greencheek.relatedproduct.util.config.Configuration;
 
 /**
@@ -11,5 +12,5 @@ import org.greencheek.relatedproduct.util.config.Configuration;
  * To change this template use File | Settings | File Templates.
  */
 public interface RelatedContentSearchRequestProcessorHandlerFactory {
-    RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, ApplicationCtx applicationCtx);
+    RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, RelatedProductSearchResultsToResponseGateway gateway,RelatedProductSearchExecutorFactory searchExecutorFactory);
 }
