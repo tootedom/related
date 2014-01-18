@@ -35,7 +35,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.max.number.of.search.criteria.for.related.content");
+        System.clearProperty(Configuration.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactoryTest {
     @Test
     public void testPopulateSearchObjectCannotPopulateOverMaxAllowedSearchProperties() throws Exception {
 
-        System.setProperty("related-product.max.number.of.search.criteria.for.related.content", "2");
+        System.setProperty(Configuration.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT, "2");
         Configuration config = new SystemPropertiesConfiguration();
         factory = new RelatedProductSearchFactoryWithSearchLookupKeyFactory(config,keyGenerator);
 

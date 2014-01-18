@@ -47,9 +47,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty("related-product.max.number.related.products.per.product","10");
-        System.setProperty("related-product.index.batch.size", "25");
-        System.setProperty("related-product.number.of.indexing.request.processors","2");
+        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"10");
+        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE, "25");
+        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
         configuration = new SystemPropertiesConfiguration();
         repo = new TestRelatedProductReferenceEventHandlerFactory();
         handler = new RoundRobinRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
@@ -58,9 +58,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.max.number.related.products.per.product");
-        System.clearProperty("related-product.index.batch.size");
-        System.clearProperty("related-product.number.of.indexing.request.processors");
+        System.clearProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
+        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
         handler.shutdown();
     }
 

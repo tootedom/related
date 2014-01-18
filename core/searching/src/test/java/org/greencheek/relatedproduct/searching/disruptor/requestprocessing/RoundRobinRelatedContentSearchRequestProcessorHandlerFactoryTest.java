@@ -22,12 +22,12 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.number.of.searching.request.processors");
+        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
     }
 
     @Test
     public void testSingleRelatedContentSearchRequestProcessorHandlerIsCreated() {
-        System.setProperty("related-product.number.of.searching.request.processors","1");
+        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"1");
         Configuration config = new SystemPropertiesConfiguration();
 
         RoundRobinRelatedContentSearchRequestProcessorHandlerFactory factory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
@@ -39,7 +39,7 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactoryTest {
 
     @Test
     public void testRoundRobinRelatedContentSearchRequestProcessorHandlerIsCreated() {
-        System.setProperty("related-product.number.of.searching.request.processors","2");
+        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"2");
         Configuration config = new SystemPropertiesConfiguration();
 
         RoundRobinRelatedContentSearchRequestProcessorHandlerFactory factory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
@@ -49,33 +49,4 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactoryTest {
         assertTrue(handler instanceof RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler);
     }
 
-
-//    @Override
-//    public RelatedContentSearchRequestProcessorHandler createHandler(Configuration config, ApplicationCtx appContext) {
-//        int numberOfSearchProcessors = config.getNumberOfSearchingRequestProcessors();
-//        RelatedProductSearchResultsResponseProcessor responseProcessor = appContext.createProcessorForSendingSearchResultsSendToClient();
-//        RelatedProductSearchRequestResponseProcessor requestAndResponseProcessor = appContext.createSearchRequestAndResponseGateway(appContext.createAsyncContextLookup(),responseProcessor);
-//
-//        if(numberOfSearchProcessors==1) {
-//            log.debug("Creating Single Search Request Processor");
-//
-//            RelatedProductSearchExecutor searchExecutor = appContext.createSearchExecutor(requestAndResponseProcessor);
-//            return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestAndResponseProcessor,searchExecutor);
-//        } else {
-//
-//
-//            numberOfSearchProcessors = Util.ceilingNextPowerOfTwo(numberOfSearchProcessors);
-//
-//            log.debug("Creating {} Search Request Processor",numberOfSearchProcessors);
-//            RelatedProductSearchExecutor[] searchExecutors = new RelatedProductSearchExecutor[numberOfSearchProcessors];
-//            RelatedProductSearchRequestResponseProcessor[]  requestResponseGateways = new RelatedProductSearchRequestResponseProcessor[numberOfSearchProcessors];
-//            int i = numberOfSearchProcessors;
-//            while(i-- !=0) {
-//                searchExecutors[i] = appContext.createSearchExecutor(requestAndResponseProcessor);
-//                requestResponseGateways[i] = requestAndResponseProcessor;
-//            }
-//
-//            return new RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler(config,requestResponseGateways,searchExecutors);
-//        }
-//    }
 }

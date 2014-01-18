@@ -15,14 +15,14 @@ public class RelatedProductIndexingMessageFactoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.max.number.related.products.per.product");
-        System.clearProperty("related-product.max.number.related.product.properties");
+        System.clearProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES);
+        System.clearProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
 
     }
 
     @Test
     public void testRelatedProductIndexingMessageWith4RelatedProducts() throws Exception {
-        System.setProperty("related-product.max.number.related.products.per.product","4");
+        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"4");
         Configuration config = new SystemPropertiesConfiguration();
 
         RelatedProductIndexingMessageFactory factory = new RelatedProductIndexingMessageFactory(config);
@@ -35,7 +35,7 @@ public class RelatedProductIndexingMessageFactoryTest {
     @Test
     public void testRelatedProductIndexingMessage() {
 
-        System.setProperty("related-product.max.number.related.products.per.product","2");
+        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"2");
         Configuration config = new SystemPropertiesConfiguration();
 
         RelatedProductIndexingMessageFactory factory = new RelatedProductIndexingMessageFactory(config);
@@ -49,8 +49,8 @@ public class RelatedProductIndexingMessageFactoryTest {
     @Test
     public void testRelatedProductIndexingMessageRestrictsNumberOfProperties() {
 
-        System.setProperty("related-product.max.number.related.products.per.product","2");
-        System.setProperty("related-product.max.number.related.product.properties","3");
+        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"2");
+        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES,"3");
         Configuration config = new SystemPropertiesConfiguration();
 
         RelatedProductIndexingMessageFactory factory = new RelatedProductIndexingMessageFactory(config);

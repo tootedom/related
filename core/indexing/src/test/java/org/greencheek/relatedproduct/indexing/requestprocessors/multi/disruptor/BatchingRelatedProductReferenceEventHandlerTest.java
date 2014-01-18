@@ -35,7 +35,7 @@ public class BatchingRelatedProductReferenceEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty("related-product.index.batch.size", "25");
+        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE, "25");
         configuration = new SystemPropertiesConfiguration();
         repo = new TestRelatedProductStorageRepository();
         handler = new BatchingRelatedProductReferenceEventHandler(configuration.getIndexBatchSize(),repo,
@@ -44,7 +44,7 @@ public class BatchingRelatedProductReferenceEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.index.batch.size");
+        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
         handler.shutdown();
     }
 

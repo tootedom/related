@@ -30,20 +30,20 @@ public class DayBasedStorageLocationMapperTest {
 
     @Before
     public void setUp() {
-        System.setProperty("related-product.indexname.date.caching.enabled","true");
-        System.setProperty("related-product.number.of.indexname.to.cache","10");
+        System.setProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"true");
+        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,"10");
         cachingDayConfig = new SystemPropertiesConfiguration();
         cachingDayBasedMapper = new DayBasedStorageLocationMapper(cachingDayConfig,new JodaUTCCurrentDateFormatter());
 
-        System.setProperty("related-product.indexname.date.caching.enabled","false");
+        System.setProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"false");
         noncachingDayConfig = new SystemPropertiesConfiguration();
         nonCachingDayBasedMapper = new DayBasedStorageLocationMapper(noncachingDayConfig,new JodaUTCCurrentDateFormatter());
     }
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.indexname.date.caching.enabled");
-        System.clearProperty("related-product.number.of.indexname.to.cache");
+        System.clearProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
+        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
     }
 
     @Test

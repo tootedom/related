@@ -53,99 +53,95 @@ import org.greencheek.relatedproduct.util.arrayindexing.Util;
  */
 public class SystemPropertiesConfiguration implements Configuration {
 
-    private final boolean SAFE_TO_OUTPUT_REQUEST_DATA = Boolean.valueOf(System.getProperty("related-product.safe.to.output.index.request.data","false"));
 
-    private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty("related-product.max.number.related.product.properties", "10"));
+    private final boolean SAFE_TO_OUTPUT_REQUEST_DATA = Boolean.valueOf(System.getProperty(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,"false"));
+    private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty(PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES, "10"));
+    private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty(PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST, "10"));
+    private final int RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ID_LENGTH, "36"));
+    private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty(PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING, "INVALID_ID");
+    private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty(PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,"10240"));
+    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty(PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,"4096"));
 
-    private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty("related-product.max.number.related.products.per.product", "10"));
-    private final int RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty("related-product.related.product.id.length", "36"));
-    private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty("related-product.related.product.invalid.id.string", "INVALID_ID");
-    private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.max.related.product.post.data.size.in.bytes","10240"));
-    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty("related-product.min.related.product.post.data.size.in.bytes","4096"));
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH, "30"));
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH, "30"));
+    private final int SIZE_OF_INCOMING_REQUEST_QUEUE = Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE, "2048"));
+    private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE, "-1"));
+    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty(PROPNAME_BATCH_INDEX_SIZE,"128"));
 
-    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.key.length", "30"));
-    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty("related-product.additional.prop.value.length", "30"));
-    private final int SIZE_OF_INCOMING_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.incoming.request.queue", "2048"));
-    private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty("related-product.size.of.batch.indexing.request.queue", "-1"));
-    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty("related-product.index.batch.size","128"));
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE, "2048")));
 
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.queue", "2048")));
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE, "2048")));
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE, "2048")));
 
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.handler.queue", "2048")));
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty("related-product.size.of.related.content.search.request.and.response.queue", "2048")));
+    private final int MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty(PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT, "10"));
+    private final int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty(PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS, "10"));
 
-    private final int MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty("related-product.max.number.of.search.criteria.for.related.content", "10"));
-    private final int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty("related-product.number.of.expected.like.for.like.requests", "10"));
+    private final String KEY_FOR_FREQUENCY_RESULT_ID = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID,"id");
+    private final String KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,"frequency");
+    private final String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS,"size");
+    private final String KEY_FOR_FREQUENCY_RESULTS = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,"results");
 
-    private final String KEY_FOR_FREQUENCY_RESULT_ID = System.getProperty("related-product.key.for.frequency.result.id","id");
-    private final String KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = System.getProperty("related-product.key.for.frequency.result.occurrence","frequency");
-    private final String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = System.getProperty("related-product.key.for.frequency.result.overall.no.of.related.products","size");
-    private final String KEY_FOR_FREQUENCY_RESULTS = System.getProperty("related-product.key.for.frequency.results","results");
+    private final String REQUEST_PARAMETER_FOR_SIZE = System.getProperty(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,"maxresults");
+    private final String REQUEST_PARAMETER_FOR_ID = System.getProperty(PROPNAME_REQUEST_PARAMETER_FOR_ID,"id");
 
-    private final String REQUEST_PARAMETER_FOR_SIZE = System.getProperty("related-product.request.parameter.for.size","maxresults");
-    private final String REQUEST_PARAMETER_FOR_ID = System.getProperty("related-product.request.parameter.for.id","id");
+    private final int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty(PROPNAME_DEFAULT_NUMBER_OF_RESULTS,"4"));
+    private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE,"2048")));
+    private final int NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty(PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2"));
+    private final int NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(Short.valueOf(System.getProperty(PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"4")));
 
-    private final int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty("related-product.default.number.of.results","4"));
+    private final String STORAGE_INDEX_NAME_PREFIX = System.getProperty(PROPNAME_STORAGE_INDEX_NAME_PREFIX,"relatedproducts");
+    private final String STORAGE_INDEX_NAME_ALIAS = System.getProperty(PROPNAME_STORAGE_INDEX_NAME_ALIAS,"");
+    private final String STORAGE_CONTENT_TYPE_NAME = System.getProperty(PROPNAME_STORAGE_CONTENT_TYPE_NAME,"relatedproduct");
+    private final String STORAGE_CLUSTER_NAME = System.getProperty(PROPNAME_STORAGE_CLUSTER_NAME,"relatedproducts");
+    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  System.getProperty(PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME,"frequently-related-with");
+    private final String STORAGE_FACET_SEARCH_EXECUTION_HINT = System.getProperty(PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT);
 
-    private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty("related-product.size.of.response.processing.queue","2048")));
+    private final String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR,"related-with");
+    private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR,"date");
+    private final String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR,"id");
+    private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR,"products");
 
-    private final int NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty("related-product.number.of.indexing.request.processors","2"));
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME,"default-transport-elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME,"default-node-elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME,"elasticsearch.yml");
 
-    private final int NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(Short.valueOf(System.getProperty("related-product.number.of.searching.request.processors","4")));
-
-    private final String STORAGE_INDEX_NAME_PREFIX = System.getProperty("related-product.storage.index.name.prefix","relatedproducts");
-    private final String STORAGE_INDEX_NAME_ALIAS = System.getProperty("related-product-storage.index.name.alias","");
-    private final String STORAGE_CONTENT_TYPE_NAME = System.getProperty("related-product.storage.content.type.name","relatedproduct");
-    private final String STORAGE_CLUSTER_NAME = System.getProperty("related-product.storage.cluster.name","relatedproducts");
-    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  System.getProperty("related-product.storage.frequently.related.products.facet.results.facet.name","frequently-related-with");
-    private final String STORAGE_FACET_SEARCH_EXECUTION_HINT = System.getProperty("related-product.storage.facet.search.execution.hint");
-
-    private final String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = System.getProperty("related-product.key.for.index.request.related.with.attr","related-with");
-    private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty("related-product.key.for.index.request.date.attr","date");
-    private final String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty("related-product.key.for.index.request.id.attr","id");
-    private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty("related-product.key.for.index.request.product.array.attr","products");
-
-    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.file.name","default-transport-elasticsearch.yml");
-    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.default.settings.file.name","default-node-elasticsearch.yml");
-    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty("related-product.elastic.search.client.override.settings.file.name","elasticsearch.yml");
-
-    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = Long.valueOf(System.getProperty("related-product.frequently.related.search.timeout.in.millis", "5000"));
+    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = Long.valueOf(System.getProperty(PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "5000"));
 
     // can be "day|hour|minute"
-    private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty("related-product.storage.location.mapper","day");
+    private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty(PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER,"day");
 
-    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.timed.out.search.request.status.code", "504"));
-    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.failed.search.request.status.code","502"));
-    private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.no.found.search.request.status.code","404"));
-    private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.found.search.request.status.code","200"));
-    private final int MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = Integer.valueOf(System.getProperty("related-product.missing.search.results.handler.status.code","500"));
+    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE, "504"));
+    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE,"502"));
+    private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE,"404"));
+    private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE,"200"));
+    private final int MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,"500"));
 
     // string Encoding for the properties
-    private final String PROPERTY_ENCODING = System.getProperty("related-product..additional.prop.string.encoding","UTF-8");
+    private final String PROPERTY_ENCODING = System.getProperty(PROPNAME_PROPERTY_ENCODING,"UTF-8");
 
     private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
 
-    private final String WAIT_STRATEGY = System.getProperty("related-product.wait.strategy","yield").toLowerCase();
+    private final String WAIT_STRATEGY = System.getProperty(PROPNAME_WAIT_STRATEGY,"yield").toLowerCase();
 
-    private final String ES_CLIENT_TYPE = System.getProperty("related-product.es.client.type","transport").toLowerCase();
+    private final String ES_CLIENT_TYPE = System.getProperty(PROPNAME_ES_CLIENT_TYPE,"transport").toLowerCase();
 
-    private final boolean INDEXNAME_DATE_CACHING_ENABLED = Boolean.parseBoolean(System.getProperty("related-product.indexname.date.caching.enabled","true"));
+    private final boolean INDEXNAME_DATE_CACHING_ENABLED = Boolean.parseBoolean(System.getProperty(PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"true"));
 
-    private final int NUMBER_OF_INDEXNAMES_TO_CACHE = Integer.valueOf(System.getProperty("related-product.number.of.indexname.to.cache","365"));
+    private final int NUMBER_OF_INDEXNAMES_TO_CACHE = Integer.valueOf(System.getProperty(PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,"365"));
 
-    private final boolean REPLACE_OLD_INDEXED_CONTENT = Boolean.parseBoolean(System.getProperty("related-product.replace.old.indexed.content", "false"));
+    private final boolean REPLACE_OLD_INDEXED_CONTENT = Boolean.parseBoolean(System.getProperty(PROPNAME_REPLACE_OLD_INDEXED_CONTENT, "false"));
 
-    private final boolean SEPARATE_INDEXING_THREAD  = Boolean.parseBoolean(System.getProperty("related-product.use.separate.repository.storage.thread","false"));
+    private final boolean SEPARATE_INDEXING_THREAD  = Boolean.parseBoolean(System.getProperty(PROPNAME_SEPARATE_INDEXING_THREAD,"false"));
 
-    private final boolean DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  Boolean.parseBoolean(System.getProperty("related-product.discard.storage.requests.with.too.many.relations","false"));
+    private final boolean DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  Boolean.parseBoolean(System.getProperty(PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"false"));
 
-    private final String ELASTIC_SEARCH_TRANSPORT_HOSTS = System.getProperty("related-product.elastic.search.transport.hosts","127.0.0.1:9300");
+    private final String ELASTIC_SEARCH_TRANSPORT_HOSTS = System.getProperty(PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"127.0.0.1:9300");
 
-    private final int DEFAULT_ELASTIC_SEARCH_PORT = Integer.valueOf(System.getProperty("related-product.elastic.search.default.port","9300"));
+    private final int DEFAULT_ELASTIC_SEARCH_PORT = Integer.valueOf(System.getProperty(PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,"9300"));
 
-    private final boolean USE_SHARED_SEARCH_REPOSITORY = Boolean.parseBoolean(System.getProperty("related-product.use.shared.search.repository","false"));
+    private final boolean USE_SHARED_SEARCH_REPOSITORY = Boolean.parseBoolean(System.getProperty(PROPNAME_USE_SHARED_SEARCH_REPOSITORY,"false"));
 
-    private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = Boolean.parseBoolean(System.getProperty("related-product.search.response.debug.output.enabled","false"));
+    private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = Boolean.parseBoolean(System.getProperty(PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,"false"));
 
     private final WaitStrategyFactory waitStrategyFactory;
 
@@ -353,6 +349,11 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getFoundSearchResultsStatusCode() {
         return FOUND_SEARCH_REQUEST_STATUS_CODE;
+    }
+
+    @Override
+    public int getMissingSearchResultsHandlerStatusCode() {
+        return MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE;
     }
 
     @Override

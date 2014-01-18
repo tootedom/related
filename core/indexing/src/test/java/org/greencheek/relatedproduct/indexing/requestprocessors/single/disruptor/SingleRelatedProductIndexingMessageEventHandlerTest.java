@@ -43,7 +43,7 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty("related-product.index.batch.size", "25");
+        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE, "25");
         configuration = new SystemPropertiesConfiguration();
         repo = new TestRelatedProductStorageRepository();
         handler = new SingleRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
@@ -52,7 +52,7 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.index.batch.size");
+        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
     }
 
 

@@ -35,10 +35,10 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product.storage.index.name.prefix");
-        System.clearProperty("related-product.storage.cluster.name");
-        System.clearProperty("related-product.elastic.search.transport.hosts");
-        System.clearProperty("related-product.frequently.related.search.timeout.in.millis");
+        System.clearProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX);
+        System.clearProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME);
+        System.clearProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        System.clearProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         if(server!=null) {
             server.shutdown();
         }
@@ -51,9 +51,9 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
     @Before
     public void setUp() {
         String indexName = "relatedprog";
-        System.setProperty("related-product.storage.index.name.prefix",indexName);
+        System.setProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
         // Set the clustername
-        System.setProperty("related-product.storage.cluster.name", "relatedprogrammes");
+        System.setProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
         configuration = new SystemPropertiesConfiguration();
 
         // Start the Elastic Search Server
@@ -64,7 +64,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         server.setIndexTemplate(indexName);
 
         // Create the client pointing to the above server
-        System.setProperty("related-product.elastic.search.transport.hosts","localhost:" + server.getPort());
+        System.setProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
         configuration = new SystemPropertiesConfiguration();
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
@@ -122,7 +122,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         server.createIndex(configuration.getStorageIndexNamePrefix());
 
         // set the time tp 1 millis
-        System.setProperty("related-product.frequently.related.search.timeout.in.millis", "1");
+        System.setProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "1");
         try {
             Configuration config = new SystemPropertiesConfiguration();
             ElasticSearchRelatedProductSearchRepository repository = new ElasticSearchRelatedProductSearchRepository(factory,new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
@@ -133,7 +133,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
             assertSame(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
         }
         finally {
-            System.clearProperty("related-product.frequently.related.search.timeout.in.millis");
+            System.clearProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         }
     }
 
