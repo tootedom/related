@@ -41,40 +41,34 @@ public class RelatedProductSearchEventHandler implements RelatedProductSearchDis
 
     @Override
     public void onEvent(RelatedProductSearch event, long sequence, boolean endOfBatch) throws Exception {
-        if (!event.isValidMessage()) return;
+        SearchRequestLookupKey key = event.getLookupKey();
+        log.debug("Handling search request for key {}", key.toString());
 
-        try {
-            SearchRequestLookupKey key = event.getLookupKey();
-            log.debug("Handling search request for key {}", key.toString());
-
-            if (searchMap.containsKey(key)) {
-                // We already have the given search ready to process.
-                // Just return.  We could do .put(key,event.copy), but there is no
-                // point in creating the object copy if the event already exists. (that search has
-                // already been requested)
-                log.debug("Search for key {} already being processed", key.toString());
-            } else {
-                log.debug("Added search for key {}", key.toString());
-                searchMap.put(key, event.copy(configuration));
-            }
+        if (searchMap.containsKey(key)) {
+            // We already have the given search ready to process.
+            // Just return.  We could do .put(key,event.copy), but there is no
+            // point in creating the object copy if the event already exists. (that search has
+            // already been requested)
+            log.debug("Search for key {} already being processed", key.toString());
+        } else {
+            log.debug("Added search for key {}", key.toString());
+            searchMap.put(key, event.copy(configuration));
+        }
 
 
-            if (endOfBatch) {
-                try {
-                    RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
-                    int i = 0;
-                    for (RelatedProductSearch r : searchMap.values()) {
-                        searches[i++] = r;
-                    }
-                    SearchResultEventWithSearchRequestKey[] results = searchRespository.findRelatedProducts(configuration, searches);
-                    searchResultsHandler.sendSearchResultsToResponseContexts(results);
-                } finally {
-                    searchMap.clear();
+        if (endOfBatch) {
+            try {
+                RelatedProductSearch[] searches = new RelatedProductSearch[searchMap.size()];
+                int i = 0;
+                for (RelatedProductSearch r : searchMap.values()) {
+                    searches[i++] = r;
                 }
+                log.debug("Executing search request for {} search(s)", searches.length);
+                SearchResultEventWithSearchRequestKey[] results = searchRespository.findRelatedProducts(configuration, searches);
+                searchResultsHandler.sendSearchResultsToResponseContexts(results);
+            } finally {
+                searchMap.clear();
             }
-
-        } finally {
-            event.setValidMessage(false);
         }
     }
 

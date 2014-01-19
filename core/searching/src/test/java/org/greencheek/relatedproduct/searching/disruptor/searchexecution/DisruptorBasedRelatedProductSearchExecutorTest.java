@@ -1,5 +1,6 @@
 package org.greencheek.relatedproduct.searching.disruptor.searchexecution;
 
+import com.lmax.disruptor.EventFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchFactory;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
@@ -28,6 +29,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,13 +45,12 @@ import static org.mockito.Mockito.*;
  */
 public class DisruptorBasedRelatedProductSearchExecutorTest {
 //
-
-    private Configuration configuration = new SystemPropertiesConfiguration();
+    private Configuration configuration;
     RelatedProductSearchDisruptorEventHandler eventHandler;
     RelatedProductSearchRepository searchRepositoryWith2SecondDelay;
     SearchResultEventWithSearchRequestKey[] searchResults;
     SearchResponseContextLookup contextLookup;
-    RelatedProductSearchFactory relatedProductSearchFactory;
+    EventFactory<RelatedProductSearch> relatedProductSearchFactory;
     RelatedContentSearchRequestProcessorHandler requestProcessorHandler;
 
     RelatedProductSearchExecutor searchExecutor;
@@ -57,6 +58,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
     RelatedProductSearchResultsToResponseGateway responseProcessorGateway;
     SearchEventProcessor searchRequestEventProcessor;
     SearchEventProcessor searchResponseEventProcessor;
+    int chanelnumber = 0;
 
 
     AtomicInteger searchRepositoryCallCount;
@@ -76,7 +78,11 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
     @Before
     public void setUp() {
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
         System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"1");
+        configuration = new SystemPropertiesConfiguration();
+
+
         searchRepositoryCallCount = new AtomicInteger(0);
 
         responseEventHandler = mock(ResponseEventHandler.class);
@@ -109,7 +115,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
             @Override
             public SearchResultEventWithSearchRequestKey[] answer(InvocationOnMock invocation) throws Throwable {
                 try {
-                    Thread.sleep(1500);
+                    Thread.sleep(1000);
                 } catch (Exception e) {
 
                 }
@@ -131,8 +137,13 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
         // Performs the search, and sends the response to the request response gateway
         eventHandler = new RelatedProductSearchEventHandler(configuration, searchRepositoryWith2SecondDelay,responseProcessorGateway);
 
-        relatedProductSearchFactory = mock(RelatedProductSearchFactory.class);
-        when(relatedProductSearchFactory.newInstance()).thenReturn(new RelatedProductSearch(configuration));
+        relatedProductSearchFactory = new EventFactory<RelatedProductSearch>() {
+
+            @Override
+            public RelatedProductSearch newInstance() {
+                return new RelatedProductSearch(configuration);
+            }
+        };
 
         // ring buffer that passes RelateProductSearch to the eventHandler
         searchExecutor = new DisruptorBasedRelatedProductSearchExecutor(configuration,relatedProductSearchFactory,eventHandler);
@@ -145,7 +156,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
     public void testMultipleLookupsForSameKeyResultsInOneSearchRequest() {
         requestProcessorHandler.handleRequest(createSearchRequest(),searchExecutor);
         requestProcessorHandler.handleRequest(createSearchRequest(),searchExecutor);
-        requestProcessorHandler.handleRequest(createSearchRequest(), searchExecutor);
+        requestProcessorHandler.handleRequest(createSearchRequest(),searchExecutor);
         requestProcessorHandler.handleRequest(createSearchRequest(),searchExecutor);
         requestProcessorHandler.handleRequest(createSearchRequest(),searchExecutor);
         try {
@@ -218,14 +229,14 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
      * @return
      */
     private RelatedProductSearchRequest createSearchRequest() {
+        chanelnumber++;
         RelatedProductSearchRequest request = new RelatedProductSearchRequest(configuration);
         request.getSearchRequest().setLookupKey(key);
         request.getSearchRequest().setMaxResults(10);
         request.getSearchRequest().setRelatedContentId("1");
         request.getSearchRequest().setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
-        request.getSearchRequest().setValidMessage(true);
-        request.getSearchRequest().getAdditionalSearchCriteria().addProperty("channel","uk");
-        request.getSearchRequest().getAdditionalSearchCriteria().addProperty("site","amazon");
+        request.getSearchRequest().getAdditionalSearchCriteria().addProperty("channel","uk"+chanelnumber);
+        request.getSearchRequest().getAdditionalSearchCriteria().addProperty("site","amazon"+chanelnumber);
         return request;
     }
 

@@ -37,7 +37,7 @@ public class ConfigurationConstants {
     public static final String PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS = "related-product.indexing.number.of.indexing.request.processors";
     public static final String PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = "related-product.searching.number.of.searching.request.processors";
     public static final String PROPNAME_STORAGE_INDEX_NAME_PREFIX = "related-product.storage.index.name.prefix";
-    public static final String PROPNAME_STORAGE_INDEX_NAME_ALIAS = "related-product-storage.index.name.alias";
+    public static final String PROPNAME_STORAGE_INDEX_NAME_ALIAS = "related-product.storage.index.name.alias";
     public static final String PROPNAME_STORAGE_CONTENT_TYPE_NAME = "related-product.storage.content.type.name";
     public static final String PROPNAME_STORAGE_CLUSTER_NAME = "related-product.storage.cluster.name";
     public static final String PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME= "related-product.storage.frequently.related.products.facet.results.facet.name";

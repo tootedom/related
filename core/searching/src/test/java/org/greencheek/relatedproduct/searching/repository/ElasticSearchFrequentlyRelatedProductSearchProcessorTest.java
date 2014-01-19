@@ -25,6 +25,7 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.*;
 
@@ -62,7 +63,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
     @After
     public void tearDown() {
-        System.clearProperty("related-product-storage.index.name.alias");
+        System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_ALIAS);
         shutdownElastic();
         clientFactory.shutdown();
     }
@@ -113,7 +114,6 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
 
         search.setMaxResults(5);
-        search.setValidMessage(true);
         return search;
     }
 
@@ -124,7 +124,6 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
         search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
 
         search.setMaxResults(5);
-        search.setValidMessage(true);
 
         return search;
     }
@@ -262,7 +261,7 @@ public class ElasticSearchFrequentlyRelatedProductSearchProcessorTest {
 
     @Test
     public void testAliasCanBeUsed() {
-        System.setProperty("related-product-storage.index.name.alias","beginningoftheyear");
+        System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_ALIAS,"beginningoftheyear");
         Configuration configuration = new SystemPropertiesConfiguration();
 
 

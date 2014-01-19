@@ -22,7 +22,6 @@ public class RelatedProductSearch {
 
     private int maxResults;
     private RelatedProductSearchType searchType;
-    private boolean validMessage;
     private SearchRequestLookupKey lookupKey;
 
     private final RelatedProductInfoIdentifier relatedContentId;
@@ -40,14 +39,6 @@ public class RelatedProductSearch {
 
     public int getMaxResults() {
         return this.maxResults;
-    }
-
-    public boolean isValidMessage() {
-        return this.validMessage;
-    }
-
-    public void setValidMessage(boolean valid) {
-        this.validMessage = valid;
     }
 
     public RelatedProductAdditionalProperties getAdditionalSearchCriteria() {
@@ -84,7 +75,6 @@ public class RelatedProductSearch {
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedProductSearchType(this.searchType);
         newCopy.setLookupKey(this.getLookupKey());
-        newCopy.setValidMessage(this.isValidMessage());
         this.additionalSearchCriteria.copyTo(newCopy.additionalSearchCriteria);
         return newCopy;
     }

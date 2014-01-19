@@ -46,12 +46,7 @@ public class RoundRobinDisruptorBasedRelatedContentSearchRequestProcessorHandler
 
     @Override
     public void onEvent(RelatedProductSearchRequest event, long sequence, boolean endOfBatch) throws Exception {
-        try {
-            handleRequest(event,searchRequestExecutor[this.currentIndex++ & mask]);
-        } finally {
-            event.getSearchRequest().setValidMessage(false);
-
-        }
+        handleRequest(event,searchRequestExecutor[this.currentIndex++ & mask]);
     }
 
     public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {

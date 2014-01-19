@@ -22,7 +22,6 @@ public class RelatedProductSearchTest {
         searchObject.setRelatedContentId("I am a unique identifier");
 
         searchObject.setMaxResults(1);
-        searchObject.setValidMessage(true);
         searchObject.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
 
         RelatedProductSearchLookupKeyGenerator factory = new KeyFactoryBasedRelatedProductSearchLookupKeyGenerator(c,new SipHashSearchRequestLookupKeyFactory());
@@ -32,7 +31,6 @@ public class RelatedProductSearchTest {
 
         assertNotSame(copy,searchObject);
 
-        assertEquals(copy.isValidMessage(),searchObject.isValidMessage());
         assertEquals(copy.getMaxResults(),searchObject.getMaxResults());
         assertEquals(copy.getRelatedContentId(),searchObject.getRelatedContentId());
         assertEquals(copy.getRelatedProductSearchType(),searchObject.getRelatedProductSearchType());

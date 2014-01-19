@@ -31,23 +31,7 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
 
     @Override
     public void onEvent(RelatedProductSearchRequest event, long sequence, boolean endOfBatch) throws Exception {
-
-        try {
-//            AsyncContext clientContext = event.getRequestContext();
-//            RelatedProductSearch search = RelatedProductSearchFactory.createAndPopulateSearchObject(configuration, event.getRequestType(), event.getRequestProperties());
-
-//            RelatedProductSearch search = event.searchRequest;
-//            event.setSearchExecutor(searchRequestExecutor);
-//            asyncContextStorage.handleRequest(event,searchRequestExecutor);
-//            searchRequestExecutor.executeSearch(search);
-            handleRequest(event,searchRequestExecutor);
-
-        } finally {
-            event.getSearchRequest().setValidMessage(false);
-//            event.setRequestProperties(null);
-//            event.setRequestType(null);
-        }
-
+        handleRequest(event,searchRequestExecutor);
     }
 
     public void handleRequest(RelatedProductSearchRequest searchRequest, RelatedProductSearchExecutor searchExecutor) {

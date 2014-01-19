@@ -20,13 +20,10 @@ public class RelatedProductSearchTranslator implements EventTranslatorOneArg<Rel
 
     @Override
     public void translateTo(RelatedProductSearch event, long sequence,RelatedProductSearch searchRequest) {
-        event.setValidMessage(false);
         event.setMaxResults(searchRequest.getMaxResults());
         searchRequest.getRelatedContentIdentifier().copyTo(event.getRelatedContentIdentifier());
         searchRequest.getAdditionalSearchCriteria().copyTo(event.getAdditionalSearchCriteria());
         event.setRelatedProductSearchType(searchRequest.getRelatedProductSearchType());
         event.setLookupKey(searchRequest.getLookupKey());
-        event.setValidMessage(true);
-
     }
 }

@@ -154,6 +154,11 @@ public class SystemPropertiesConfiguration implements Configuration {
         this(getMergedSystemPropertiesAndDefaults());
     }
 
+    /**
+     * Initalises the Properties object with the given properties.
+     *
+     * @param properties
+     */
     protected SystemPropertiesConfiguration(Map<String,Object> properties) {
 
         SAFE_TO_OUTPUT_REQUEST_DATA = getBoolean(properties,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA);
@@ -326,6 +331,21 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
 
+    private static Map<String,String> readSystemProperties() {
+        Map<String,String> props = new HashMap<String,String>(100);
+        for(String key : ConfigurationConstants.DEFAULT_SETTINGS.keySet()) {
+            String value = System.getProperty(key);
+            if(value!=null) {
+                props.put(key,value);
+            }
+        }
+        return props;
+    }
+
+
+
+
+
     /**
      * Looks for System properties with the names defined in {@link org.greencheek.relatedproduct.util.config.ConfigurationConstants}
      * Parsing the resulting values in to appropriate types.  If the system property is not defined an
@@ -335,69 +355,74 @@ public class SystemPropertiesConfiguration implements Configuration {
      * @return
      */
     public static Map<String,Object> parseSystemProperties() {
-        Map<String,Object> systemProperties = new HashMap<String,Object>(100);
+        Map<String,String> stringSystemProperties = readSystemProperties();
+        return parseProperties(stringSystemProperties);
+    }
 
-        parseBoolean(systemProperties,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
-        parseInt(systemProperties,PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES);
-        parseInt(systemProperties,PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
-        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ID_LENGTH);
-        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
-        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
-        parseInt(systemProperties,PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
-        parseInt(systemProperties, PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
-        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH);
-        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE);
-        parseInt(systemProperties,PROPNAME_BATCH_INDEX_SIZE);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
-        parseInt(systemProperties,PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
-        parseInt(systemProperties,PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS);
-        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID);
-        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
-        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS);
-        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULTS);
-        parseString(systemProperties,PROPNAME_REQUEST_PARAMETER_FOR_SIZE);
-        parseString(systemProperties,PROPNAME_REQUEST_PARAMETER_FOR_ID);
-        parseInt(systemProperties,PROPNAME_DEFAULT_NUMBER_OF_RESULTS);
-        parseInt(systemProperties,PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
-        parseInt(systemProperties,PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
-        parseInt(systemProperties,PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
-        parseString(systemProperties,PROPNAME_STORAGE_INDEX_NAME_PREFIX);
-        parseString(systemProperties,PROPNAME_STORAGE_INDEX_NAME_ALIAS);
-        parseString(systemProperties,PROPNAME_STORAGE_CONTENT_TYPE_NAME);
-        parseString(systemProperties,PROPNAME_STORAGE_CLUSTER_NAME);
-        parseString(systemProperties,PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME);
-        parseString(systemProperties,PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT);
-        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR);
-        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR);
-        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR);
-        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR);
-        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
-        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
-        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME);
-        parseLong(systemProperties,PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
-        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER);
-        parseInt(systemProperties,PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE);
-        parseInt(systemProperties,PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE);
-        parseInt(systemProperties,PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE);
-        parseInt(systemProperties,PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE);
-        parseInt(systemProperties,PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE);
-        parseString(systemProperties,PROPNAME_PROPERTY_ENCODING);
-        parseString(systemProperties,PROPNAME_WAIT_STRATEGY);
-        parseString(systemProperties,PROPNAME_ES_CLIENT_TYPE);
-        parseBoolean(systemProperties,PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
-        parseInt(systemProperties,PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
-        parseBoolean(systemProperties,PROPNAME_REPLACE_OLD_INDEXED_CONTENT);
-        parseBoolean(systemProperties,PROPNAME_SEPARATE_INDEXING_THREAD);
-        parseBoolean(systemProperties,PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
-        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
-        parseInt(systemProperties,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT);
-        parseBoolean(systemProperties,PROPNAME_USE_SHARED_SEARCH_REPOSITORY);
-        parseBoolean(systemProperties,PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED); 
-        return systemProperties;
+    public static Map<String,Object> parseProperties(Map<String,String> propertiesToConvert) {
+        Map<String,Object> parsedProperties = new HashMap<String,Object>();
+
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_ID_LENGTH);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        parseInt(parsedProperties,propertiesToConvert, PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_BATCH_INDEX_SIZE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_FREQUENCY_RESULTS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_REQUEST_PARAMETER_FOR_SIZE);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_REQUEST_PARAMETER_FOR_ID);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DEFAULT_NUMBER_OF_RESULTS);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_INDEX_NAME_PREFIX);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_INDEX_NAME_ALIAS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_CONTENT_TYPE_NAME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_CLUSTER_NAME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME);
+        parseLong(parsedProperties,propertiesToConvert, PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_PROPERTY_ENCODING);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_WAIT_STRATEGY);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_ES_CLIENT_TYPE);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_REPLACE_OLD_INDEXED_CONTENT);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_SEPARATE_INDEXING_THREAD);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_USE_SHARED_SEARCH_REPOSITORY);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
+        return parsedProperties;
     }
 
     protected void setResponseCodes(int notfound,int failedSearch, int timedOut,int missingHandler, int found) {
@@ -410,69 +435,55 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
 
-    private static void parseBoolean(Map<String,Object> values, String property) {
-        Boolean b = parseBoolean(property);
-        if(b!=null) values.put(property,b);
-    }
-
-    private static Boolean parseBoolean(String property) {
-        String value = System.getProperty(property);
-        if(value==null || value.trim().length()==0) {
-            return null;
-        } else {
-            return Boolean.parseBoolean(value);
+    private static void parseBoolean(Map<String,Object> parsedValues, Map<String,String> sysValues, String property) {
+        String value = sysValues.get(property);
+        Boolean b =null;
+        if(value!=null && value.trim().length()!=0) {
+            b = Boolean.parseBoolean(value);
         }
+
+        if(b!=null) parsedValues.put(property,b);
     }
 
-    private static void parseString(Map<String,Object> values, String property) {
-        String s = parseString(property);
-        if(s!=null) values.put(property,s);
-    }
-
-    private static String parseString(String property) {
-        String value = System.getProperty(property);
-        if(value==null || value.trim().length()==0) {
-            return null;
-        } else {
-            return value;
+    private static void parseString(Map<String,Object> parsedValues, Map<String,String> sysValues, String property) {
+        String value = sysValues.get(property);
+        String s =null;
+        if(value!=null && value.trim().length()!=0) {
+            s = value;
         }
+
+        if(s!=null) parsedValues.put(property,s);
     }
 
-    private static void parseInt(Map<String,Object> values, String property) {
-        Integer i = parseInt(property);
-        if(i!=null) values.put(property,i);
-    }
-
-    private static Integer parseInt(String property) {
-        String value = System.getProperty(property);
-        if(value==null || value.trim().length()==0) {
-            return null;
-        } else {
+    private static void parseInt(Map<String,Object> parsedValues, Map<String,String> sysValues, String property) {
+        String value = sysValues.get(property);
+        Integer i =null;
+        if(value!=null && value.trim().length()!=0) {
             try {
-                return Integer.valueOf(value);
+                i= Integer.valueOf(value);
             } catch(NumberFormatException e) {
-                return null;
+
             }
         }
+
+        if(i!=null) parsedValues.put(property,i);
     }
 
-    private static void parseLong(Map<String,Object> values, String property) {
-        Long i = parseLong(property);
-        if(i!=null) values.put(property,i);
-    }
-
-    private static Long parseLong(String property) {
-        String value = System.getProperty(property);
-        if(value==null || value.trim().length()==0) {
-            return null;
-        } else {
+    private static void parseLong(Map<String,Object> parsedValues, Map<String,String> sysValues, String property) {
+        String value = sysValues.get(property);
+        Long l =null;
+        if(value!=null && value.trim().length()!=0) {
             try {
-                return Long.valueOf(value);
+                l = Long.valueOf(value);
             } catch(NumberFormatException e) {
-                return null;
+
             }
         }
+
+        if(l!=null) parsedValues.put(property,l);
     }
+
+
 
     protected DefaultWaitStrategyFactory parseWaitStrategy(String type) {
         if(type.contains("yield")) {
@@ -804,85 +815,5 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
 
-    public Map<String,Object> toMap() {
-        Map<String,Object> configuration = new HashMap<String,Object>();
-        configuration.put(PROPNAME_WAIT_STRATEGY,getWaitStrategyFactory());
-        configuration.put(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,isSafeToOutputRequestData());
-        configuration.put(PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES, getMaxNumberOfRelatedProductProperties());
-        configuration.put(PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,getMaxNumberOfRelatedProductsPerPurchase());
-        configuration.put(PROPNAME_RELATED_PRODUCT_ID_LENGTH,getRelatedProductIdLength());
-        configuration.put(PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING,getRelatedProductInvalidIdString());
-        configuration.put(PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,getMaxRelatedProductPostDataSizeInBytes());
-        configuration.put(PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,getMinRelatedProductPostDataSizeInBytes());
-        configuration.put(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH,getRelatedProductAdditionalPropertyKeyLength());
-        configuration.put(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH,getRelatedProductAdditionalPropertyValueLength());
-        configuration.put(PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE,getSizeOfIncomingMessageQueue());
-        configuration.put(PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE,getSizeOfBatchIndexingRequestQueue());
-        configuration.put(PROPNAME_BATCH_INDEX_SIZE,getIndexBatchSize());
-        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,getSizeOfRelatedContentSearchRequestQueue());
-        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE,getSizeOfRelatedContentSearchRequestHandlerQueue());
-        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,getSizeOfRelatedContentSearchRequestAndResponseQueue());
-        configuration.put(PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT,getMaxNumberOfSearchCriteriaForRelatedContent());
-        configuration.put(PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS,getNumberOfExpectedLikeForLikeRequests());
-        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID,getKeyForFrequencyResultId());
-        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,getKeyForFrequencyResultOccurrence());
-        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS,getKeyForFrequencyResultOverallResultsSize());
-        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,getKeyForFrequencyResults());
-        configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,getRequestParameterForSize());
-        configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_ID,getRequestParameterForId());
-        configuration.put(PROPNAME_DEFAULT_NUMBER_OF_RESULTS,getDefaultNumberOfResults());
-        configuration.put(PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE,getSizeOfIncomingMessageQueue());
-        configuration.put(PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,getNumberOfIndexingRequestProcessors());
-        configuration.put(PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,getNumberOfSearchingRequestProcessors());
-        configuration.put(PROPNAME_STORAGE_INDEX_NAME_PREFIX,getStorageIndexNamePrefix());
-        configuration.put(PROPNAME_STORAGE_INDEX_NAME_ALIAS,getStorageIndexNameAlias());
-        configuration.put(PROPNAME_STORAGE_CONTENT_TYPE_NAME,getStorageContentTypeName());
-        configuration.put(PROPNAME_STORAGE_CLUSTER_NAME,getStorageClusterName());
-        configuration.put(PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME,getStorageFrequentlyRelatedProductsFacetResultsFacetName());
-        configuration.put(PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT,getStorageFacetExecutionHint());
-        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR,getKeyForIndexRequestRelatedWithAttr());
-        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR,getKeyForIndexRequestDateAttr());
-        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR,getKeyForIndexRequestIdAttr());
-        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR,getKeyForIndexRequestProductArrayAttr());
-        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME,getElasticSearchClientDefaultTransportSettingFileName());
-        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME,getElasticSearchClientDefaultNodeSettingFileName());
-        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME,getElasticSearchClientOverrideSettingFileName());
-        configuration.put(PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS,getFrequentlyRelatedProductsSearchTimeoutInMillis());
-        configuration.put(PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER,getStorageLocationMapper());
-        configuration.put(PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,getTimedOutSearchRequestStatusCode());
-        configuration.put(PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE,getFailedSearchRequestStatusCode());
-        configuration.put(PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE,getNoFoundSearchResultsStatusCode());
-        configuration.put(PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE,getFoundSearchResultsStatusCode());
-        configuration.put(PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,getMissingSearchResultsHandlerStatusCode());
-        configuration.put(PROPNAME_PROPERTY_ENCODING,getPropertyEncoding());
-        configuration.put(PROPNAME_WAIT_STRATEGY,getWaitStrategyFactory());
-        configuration.put(PROPNAME_ES_CLIENT_TYPE,getElasticSearchClientType());
-        configuration.put(PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,isIndexNameDateCachingEnabled());
-        configuration.put(PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,getNumberOfIndexNamesToCache());
-        configuration.put(PROPNAME_REPLACE_OLD_INDEXED_CONTENT,getShouldReplaceOldContentIfExists());
-        configuration.put(PROPNAME_SEPARATE_INDEXING_THREAD,getShouldUseSeparateIndexStorageThread());
-        configuration.put(PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,shouldDiscardIndexRequestWithTooManyRelations());
-        configuration.put(PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,getElasticSearchTransportHosts());
-        configuration.put(PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,getDefaultElasticSearchPort());
-        configuration.put(PROPNAME_USE_SHARED_SEARCH_REPOSITORY,useSharedSearchRepository());
-        configuration.put(PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,isSearchResponseDebugOutputEnabled());
-        return configuration;
-    }
 
-    Map<String,Object> getDiffs(Map<String,Object> defaults, Map<String,Object> overrides) {
-        Map<String,Object> clonedOverrides = new HashMap(overrides);
-        for(String key : defaults.keySet()) {
-            Object value = overrides.get(key);
-            Object defaultValue = defaults.get(key);
-            if(value==null && defaultValue==null) {
-                clonedOverrides.remove(key);
-                continue;
-            }
-
-            if(defaultValue!=null) {
-                if(defaultValue.equals(value)) clonedOverrides.remove(key);
-            }
-        }
-        return clonedOverrides;
-    }
 }

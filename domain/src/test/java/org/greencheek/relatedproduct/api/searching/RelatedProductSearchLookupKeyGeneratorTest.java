@@ -40,7 +40,6 @@ public abstract class RelatedProductSearchLookupKeyGeneratorTest {
         search.setMaxResults(2);
         search.setRelatedContentId("12345");
         search.setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
-        search.setValidMessage(true);
 
         return search;
 

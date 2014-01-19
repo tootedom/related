@@ -85,7 +85,6 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         searches[i].setRelatedContentId("anchorman");
         searches[i].setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
         searches[i].setMaxResults(10);
-        searches[i].setValidMessage(true);
         searches[i].setLookupKey(new SipHashSearchRequestLookupKey("anchorman"));
 
         i=1;
@@ -93,7 +92,6 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         searches[i].setRelatedContentId("the raid");
         searches[i].setRelatedProductSearchType(RelatedProductSearchType.FREQUENTLY_RELATED_WITH);
         searches[i].setMaxResults(10);
-        searches[i].setValidMessage(true);
         searches[i].setLookupKey(new SipHashSearchRequestLookupKey("the raid"));
 
         return searches;

@@ -38,7 +38,6 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
     public void populateSearchObject(RelatedProductSearch objectToPopulate,
                                             RelatedProductSearchType type,
                                             Map<String, String> properties) {
-        objectToPopulate.setValidMessage(false);
 
         String sizeKey = configuration.getRequestParameterForSize();
         String idKey = configuration.getRequestParameterForId();
@@ -68,7 +67,6 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactory implements Re
 
         lookupKeyGenerator.setSearchRequestLookupKeyOn(objectToPopulate);
 
-        objectToPopulate.setValidMessage(true);
 
     }
 
