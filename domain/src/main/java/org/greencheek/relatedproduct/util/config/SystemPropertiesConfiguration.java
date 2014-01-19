@@ -3,6 +3,7 @@ package org.greencheek.relatedproduct.util.config;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 
+import static org.greencheek.relatedproduct.util.config.ConfigurationConstants.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,7 +53,6 @@ import java.util.Set;
  *
  */
 public class SystemPropertiesConfiguration implements Configuration {
-
 
     private final boolean SAFE_TO_OUTPUT_REQUEST_DATA = Boolean.valueOf(System.getProperty(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,"false"));
     private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty(PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES, "10"));
@@ -143,11 +143,12 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = Boolean.parseBoolean(System.getProperty(PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,"false"));
 
-    private final WaitStrategyFactory waitStrategyFactory;
 
+    private final WaitStrategyFactory waitStrategyFactory;
     private final ElasticeSearchClientType esClientType;
 
     public SystemPropertiesConfiguration() {
+        Map<String,Object> settings = getMergedSystemPropertiesAndDefaults();
 
         setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE,FAILED_SEARCH_REQUEST_STATUS_CODE,
                 TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
@@ -158,6 +159,89 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     }
 
+    private Map<String,Object> getMergedSystemPropertiesAndDefaults() {
+        Map<String,Object> defaultProperties = new HashMap(ConfigurationConstants.DEFAULT_SETTINGS);
+        Map<String,Object> systemProperties = parseSystemProperties();
+
+        return mergeProperties(defaultProperties,systemProperties);
+    }
+
+    public Map<String,Object> mergeProperties(Map<String,Object> defaultProperties,
+                                              Map<String,Object> overrides) {
+        Map<String,Object> props = new HashMap<String,Object>(defaultProperties);
+        if(overrides==null || overrides.size()==0) return props;
+        for(String prop : overrides.keySet()) {
+            props.put(prop,overrides.get(prop));
+        }
+        return props;
+    }
+
+    public Map<String,Object> parseSystemProperties() {
+        Map<String,Object> systemProperties = new HashMap<String,Object>(100);
+
+        parseBoolean(systemProperties,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
+        parseInt(systemProperties,PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES);
+        parseInt(systemProperties,PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ID_LENGTH);
+        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
+        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING);
+        parseInt(systemProperties,PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        parseInt(systemProperties, PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH);
+        parseInt(systemProperties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE);
+        parseInt(systemProperties,PROPNAME_BATCH_INDEX_SIZE);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
+        parseInt(systemProperties,PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
+        parseInt(systemProperties,PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS);
+        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID);
+        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
+        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS);
+        parseString(systemProperties,PROPNAME_KEY_FOR_FREQUENCY_RESULTS);
+        parseString(systemProperties,PROPNAME_REQUEST_PARAMETER_FOR_SIZE);
+        parseString(systemProperties,PROPNAME_REQUEST_PARAMETER_FOR_ID);
+        parseInt(systemProperties,PROPNAME_DEFAULT_NUMBER_OF_RESULTS);
+        parseInt(systemProperties,PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
+        parseInt(systemProperties,PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
+        parseInt(systemProperties,PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
+        parseString(systemProperties,PROPNAME_STORAGE_INDEX_NAME_PREFIX);
+        parseString(systemProperties,PROPNAME_STORAGE_INDEX_NAME_ALIAS);
+        parseString(systemProperties,PROPNAME_STORAGE_CONTENT_TYPE_NAME);
+        parseString(systemProperties,PROPNAME_STORAGE_CLUSTER_NAME);
+        parseString(systemProperties,PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME);
+        parseString(systemProperties,PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT);
+        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR);
+        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR);
+        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR);
+        parseString(systemProperties,PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR);
+        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
+        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
+        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME);
+        parseInt(systemProperties,PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        parseString(systemProperties,PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER);
+        parseInt(systemProperties,PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(systemProperties,PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(systemProperties,PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(systemProperties,PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        parseInt(systemProperties,PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE);
+        parseString(systemProperties,PROPNAME_PROPERTY_ENCODING);
+        parseString(systemProperties,PROPNAME_WAIT_STRATEGY);
+        parseString(systemProperties,PROPNAME_ES_CLIENT_TYPE);
+        parseBoolean(systemProperties,PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
+        parseInt(systemProperties,PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
+        parseBoolean(systemProperties,PROPNAME_REPLACE_OLD_INDEXED_CONTENT);
+        parseBoolean(systemProperties,PROPNAME_SEPARATE_INDEXING_THREAD);
+        parseBoolean(systemProperties,PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
+        parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        parseInt(systemProperties,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT);
+        parseBoolean(systemProperties,PROPNAME_USE_SHARED_SEARCH_REPOSITORY);
+        parseBoolean(systemProperties,PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED); 
+        return systemProperties;
+    }
+
     protected void setResponseCodes(int notfound,int failedSearch, int timedOut,int missingHandler, int found) {
         searchRequestResponseCodes[SearchResultsOutcome.EMPTY_RESULTS.getIndex()] = notfound;
         searchRequestResponseCodes[SearchResultsOutcome.FAILED_REQUEST.getIndex()] = failedSearch;
@@ -165,6 +249,53 @@ public class SystemPropertiesConfiguration implements Configuration {
         searchRequestResponseCodes[SearchResultsOutcome.HAS_RESULTS.getIndex()] = found;
         searchRequestResponseCodes[SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER.getIndex()] = missingHandler;
 
+    }
+
+
+    private void parseBoolean(Map<String,Object> values, String property) {
+        Boolean b = parseBoolean(property);
+        if(b!=null) values.put(property,b);
+    }
+
+    private Boolean parseBoolean(String property) {
+        String value = System.getProperty(property);
+        if(value==null || value.trim().length()==0) {
+            return null;
+        } else {
+            return Boolean.parseBoolean(value);
+        }
+    }
+
+    private void parseString(Map<String,Object> values, String property) {
+        String s = parseString(property);
+        if(s!=null) values.put(property,s);
+    }
+
+    private String parseString(String property) {
+        String value = System.getProperty(property);
+        if(value==null || value.trim().length()==0) {
+            return null;
+        } else {
+            return value;
+        }
+    }
+
+    private void parseInt(Map<String,Object> values, String property) {
+        Integer i = parseInt(property);
+        if(i!=null) values.put(property,i);
+    }
+
+    private Integer parseInt(String property) {
+        String value = System.getProperty(property);
+        if(value==null || value.trim().length()==0) {
+            return null;
+        } else {
+            try {
+                return Integer.valueOf(value);
+            } catch(NumberFormatException e) {
+                return null;
+            }
+        }
     }
 
     protected DefaultWaitStrategyFactory parseWaitStrategy(String type) {
@@ -185,7 +316,7 @@ public class SystemPropertiesConfiguration implements Configuration {
         }
     }
 
-    protected  ElasticeSearchClientType parseEsClientType(String type) {
+    protected ElasticeSearchClientType parseEsClientType(String type) {
         if(type.equals("transport")) {
             return ElasticeSearchClientType.TRANSPORT;
         } else if(type.equals("node")) {
