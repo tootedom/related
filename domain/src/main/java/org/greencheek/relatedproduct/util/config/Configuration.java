@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.util.config;
 
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
+import org.greencheek.relatedproduct.util.arrayindexing.Util;
 
 /**
  * Created with IntelliJ IDEA.
@@ -70,6 +71,64 @@ public interface Configuration {
     public static final String PROPNAME_USE_SHARED_SEARCH_REPOSITORY = "related-product.searching.use.shared.search.repository";
     public static final String PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = "related-product.searching.response.debug.output.enabled";
 
+    public static final boolean DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA = false;
+    public static final int DEFAULT_MAX_NO_OF_RELATED_PRODUCT_PROPERTES = 10;
+    public static final int DEFAULT_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST = 10;
+    public static final int DEFAULT_RELATED_PRODUCT_ID_LENGTH = 36;
+    public static final String DEFAULT_RELATED_PRODUCT_INVALID_ID_STRING = "INVALID_ID";
+    public static final int DEFAULT_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = 10240;
+    public static final int DEFAULT_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = 4096;
+    public static final int DEFAULT_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = 30;
+    public static final int DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = -1;
+    public static final int DEFAULT_BATCH_INDEX_SIZE = 128;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = 2048;
+    public static final int DEFAULT_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT = 10;
+    public static final int DEFAULT_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = 10;
+    public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULT_ID = "id";
+    public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = "frequency";
+    public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = "size";
+    public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULTS = "results";
+    public static final String DEFAULT_REQUEST_PARAMETER_FOR_SIZE = "maxresults";
+    public static final String DEFAULT_REQUEST_PARAMETER_FOR_ID = "id";
+    public static final int DEFAULT_DEFAULT_NUMBER_OF_RESULTS = 4;
+    public static final int DEFAULT_SIZE_OF_RESPONSE_PROCESSING_QUEUE = 2048;
+    public static final int DEFAULT_NUMBER_OF_INDEXING_REQUEST_PROCESSORS = 2;
+    public static final int DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = 4;
+    public static final String DEFAULT_STORAGE_INDEX_NAME_PREFIX = "relatedproducts";
+    public static final String DEFAULT_STORAGE_INDEX_NAME_ALIAS = "";
+    public static final String DEFAULT_STORAGE_CONTENT_TYPE_NAME = "relatedproduct";
+    public static final String DEFAULT_STORAGE_CLUSTER_NAME = "relatedproducts";
+    public static final String DEFAULT_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME = "frequently-related-with";
+    public static final String DEFAULT_STORAGE_FACET_SEARCH_EXECUTION_HINT = "";
+    public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR ="related-with";
+    public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_DATE_ATTR = "date";
+    public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_ID_ATTR = "id";
+    public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR ="products";
+    public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = "default-transport-elasticsearch.yml";
+    public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = "default-node-elasticsearch.yml";
+    public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = "elasticsearch.yml";
+    public static final long DEFAULT_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = 5000;
+    public static final String DEFAULT_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = "day";
+    public static final int DEFAULT_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = 504;
+    public static final int DEFAULT_FAILED_SEARCH_REQUEST_STATUS_CODE = 502;
+    public static final int DEFAULT_NO_FOUND_SEARCH_REQUEST_STATUS_CODE = 404;
+    public static final int DEFAULT_FOUND_SEARCH_REQUEST_STATUS_CODE = 200;
+    public static final int DEFAULT_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = 500;
+    public static final String DEFAULT_PROPERTY_ENCODING = "UTF-8";
+    public static final String DEFAULT_WAIT_STRATEGY = "yield";
+    public static final String DEFAULT_ES_CLIENT_TYPE = "transport";
+    public static final String DEFAULT_INDEXNAME_DATE_CACHING_ENABLED = "true";
+    public static final int DEFAULT_NUMBER_OF_INDEXNAMES_TO_CACHE = 365;
+    public static final boolean DEFAULT_REPLACE_OLD_INDEXED_CONTENT = false;
+    public static final boolean DEFAULT_SEPARATE_INDEXING_THREAD = false;
+    public static final boolean DEFAULT_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS = false;
+    public static final String DEFAULT_ELASTIC_SEARCH_TRANSPORT_HOSTS = "127.0.0.1:9300";
+    public static final int DEFAULT_DEFAULT_ELASTIC_SEARCH_PORT = 9300;
+    public static final boolean DEFAULT_USE_SHARED_SEARCH_REPOSITORY = false;
+    public static final boolean DEFAULT_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = false;
 
     public static final String APPLICATION_CONTEXT_ATTRIBUTE_NAME = "ApplicationContext";
 

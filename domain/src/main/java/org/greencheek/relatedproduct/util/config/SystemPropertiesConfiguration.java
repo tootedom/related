@@ -3,14 +3,14 @@ package org.greencheek.relatedproduct.util.config;
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 01/06/2013
- * Time: 14:52
- * To change this template use File | Settings | File Templates.
- * ==============================================================
+
  * For Indexing:
  * -------------
  * The settings for a 2 cpu, 4 core per cpu, with a 12gb heap would be:
@@ -148,38 +148,53 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final ElasticeSearchClientType esClientType;
 
     public SystemPropertiesConfiguration() {
-        searchRequestResponseCodes[SearchResultsOutcome.EMPTY_RESULTS.getIndex()] = NO_FOUND_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcome.FAILED_REQUEST.getIndex()] = FAILED_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcome.REQUEST_TIMEOUT.getIndex()] = TIMED_OUT_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcome.HAS_RESULTS.getIndex()] = FOUND_SEARCH_REQUEST_STATUS_CODE;
-        searchRequestResponseCodes[SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER.getIndex()] = MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE;
 
+        setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE,FAILED_SEARCH_REQUEST_STATUS_CODE,
+                TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
+                FOUND_SEARCH_REQUEST_STATUS_CODE);
 
-        if(WAIT_STRATEGY.contains("yield")) {
-            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
-        }
-        else if(WAIT_STRATEGY.contains("block")) {
-            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BLOCKING);
-        }
-        else if(WAIT_STRATEGY.contains("sleep")) {
-            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.SLEEPING);
-        }
-        else if (WAIT_STRATEGY.contains("busy")) {
-            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BUSY);
-        }
-        else {
-            waitStrategyFactory = new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
-        }
-
-        if(ES_CLIENT_TYPE.equals("transport")) {
-            esClientType = ElasticeSearchClientType.TRANSPORT;
-        } else if(ES_CLIENT_TYPE.equals("node")) {
-            esClientType = ElasticeSearchClientType.NODE;
-        } else {
-            esClientType = ElasticeSearchClientType.TRANSPORT;
-        }
+        waitStrategyFactory = parseWaitStrategy(WAIT_STRATEGY);
+        esClientType = parseEsClientType(ES_CLIENT_TYPE);
 
     }
+
+    protected void setResponseCodes(int notfound,int failedSearch, int timedOut,int missingHandler, int found) {
+        searchRequestResponseCodes[SearchResultsOutcome.EMPTY_RESULTS.getIndex()] = notfound;
+        searchRequestResponseCodes[SearchResultsOutcome.FAILED_REQUEST.getIndex()] = failedSearch;
+        searchRequestResponseCodes[SearchResultsOutcome.REQUEST_TIMEOUT.getIndex()] = timedOut;
+        searchRequestResponseCodes[SearchResultsOutcome.HAS_RESULTS.getIndex()] = found;
+        searchRequestResponseCodes[SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER.getIndex()] = missingHandler;
+
+    }
+
+    protected DefaultWaitStrategyFactory parseWaitStrategy(String type) {
+        if(type.contains("yield")) {
+            return new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
+        }
+        else if(type.contains("block")) {
+            return new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BLOCKING);
+        }
+        else if(type.contains("sleep")) {
+            return new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.SLEEPING);
+        }
+        else if (type.contains("busy")) {
+            return new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.BUSY);
+        }
+        else {
+            return new DefaultWaitStrategyFactory(DefaultWaitStrategyFactory.WAIT_STRATEGY_TYPE.YIELDING);
+        }
+    }
+
+    protected  ElasticeSearchClientType parseEsClientType(String type) {
+        if(type.equals("transport")) {
+            return ElasticeSearchClientType.TRANSPORT;
+        } else if(type.equals("node")) {
+            return ElasticeSearchClientType.NODE;
+        } else {
+            return ElasticeSearchClientType.TRANSPORT;
+        }
+    }
+
 
 
     public WaitStrategyFactory getWaitStrategyFactory() {
@@ -479,5 +494,88 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public String getStorageFacetExecutionHint() {
         return STORAGE_FACET_SEARCH_EXECUTION_HINT;
+    }
+
+
+    public Map<String,Object> toMap() {
+        Map<String,Object> configuration = new HashMap<String,Object>();
+        configuration.put(PROPNAME_WAIT_STRATEGY,getWaitStrategyFactory());
+        configuration.put(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,isSafeToOutputRequestData());
+        configuration.put(PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES, getMaxNumberOfRelatedProductProperties());
+        configuration.put(PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,getMaxNumberOfRelatedProductsPerPurchase());
+        configuration.put(PROPNAME_RELATED_PRODUCT_ID_LENGTH,getRelatedProductIdLength());
+        configuration.put(PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING,getRelatedProductInvalidIdString());
+        configuration.put(PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,getMaxRelatedProductPostDataSizeInBytes());
+        configuration.put(PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,getMinRelatedProductPostDataSizeInBytes());
+        configuration.put(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH,getRelatedProductAdditionalPropertyKeyLength());
+        configuration.put(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH,getRelatedProductAdditionalPropertyValueLength());
+        configuration.put(PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE,getSizeOfIncomingMessageQueue());
+        configuration.put(PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE,getSizeOfBatchIndexingRequestQueue());
+        configuration.put(PROPNAME_BATCH_INDEX_SIZE,getIndexBatchSize());
+        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,getSizeOfRelatedContentSearchRequestQueue());
+        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE,getSizeOfRelatedContentSearchRequestHandlerQueue());
+        configuration.put(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,getSizeOfRelatedContentSearchRequestAndResponseQueue());
+        configuration.put(PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT,getMaxNumberOfSearchCriteriaForRelatedContent());
+        configuration.put(PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS,getNumberOfExpectedLikeForLikeRequests());
+        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID,getKeyForFrequencyResultId());
+        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,getKeyForFrequencyResultOccurrence());
+        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS,getKeyForFrequencyResultOverallResultsSize());
+        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,getKeyForFrequencyResults());
+        configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,getRequestParameterForSize());
+        configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_ID,getRequestParameterForId());
+        configuration.put(PROPNAME_DEFAULT_NUMBER_OF_RESULTS,getDefaultNumberOfResults());
+        configuration.put(PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE,getSizeOfIncomingMessageQueue());
+        configuration.put(PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,getNumberOfIndexingRequestProcessors());
+        configuration.put(PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,getNumberOfSearchingRequestProcessors());
+        configuration.put(PROPNAME_STORAGE_INDEX_NAME_PREFIX,getStorageIndexNamePrefix());
+        configuration.put(PROPNAME_STORAGE_INDEX_NAME_ALIAS,getStorageIndexNameAlias());
+        configuration.put(PROPNAME_STORAGE_CONTENT_TYPE_NAME,getStorageContentTypeName());
+        configuration.put(PROPNAME_STORAGE_CLUSTER_NAME,getStorageClusterName());
+        configuration.put(PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME,getStorageFrequentlyRelatedProductsFacetResultsFacetName());
+        configuration.put(PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT,getStorageFacetExecutionHint());
+        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR,getKeyForIndexRequestRelatedWithAttr());
+        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR,getKeyForIndexRequestDateAttr());
+        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR,getKeyForIndexRequestIdAttr());
+        configuration.put(PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR,getKeyForIndexRequestProductArrayAttr());
+        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME,getElasticSearchClientDefaultTransportSettingFileName());
+        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME,getElasticSearchClientDefaultNodeSettingFileName());
+        configuration.put(PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME,getElasticSearchClientOverrideSettingFileName());
+        configuration.put(PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS,getFrequentlyRelatedProductsSearchTimeoutInMillis());
+        configuration.put(PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER,getStorageLocationMapper());
+        configuration.put(PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,getTimedOutSearchRequestStatusCode());
+        configuration.put(PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE,getFailedSearchRequestStatusCode());
+        configuration.put(PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE,getNoFoundSearchResultsStatusCode());
+        configuration.put(PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE,getFoundSearchResultsStatusCode());
+        configuration.put(PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,getMissingSearchResultsHandlerStatusCode());
+        configuration.put(PROPNAME_PROPERTY_ENCODING,getPropertyEncoding());
+        configuration.put(PROPNAME_WAIT_STRATEGY,getWaitStrategyFactory());
+        configuration.put(PROPNAME_ES_CLIENT_TYPE,getElasticSearchClientType());
+        configuration.put(PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,isIndexNameDateCachingEnabled());
+        configuration.put(PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,getNumberOfIndexNamesToCache());
+        configuration.put(PROPNAME_REPLACE_OLD_INDEXED_CONTENT,getShouldReplaceOldContentIfExists());
+        configuration.put(PROPNAME_SEPARATE_INDEXING_THREAD,getShouldUseSeparateIndexStorageThread());
+        configuration.put(PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,shouldDiscardIndexRequestWithTooManyRelations());
+        configuration.put(PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,getElasticSearchTransportHosts());
+        configuration.put(PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,getDefaultElasticSearchPort());
+        configuration.put(PROPNAME_USE_SHARED_SEARCH_REPOSITORY,useSharedSearchRepository());
+        configuration.put(PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,isSearchResponseDebugOutputEnabled());
+        return configuration;
+    }
+
+    Map<String,Object> getDiffs(Map<String,Object> defaults, Map<String,Object> overrides) {
+        Map<String,Object> clonedOverrides = new HashMap(overrides);
+        for(String key : defaults.keySet()) {
+            Object value = overrides.get(key);
+            Object defaultValue = defaults.get(key);
+            if(value==null && defaultValue==null) {
+                clonedOverrides.remove(key);
+                continue;
+            }
+
+            if(defaultValue!=null) {
+                if(defaultValue.equals(value)) clonedOverrides.remove(key);
+            }
+        }
+        return clonedOverrides;
     }
 }
