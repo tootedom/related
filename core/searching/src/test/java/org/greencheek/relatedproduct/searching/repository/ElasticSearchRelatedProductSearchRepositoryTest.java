@@ -13,6 +13,7 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchResultEventWithS
 import org.greencheek.relatedproduct.searching.domain.api.SearchResultsEvent;
 import org.greencheek.relatedproduct.searching.util.elasticsearch.ElasticSearchServer;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -35,10 +36,10 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX);
-        System.clearProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME);
-        System.clearProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
-        System.clearProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_PREFIX);
+        System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME);
+        System.clearProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         if(server!=null) {
             server.shutdown();
         }
@@ -51,9 +52,9 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
     @Before
     public void setUp() {
         String indexName = "relatedprog";
-        System.setProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
+        System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
         // Set the clustername
-        System.setProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
+        System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
         configuration = new SystemPropertiesConfiguration();
 
         // Start the Elastic Search Server
@@ -64,7 +65,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         server.setIndexTemplate(indexName);
 
         // Create the client pointing to the above server
-        System.setProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
+        System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
         configuration = new SystemPropertiesConfiguration();
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
@@ -122,7 +123,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
         server.createIndex(configuration.getStorageIndexNamePrefix());
 
         // set the time tp 1 millis
-        System.setProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "1");
         try {
             Configuration config = new SystemPropertiesConfiguration();
             ElasticSearchRelatedProductSearchRepository repository = new ElasticSearchRelatedProductSearchRepository(factory,new ElasticSearchFrequentlyRelatedProductSearchProcessor(config));
@@ -133,7 +134,7 @@ public class ElasticSearchRelatedProductSearchRepositoryTest {
             assertSame(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
         }
         finally {
-            System.clearProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+            System.clearProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         }
     }
 

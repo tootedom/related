@@ -20,6 +20,7 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextHolder;
 import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseContextLookup;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -65,6 +66,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 //
     @After
     public void tearDown() {
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
         try {
             searchExecutor.shutdown();
         } catch(Exception e) {
@@ -74,7 +76,7 @@ public class DisruptorBasedRelatedProductSearchExecutorTest {
 
     @Before
     public void setUp() {
-
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"1");
         searchRepositoryCallCount = new AtomicInteger(0);
 
         responseEventHandler = mock(ResponseEventHandler.class);

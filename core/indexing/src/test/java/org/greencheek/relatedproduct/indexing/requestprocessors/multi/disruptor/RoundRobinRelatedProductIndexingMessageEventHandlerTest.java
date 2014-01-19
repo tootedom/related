@@ -6,6 +6,7 @@ import org.greencheek.relatedproduct.api.indexing.RelatedProductReferenceMessage
 import org.greencheek.relatedproduct.api.indexing.RelatedProductReference;
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -47,9 +48,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"10");
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE, "25");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE, "25");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
         configuration = new SystemPropertiesConfiguration();
         repo = new TestRelatedProductReferenceEventHandlerFactory();
         handler = new RoundRobinRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
@@ -58,9 +59,9 @@ public class RoundRobinRelatedProductIndexingMessageEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
-        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
-        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        System.clearProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
         handler.shutdown();
     }
 

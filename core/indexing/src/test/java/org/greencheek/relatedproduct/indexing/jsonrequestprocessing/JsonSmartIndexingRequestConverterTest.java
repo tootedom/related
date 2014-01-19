@@ -5,6 +5,7 @@ import org.greencheek.relatedproduct.indexing.IndexingRequestConverter;
 import org.greencheek.relatedproduct.indexing.InvalidIndexingRequestException;
 import org.greencheek.relatedproduct.indexing.util.JodaISO8601UTCCurrentDateAndTimeFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Test;
@@ -35,8 +36,8 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
     @After
     public void tearDown() {
         super.tearDown();
-        System.clearProperty(Configuration.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
-        System.clearProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        System.clearProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
     }
 
 
@@ -75,8 +76,8 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
 
     @Test
     public void testExceptionIsThrownWhenJsonContainsTooManyProducts() {
-        System.setProperty(Configuration.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"true");
-        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"true");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"1");
         String json =
                 "{" +
                         "    \"channel\" : \"uk\"," +
@@ -95,8 +96,8 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
 
     @Test
     public void testExceptionIsNotThrownWhenJsonContainsTooManyProducts() {
-        System.setProperty(Configuration.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"false");
-        System.setProperty(Configuration.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"2");
+        System.setProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"false");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,"2");
         String json =
                 "{" +
                         "    \"channel\" : \"uk\"," +

@@ -1,6 +1,7 @@
 package org.greencheek.relatedproduct.indexing.locationmappers;
 
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,20 +31,20 @@ public class DayBasedStorageLocationMapperTest {
 
     @Before
     public void setUp() {
-        System.setProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"true");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"true");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,"10");
         cachingDayConfig = new SystemPropertiesConfiguration();
         cachingDayBasedMapper = new DayBasedStorageLocationMapper(cachingDayConfig,new JodaUTCCurrentDateFormatter());
 
-        System.setProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"false");
+        System.setProperty(ConfigurationConstants.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"false");
         noncachingDayConfig = new SystemPropertiesConfiguration();
         nonCachingDayBasedMapper = new DayBasedStorageLocationMapper(noncachingDayConfig,new JodaUTCCurrentDateFormatter());
     }
 
     @After
     public void tearDown() {
-        System.clearProperty(Configuration.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
-        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_INDEXNAME_DATE_CACHING_ENABLED);
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE);
     }
 
     @Test

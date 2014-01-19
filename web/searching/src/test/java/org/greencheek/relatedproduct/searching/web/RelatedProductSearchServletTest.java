@@ -30,6 +30,7 @@ import org.greencheek.relatedproduct.searching.util.elasticsearch.ElasticSearchS
 import org.greencheek.relatedproduct.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.relatedproduct.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -65,9 +66,9 @@ public class RelatedProductSearchServletTest {
     @Before
     public void setUp() {
         String indexName = "relatedprog";
-        System.setProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
+        System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
         // Set the clustername
-        System.setProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
+        System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
         configuration = new SystemPropertiesConfiguration();
 
         // Start the Elastic Search Server
@@ -78,7 +79,7 @@ public class RelatedProductSearchServletTest {
         server.setIndexTemplate(indexName);
 
         // Create the client pointing to the above server
-        System.setProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
+        System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
         configuration = new SystemPropertiesConfiguration();
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
@@ -106,10 +107,10 @@ public class RelatedProductSearchServletTest {
 
     @After
     public final void teardown() throws Throwable {
-        System.clearProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE);
-        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
-        System.clearProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
-        System.clearProperty(Configuration.PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
 
 
         factory.shutdown();
@@ -135,10 +136,10 @@ public class RelatedProductSearchServletTest {
         }
 
 
-        System.clearProperty(Configuration.PROPNAME_STORAGE_CLUSTER_NAME);
-        System.clearProperty(Configuration.PROPNAME_STORAGE_INDEX_NAME_PREFIX);
-        System.clearProperty(Configuration.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
-        System.clearProperty(Configuration.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME);
+        System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_PREFIX);
+        System.clearProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
 
 
 
@@ -181,7 +182,7 @@ public class RelatedProductSearchServletTest {
         wrapper.setAsyncSupported(true);
         wrapper.addMapping("/frequentlyrelatedto/*");
 
-        ctx.getServletContext().setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
+        ctx.getServletContext().setAttribute(ConfigurationConstants.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
 
         //declare an alternate location for your "WEB-INF/classes" dir:
         File additionWebInfClasses = new File("target/classes");
@@ -210,8 +211,8 @@ public class RelatedProductSearchServletTest {
      */
     @Test
     public void test400ReturnedForNoId() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
 
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
         try {
@@ -234,8 +235,8 @@ public class RelatedProductSearchServletTest {
      */
     @Test
     public void testSearchingSingleItemWithSingleRequestProcessorReturns200() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
@@ -255,14 +256,14 @@ public class RelatedProductSearchServletTest {
 
     @Test
     public void testBufferSizeIsAdjustedToAPowerOf2() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"10");
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
         assertEquals(16, bootstrap.getConfiguration().getSizeOfRelatedContentSearchRequestQueue());
     }
 
     @Test
     public void testBufferSizeIsKeptToSetPowerOf2() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"16");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"16");
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
         assertEquals(16, bootstrap.getConfiguration().getSizeOfRelatedContentSearchRequestQueue());
     }
@@ -273,8 +274,8 @@ public class RelatedProductSearchServletTest {
      */
     @Test
     public void testSearchingMultipleRequestsReturns200WhenQueueNot() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"10");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "2");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "2");
 
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
@@ -322,9 +323,9 @@ public class RelatedProductSearchServletTest {
 
     @Test
     public void testSearchingMultipleRequestsReturns503WhenQueueFull() {
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,"1");
 //
 //        final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrapSlowGet(3000);

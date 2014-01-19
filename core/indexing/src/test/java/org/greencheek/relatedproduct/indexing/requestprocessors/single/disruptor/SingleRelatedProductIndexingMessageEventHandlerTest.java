@@ -9,6 +9,7 @@ import org.greencheek.relatedproduct.indexing.locationmappers.DayBasedStorageLoc
 import org.greencheek.relatedproduct.indexing.requestprocessors.RelatedProductIndexingMessageEventHandler;
 import org.greencheek.relatedproduct.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +44,7 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE, "25");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE, "25");
         configuration = new SystemPropertiesConfiguration();
         repo = new TestRelatedProductStorageRepository();
         handler = new SingleRelatedProductIndexingMessageEventHandler(configuration,new BasicRelatedProductIndexingMessageConverter(configuration),
@@ -52,7 +53,7 @@ public class SingleRelatedProductIndexingMessageEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE);
     }
 
 

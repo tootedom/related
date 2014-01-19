@@ -2,6 +2,8 @@ package org.greencheek.relatedproduct.util.config;
 
 import org.greencheek.relatedproduct.api.searching.SearchResultsOutcome;
 import org.greencheek.relatedproduct.util.arrayindexing.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.greencheek.relatedproduct.util.config.ConfigurationConstants.*;
 import java.util.HashMap;
@@ -54,101 +56,166 @@ import java.util.Set;
  */
 public class SystemPropertiesConfiguration implements Configuration {
 
-    private final boolean SAFE_TO_OUTPUT_REQUEST_DATA = Boolean.valueOf(System.getProperty(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,"false"));
-    private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = Short.valueOf(System.getProperty(PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES, "10"));
-    private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = Short.valueOf(System.getProperty(PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST, "10"));
-    private final int RELATED_PRODUCT_ID_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ID_LENGTH, "36"));
-    private final String RELATED_PRODUCT_INVALID_ID_STRING = System.getProperty(PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING, "INVALID_ID");
-    private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty(PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,"10240"));
-    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = Integer.valueOf(System.getProperty(PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,"4096"));
+    private final boolean SAFE_TO_OUTPUT_REQUEST_DATA ;
+    private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES ;
+    private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE ;
+    private final int RELATED_PRODUCT_ID_LENGTH ;
+    private final String RELATED_PRODUCT_INVALID_ID_STRING ;
+    private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES ;
+    private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES ;
 
-    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH, "30"));
-    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = Short.valueOf(System.getProperty(PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH, "30"));
-    private final int SIZE_OF_INCOMING_REQUEST_QUEUE = Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE, "2048"));
-    private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE, "-1"));
-    private final int BATCH_INDEX_SIZE = Integer.valueOf(System.getProperty(PROPNAME_BATCH_INDEX_SIZE,"128"));
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH ;
+    private final int RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH ;
+    private final int SIZE_OF_INCOMING_REQUEST_QUEUE ;
+    private final int SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE ;
+    private final int BATCH_INDEX_SIZE ;
 
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE, "2048")));
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE ;
 
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE, "2048")));
-    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE, "2048")));
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE ;
+    private final int SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE ;
 
-    private final int MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  Short.valueOf(System.getProperty(PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT, "10"));
-    private final int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = Integer.valueOf(System.getProperty(PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS, "10"));
+    private final int MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT ;
+    private final int NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS ;
 
-    private final String KEY_FOR_FREQUENCY_RESULT_ID = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID,"id");
-    private final String KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,"frequency");
-    private final String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS,"size");
-    private final String KEY_FOR_FREQUENCY_RESULTS = System.getProperty(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,"results");
+    private final String KEY_FOR_FREQUENCY_RESULT_ID ;
+    private final String KEY_FOR_FREQUENCY_RESULT_OCCURRENCE ;
+    private final String KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS ;
+    private final String KEY_FOR_FREQUENCY_RESULTS ;
 
-    private final String REQUEST_PARAMETER_FOR_SIZE = System.getProperty(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,"maxresults");
-    private final String REQUEST_PARAMETER_FOR_ID = System.getProperty(PROPNAME_REQUEST_PARAMETER_FOR_ID,"id");
+    private final String REQUEST_PARAMETER_FOR_SIZE ;
+    private final String REQUEST_PARAMETER_FOR_ID ;
 
-    private final int DEFAULT_NUMBER_OF_RESULTS = Integer.valueOf(System.getProperty(PROPNAME_DEFAULT_NUMBER_OF_RESULTS,"4"));
-    private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE = Util.ceilingNextPowerOfTwo(Integer.valueOf(System.getProperty(PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE,"2048")));
-    private final int NUMBER_OF_INDEXING_REQUEST_PROCESSORS = Short.valueOf(System.getProperty(PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2"));
-    private final int NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(Short.valueOf(System.getProperty(PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,"4")));
+    private final int DEFAULT_NUMBER_OF_RESULTS ;
+    private final int SIZE_OF_RESPONSE_PROCESSING_QUEUE ;
+    private final int NUMBER_OF_INDEXING_REQUEST_PROCESSORS ;
+    private final int NUMBER_OF_SEARCHING_REQUEST_PROCESSORS ;
 
-    private final String STORAGE_INDEX_NAME_PREFIX = System.getProperty(PROPNAME_STORAGE_INDEX_NAME_PREFIX,"relatedproducts");
-    private final String STORAGE_INDEX_NAME_ALIAS = System.getProperty(PROPNAME_STORAGE_INDEX_NAME_ALIAS,"");
-    private final String STORAGE_CONTENT_TYPE_NAME = System.getProperty(PROPNAME_STORAGE_CONTENT_TYPE_NAME,"relatedproduct");
-    private final String STORAGE_CLUSTER_NAME = System.getProperty(PROPNAME_STORAGE_CLUSTER_NAME,"relatedproducts");
-    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  System.getProperty(PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME,"frequently-related-with");
-    private final String STORAGE_FACET_SEARCH_EXECUTION_HINT = System.getProperty(PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT);
+    private final String STORAGE_INDEX_NAME_PREFIX ;
+    private final String STORAGE_INDEX_NAME_ALIAS ;
+    private final String STORAGE_CONTENT_TYPE_NAME ;
+    private final String STORAGE_CLUSTER_NAME ;
+    private final String STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME ;
+    private final String STORAGE_FACET_SEARCH_EXECUTION_HINT ;
 
-    private final String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR,"related-with");
-    private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR,"date");
-    private final String KEY_FOR_INDEX_REQUEST_ID_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR,"id");
-    private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = System.getProperty(PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR,"products");
+    private final String KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR ;
+    private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR ;
+    private final String KEY_FOR_INDEX_REQUEST_ID_ATTR ;
+    private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR ;
 
-    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME,"default-transport-elasticsearch.yml");
-    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME,"default-node-elasticsearch.yml");
-    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = System.getProperty(PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME,"elasticsearch.yml");
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME ;
+    private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME ;
+    private final String ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME ;
 
-    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = Long.valueOf(System.getProperty(PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "5000"));
+    private final long FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS ;
 
-    // can be "day|hour|minute"
-    private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = System.getProperty(PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER,"day");
+    // can be "day|hour|minute";
+    private final String RELATED_PRODUCT_STORAGE_LOCATION_MAPPER ;
 
-    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE, "504"));
-    private final int FAILED_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE,"502"));
-    private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE,"404"));
-    private final int FOUND_SEARCH_REQUEST_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE,"200"));
-    private final int MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = Integer.valueOf(System.getProperty(PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,"500"));
+    private final int TIMED_OUT_SEARCH_REQUEST_STATUS_CODE ;
+    private final int FAILED_SEARCH_REQUEST_STATUS_CODE ;
+    private final int NO_FOUND_SEARCH_REQUEST_STATUS_CODE ;
+    private final int FOUND_SEARCH_REQUEST_STATUS_CODE ;
+    private final int MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE ;
 
-    // string Encoding for the properties
-    private final String PROPERTY_ENCODING = System.getProperty(PROPNAME_PROPERTY_ENCODING,"UTF-8");
+    // string Encoding for the properties;
+    private final String PROPERTY_ENCODING ;
+
+
+    private final String WAIT_STRATEGY ;
+
+    private final String ES_CLIENT_TYPE ;
+
+    private final boolean INDEXNAME_DATE_CACHING_ENABLED ;
+
+    private final int NUMBER_OF_INDEXNAMES_TO_CACHE ;
+
+    private final boolean REPLACE_OLD_INDEXED_CONTENT ;
+
+    private final boolean SEPARATE_INDEXING_THREAD  ;
+
+    private final boolean DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS ;
+
+    private final String ELASTIC_SEARCH_TRANSPORT_HOSTS ;
+
+    private final int DEFAULT_ELASTIC_SEARCH_PORT ;
+
+    private final boolean USE_SHARED_SEARCH_REPOSITORY ;
+
+    private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED ;
 
     private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
-
-    private final String WAIT_STRATEGY = System.getProperty(PROPNAME_WAIT_STRATEGY,"yield").toLowerCase();
-
-    private final String ES_CLIENT_TYPE = System.getProperty(PROPNAME_ES_CLIENT_TYPE,"transport").toLowerCase();
-
-    private final boolean INDEXNAME_DATE_CACHING_ENABLED = Boolean.parseBoolean(System.getProperty(PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,"true"));
-
-    private final int NUMBER_OF_INDEXNAMES_TO_CACHE = Integer.valueOf(System.getProperty(PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,"365"));
-
-    private final boolean REPLACE_OLD_INDEXED_CONTENT = Boolean.parseBoolean(System.getProperty(PROPNAME_REPLACE_OLD_INDEXED_CONTENT, "false"));
-
-    private final boolean SEPARATE_INDEXING_THREAD  = Boolean.parseBoolean(System.getProperty(PROPNAME_SEPARATE_INDEXING_THREAD,"false"));
-
-    private final boolean DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  Boolean.parseBoolean(System.getProperty(PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,"false"));
-
-    private final String ELASTIC_SEARCH_TRANSPORT_HOSTS = System.getProperty(PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"127.0.0.1:9300");
-
-    private final int DEFAULT_ELASTIC_SEARCH_PORT = Integer.valueOf(System.getProperty(PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,"9300"));
-
-    private final boolean USE_SHARED_SEARCH_REPOSITORY = Boolean.parseBoolean(System.getProperty(PROPNAME_USE_SHARED_SEARCH_REPOSITORY,"false"));
-
-    private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = Boolean.parseBoolean(System.getProperty(PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,"false"));
-
-
     private final WaitStrategyFactory waitStrategyFactory;
     private final ElasticeSearchClientType esClientType;
+    private static final Logger log = LoggerFactory.getLogger(SystemPropertiesConfiguration.class);
+
 
     public SystemPropertiesConfiguration() {
-        Map<String,Object> settings = getMergedSystemPropertiesAndDefaults();
+        this(getMergedSystemPropertiesAndDefaults());
+    }
+
+    protected SystemPropertiesConfiguration(Map<String,Object> properties) {
+
+        SAFE_TO_OUTPUT_REQUEST_DATA = getBoolean(properties,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA);
+        MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = getInt(properties,PROPNAME_MAX_NO_OF_RELATED_PRODUCT_PROPERTES,DEFAULT_MAX_NO_OF_RELATED_PRODUCT_PROPERTES);
+        MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = getInt(properties,PROPNAME_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST,DEFAULT_MAX_NO_OF_RELATED_PRODUCTS_PER_INDEX_REQUEST);
+        RELATED_PRODUCT_ID_LENGTH = getInt(properties,PROPNAME_RELATED_PRODUCT_ID_LENGTH,DEFAULT_RELATED_PRODUCT_ID_LENGTH);
+        RELATED_PRODUCT_INVALID_ID_STRING = getString(properties,PROPNAME_RELATED_PRODUCT_INVALID_ID_STRING,DEFAULT_RELATED_PRODUCT_INVALID_ID_STRING);
+        MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties,PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,DEFAULT_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties,PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES,DEFAULT_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = getInt(properties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH,DEFAULT_RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH);
+        RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH = getInt(properties,PROPNAME_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH,DEFAULT_RELATED_PRODUCT_ADDITIONAL_PROPERTY_VALUE_LENGTH);
+        SIZE_OF_INCOMING_REQUEST_QUEUE = getInt(properties,PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE,DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE);
+        SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = getInt(properties,PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE,DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE);
+        BATCH_INDEX_SIZE = getInt(properties,PROPNAME_BATCH_INDEX_SIZE,DEFAULT_BATCH_INDEX_SIZE);
+        SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE));
+        SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE,DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE));
+        SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE));
+        MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT =  getInt(properties,PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT,DEFAULT_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
+        NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = getInt(properties,PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS,DEFAULT_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS);
+        KEY_FOR_FREQUENCY_RESULT_ID = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID,DEFAULT_KEY_FOR_FREQUENCY_RESULT_ID);
+        KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,DEFAULT_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
+        KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS,DEFAULT_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS);
+        KEY_FOR_FREQUENCY_RESULTS = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULTS,DEFAULT_KEY_FOR_FREQUENCY_RESULTS);
+        REQUEST_PARAMETER_FOR_SIZE = getString(properties,PROPNAME_REQUEST_PARAMETER_FOR_SIZE,DEFAULT_REQUEST_PARAMETER_FOR_SIZE);
+        REQUEST_PARAMETER_FOR_ID = getString(properties,PROPNAME_REQUEST_PARAMETER_FOR_ID,DEFAULT_REQUEST_PARAMETER_FOR_ID);
+        DEFAULT_NUMBER_OF_RESULTS = getInt(properties,PROPNAME_DEFAULT_NUMBER_OF_RESULTS,DEFAULT_DEFAULT_NUMBER_OF_RESULTS);
+        SIZE_OF_RESPONSE_PROCESSING_QUEUE = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE,DEFAULT_SIZE_OF_RESPONSE_PROCESSING_QUEUE));
+        NUMBER_OF_INDEXING_REQUEST_PROCESSORS = getInt(properties,PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,DEFAULT_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
+        NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS));
+        STORAGE_INDEX_NAME_PREFIX = getString(properties,PROPNAME_STORAGE_INDEX_NAME_PREFIX,DEFAULT_STORAGE_INDEX_NAME_PREFIX);
+        STORAGE_INDEX_NAME_ALIAS = getString(properties,PROPNAME_STORAGE_INDEX_NAME_ALIAS,DEFAULT_STORAGE_INDEX_NAME_ALIAS);
+        STORAGE_CONTENT_TYPE_NAME = getString(properties,PROPNAME_STORAGE_CONTENT_TYPE_NAME,DEFAULT_STORAGE_CONTENT_TYPE_NAME);
+        STORAGE_CLUSTER_NAME = getString(properties,PROPNAME_STORAGE_CLUSTER_NAME,DEFAULT_STORAGE_CLUSTER_NAME);
+        STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME =  getString(properties,PROPNAME_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME,DEFAULT_STORAGE_FREQUENTLY_RELATED_PRODUCTS_FACET_RESULTS_FACET_NAME);
+        STORAGE_FACET_SEARCH_EXECUTION_HINT = getString(properties,PROPNAME_STORAGE_FACET_SEARCH_EXECUTION_HINT,DEFAULT_STORAGE_FACET_SEARCH_EXECUTION_HINT);
+        KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR = getString(properties,PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR,DEFAULT_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR);
+        KEY_FOR_INDEX_REQUEST_DATE_ATTR = getString(properties,PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR,DEFAULT_KEY_FOR_INDEX_REQUEST_DATE_ATTR);
+        KEY_FOR_INDEX_REQUEST_ID_ATTR = getString(properties,PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR,DEFAULT_KEY_FOR_INDEX_REQUEST_ID_ATTR);
+        KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = getString(properties,PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR,DEFAULT_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR);
+        ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = getString(properties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME,DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
+        ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = getString(properties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME,DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
+        ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = getString(properties,PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME,DEFAULT_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME);
+        FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = getLong(properties,PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS,DEFAULT_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        RELATED_PRODUCT_STORAGE_LOCATION_MAPPER = getString(properties,PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER,DEFAULT_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER);
+        TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = getInt(properties,PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,DEFAULT_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE);
+        FAILED_SEARCH_REQUEST_STATUS_CODE = getInt(properties,PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE,DEFAULT_FAILED_SEARCH_REQUEST_STATUS_CODE);
+        NO_FOUND_SEARCH_REQUEST_STATUS_CODE = getInt(properties,PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE,DEFAULT_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        FOUND_SEARCH_REQUEST_STATUS_CODE = getInt(properties,PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE,DEFAULT_FOUND_SEARCH_REQUEST_STATUS_CODE);
+        MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = getInt(properties,PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,DEFAULT_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE);
+
+        PROPERTY_ENCODING = getString(properties,PROPNAME_PROPERTY_ENCODING,DEFAULT_PROPERTY_ENCODING);
+        WAIT_STRATEGY = getString(properties,PROPNAME_WAIT_STRATEGY,DEFAULT_WAIT_STRATEGY).toLowerCase();
+        ES_CLIENT_TYPE = getString(properties,PROPNAME_ES_CLIENT_TYPE,DEFAULT_ES_CLIENT_TYPE).toLowerCase();
+        INDEXNAME_DATE_CACHING_ENABLED = getBoolean(properties,PROPNAME_INDEXNAME_DATE_CACHING_ENABLED,DEFAULT_INDEXNAME_DATE_CACHING_ENABLED);
+        NUMBER_OF_INDEXNAMES_TO_CACHE = getInt(properties,PROPNAME_NUMBER_OF_INDEXNAMES_TO_CACHE,DEFAULT_NUMBER_OF_INDEXNAMES_TO_CACHE);
+        REPLACE_OLD_INDEXED_CONTENT = getBoolean(properties,PROPNAME_REPLACE_OLD_INDEXED_CONTENT,DEFAULT_REPLACE_OLD_INDEXED_CONTENT);
+        SEPARATE_INDEXING_THREAD  = getBoolean(properties,PROPNAME_SEPARATE_INDEXING_THREAD,DEFAULT_SEPARATE_INDEXING_THREAD);
+        DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  getBoolean(properties,PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS,DEFAULT_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS);
+        ELASTIC_SEARCH_TRANSPORT_HOSTS = getString(properties,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,DEFAULT_ELASTIC_SEARCH_TRANSPORT_HOSTS);
+        DEFAULT_ELASTIC_SEARCH_PORT = getInt(properties,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,DEFAULT_DEFAULT_ELASTIC_SEARCH_PORT);
+        USE_SHARED_SEARCH_REPOSITORY = getBoolean(properties,PROPNAME_USE_SHARED_SEARCH_REPOSITORY,DEFAULT_USE_SHARED_SEARCH_REPOSITORY);
+        RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = getBoolean(properties,PROPNAME_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED,DEFAULT_RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
 
         setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE,FAILED_SEARCH_REQUEST_STATUS_CODE,
                 TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
@@ -156,17 +223,78 @@ public class SystemPropertiesConfiguration implements Configuration {
 
         waitStrategyFactory = parseWaitStrategy(WAIT_STRATEGY);
         esClientType = parseEsClientType(ES_CLIENT_TYPE);
-
     }
 
-    private Map<String,Object> getMergedSystemPropertiesAndDefaults() {
+    private static Map<String,Object> getMergedSystemPropertiesAndDefaults() {
         Map<String,Object> defaultProperties = new HashMap(ConfigurationConstants.DEFAULT_SETTINGS);
         Map<String,Object> systemProperties = parseSystemProperties();
 
-        return mergeProperties(defaultProperties,systemProperties);
+        return replaceProperties(defaultProperties, systemProperties);
     }
 
-    public Map<String,Object> mergeProperties(Map<String,Object> defaultProperties,
+    private static boolean getBoolean(Map<String,Object> properties,String prop, boolean defaultValue) {
+        Object value = properties.get(prop);
+        if(value==null) return defaultValue;
+        else {
+            try {
+                return ((Boolean)value).booleanValue();
+            } catch(ClassCastException e) {
+                log.warn("Failed to cast value for property {} to a boolean",prop);
+                return defaultValue;
+            }
+        }
+    }
+
+    private static int getInt(Map<String,Object> properties,String prop, int defaultValue) {
+        Object value = properties.get(prop);
+        if(value==null) return defaultValue;
+        else {
+            try {
+                return ((Integer)value).intValue();
+            } catch(ClassCastException e) {
+                log.warn("Failed to cast value for property {} to a int",prop);
+                return defaultValue;
+            }
+        }
+    }
+
+    private static long getLong(Map<String,Object> properties,String prop, long defaultValue) {
+        Object value = properties.get(prop);
+        if(value==null) return defaultValue;
+        else {
+            try {
+                return ((Long)value).longValue();
+            } catch(ClassCastException e) {
+                log.warn("Failed to cast value for property {} to a int",prop);
+                return defaultValue;
+            }
+        }
+    }
+
+    private static String getString(Map<String,Object> properties,String prop, String defaultValue) {
+        Object value = properties.get(prop);
+        if(value==null) return defaultValue;
+        else {
+            try {
+                return (String)value;
+            } catch(ClassCastException e) {
+                log.warn("Failed to cast value for property {} to a int",prop);
+                return defaultValue;
+            }
+        }
+    }
+
+
+    /**
+     * returns a new map that is a combination of the values from the first parameter {@see defaultProperties}
+     * with the values override by the one that are specified in {@see overrides}
+     *
+     * @param defaultProperties The map will contain all these keys.
+     * @param overrides the properties that are to replace those in the defaults.  This may be a sub set of the
+     *                  properties in the defaultProperties, or new values.
+     * @return map with replaced properties
+     */
+    public static Map<String,Object> mergeProperties(Map<String,Object> defaultProperties,
                                               Map<String,Object> overrides) {
         Map<String,Object> props = new HashMap<String,Object>(defaultProperties);
         if(overrides==null || overrides.size()==0) return props;
@@ -176,7 +304,37 @@ public class SystemPropertiesConfiguration implements Configuration {
         return props;
     }
 
-    public Map<String,Object> parseSystemProperties() {
+    /**
+     * returns a new map that is a combination of the values from the first parameter {@see defaultProperties}
+     * with the values override by the one that are specified in {@see overrides}.  Only if the property exists in the
+     * defaultProperties will if be replaced.  In other words. any new property in the overrides that is not in
+     * defaultProperties will not be present in the returned array
+     *
+     * @param defaultProperties The map will contain all these keys.
+     * @param overrides the properties that are to replace those in the defaults.  This may be a sub set of the
+     *                  properties in the defaultProperties, or new values.
+     * @return map with replaced properties
+     */
+    public static Map<String,Object> replaceProperties(Map<String,Object> defaultProperties,
+                                              Map<String,Object> overrides) {
+        Map<String,Object> props = new HashMap<String,Object>(defaultProperties);
+        if(overrides==null || overrides.size()==0) return props;
+        for(String prop : overrides.keySet()) {
+            if(props.containsKey(prop)) props.put(prop,overrides.get(prop));
+        }
+        return props;
+    }
+
+
+    /**
+     * Looks for System properties with the names defined in {@link org.greencheek.relatedproduct.util.config.ConfigurationConstants}
+     * Parsing the resulting values in to appropriate types.  If the system property is not defined an
+     * entry in the return map (with the same name as the constant in ConfigurationContants), is not created.
+     * If a system property is defined an entry in the map will exist.
+     *
+     * @return
+     */
+    public static Map<String,Object> parseSystemProperties() {
         Map<String,Object> systemProperties = new HashMap<String,Object>(100);
 
         parseBoolean(systemProperties,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
@@ -220,7 +378,7 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
         parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
         parseString(systemProperties,PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME);
-        parseInt(systemProperties,PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+        parseLong(systemProperties,PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         parseString(systemProperties,PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER);
         parseInt(systemProperties,PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE);
         parseInt(systemProperties,PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE);
@@ -252,12 +410,12 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
 
-    private void parseBoolean(Map<String,Object> values, String property) {
+    private static void parseBoolean(Map<String,Object> values, String property) {
         Boolean b = parseBoolean(property);
         if(b!=null) values.put(property,b);
     }
 
-    private Boolean parseBoolean(String property) {
+    private static Boolean parseBoolean(String property) {
         String value = System.getProperty(property);
         if(value==null || value.trim().length()==0) {
             return null;
@@ -266,12 +424,12 @@ public class SystemPropertiesConfiguration implements Configuration {
         }
     }
 
-    private void parseString(Map<String,Object> values, String property) {
+    private static void parseString(Map<String,Object> values, String property) {
         String s = parseString(property);
         if(s!=null) values.put(property,s);
     }
 
-    private String parseString(String property) {
+    private static String parseString(String property) {
         String value = System.getProperty(property);
         if(value==null || value.trim().length()==0) {
             return null;
@@ -280,18 +438,36 @@ public class SystemPropertiesConfiguration implements Configuration {
         }
     }
 
-    private void parseInt(Map<String,Object> values, String property) {
+    private static void parseInt(Map<String,Object> values, String property) {
         Integer i = parseInt(property);
         if(i!=null) values.put(property,i);
     }
 
-    private Integer parseInt(String property) {
+    private static Integer parseInt(String property) {
         String value = System.getProperty(property);
         if(value==null || value.trim().length()==0) {
             return null;
         } else {
             try {
                 return Integer.valueOf(value);
+            } catch(NumberFormatException e) {
+                return null;
+            }
+        }
+    }
+
+    private static void parseLong(Map<String,Object> values, String property) {
+        Long i = parseLong(property);
+        if(i!=null) values.put(property,i);
+    }
+
+    private static Long parseLong(String property) {
+        String value = System.getProperty(property);
+        if(value==null || value.trim().length()==0) {
+            return null;
+        } else {
+            try {
+                return Long.valueOf(value);
             } catch(NumberFormatException e) {
                 return null;
             }

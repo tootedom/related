@@ -46,8 +46,8 @@ public class ConfigurationConstants {
     public static final String PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR = "related-product.indexing.key.for.index.request.date.attr";
     public static final String PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR = "related-product.indexing.key.for.index.request.id.attr";
     public static final String PROPNAME_KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR = "related-product.indexing.key.for.index.request.product.array.attr";
-    public static final String PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = "related-product.elastic.search.client.default.settings.file.name";
-    public static final String PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME =  "related-product.elastic.search.client.default.settings.file.name";
+    public static final String PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = "related-product.elastic.search.client.default.transport.settings.file.name";
+    public static final String PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME =  "related-product.elastic.search.client.default.node.settings.file.name";
     public static final String PROPNAME_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME  = "related-product.elastic.search.client.override.settings.file.name";
     public static final String PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS = "related-product.searching.frequently.related.search.timeout.in.millis";
     public static final String PROPNAME_RELATED_PRODUCT_STORAGE_LOCATION_MAPPER =  "related-product.storage.location.mapper";
@@ -119,7 +119,7 @@ public class ConfigurationConstants {
     public static final String DEFAULT_PROPERTY_ENCODING = "UTF-8";
     public static final String DEFAULT_WAIT_STRATEGY = "yield";
     public static final String DEFAULT_ES_CLIENT_TYPE = "transport";
-    public static final String DEFAULT_INDEXNAME_DATE_CACHING_ENABLED = "true";
+    public static final boolean DEFAULT_INDEXNAME_DATE_CACHING_ENABLED = true;
     public static final int DEFAULT_NUMBER_OF_INDEXNAMES_TO_CACHE = 365;
     public static final boolean DEFAULT_REPLACE_OLD_INDEXED_CONTENT = false;
     public static final boolean DEFAULT_SEPARATE_INDEXING_THREAD = false;

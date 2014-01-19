@@ -16,6 +16,7 @@ import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepository;
 import org.greencheek.relatedproduct.indexing.RelatedProductStorageRepositoryFactory;
 import org.greencheek.relatedproduct.indexing.web.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -97,7 +98,7 @@ public class RelatedPurchaseIndexOrderServletTest {
         wrapper.setAsyncSupported(true);
         wrapper.addMapping("/relatedproducts");
 
-        ctx.getServletContext().setAttribute(Configuration.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
+        ctx.getServletContext().setAttribute(ConfigurationConstants.APPLICATION_CONTEXT_ATTRIBUTE_NAME,bootstrapApplicationCtx);
 
         //declare an alternate location for your "WEB-INF/classes" dir:
         File additionWebInfClasses = new File("target/classes");
@@ -119,11 +120,11 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     @After
     public final void teardown() throws Throwable {
-        System.clearProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE);
-        System.clearProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
-        System.clearProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
-        System.clearProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
-        System.clearProperty(Configuration.PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES);
+        System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE);
         try {
             shutdownTomcat();
         } catch (Exception e) {
@@ -151,8 +152,8 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testIndexingSingleItemWithSingleRequestProcessor() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS, "1");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -199,8 +200,8 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testIndexingSingleItemWithMultipleRequestProcessor() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
 
         final CountDownLatch latch = new CountDownLatch(15);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -245,10 +246,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testIndexingLargePostDataGreaterThanMinimum() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -296,10 +297,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testChunkedEncoding() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -345,10 +346,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testChunkedEncodingWithLargerThanMaxPostSize() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -373,10 +374,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testEmptyPostDataResultsInA400() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -403,10 +404,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testInvalidContentLengthHeader() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "32");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -431,10 +432,10 @@ public class RelatedPurchaseIndexOrderServletTest {
      */
     @Test
     public void testInvalidContentWithNoProducts() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
-        System.setProperty(Configuration.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "16");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES, "1024");
 
         final CountDownLatch latch = new CountDownLatch(3);
         TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
@@ -455,9 +456,9 @@ public class RelatedPurchaseIndexOrderServletTest {
 
     @Test
     public void testBackPressureResultsIn503() {
-        System.setProperty(Configuration.PROPNAME_BATCH_INDEX_SIZE,"3");
-        System.setProperty(Configuration.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
-        System.setProperty(Configuration.PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE, "2");
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE, "2");
 
 
         final CountDownLatch latch = new CountDownLatch(6);

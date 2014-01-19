@@ -4,6 +4,7 @@ import org.greencheek.relatedproduct.api.searching.KeyFactoryBasedRelatedProduct
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearch;
 import org.greencheek.relatedproduct.api.searching.RelatedProductSearchType;
 import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.ConfigurationConstants;
 import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -35,7 +36,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactoryTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(Configuration.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class RelatedProductSearchFactoryWithSearchLookupKeyFactoryTest {
     @Test
     public void testPopulateSearchObjectCannotPopulateOverMaxAllowedSearchProperties() throws Exception {
 
-        System.setProperty(Configuration.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT, "2");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT, "2");
         Configuration config = new SystemPropertiesConfiguration();
         factory = new RelatedProductSearchFactoryWithSearchLookupKeyFactory(config,keyGenerator);
 
