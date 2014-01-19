@@ -1,0 +1,76 @@
+related-product:
+  safe.to.output.index.request.data: true
+  max.number.related.product.properties: 1
+  max.number.related.products.per.request: 1
+  related.product.id.length: 4
+  related.product.invalid.id.string: WRONG
+  max.related.product.post.data.size.in.bytes: 65536
+  min.related.product.post.data.size.in.bytes: 65526
+  additional.prop.key.length: 10
+  additional.prop.value.length: 10
+  indexing:
+    size.of.incoming.request.queue:  32
+    size.of.batch.indexing.request.queue: 32
+    batch.size: 10
+    number.of.indexing.request.processors: 32
+    indexname.date.caching.enabled: false
+    number.of.indexname.to.cache: 1
+    replace.old.indexed.content: true
+    discard.storage.requests.with.too.many.relations: true
+    key.for.index.request:
+      related.with.attr: similar
+      date.attr: d
+      id.attr: identifier
+      product.array.attr: associated
+
+  searching:
+    size.of:
+      related.content.search.request.queue: 32
+      related.content.search.request.handler.queue: 32
+      related.content.search.request.and.response.queue: 32
+      response.processing.queue: 32
+    max.number.of.search.criteria.for.related.content: 8
+    number.of.expected.like.for.like.requests: 17
+    number.of.searching.request.processors: 32
+    key.for:
+      frequency.result.id: identifier
+      frequency.result.occurrence: frequencynumber
+      frequency.result.overall.no.of.related.products: number
+      frequency.results: res
+    request.parameter.for.size: maxitems
+    request.parameter.for.id: identifier
+    default.number.of.results: 100
+    frequently.related.search.timeout.in.millis: 10000
+    timed.out.search.request.status.code: 700
+    failed.search.request.status.code: 701
+    not.found.search.request.status.code: 702
+    missing.search.results.handler.status.code: 703
+    found.search.results.handler.status.code: 800
+    use.shared.search.repository: true
+    response.debug.output.enabled: true
+
+  storage:
+    index.name.prefix: indexname
+    index.name.alias: aliasname
+    content.type.name: item
+    cluster.name: associated
+    frequently.related.products.facet.results.facet.name: matchingitems
+    searching.facet.search.execution.hint: map
+
+  elastic.search:
+    client:
+      default.transport.settings.file.name: def-transport.txt
+      default.node.settings.file.name: def-node.txt
+      override.settings.file.name: def-override.txt
+    transport.hosts: localhost:9330
+    default.port: 9999
+
+  storage.location.mapper: hour
+
+
+  additional.prop.string.encoding: ISO-8859-1
+  wait.strategy: busy
+  es.client.type: node
+  use.separate.repository.storage.thread: true
+
+
