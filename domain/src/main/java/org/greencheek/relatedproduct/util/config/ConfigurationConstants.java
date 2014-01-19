@@ -54,8 +54,8 @@ public class ConfigurationConstants {
     public static final String PROPNAME_TIMED_OUT_SEARCH_REQUEST_STATUS_CODE = "related-product.searching.timed.out.search.request.status.code";
     public static final String PROPNAME_FAILED_SEARCH_REQUEST_STATUS_CODE =  "related-product.searching.failed.search.request.status.code";
     public static final String PROPNAME_NOT_FOUND_SEARCH_REQUEST_STATUS_CODE = "related-product.searching.not.found.search.request.status.code";
-    public static final String PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE = "related-product.searching.missing.search.results.handler.status.code";
-    public static final String PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = "related-product.missing.search.results.handler.status.code";
+    public static final String PROPNAME_FOUND_SEARCH_REQUEST_STATUS_CODE = "related-product.searching.found.search.results.handler.status.code";
+    public static final String PROPNAME_MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE = "related-product.searching.missing.search.results.handler.status.code";
     public static final String PROPNAME_PROPERTY_ENCODING = "related-product.additional.prop.string.encoding";
     public static final String PROPNAME_WAIT_STRATEGY = "related-product.wait.strategy";
     public static final String PROPNAME_ES_CLIENT_TYPE  = "related-product.es.client.type";
