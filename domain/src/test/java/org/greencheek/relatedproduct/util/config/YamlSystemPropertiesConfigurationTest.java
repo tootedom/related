@@ -60,7 +60,6 @@ public class YamlSystemPropertiesConfigurationTest {
 
     @Test
     public void testYamlFileOverridesAllProperties() {
-        System.setProperty(YamlSystemPropertiesConfiguration.PROPNAME_SETTINGS_YAML_LOCATION,"related-product.yaml");
         Configuration config = new YamlSystemPropertiesConfiguration();
 
         assertThat(config.isSafeToOutputRequestData(),not(DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA));

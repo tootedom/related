@@ -46,7 +46,7 @@ public class DisruptorBasedRelatedProductSearchExecutor implements RelatedProduc
         disruptor = new Disruptor<RelatedProductSearch>(
                 eventFactory,
                 configuration.getSizeOfRelatedContentSearchRequestHandlerQueue(), executorService,
-                ProducerType.SINGLE, new SleepingWaitStrategy());
+                ProducerType.SINGLE, configuration.getWaitStrategyFactory().createWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
         disruptor.start();

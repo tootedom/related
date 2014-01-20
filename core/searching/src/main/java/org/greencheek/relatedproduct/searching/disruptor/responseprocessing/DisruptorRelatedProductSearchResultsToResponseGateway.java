@@ -68,7 +68,7 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
                 configuration.getSizeOfRelatedContentSearchRequestAndResponseQueue(), executorService,
-                ProducerType.MULTI, new SleepingWaitStrategy());
+                ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});
