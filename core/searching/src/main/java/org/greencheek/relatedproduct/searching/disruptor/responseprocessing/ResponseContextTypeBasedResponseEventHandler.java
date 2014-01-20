@@ -45,6 +45,14 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
 
     }
 
+    /**
+     * Nothing to shutdown
+     */
+    @Override
+    public void shutdown() {
+
+    }
+
     public void handleResponseEvent(SearchResultsEvent results,SearchResponseContext[] awaitingResponses) {
             SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
 

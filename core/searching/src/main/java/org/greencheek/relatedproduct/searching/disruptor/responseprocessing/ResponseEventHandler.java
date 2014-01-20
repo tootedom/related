@@ -11,5 +11,6 @@ import org.greencheek.relatedproduct.searching.requestprocessing.SearchResponseC
  */
 public interface ResponseEventHandler {
     public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContext[][] responseContexts);
+    public void shutdown();
 }
 

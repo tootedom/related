@@ -23,4 +23,9 @@ public class RequestSearchEventProcessor implements SearchEventProcessor {
     public void processSearchEvent(SearchEvent event) {
         searchContext.addContext(event.getSearchRequest(), event.getResponseContexts());
     }
+
+    @Override
+    public void shutdown() {
+
+    }
 }

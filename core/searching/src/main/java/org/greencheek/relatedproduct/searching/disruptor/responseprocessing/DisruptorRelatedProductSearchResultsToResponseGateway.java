@@ -109,6 +109,10 @@ public class DisruptorRelatedProductSearchResultsToResponseGateway implements Re
             } catch (Exception e) {
                 log.warn("Unable to shut down disruptor in search request/response processor",e);
             }
+
+
+            log.info("Shutting down search event processor that processing response handling");
+            eventProcessors[SearchEventType.RESPONSE.getIndex()].shutdown();
         }
     }
 }

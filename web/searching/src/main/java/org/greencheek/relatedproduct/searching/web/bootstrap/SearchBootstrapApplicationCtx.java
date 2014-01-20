@@ -80,9 +80,10 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
     }
 
     public ResponseEventHandler getResponseEventHandler() {
-        return new ResponseContextTypeBasedResponseEventHandler(
+        return new DisruptorBasedResponseContextTypeBasedResponseEventHandler(config,
+            new ResponseContextTypeBasedResponseEventHandler(
                 getResponseContextHandlerLookup(),
-                getSearchResultsConverterFactory());
+                getSearchResultsConverterFactory()));
     }
 
     public SearchResponseContextHandlerLookup getResponseContextHandlerLookup() {

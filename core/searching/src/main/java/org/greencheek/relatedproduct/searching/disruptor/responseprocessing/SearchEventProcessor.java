@@ -4,4 +4,5 @@ import org.greencheek.relatedproduct.searching.domain.api.SearchEvent;
 
 public interface SearchEventProcessor {
     public void processSearchEvent(SearchEvent event);
+    public void shutdown();
 }

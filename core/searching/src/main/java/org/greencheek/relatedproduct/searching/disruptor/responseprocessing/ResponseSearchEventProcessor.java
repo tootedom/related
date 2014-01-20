@@ -51,4 +51,10 @@ public class ResponseSearchEventProcessor implements SearchEventProcessor {
         log.debug("responseContexts {}", Arrays.toString(responseContexts[0]));
         responseEventHandler.handleResponseEvents(searchResults,responseContexts);
     }
+
+    @Override
+    public void shutdown() {
+        log.debug("Stopping the response event handler");
+        this.responseEventHandler.shutdown();
+    }
 }

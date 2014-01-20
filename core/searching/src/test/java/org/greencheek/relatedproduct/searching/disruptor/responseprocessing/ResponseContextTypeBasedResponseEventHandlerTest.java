@@ -12,15 +12,22 @@ import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponse
 import org.greencheek.relatedproduct.searching.responseprocessing.SearchResponseContextHandlerLookup;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverter;
 import org.greencheek.relatedproduct.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
+import org.greencheek.relatedproduct.util.config.Configuration;
+import org.greencheek.relatedproduct.util.config.SystemPropertiesConfiguration;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.servlet.AsyncContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -28,11 +35,38 @@ import static org.mockito.Mockito.*;
  */
 public class ResponseContextTypeBasedResponseEventHandlerTest {
 
+    ResponseEventHandler eventHandler;
+    Configuration configuration;
+    @Before
+    public void setUp() {
+        configuration = new SystemPropertiesConfiguration();
+    }
 
 
-    private final ResponseContextTypeBasedResponseEventHandler createResponseEventHandler(SearchResponseContextHandlerLookup responseContextHandler,
-                                                                                SearchResultsConverterFactory factory) {
-        return new ResponseContextTypeBasedResponseEventHandler(responseContextHandler,factory);
+    @After
+    public void tearDown() {
+        if(eventHandler!=null) {
+            eventHandler.shutdown();
+        }
+    }
+
+    private final ResponseEventHandler createResponseEventHandler(Configuration configuration,
+                                                                  final SearchResponseContextHandlerLookup responseContextHandler,
+                                                                  final SearchResultsConverterFactory factory,
+                                                                  final CountDownLatch latch) {
+        return new DisruptorBasedResponseContextTypeBasedResponseEventHandler(configuration,new ResponseEventHandler() {
+            ResponseEventHandler delegate = new ResponseContextTypeBasedResponseEventHandler(responseContextHandler,factory);
+            @Override
+            public void handleResponseEvents(SearchResultsEvent[] searchResults, SearchResponseContext[][] responseContexts) {
+                delegate.handleResponseEvents(searchResults,responseContexts);
+                latch.countDown();
+            }
+
+            @Override
+            public void shutdown() {
+
+            }
+        });
     }
 
 
@@ -85,8 +119,9 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         Map<Class,SearchResponseContextHandler> mappings = new HashMap<Class,SearchResponseContextHandler>(4);
         mappings.put(AsyncContext.class,contextHandler);
 
+        CountDownLatch latch = new CountDownLatch(1);
 
-        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        eventHandler = createResponseEventHandler(configuration,new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory,latch);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
@@ -104,8 +139,13 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
 
-
-        assertEquals(1,contextHandler.getMethodInvocationCount());
+        try {
+            boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
+            if(handled==false) fail("Failed waiting for latch in testHandleFrequentlyRelatedSearchResultResponseEvent");
+        } catch(Exception e) {
+            fail("Failed waiting for latch");
+        }
+        assertEquals(1, contextHandler.getMethodInvocationCount());
         assertEquals(searchResultsConverter.convertToString(searchResultsEvent),contextHandler.getResultsString());
         assertEquals(0,defaultHandler.getMethodInvocationCount());
 
@@ -130,8 +170,8 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         Map<Class,SearchResponseContextHandler> mappings = new HashMap<Class,SearchResponseContextHandler>(4);
         mappings.put(AsyncContext.class,contextHandler);
 
-
-        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        CountDownLatch latch = new CountDownLatch(1);
+        eventHandler = createResponseEventHandler(configuration,new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory,latch);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
@@ -141,8 +181,14 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 //        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
 
         SearchResultsEvent searchResultsEvent =  createStringResponse(holder);
-        eventHandler.handleResponseEvent(searchResultsEvent,holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[] {searchResultsEvent},new SearchResponseContext[][] {holder});
 
+        try {
+            boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
+            if(handled==false) fail("Failed waiting for latch");
+        } catch(Exception e) {
+            fail("Failed waiting for latch");
+        }
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
@@ -165,15 +211,23 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContextHandlerLookup handlerLookup = mock(SearchResponseContextHandlerLookup.class);
         when(handlerLookup.getHandler(any(Class.class))).thenReturn(null);
-        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(handlerLookup,resultsConverterFactory);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        eventHandler = createResponseEventHandler(configuration,handlerLookup,resultsConverterFactory,latch);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContext[] holder = new SearchResponseContext[]{context};
 
 
-        eventHandler.handleResponseEvent(createStringResponse(holder),holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(holder)},new SearchResponseContext[][]{holder});
 
+        try {
+            boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
+            if(handled==false) fail("Failed waiting for latch");
+        } catch(Exception e) {
+            fail("Failed waiting for latch");
+        }
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
@@ -198,20 +252,27 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         Map<Class,SearchResponseContextHandler> mappings = new HashMap<Class,SearchResponseContextHandler>(4);
         mappings.put(AsyncContext.class,contextHandler);
 
+        CountDownLatch latch = new CountDownLatch(1);
 
-        ResponseContextTypeBasedResponseEventHandler eventHandler = createResponseEventHandler(new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory);
+        eventHandler = createResponseEventHandler(configuration,new MapBasedSearchResponseContextHandlerLookup(defaultHandler,mappings),resultsConverterFactory,latch);
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
         SearchResponseContext[] holder = new SearchResponseContext[0];
 
 
-        eventHandler.handleResponseEvent(createStringResponse(null),holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(null)},new SearchResponseContext[][]{holder});
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 
+        try {
+            boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
+            if(handled==false) fail("Failed waiting for latch");
+        } catch(Exception e) {
+            fail("Failed waiting for latch");
+        }
 
         verify(contextHandler,times(0)).sendResults(eq(ResponseContextTypeBasedResponseEventHandler.ERROR_RESPONSE),eq(ResponseContextTypeBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
         verify(defaultHandler,times(0)).sendResults(anyString(),anyString(),any(SearchResultsEvent.class),any(SearchResponseContext.class));
@@ -220,8 +281,14 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         reset(contextHandler,defaultHandler);
 
 
-        eventHandler.handleResponseEvent(createStringResponse(new SearchResponseContext[0]),holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(new SearchResponseContext[0])},new SearchResponseContext[][]{holder});
 
+        try {
+            boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
+            if(handled==false) fail("Failed waiting for latch in");
+        } catch(Exception e) {
+            fail("Failed waiting for latch");
+        }
         assertEquals(0, searchResultsConverter.getNoOfExecutions());
 
         verify(contextHandler,times(0)).sendResults(eq(ResponseContextTypeBasedResponseEventHandler.ERROR_RESPONSE),eq(ResponseContextTypeBasedResponseEventHandler.ERROR_MEDIA_TYPE),any(SearchResultsEvent.class),any(SearchResponseContext.class));
