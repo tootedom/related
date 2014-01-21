@@ -2,7 +2,7 @@
 <configuration>
 
 	<logger name="org" level="DEBUG"/>
-	<logger name="org.greencheek.relatedproduct.indexing.web.RelatedPurchaseIndexOrderHandler" level="WARN"/>
+	<logger name="org.greencheek.related.indexing.web.RelatedPurchaseIndexOrderHandler" level="WARN"/>
     <logger name="com" level="WARN"/>
 
 	<root level="ALL">

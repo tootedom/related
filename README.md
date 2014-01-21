@@ -2,8 +2,8 @@ Indexing info
 
 '''
 HOST=localhost
-curl -XPUT http://$HOST:9200/_template/relatedproducts -d '{
-    "template" : "relatedproducts*",
+curl -XPUT http://$HOST:9200/_template/relateditems -d '{
+    "template" : "relateditems*",
     "settings" : {
         "number_of_shards" : 1,
         "number_of_replicas" : 1,
@@ -15,7 +15,7 @@ curl -XPUT http://$HOST:9200/_template/relatedproducts -d '{
         "indices.memory.index_buffer_size" : 30
     },
     "mappings" : {
-        "relatedproduct" : {
+        "relateditem" : {
            "_all" : {"enabled" : false},
            "dynamic" : false,
            "properties" : {
@@ -58,7 +58,7 @@ curl -XPUT http://localhost:9200/_template/tweets -d '{
 
 Elastic config
 '''
-cluster.name: relatedproducts
+cluster.name: relateditems
 
 # Search pool
 threadpool.search.type: fixed
@@ -90,7 +90,7 @@ Sample indexing json
 {
    "channel":"de",
    "site":"amazon",
-   "products":[
+   "items":[
       {
          "id":"1",
          "type":"map"
@@ -111,7 +111,7 @@ Sample indexing json
 Sample curl request for indexing:
 
 '''
-curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '{ "channel" : "uk", "site" : "amazon", "date" : "2013-05-22T20:31:35", "products" : [ { "id" : "111","type":"coat"}, { "id" : "123","type":"socks"}, { "id" : "23334","type":"button"} ]  }'
+curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '{ "channel" : "uk", "site" : "amazon", "date" : "2013-05-22T20:31:35", "items" : [ { "id" : "111","type":"coat"}, { "id" : "123","type":"socks"}, { "id" : "23334","type":"button"} ]  }'
 '''
 
 Sample indexing configuration params:
@@ -135,7 +135,7 @@ curl -v -N http://localhost:8080/searching/frequentlyrelatedto/123?channel=uk
 in elastic this would be:
 
 '''
-curl -XPOST http://macmini:9200/relatedproducts*/relatedproduct/_search -d '
+curl -XPOST http://macmini:9200/relateditemss*/relateditem/_search -d '
 {
   "query" :
         {

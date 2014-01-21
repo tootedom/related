@@ -4,7 +4,7 @@
          version="3.0">
 
     <listener>
-        <listener-class>org.greencheek.relatedproduct.indexing.web.ctxlistener.ApplicationCtxListener</listener-class>
+        <listener-class>org.greencheek.related.indexing.web.ctxlistener.ApplicationCtxListener</listener-class>
     </listener>
 
     <!--

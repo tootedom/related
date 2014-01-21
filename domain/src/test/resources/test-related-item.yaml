@@ -1,0 +1,10 @@
+related-item:
+       searching:
+              number.of.searching.request.processors: 16
+              size.of.related.content.search.request.handler.queue: 1024
+
+       indexing:
+              size.of.batch.indexing.request.queue: 4096
+
+
+
