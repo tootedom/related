@@ -2,6 +2,8 @@ package org.greencheek.related.searching.requestprocessing;
 
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
 
+import java.util.List;
+
 /**
  * Represents a multi-map type lookup service that stores user search requests,
  * against the response context.  The response context allows us to obtain the
@@ -18,7 +20,7 @@ public interface SearchResponseContextLookup {
      * @param key the search key, which represents the user's search request
      * @return
      */
-    public SearchResponseContext[] removeContexts(SearchRequestLookupKey key);
+    public List<SearchResponseContext> removeContexts(SearchRequestLookupKey key);
 
     /**
      * adds the given SearchResponseContextHolder against the given key.  If the key already exists,

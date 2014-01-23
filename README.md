@@ -12,7 +12,10 @@ This application has 3 parts to it:
 
 The indexing and searching components make use of the [Disruptor](https://github.com/LMAX-Exchange/disruptor "Disruptor") library.  Whilst the Indexing and Searching components do not need to directly be used, they provide a means of batching indexing and searching requests.
 
-The index web application is POSTed data contain the related items:
+
+## Indexing Overview ##
+
+The index web application is POSTed data containing the related items:
 
     curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
     {
@@ -34,7 +37,9 @@ The index web application is POSTed data contain the related items:
        ]
     }'
 
-The indexing application returns a 202 accepted status code.  Indicating that the request has been accepted for processing and indexing.  At which point the POSTed data is assembled into several documents.  For example for the above request, 3 JSON documents will be assembled and submitted to elastic search for storage and indexing:
+The indexing application returns a 202 accepted status code to the client that issued the indexing request.  This indicate to the client that the request has been accepted for processing and indexing (this doesn't mean the json data is valid.  It just means the POST data is a valid binary payload).  
+
+It is at this point the POSTed data is assembled into several documents.  For example, for the above request; 3 JSON documents will be assembled and submitted to elasticsearch for storage and indexing:
 
     {
         "id": "1" ,
@@ -63,15 +68,38 @@ The indexing application returns a 202 accepted status code.  Indicating that th
         "channel": "de"
     }
 
-The above 
+The json element "related-with", will be used during search, to provide faceting information.  It is this facet that allows us to say:
+
+* For this id, what are the 5 top most frequently **related-with** ids.
 
 The search web application is then called to request the frequently related items for a product (a GET request):
 
-    curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?channel=uk
+    curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1
 
 Which returns json data containing the list of items (their id's) that are frequently related to that item
 
+Note the search does not only provide the ability to search on the id.  It allows you to filter the result based on a property of the indexed document.  For example:
 
+    {
+        "id": "3" ,
+        "date": "2013-12-24T17:44:41.943Z",
+        "related-with": [ "1","2"],
+        "type": "torch",
+        "site": "amazon",
+        "channel": "de"
+    }
+
+In the above, there are 3 extra elements that can be searched on:
+
+* type
+* site
+* channel
+
+As a result you can say.  Give with the frequently related product that are mostly purchased with product **1**, filtered the results to reduce to "touches":
+
+    curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch
+
+Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It *DOES NOT* return the matching document's information.  This doesn't mean in the future it will not return the matching document details.  
 
 
 #Indexing info

@@ -42,7 +42,12 @@ public class RelatedItemSearchFactoryWithSearchLookupKeyFactory implements Relat
         String sizeKey = configuration.getRequestParameterForSize();
         String idKey = configuration.getRequestParameterForId();
         try {
-            objectToPopulate.setMaxResults(Integer.parseInt(properties.remove(sizeKey)));
+            String size = properties.remove(sizeKey);
+            if(size!=null) {
+                objectToPopulate.setMaxResults(Integer.parseInt(size));
+            } else {
+                objectToPopulate.setMaxResults(configuration.getDefaultNumberOfResults());
+            }
         } catch(NumberFormatException e) {
             objectToPopulate.setMaxResults(configuration.getDefaultNumberOfResults());
         }

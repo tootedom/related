@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import javax.servlet.*;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
@@ -29,17 +31,17 @@ public class MultiMapAsyncContextLookupTest {
         map.addContext(key1234,context2);
         map.addContext(key1234,context3);
 
-        SearchResponseContext[] contexts = map.removeContexts(key123);
-        assertEquals(1,contexts.length);
-        assertSame(contexts[0],context[0]);
+        List<SearchResponseContext> contexts = map.removeContexts(key123);
+        assertEquals(1,contexts.size());
+        assertSame(contexts.get(0),context[0]);
 
         contexts = map.removeContexts(key123);
-        assertEquals(0,contexts.length);
+        assertEquals(0,contexts.size());
 
         contexts = map.removeContexts(key1234);
-        assertEquals(2,contexts.length);
-        assertSame(contexts[0],context2[0]);
-        assertSame(contexts[1],context3[0]);
+        assertEquals(2,contexts.size());
+        assertSame(contexts.get(0),context2[0]);
+        assertSame(contexts.get(1),context3[0]);
 
     }
 
@@ -48,8 +50,8 @@ public class MultiMapAsyncContextLookupTest {
         MultiMapSearchResponseContextLookup map = new MultiMapSearchResponseContextLookup(new SystemPropertiesConfiguration());
         SearchRequestLookupKey key123 = new SipHashSearchRequestLookupKey("123");
 
-        SearchResponseContext[] contexts = map.removeContexts(key123);
-        assertEquals(0,contexts.length);
+        List<SearchResponseContext> contexts = map.removeContexts(key123);
+        assertEquals(0,contexts.size());
     }
 
     private SearchResponseContext[] createHolder() {
@@ -70,15 +72,15 @@ public class MultiMapAsyncContextLookupTest {
         map.addContext(key123,context);
         map.addContext(key1234,context2);
 
-        SearchResponseContext[] contexts = map.removeContexts(key123);
-        assertEquals(1,contexts.length);
-        assertSame(contexts[0],context[0]);
+        List<SearchResponseContext> contexts = map.removeContexts(key123);
+        assertEquals(1,contexts.size());
+        assertSame(contexts.get(0),context[0]);
 
         contexts = map.removeContexts(key123);
-        assertEquals(0,contexts.length);
+        assertEquals(0,contexts.size());
 
         contexts = map.removeContexts(key1234);
-        assertSame(contexts[0],context2[0]);
+        assertSame(contexts.get(0),context2[0]);
     }
 
 

@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,7 +91,7 @@ public class DisruptorBasedRelatedItemSearchExecutorTest {
                 latch.countDown();
                 return null;
             }
-        }).when(responseEventHandler).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContext[][].class));
+        }).when(responseEventHandler).handleResponseEvents(any(SearchResultsEvent[].class), anyList());
 
 
         searchRepositoryWith2SecondDelay = mock(RelatedItemSearchRepository.class);
@@ -180,7 +181,7 @@ public class DisruptorBasedRelatedItemSearchExecutorTest {
         assertTrue(contextLookup.addContext(key,new SearchResponseContext[0]));
 
         try {
-            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultsEvent[].class), any(SearchResponseContext[][].class));
+            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultsEvent[].class), anyList());
         } catch (Exception e) {
             e.printStackTrace();
         }

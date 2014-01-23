@@ -10,6 +10,8 @@ import org.greencheek.related.searching.responseprocessing.resultsconverter.Sear
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 
 /**
  * Responsible for the processing of ResponseEvents from the ring buffer.
@@ -36,10 +38,10 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
     }
 
     @Override
-    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContext[][] responseContexts) {
+    public void handleResponseEvents(SearchResultsEvent[] searchResults,List<List<SearchResponseContext>> responseContexts) {
         for(int i=0;i<searchResults.length;i++) {
             log.debug("handling search result {}",i);
-            handleResponseEvent(searchResults[i],responseContexts[i]);
+            handleResponseEvent(searchResults[i],responseContexts.get(i));
         }
 
     }
@@ -52,7 +54,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
 
     }
 
-    public void handleResponseEvent(SearchResultsEvent results,SearchResponseContext[] awaitingResponses) {
+    public void handleResponseEvent(SearchResultsEvent results,List<SearchResponseContext> awaitingResponses) {
             SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
 
             if (converter == null) {
@@ -61,7 +63,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                 }
             }
 
-            if (awaitingResponses == null || awaitingResponses.length==0) {
+            if (awaitingResponses == null || awaitingResponses.size()==0) {
                 if (log.isWarnEnabled() && converter!=null) {
                     String res = converter.convertToString(results);
                     log.warn("No async responses waiting for search results : {}", res);
@@ -70,7 +72,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                 return;
             }
 
-            log.debug("Sending search results to {} waiting responses", awaitingResponses.length);
+            log.debug("Sending search results to {} waiting responses", awaitingResponses.size());
 
             String response = ERROR_RESPONSE;
             String mediaType = ERROR_MEDIA_TYPE;
@@ -82,25 +84,21 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
             }
 
             for(SearchResponseContext sctx : awaitingResponses) {
-                log.debug("contexthodler {}",sctx);
-//                SearchResponseContext[] responseContexts = contextHolder.getContexts();
+                log.debug("Sending search results to {} pending response listener: {}", sctx.getContextType(), sctx);
 
-//                for (SearchResponseContext sctx : responseContexts) {
-                    log.debug("Sending search results to {} pending response listener: {}", sctx.getContextType(),sctx);
+                try {
+                    SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
 
-                    try {
-                        SearchResponseContextHandler handler = contextHandlerLookup.getHandler(sctx.getContextType());
-
-                        if(handler==null) {
-                            log.error("No response handler defined for waiting response type: {}",sctx.getContextType());
-                        } else {
-                            handler.sendResults(response, mediaType, results, sctx);
-                        }
-                    } finally {
-                        sctx.close();
+                    if (handler == null) {
+                        log.error("No response handler defined for waiting response type: {}", sctx.getContextType());
+                    } else {
+                        handler.sendResults(response, mediaType, results, sctx);
                     }
+                } finally {
+                    sctx.close();
+                }
 
-//                }
+
             }
 
     }

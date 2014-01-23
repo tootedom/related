@@ -78,7 +78,7 @@ public class ConfigurationConstants {
     public static final int DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = 4096;
     public static final int DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH = 30;
     public static final int DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_VALUE_LENGTH = 30;
-    public static final int DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE = 16384;
     public static final int DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = -1;
     public static final int DEFAULT_BATCH_INDEX_SIZE = 128;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 2048;

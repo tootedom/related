@@ -10,6 +10,7 @@ import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,9 +39,9 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
         }
     };
 
-    EventTranslatorTwoArg<SearchResultsToDistributeToResponseContexts,SearchResultsEvent[],SearchResponseContext[][]> translator = new EventTranslatorTwoArg<SearchResultsToDistributeToResponseContexts,SearchResultsEvent[],SearchResponseContext[][]>() {
+    EventTranslatorTwoArg<SearchResultsToDistributeToResponseContexts,SearchResultsEvent[],List<List<SearchResponseContext>>> translator = new EventTranslatorTwoArg<SearchResultsToDistributeToResponseContexts,SearchResultsEvent[],List<List<SearchResponseContext>>>() {
         @Override
-        public void translateTo(SearchResultsToDistributeToResponseContexts event, long sequence, SearchResultsEvent[] arg0, SearchResponseContext[][] arg1) {
+        public void translateTo(SearchResultsToDistributeToResponseContexts event, long sequence, SearchResultsEvent[] arg0, List<List<SearchResponseContext>> arg1) {
             event.setSearchResultsEvents(arg0);
             event.setResponseContexts(arg1);
         }
@@ -77,7 +78,7 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
 
 
     @Override
-    public void handleResponseEvents(SearchResultsEvent[] searchResults,SearchResponseContext[][] responseContexts) {
+    public void handleResponseEvents(SearchResultsEvent[] searchResults,List<List<SearchResponseContext>> responseContexts) {
         ringBuffer.publishEvent(translator,searchResults,responseContexts);
     }
 
@@ -104,7 +105,7 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
 
     private static class SearchResultsToDistributeToResponseContexts {
         private SearchResultsEvent[] searchResultsEvents;
-        private SearchResponseContext[][] responseContexts;
+        private List<List<SearchResponseContext>> responseContexts;
 
 
         public SearchResultsEvent[] getSearchResultsEvents() {
@@ -115,11 +116,11 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
             this.searchResultsEvents = searchResultsEvents;
         }
 
-        public SearchResponseContext[][] getResponseContexts() {
+        public List<List<SearchResponseContext>> getResponseContexts() {
             return responseContexts;
         }
 
-        public void setResponseContexts(SearchResponseContext[][] responseContexts) {
+        public void setResponseContexts(List<List<SearchResponseContext>> responseContexts) {
             this.responseContexts = responseContexts;
         }
     }

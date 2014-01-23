@@ -110,8 +110,8 @@ public class RoundRobinRelatedItemIndexingMessageEventHandlerTest {
             fail("Timed out waiting for messages to be sent through the ring buffer");
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        assertEquals(3,repo.handlers.get(0).getNumberOfCalls());
-        assertEquals(1,repo.handlers.get(0).getNumberOfEndOfBatchCalls());
+        assertEquals(3,(repo.handlers.get(0).getNumberOfCalls()+repo.handlers.get(1).getNumberOfCalls()));
+        assertEquals(1,(repo.handlers.get(0).getNumberOfEndOfBatchCalls()+repo.handlers.get(1).getNumberOfEndOfBatchCalls()));
 
     }
 

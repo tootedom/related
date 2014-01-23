@@ -18,7 +18,9 @@ import org.junit.Test;
 
 import javax.servlet.AsyncContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +57,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         return new DisruptorBasedResponseContextTypeBasedResponseEventHandler(configuration,new ResponseEventHandler() {
             ResponseEventHandler delegate = new ResponseContextTypeBasedResponseEventHandler(responseContextHandler,factory);
             @Override
-            public void handleResponseEvents(SearchResultsEvent[] searchResults, SearchResponseContext[][] responseContexts) {
+            public void handleResponseEvents(SearchResultsEvent[] searchResults, List<List<SearchResponseContext>> responseContexts) {
                 delegate.handleResponseEvents(searchResults,responseContexts);
                 latch.countDown();
             }
@@ -68,7 +70,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
     }
 
 
-    private SearchResultsEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency, SearchResponseContext[]... holders) {
+    private SearchResultsEvent createFrequentlyRelatedSearchResultResponse(String[] id, long[] frequency) {
 
         FrequentlyRelatedSearchResult[] results = new FrequentlyRelatedSearchResult[id.length];
         for(int i =id.length-1;i!=-1;i--) {
@@ -78,7 +80,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,results);
     }
 
-    private SearchResultsEvent createStringResponse(SearchResponseContext[]... holders) {
+    private SearchResultsEvent createStringResponse() {
         return new SearchResultsEvent(SearchResultsOutcome.HAS_RESULTS,new String("s"));
     }
 
@@ -123,13 +125,14 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContext[] holder = new SearchResponseContext[]{context};
+        List<SearchResponseContext> holder = new ArrayList<SearchResponseContext>(1);
+        holder.add(context);
 
 
-        SearchResultsEvent searchResultsEvent = createFrequentlyRelatedSearchResultResponse(new String[]{"1", "2", "3"}, new long[]{1, 2, 3}, holder);
+        SearchResultsEvent searchResultsEvent = createFrequentlyRelatedSearchResultResponse(new String[]{"1", "2", "3"}, new long[]{1, 2, 3});
 
-        SearchResponseContext[][] contexts = new SearchResponseContext[1][1];
-        contexts[0] = holder;
+        List<List<SearchResponseContext>> contexts = new ArrayList<List<SearchResponseContext>>(1);
+        contexts.add(holder);
 
         eventHandler.handleResponseEvents(new SearchResultsEvent[]{searchResultsEvent},contexts);
 //        eventHandler.onEvent(frequentlyRelatedSearchResultsResponse, 2, true);
@@ -173,13 +176,15 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContext[] holder = new SearchResponseContext[]{context};
-
+        List<SearchResponseContext> holder = new ArrayList<SearchResponseContext>(1);
+        holder.add(context);
 
 //        ResponseEvent frequentlyRelatedSearchResultsResponse = createStringResponse(holder);
 
-        SearchResultsEvent searchResultsEvent =  createStringResponse(holder);
-        eventHandler.handleResponseEvents(new SearchResultsEvent[] {searchResultsEvent},new SearchResponseContext[][] {holder});
+        SearchResultsEvent searchResultsEvent =  createStringResponse();
+        List<List<SearchResponseContext>> list= new ArrayList<List<SearchResponseContext>>(1);
+        list.add(holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[] {searchResultsEvent},list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
@@ -215,10 +220,11 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContext[] holder = new SearchResponseContext[]{context};
-
-
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(holder)},new SearchResponseContext[][]{holder});
+        List<SearchResponseContext> holder = new ArrayList<SearchResponseContext>(1);
+        holder.add(context);
+        List<List<SearchResponseContext>> list= new ArrayList<List<SearchResponseContext>>(1);
+        list.add(holder);
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
@@ -256,10 +262,12 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
 
         SearchResponseContext<AsyncContext> context = mock(AsyncServletSearchResponseContext.class);
         when(context.getContextType()).thenReturn(AsyncContext.class);
-        SearchResponseContext[] holder = new SearchResponseContext[0];
+        List<SearchResponseContext> holder = new ArrayList<SearchResponseContext>(0);
+        List<List<SearchResponseContext>> list= new ArrayList<List<SearchResponseContext>>(1);
+        list.add(holder);
 
 
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(null)},new SearchResponseContext[][]{holder});
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -279,7 +287,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         reset(contextHandler,defaultHandler);
 
 
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse(new SearchResponseContext[0])},new SearchResponseContext[][]{holder});
+        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);

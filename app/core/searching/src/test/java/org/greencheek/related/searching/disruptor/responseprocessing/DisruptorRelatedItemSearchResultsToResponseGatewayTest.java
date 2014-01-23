@@ -11,6 +11,7 @@ import org.greencheek.related.util.config.SystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -79,8 +80,8 @@ public class DisruptorRelatedItemSearchResultsToResponseGatewayTest {
         }
 
         @Override
-        public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
-            SearchResponseContext[] holders = lookup.removeContexts(key);
+        public List<SearchResponseContext> removeContexts(SearchRequestLookupKey key) {
+            List<SearchResponseContext> holders = lookup.removeContexts(key);
             removeContextCount.incrementAndGet();
             removeContextExpected.countDown();
             return holders;
@@ -127,11 +128,11 @@ public class DisruptorRelatedItemSearchResultsToResponseGatewayTest {
 
         assertTrue(added);
 
-        SearchResponseContext[] holders = contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1"));
+        List<SearchResponseContext> holders = contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1"));
 
-        assertEquals(1, holders.length);
+        assertEquals(1, holders.size());
 
-        assertSame(holders[0],holder[0]);
+        assertSame(holders.get(0),holder[0]);
 
         contextLookup.reset(1,3);
 
@@ -147,7 +148,7 @@ public class DisruptorRelatedItemSearchResultsToResponseGatewayTest {
 
         holders = contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1"));
 
-        assertEquals(3, holders.length);
+        assertEquals(3, holders.size());
 
     }
 
@@ -178,7 +179,7 @@ public class DisruptorRelatedItemSearchResultsToResponseGatewayTest {
 
         assertTrue(added);
 
-        assertEquals(0,contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1")).length);
+        assertEquals(0,contextLookup.removeContexts(new SipHashSearchRequestLookupKey("1")).size());
 
 
     }

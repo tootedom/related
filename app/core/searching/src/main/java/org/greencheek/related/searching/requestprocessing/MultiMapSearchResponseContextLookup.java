@@ -5,10 +5,7 @@ import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -19,7 +16,7 @@ import java.util.Map;
 public class MultiMapSearchResponseContextLookup implements SearchResponseContextLookup {
 
     private static final Logger log = LoggerFactory.getLogger(MultiMapSearchResponseContextLookup.class);
-    private static final SearchResponseContext[] EMPTY_CONTEXT = new SearchResponseContext[0];
+    private static final List<SearchResponseContext> EMPTY_CONTEXT = Collections.EMPTY_LIST;
 
     private final Map<SearchRequestLookupKey,List<SearchResponseContext>> contexts;
     private final int expectedNumberOfSimilarRequests;
@@ -30,7 +27,7 @@ public class MultiMapSearchResponseContextLookup implements SearchResponseContex
     }
 
     @Override
-    public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
+    public List<SearchResponseContext> removeContexts(SearchRequestLookupKey key) {
         List<SearchResponseContext> ctxs = contexts.remove(key);
         if(ctxs==null) {
             log.debug("No awaiting contexts for key: {}",key);
@@ -38,14 +35,14 @@ public class MultiMapSearchResponseContextLookup implements SearchResponseContex
         }
         else {
             log.debug("{} awaiting contexts for key: {}",ctxs.size(),key);
-            return ctxs.toArray(new SearchResponseContext[ctxs.size()]);
+            return ctxs;
         }
     }
 
     @Override
     public boolean addContext(SearchRequestLookupKey key, SearchResponseContext[] contextObjs) {
         if(contextObjs == null) return false;
-        log.debug("adding context {}",contexts);
+        log.debug("adding {} context()s",contextObjs.length);
         List<SearchResponseContext> ctxs = contexts.get(key);
         if(ctxs==null) {
             ctxs = new ArrayList<SearchResponseContext>(expectedNumberOfSimilarRequests);

@@ -549,7 +549,7 @@ public class RelatedItemSearchServletTest {
 
         }
 
-        public SearchResponseContext[] removeContexts(SearchRequestLookupKey key) {
+        public List<SearchResponseContext> removeContexts(SearchRequestLookupKey key) {
             try {
                 if(slowPut) Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
