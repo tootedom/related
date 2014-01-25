@@ -37,6 +37,8 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
         @Override
         public void onEvent(SearchResultsToDistributeToResponseContexts event, long sequence, boolean endOfBatch) throws Exception {
             delegateHandler.handleResponseEvents(event.getSearchResultsEvents(),event.getResponseContexts());
+            event.setResponseContexts(null);
+            event.setSearchResultsEvents(null);
         }
     };
 

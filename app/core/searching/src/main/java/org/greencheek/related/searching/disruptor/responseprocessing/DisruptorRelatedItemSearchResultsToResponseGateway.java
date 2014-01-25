@@ -53,6 +53,9 @@ public class DisruptorRelatedItemSearchResultsToResponseGateway implements Relat
         @Override
         public void onEvent(SearchEvent event, long sequence, boolean endOfBatch) throws Exception {
             eventProcessors[event.getEventType().getIndex()].processSearchEvent(event);
+            event.setEventType(null);
+            event.setSearchRequest(null,null);
+            event.setSearchResponse(null);
         }
     };
 

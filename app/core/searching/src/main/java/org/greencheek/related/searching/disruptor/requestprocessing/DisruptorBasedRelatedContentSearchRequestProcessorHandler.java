@@ -36,6 +36,7 @@ public class DisruptorBasedRelatedContentSearchRequestProcessorHandler implement
     public void handleRequest(RelatedItemSearchRequest searchRequest, RelatedItemSearchExecutor searchExecutor) {
         contextStorage.storeResponseContextForSearchRequest(searchRequest.getSearchRequest().getLookupKey(), searchRequest.getRequestContexts());
         searchRequestExecutor.executeSearch(searchRequest.getSearchRequest());
+        searchRequest.setRequestContexts(null);
     }
 
 

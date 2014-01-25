@@ -29,16 +29,10 @@ public class RoundRobinRelatedContentSearchRequestProcessorHandlerFactory implem
 
         if(numberOfSearchProcessors==1) {
             log.debug("Creating Single Search Request Processor");
-            int bufferSize = config.getSizeOfRelatedItemSearchRequestHandlerQueue();
-            if(bufferSize == -1) {
-                bufferSize = config.getSizeOfRelatedItemSearchRequestQueue();
-            }
+
             RelatedItemSearchExecutor searchExecutor = searchExecutorFactory.createSearchExecutor(gateway);
             return new DisruptorBasedRelatedContentSearchRequestProcessorHandler(gateway,searchExecutor);
         } else {
-
-
-            int bufferSize = config.getSizeOfRelatedItemSearchRequestHandlerQueue();
 
             log.debug("Creating {} Search Request Processor",numberOfSearchProcessors);
             RelatedItemSearchExecutor[] searchExecutors = new RelatedItemSearchExecutor[numberOfSearchProcessors];
