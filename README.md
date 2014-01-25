@@ -1,6 +1,6 @@
-# Relateit #
+# ![Relateit](./relateitlogo.png) #
 
-Relateit is a simple and easy way to relate one item to several others.  Once several items are related to other items you can enquire:  For this item, what are the most frequently related items.  
+**Relateit** is a simple and easy way to relate one item to several others.  Once several items are related to other items you can enquire:  For this item, what are the most frequently related items.  
 
 This can be used on a web site to associate the items the people are purchasing.  If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.  When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is frequently purchased with.
 

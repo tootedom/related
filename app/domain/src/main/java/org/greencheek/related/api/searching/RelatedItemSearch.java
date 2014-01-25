@@ -29,8 +29,12 @@ public class RelatedItemSearch {
 
 
     public RelatedItemSearch(Configuration config) {
+        this(config,config.getMaxNumberOfSearchCriteriaForRelatedContent());
+    }
+
+    public RelatedItemSearch(Configuration config,int numberOfAdditionalSearchCriteria) {
         relatedItemId = new RelatedItemInfoIdentifier(config);
-        additionalSearchCriteria = new RelatedItemAdditionalProperties(config,config.getMaxNumberOfSearchCriteriaForRelatedContent());
+        additionalSearchCriteria = new RelatedItemAdditionalProperties(config,numberOfAdditionalSearchCriteria);
     }
 
     public void setMaxResults(int maxResults) {
@@ -70,7 +74,7 @@ public class RelatedItemSearch {
     }
 
     public RelatedItemSearch copy(Configuration config) {
-        RelatedItemSearch newCopy = new RelatedItemSearch(config);
+        RelatedItemSearch newCopy = new RelatedItemSearch(config,this.getAdditionalSearchCriteria().getNumberOfProperties());
         newCopy.setRelatedItemId(this.relatedItemId);
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedItemSearchType(this.searchType);
