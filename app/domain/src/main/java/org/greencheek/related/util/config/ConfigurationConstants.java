@@ -82,8 +82,8 @@ public class ConfigurationConstants {
     public static final int DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = -1;
     public static final int DEFAULT_BATCH_INDEX_SIZE = 128;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 2048;
-    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = 2048;
-    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = -1;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = -1;
     public static final int DEFAULT_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT = 10;
     public static final int DEFAULT_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = 10;
     public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULT_ID = "id";
@@ -93,7 +93,7 @@ public class ConfigurationConstants {
     public static final String DEFAULT_REQUEST_PARAMETER_FOR_SIZE = "maxresults";
     public static final String DEFAULT_REQUEST_PARAMETER_FOR_ID = "id";
     public static final int DEFAULT_DEFAULT_NUMBER_OF_RESULTS = 4;
-    public static final int DEFAULT_SIZE_OF_RESPONSE_PROCESSING_QUEUE = 2048;
+    public static final int DEFAULT_SIZE_OF_RESPONSE_PROCESSING_QUEUE = -1;
     public static final int DEFAULT_NUMBER_OF_INDEXING_REQUEST_PROCESSORS = 2;
     public static final int DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = 4;
     public static final String DEFAULT_STORAGE_INDEX_NAME_PREFIX = "relateditems";

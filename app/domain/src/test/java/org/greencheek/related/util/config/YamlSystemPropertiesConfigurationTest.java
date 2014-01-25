@@ -42,7 +42,7 @@ public class YamlSystemPropertiesConfigurationTest {
         System.setProperty(YamlSystemPropertiesConfiguration.PROPNAME_SETTINGS_YAML_LOCATION,"test-related-item-doesnotexist.yaml");
         Configuration config = new YamlSystemPropertiesConfiguration();
 
-        assertEquals(ConfigurationConstants.DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE, config.getSizeOfRelatedItemSearchRequestHandlerQueue());
+        assertEquals(config.getSizeOfRelatedItemSearchRequestQueue()/ConfigurationConstants.DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, config.getSizeOfRelatedItemSearchRequestHandlerQueue());
         assertEquals(ConfigurationConstants.DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,config.getNumberOfSearchingRequestProcessors());
         assertEquals(ConfigurationConstants.DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE,config.getSizeOfBatchIndexingRequestQueue());
     }

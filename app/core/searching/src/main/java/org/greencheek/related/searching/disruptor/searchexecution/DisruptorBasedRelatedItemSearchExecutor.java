@@ -5,6 +5,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.related.api.searching.RelatedItemSearch;
 import org.greencheek.related.searching.RelatedItemSearchExecutor;
+import org.greencheek.related.util.arrayindexing.Util;
 import org.greencheek.related.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
@@ -39,11 +40,11 @@ public class DisruptorBasedRelatedItemSearchExecutor implements RelatedItemSearc
     ) {
         this.configuration = configuration;
         this.eventHandler = eventHandler;
+        int bufferSize = configuration.getSizeOfRelatedItemSearchRequestHandlerQueue();
 
         this.executorService = getExecutorService();
         disruptor = new Disruptor<RelatedItemSearch>(
-                eventFactory,
-                configuration.getSizeOfRelatedItemSearchRequestHandlerQueue(), executorService,
+                eventFactory,bufferSize, executorService,
                 ProducerType.SINGLE, configuration.getWaitStrategyFactory().createWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
         disruptor.handleEventsWith(new EventHandler[] {eventHandler});

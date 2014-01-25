@@ -5,6 +5,7 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.related.util.arrayindexing.Util;
 import org.greencheek.related.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
@@ -61,9 +62,15 @@ public class DisruptorBasedResponseContextTypeBasedResponseEventHandler implemen
     {
         this.delegateHandler = delegate;
         this.executorService = getExecutorService();
+        int bufferSize = configuration.getSizeOfResponseProcessingQueue();
+        if(bufferSize==-1) {
+            bufferSize = configuration.getSizeOfRelatedItemSearchRequestQueue();
+        } else {
+            bufferSize = Util.ceilingNextPowerOfTwo(bufferSize);
+        }
         disruptor = new Disruptor<SearchResultsToDistributeToResponseContexts>(
                 FACTORY,
-                configuration.getSizeOfResponseProcessingQueue(), executorService,
+                bufferSize, executorService,
                 ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 

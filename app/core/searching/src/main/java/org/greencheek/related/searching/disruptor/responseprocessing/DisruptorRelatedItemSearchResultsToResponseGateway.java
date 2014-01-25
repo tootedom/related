@@ -7,6 +7,7 @@ import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.related.searching.RelatedItemSearchResultsToResponseGateway;
 import org.greencheek.related.searching.domain.api.*;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
+import org.greencheek.related.util.arrayindexing.Util;
 import org.greencheek.related.util.concurrency.DefaultNameableThreadFactory;
 import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
@@ -64,9 +65,10 @@ public class DisruptorRelatedItemSearchResultsToResponseGateway implements Relat
 
     {
         this.executorService = getExecutorService();
+        int bufferSize = configuration.getSizeOfRelatedItemSearchRequestAndResponseQueue();
         disruptor = new Disruptor<SearchEvent>(
                 SearchEvent.FACTORY,
-                configuration.getSizeOfRelatedItemSearchRequestAndResponseQueue(), executorService,
+                bufferSize, executorService,
                 ProducerType.MULTI, configuration.getWaitStrategyFactory().createWaitStrategy());
         disruptor.handleExceptionsWith(new IgnoreExceptionHandler());
 
