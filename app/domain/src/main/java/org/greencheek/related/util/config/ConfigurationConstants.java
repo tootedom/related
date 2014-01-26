@@ -82,8 +82,8 @@ public class ConfigurationConstants {
     public static final int DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_VALUE_LENGTH = 30;
     public static final int DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE = 16384;
     public static final int DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = -1;
-    public static final int DEFAULT_BATCH_INDEX_SIZE = 128;
-    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 2048;
+    public static final int DEFAULT_BATCH_INDEX_SIZE = 625;
+    public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 16384;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = -1;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = -1;
     public static final int DEFAULT_MAX_NUMBER_OF_SEARCH_CRITERIA_FOR_RELATED_CONTENT = 10;
@@ -97,13 +97,13 @@ public class ConfigurationConstants {
     public static final int DEFAULT_DEFAULT_NUMBER_OF_RESULTS = 4;
     public static final int DEFAULT_SIZE_OF_RESPONSE_PROCESSING_QUEUE = -1;
     public static final int DEFAULT_NUMBER_OF_INDEXING_REQUEST_PROCESSORS = 2;
-    public static final int DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = 4;
+    public static final int DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = 2;
     public static final String DEFAULT_STORAGE_INDEX_NAME_PREFIX = "relateditems";
     public static final String DEFAULT_STORAGE_INDEX_NAME_ALIAS = "";
     public static final String DEFAULT_STORAGE_CONTENT_TYPE_NAME = "related";
     public static final String DEFAULT_STORAGE_CLUSTER_NAME = "relateditems";
     public static final String DEFAULT_STORAGE_FREQUENTLY_RELATED_ITEMS_FACET_RESULTS_FACET_NAME = "frequently-related-with";
-    public static final String DEFAULT_STORAGE_FACET_SEARCH_EXECUTION_HINT = "";
+    public static final String DEFAULT_STORAGE_FACET_SEARCH_EXECUTION_HINT = "map";
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR ="related-with";
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_DATE_ATTR = "date";
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_ID_ATTR = "id";

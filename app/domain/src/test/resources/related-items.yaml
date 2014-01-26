@@ -55,7 +55,7 @@ related-item:
     content.type.name: item
     cluster.name: associated
     frequently.related.items.facet.results.facet.name: matchingitems
-    searching.facet.search.execution.hint: map
+    searching.facet.search.execution.hint:
 
   elastic.search:
     client:

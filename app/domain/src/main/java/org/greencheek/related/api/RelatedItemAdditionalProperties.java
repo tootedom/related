@@ -2,7 +2,9 @@ package org.greencheek.related.api;
 
 import org.greencheek.related.util.config.Configuration;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Stores a list of properties (key/value pairs).
@@ -61,9 +63,19 @@ public class RelatedItemAdditionalProperties {
         additionalProperties = new RelatedItemAdditionalProperty[numberOfProperties];
 
         int index = 0;
+        Set<String> dedupeProperties = new HashSet<>(numberOfProperties);
         for(RelatedItemAdditionalProperties properties : buildFrom) {
             for(int i=0;i<properties.getNumberOfProperties();i++) {
-                additionalProperties[index++] = properties.additionalProperties[i].trimAndClone();
+                RelatedItemAdditionalProperty property = properties.additionalProperties[i].trimAndClone();
+                String name = property.getName();
+                if(dedupeProperties.contains(name)) {
+                    numberOfProperties--;
+                    continue;
+                }
+                else {
+                    additionalProperties[index++] = property;
+                    dedupeProperties.add(name);
+                }
             }
         }
     }

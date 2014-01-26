@@ -162,7 +162,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
     }
 
     private final static String RELATED_CONTENT_BLADES1_PURCHASEa = "{\n"+
-            "\"id\": \"anchorman\",\n"+
+            "\"id\": \"anchor man\",\n"+
             "\"date\": \"2013-12-14T17:44:41.943Z\",\n"+
             "\"related-with\": [ \"blades of glory\" ],\n"+
             "\"type\": \"dvd\",\n"+
@@ -173,7 +173,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
     private final static String RELATED_CONTENT_BLADES1_PURCHASEb = "{\n"+
             "\"id\": \"blades of glory\",\n"+
             "\"date\": \"2013-12-14T17:44:41.943Z\",\n"+
-            "\"related-with\": [ \"anchor man\" ],\n"+
+            "\"related-with\": [ \"anchorman\" ],\n"+
             "\"type\": \"dvd\",\n"+
             "\"site\": \"amazon\",\n"+
             "\"channel\": \"uk\"\n"+
@@ -189,7 +189,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
             "}";
 
     private final static String RELATED_CONTENT_BLADES2_PURCHASEb = "{\n"+
-            "\"id\": \"anchorman\",\n"+
+            "\"id\": \"anchor man\",\n"+
             "\"date\": \"2013-12-15T17:44:41.943Z\",\n"+
             "\"related-with\": [ \"blades of glory\",\"dodgeball\" ],\n"+
             "\"type\": \"dvd\",\n"+
@@ -200,7 +200,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
     private final static String RELATED_CONTENT_BLADES2_PURCHASEc = "{\n"+
             "\"id\": \"dodgeball\",\n"+
             "\"date\": \"2013-12-15T17:44:41.943Z\",\n"+
-            "\"related-with\": [ \"blades or glory\",\"anchorman\" ],\n"+
+            "\"related-with\": [ \"blades or glory\",\"anchor man\" ],\n"+
             "\"type\": \"dvd\",\n"+
             "\"site\": \"amazon\",\n"+
             "\"channel\": \"uk\"\n"+
@@ -263,7 +263,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
 
 
-        assertEquals(2, results[0].getResponse().getSearchResults().length);
+        assertEquals(1, results[0].getResponse().getSearchResults().length);
         assertEquals("blades of glory",results[0].getResponse().getSearchResults()[0].getRelatedItemId());
         assertEquals("enter the dragon",results[1].getResponse().getSearchResults()[0].getRelatedItemId());
     }

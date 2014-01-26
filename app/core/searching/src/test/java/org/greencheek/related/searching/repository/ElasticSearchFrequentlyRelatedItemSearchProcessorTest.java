@@ -138,12 +138,12 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration);
 
-        RelatedItemSearch[] search = new RelatedItemSearch[] {createChannelSearch("bbc","apprentice")};
+        RelatedItemSearch[] search = new RelatedItemSearch[] {createChannelSearch("bbc","apparentice you're hired")};
         MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
 
         assertTrue(response != null);
         System.out.println(response);
-        assertEquals("Did not return the expected 1 search result, for bbc, apprentice search", 1, response.getResponses().length);
+        assertEquals("Did not return the expected 1 search result, for bbc, apparentice you're hired, search", 1, response.getResponses().length);
         System.out.println(response.getResponses()[0].getFailureMessage());
         assertTrue("Search Response should not be null", response.getResponses()[0].getResponse() != null);
         assertEquals(1,response.getResponses()[0].getResponse().getFacets().getFacets().size());
@@ -154,9 +154,9 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         TermsFacet tf = (TermsFacet)f;
 
-        assertEquals(5,tf.getEntries().size());
+        assertEquals(1,tf.getEntries().size());
 
-        assertEquals("apparentice you're hired",tf.getEntries().get(0).getTerm().string());
+        assertEquals("apprentice",tf.getEntries().get(0).getTerm().string());
 
         SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
@@ -165,6 +165,27 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         assertEquals("Should have a result",1,results.length);
 
         verifyTermsInOutput(results[0].getResponse(),tf);
+
+        search = new RelatedItemSearch[] {createChannelSearch("itv","apparentice you're hired")};
+        response = searcher.executeSearch(clientFactory.getClient(),search);
+
+        assertTrue(response != null);
+        System.out.println(response);
+        assertEquals("Did not return the expected 1 search result, for itv, apparentice you're hired, search", 1, response.getResponses().length);
+        System.out.println(response.getResponses()[0].getFailureMessage());
+        assertTrue("Search Response should not be null", response.getResponses()[0].getResponse() != null);
+        assertEquals(1,response.getResponses()[0].getResponse().getFacets().getFacets().size());
+
+        f = response.getResponses()[0].getResponse().getFacets().getFacets().get(configuration.getStorageFrequentlyRelatedItemsFacetResultsFacetName());
+
+        assertTrue(f instanceof TermsFacet);
+
+        tf = (TermsFacet)f;
+
+        assertEquals(1,tf.getEntries().size());
+
+        assertEquals("emmerdale",tf.getEntries().get(0).getTerm().string());
+
 
     }
 
@@ -193,9 +214,9 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         TermsFacet tf = (TermsFacet)f;
 
-        assertEquals(3,tf.getEntries().size());
+        assertEquals(1,tf.getEntries().size());
 
-        assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
+        assertEquals("the bill",tf.getEntries().get(0).getTerm().string());
 
         SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
@@ -288,9 +309,9 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         TermsFacet tf = (TermsFacet)f;
 
-        assertEquals(2,tf.getEntries().size());
+        assertEquals(1,tf.getEntries().size());
 
-        assertEquals("coronation street",tf.getEntries().get(0).getTerm().string());
+        assertEquals("the bill",tf.getEntries().get(0).getTerm().string());
 
         SearchResultEventWithSearchRequestKey[] results = searcher.processMultiSearchResponse(search,response);
 
@@ -358,13 +379,13 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
                 "[ \"apprentice you're fired\"] }";
 
         String content2 = "{ \"channel\":\"channel4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"8 out of ten cats\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
-                "[\"jimmy carrs standup\"]}";
+                "[\"apparentice you're hired\"]}";
 
         String content3 = "{ \"channel\":\"channel4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"8 out of ten cats\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"big fat quiz of the year\"]}";
 
         String content4 = "{ \"channel\":\"channel4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"8 out of ten cats\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
-                "[\"big fat quiz of the year\"]}";
+                "[\"apparentice you're hired\"]}";
 
         String content5 = "{ \"channel\":\"channel4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"8 out of ten cats\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"8 out of ten cats does countdown\"]}";
@@ -400,7 +421,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
                 "[\"the bill\"]}";
 
         String content16 = "{ \"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
-                "[\"coronation street\",\"the bill\"]}";
+                "[\"apparentice you're hired\",\"the bill\"]}";
 
         String content17 = "{ \"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"coronation street\"]}";
@@ -411,8 +432,8 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         String content19 = "{ \"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"coronation street\",\"itn news\"]}";
 
-        String content20 = "{ \"date\":\"2013-01-01T10:00:00+0100\",\"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
-                "[\"coronation street\"]}";
+        String content20 = "{ \"date\":\"2013-01-01T10:00:00+0100\",\"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"the bill\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
+                "[\"coronation street\",\"emmerdale\"]}";
 
         String content21 = "{ \"date\":\"2013-01-01T10:00:00+0100\",\"channel\":\"itv\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"emmerdale\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[\"coronation street\",\"itn news\"]}";

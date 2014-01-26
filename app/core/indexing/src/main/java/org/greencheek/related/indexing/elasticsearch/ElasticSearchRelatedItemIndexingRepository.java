@@ -107,6 +107,7 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
             IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexLocationMapper.getLocationName(product), indexType);
             indexRequestBuilder.setOpType(createOrIndex);
             indexRequestBuilder.setOperationThreaded(threadedIndexing);
+            log.debug("added indexing request to batch request: {}",builder.string());
             bulkRequest.add(indexRequestBuilder.setSource(builder));
 
             return 1;

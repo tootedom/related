@@ -185,7 +185,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
 //        BoolQueryBuilder b = QueryBuilders.boolQuery();
 
         BoolFilterBuilder b = FilterBuilders.boolFilter();
-        b.must(FilterBuilders.termFilter(configuration.getKeyForIndexRequestIdAttr(), id));
+        b.must(FilterBuilders.termFilter(configuration.getKeyForIndexRequestRelatedWithAttr(), id));
 
         SearchRequestBuilder sr = searchClient.prepareSearch();
 
@@ -201,7 +201,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         ConstantScoreQueryBuilder cs = QueryBuilders.constantScoreQuery(b);
 
 
-        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults());
+        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestIdAttr()).size(search.getMaxResults());
         if(hasExecutionHint) {
             facetBuilder.executionHint(executionHint);
         }

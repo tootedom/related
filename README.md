@@ -15,7 +15,7 @@ This application has 3 parts to it:
 The indexing and searching components make use of the [Disruptor](https://github.com/LMAX-Exchange/disruptor "Disruptor") library.  Whilst the Indexing and Searching components do not need to directly be used, they provide a means of batching indexing and searching requests.
 
 
-## Indexing Overview ##
+## Indexing and Searching Overview ##
 
 The index web application is POSTed data containing the related items:
 
@@ -35,10 +35,16 @@ The index web application is POSTed data containing the related items:
           {
              "id":"3",
              "type":"torch"
+          },
+          {
+             "id":"4",
+             "type":"torch",
+             "channel":"uk"
           }
        ]
     }'
 
+ 
 The indexing application returns a 202 accepted status code to the client that issued the indexing request.  This indicate to the client that the request has been accepted for processing and indexing (this doesn't mean the json data is valid.  It just means the POST data is a valid binary payload).  
 
 It is at this point the POSTed data is assembled into several documents.  For example, for the above request; 3 JSON documents will be assembled and submitted to elasticsearch for storage and indexing:
@@ -46,7 +52,7 @@ It is at this point the POSTed data is assembled into several documents.  For ex
     {
         "id": "1" ,
         "date": "2013-12-24T17:44:41.943Z",
-        "related-with": [ "2","3"],
+        "related-with": [ "2","3","4"],
         "type": "map",
         "site": "amazon",
         "channel": "de"
@@ -55,7 +61,7 @@ It is at this point the POSTed data is assembled into several documents.  For ex
     {
         "id": "2" ,
         "date": "2013-12-24T17:44:41.943Z",
-        "related-with": [ "1","3"],
+        "related-with": [ "1","3","4"],
         "type": "compass",
         "site": "amazon",
         "channel": "de"
@@ -64,10 +70,19 @@ It is at this point the POSTed data is assembled into several documents.  For ex
     {
         "id": "3" ,
         "date": "2013-12-24T17:44:41.943Z",
-        "related-with": [ "1","2"],
+        "related-with": [ "1","2","4"],
         "type": "torch",
         "site": "amazon",
         "channel": "de"
+    }
+    
+    {
+        "id": "4" ,
+        "date": "2013-12-24T17:44:41.943Z",
+        "related-with": [ "1","2","3"],
+        "type": "torch",
+        "site": "amazon",
+        "channel": "uk"
     }
 
 The json element "related-with", will be used during search, to provide faceting information.  It is this facet that allows us to say:
@@ -78,17 +93,42 @@ The search web application is then called to request the frequently related item
 
     curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1
 
-Which returns json data containing the list of items (their id's) that are frequently related to that item
-
-Note the search does not only provide the ability to search on the id.  It allows you to filter the result based on a property of the indexed document.  For example:
+Which returns json data containing the list of items (their id's) that are frequently related to that item:
 
     {
-        "id": "3" ,
+        "response_time": "2", 
+        "results": [
+            {
+                "frequency": "1", 
+                "id": "4"
+            }, 
+            {
+                "frequency": "1", 
+                "id": "3"
+            }, 
+            {
+                "frequency": "1", 
+                "id": "2"
+            }
+        ], 
+        "size": "3", 
+        "storage_response_time": "0"
+}
+
+Note the search does not only provide the ability to search on the id.  It allows you to filter the result based on a property of the indexed document.  For example, from the initial POST there was 4 related items:
+
+* 3 of those had the property: **channel: de**
+* 1 of those had the property: **channel: uk**
+
+The item that had overridden the **"channel"** property was the following:
+
+    {
+        "id": "4" ,
         "date": "2013-12-24T17:44:41.943Z",
-        "related-with": [ "1","2"],
+        "related-with": [ "1","2","3"],
         "type": "torch",
         "site": "amazon",
-        "channel": "de"
+        "channel": "uk"
     }
 
 In the above, there are 3 extra elements that can be searched on:
@@ -97,18 +137,129 @@ In the above, there are 3 extra elements that can be searched on:
 * site
 * channel
 
-As a result you can say.  Give with the frequently related product that are mostly purchased with product **1**, filtered the results to reduce to "touches":
+As a result you can say.  Give with the frequently related product that are mostly purchased with product **1**, filtered the results to reduce to that of "tourches", i.e. type=torch:
 
     curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch
 
+The result is:
+
+    {
+        "response_time": 11, 
+        "results": [
+            {
+                "frequency": "1", 
+                "id": "4"
+            }, 
+            {
+                "frequency": "1", 
+                "id": "3"
+            }
+        ], 
+        "size": "2", 
+        "storage_response_time": 2
+    }
+
+You can go further and search for torches, just in channel uk, which is:
+
+    curl -v -N "http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch&channel=uk" | python -mjson.tool
+
+Which will result in just the one related item:
+
+    {
+        "response_time": 3, 
+        "results": [
+            {
+                "frequency": "1", 
+                "id": "4"
+            }
+        ], 
+        "size": "1", 
+        "storage_response_time": 1
+    }
+
 Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It *DOES NOT* return the matching document's information.  This doesn't mean in the future it will not return the matching document details.  
+
+## Elasticsearch ##
+
+As mentioned above, the related item data is stored in elasticsearch and the ability to find the frequently related items, for an item, is provided by that of elasticsearch and its faceting.  
+
+The indexing and searching web applications use the elasticsearch java library.  
+
+The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol.  Meaning, the version of the client embedded within the web applications (indexing and searching), *MUST* match that of the elasticsearch server.  Also, the version of JAVA on the client and the server *MUST* be the same.
+
+* Current embedded elasticsearch version is: **0.90.9**
+
+By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:
+
+    client.transport.sniff : true
+
+(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).
+
+The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client.  HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes.  So at the moment only the "**node**", or "**transport**" option are available.  With the default being that of **transport**.
+
+
+## Configuration ##
+
+The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).
+
+At minimum the only configuration required is the connection details for your elasticsearch installation:
+
+    -Drelated-item.elastic.search.transport.hosts=10.0.1.19:9300
+
+This can be a comma separated list of hosts:
+
+    -Drelated-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
+
+By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.
+
+### JVM Options and Configuration Defaults #
+
+The default configuration for indexing and searching are based on a 1GB heap (-Xmx1024m -Xms1024m) configuration.  
+
+The application configuration
+
+The specific recommended (tested against) JVM options for searching and indexing are listed below (jdk7 - the following options *WILL NOT* work on jdk6).  The JVM options slightly differ between searching and indexing.  The common options are listed and then the differences listed:
+
+### Common options
+
+    -XX:CMSInitiatingOccupancyFraction=85
+    -XX:MaxTenuringThreshold=15
+    -XX:CMSWaitDuration=70000    
+    -XX:MaxPermSize=128m
+    -XX:ParGCCardsPerStrideChunk=4096
+    -XX:+UseParNewGC
+    -XX:+UseConcMarkSweepGC
+    -XX:+UseCMSInitiatingOccupancyOnly    
+    -XX:+UnlockDiagnosticVMOptions
+    -XX:+AggressiveOpts
+    -XX:+UseCondCardMark
+
+Below shows the heap configuration for indexing and search.  The difference between the two is that of the eden space.
+
+### Searching Heap ###
+
+    -Xmx1024m
+    -Xmn700m
+    -Xms1024m
+    -Xss256k
+
+### Indexing Heap ###
+
+    -Xmx1024m
+    -Xmn256m
+    -Xms1024m
+    -Xss256k
+
+
+
+
 
 
 #Indexing info
 
 
     HOST=localhost
-    curl -XPUT http://$HOST:9200/_template/relateditems -d '{
+    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
         "template" : "relateditems*",
         "settings" : {
             "number_of_shards" : 1,
@@ -126,10 +277,10 @@ Currently the search result just returns the id's of the related items, and the 
                "properties" : {
                   "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
                   "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
-                  "date": { "type": "date", "index": "not_analyzed" },
-                  "channel" : {"type" : "string" , "index" : "not_analyzed" },
-                  "site" : {"type" : "string" , "index" : "not_analyzed" },
-                  "type" : {"type" : "string" , "index" : "not_analyzed" }
+                  "date": { "type": "date", "index": "not_analyzed", "store" : "no" },
+                  "channel" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+                  "site" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+                  "type" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" }
                }
             }
         }

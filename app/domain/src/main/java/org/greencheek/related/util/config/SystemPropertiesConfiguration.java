@@ -466,7 +466,7 @@ public class SystemPropertiesConfiguration implements Configuration {
     private static void parseString(Map<String,Object> parsedValues, Map<String,String> sysValues, String property) {
         String value = sysValues.get(property);
         String s =null;
-        if(value!=null && value.trim().length()!=0) {
+        if(value!=null) {
             s = value;
         }
 

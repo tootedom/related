@@ -47,9 +47,9 @@ public class BatchingRelatedItemReferenceEventHandler implements RelatedItemRefe
         try {
             relatedItems.add(request.getReference());
 
-            if(endOfBatch || --this.count[COUNTER_POS] ==0) {
+            if(endOfBatch || --this.count[COUNTER_POS] == 0) {
                 try {
-                    log.debug("Sending indexing requests to the storage repository");
+                    log.debug("Sending {} indexing requests to the storage repository",relatedItems.size());
                     try {
                         storageRepository.store(locationMapper, relatedItems);
                     } catch(Exception e) {

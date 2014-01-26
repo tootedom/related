@@ -1,6 +1,7 @@
 package org.greencheek.related.indexing.jsonrequestprocessing;
 
 import org.greencheek.related.api.indexing.RelatedItemIndexingMessage;
+import org.greencheek.related.api.indexing.RelatedItemInfo;
 import org.greencheek.related.indexing.IndexingRequestConverter;
 import org.greencheek.related.indexing.InvalidIndexingRequestException;
 import org.greencheek.related.indexing.InvalidIndexingRequestNoProductsFoundException;
@@ -111,6 +112,27 @@ public abstract class JsonIndexingRequestConverterTest {
         converter.translateTo(message,(short)10);
         assertEquals("Message should be valid, 3 related items",true,message.isValidMessage());
         assertEquals("Message should have 3 related items",3,message.getRelatedItems().getNumberOfRelatedItems());
+
+    }
+
+    @Test
+    public void testProductArrayCustomPropertyOverrideDefault() throws Exception {
+        String json =
+                "{" +
+                        "    \"channel\" : \"uk\"," +
+                        "    \"site\" : \"amazon\"," +
+                        "    \"date\" : \"2013-05-02T15:31:31\","+
+                        "    \"items\" : [ { \"id\" : \"B009S4IJCK\", \"channel\" : \"de\"}, { \"id\" : \"B0076UICIO\"}, { \"id\" : \"B0096TJCXW\"} ]"+
+                        "}";
+
+        IndexingRequestConverter converter = createConverter(ByteBuffer.wrap(json.getBytes()));
+        converter.translateTo(message,(short)10);
+        assertEquals("Message should be valid, 3 related items",true,message.isValidMessage());
+        assertEquals("Message should have 3 related items",3,message.getRelatedItems().getNumberOfRelatedItems());
+
+        RelatedItemInfo info = message.getRelatedItems().getCheckedRelatedItemAtIndex(0);
+        assertEquals("de",info.getAdditionalProperties().getPropertyValue(0));
+//        info.getAdditionalProperties()
 
     }
 
