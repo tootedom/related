@@ -115,6 +115,10 @@ public interface Configuration {
 
     int getDefaultElasticSearchPort();
 
+    String getKeyForStorageResponseTime();
+
+    String getKeyForSearchProcessingResponseTime();
+
     public enum ElasticeSearchClientType {
         NODE,
         TRANSPORT;

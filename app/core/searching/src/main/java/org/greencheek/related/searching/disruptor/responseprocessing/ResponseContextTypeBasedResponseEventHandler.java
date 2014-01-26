@@ -1,6 +1,7 @@
 package org.greencheek.related.searching.disruptor.responseprocessing;
 
 import org.greencheek.related.api.searching.SearchResultsOutcome;
+import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.related.searching.responseprocessing.SearchResponseContextHandler;
@@ -38,7 +39,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
     }
 
     @Override
-    public void handleResponseEvents(SearchResultsEvent[] searchResults,List<List<SearchResponseContext>> responseContexts) {
+    public void handleResponseEvents(SearchResultEventWithSearchRequestKey[] searchResults,List<List<SearchResponseContext>> responseContexts) {
         for(int i=0;i<searchResults.length;i++) {
             log.debug("handling search result {}",i);
             handleResponseEvent(searchResults[i],responseContexts.get(i));
@@ -54,12 +55,13 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
 
     }
 
-    public void handleResponseEvent(SearchResultsEvent results,List<SearchResponseContext> awaitingResponses) {
-            SearchResultsConverter converter = converterLookup.getConverter(results.getSearchResultsType());
+    public void handleResponseEvent(SearchResultEventWithSearchRequestKey results,List<SearchResponseContext> awaitingResponses) {
+        SearchResultsEvent event = results.getResponse();
+            SearchResultsConverter converter = converterLookup.getConverter(event.getSearchResultsType());
 
             if (converter == null) {
                 if (log.isWarnEnabled()) {
-                    log.warn("No factory available for converting search results of type : {}", results.getSearchResultsType());
+                    log.warn("No factory available for converting search results of type : {}", event.getSearchResultsType());
                 }
             }
 
@@ -80,7 +82,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                 response = converter.convertToString(results);
                 mediaType = converter.contentType();
             } else {
-                results = new SearchResultsEvent(SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER,results.getSearchResults());
+                event = new SearchResultsEvent(SearchResultsOutcome.MISSING_SEARCH_RESULTS_HANDLER,event.getSearchResults());
             }
 
             for(SearchResponseContext sctx : awaitingResponses) {
@@ -92,7 +94,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                     if (handler == null) {
                         log.error("No response handler defined for waiting response type: {}", sctx.getContextType());
                     } else {
-                        handler.sendResults(response, mediaType, results, sctx);
+                        handler.sendResults(response, mediaType, event, sctx);
                     }
                 } finally {
                     sctx.close();

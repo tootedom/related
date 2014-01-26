@@ -58,7 +58,6 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final int MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES ;
     private final int MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE ;
     private final int RELATED_PRODUCT_ID_LENGTH ;
-    private final String RELATED_PRODUCT_INVALID_ID_STRING ;
     private final int MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES ;
     private final int MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES ;
 
@@ -100,6 +99,8 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final String KEY_FOR_INDEX_REQUEST_DATE_ATTR ;
     private final String KEY_FOR_INDEX_REQUEST_ID_ATTR ;
     private final String KEY_FOR_INDEX_REQUEST_PRODUCT_ARRAY_ATTR ;
+    private final String KEY_FOR_SEARCH_PROCESSING_TIME;
+    private final String KEY_FOR_STORAGE_RESPONSE_TIME;
 
     private final String ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME ;
     private final String ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME ;
@@ -180,7 +181,6 @@ public class SystemPropertiesConfiguration implements Configuration {
         MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = getInt(properties, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES, DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES);
         MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = getInt(properties, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         RELATED_PRODUCT_ID_LENGTH = getInt(properties, PROPNAME_RELATED_ITEM_ID_LENGTH, DEFAULT_RELATED_ITEM_ID_LENGTH);
-        RELATED_PRODUCT_INVALID_ID_STRING = getString(properties, PROPNAME_RELATED_ITEM_INVALID_ID_STRING, DEFAULT_RELATED_ITEM_INVALID_ID_STRING);
         MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties, PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties, PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         RELATED_PRODUCT_ADDITIONAL_PROPERTY_KEY_LENGTH = getInt(properties, PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH, DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH);
@@ -197,6 +197,10 @@ public class SystemPropertiesConfiguration implements Configuration {
         KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,DEFAULT_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
         KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_PRODUCTS = getString(properties, PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS, DEFAULT_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS);
         KEY_FOR_FREQUENCY_RESULTS = getString(properties,PROPNAME_KEY_FOR_FREQUENCY_RESULTS,DEFAULT_KEY_FOR_FREQUENCY_RESULTS);
+
+        KEY_FOR_SEARCH_PROCESSING_TIME = getString(properties,PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME,DEFAULT_KEY_FOR_SEARCH_PROCESSING_TIME);
+        KEY_FOR_STORAGE_RESPONSE_TIME = getString(properties,PROPNAME_KEY_FOR_STORAGE_RESPONSE_TIME,DEFAULT_KEY_FOR_STORAGE_RESPONSE_TIME);
+
         REQUEST_PARAMETER_FOR_SIZE = getString(properties,PROPNAME_REQUEST_PARAMETER_FOR_SIZE,DEFAULT_REQUEST_PARAMETER_FOR_SIZE);
         REQUEST_PARAMETER_FOR_ID = getString(properties, PROPNAME_REQUEST_PARAMETER_FOR_ID, DEFAULT_REQUEST_PARAMETER_FOR_ID);
         DEFAULT_NUMBER_OF_RESULTS = getInt(properties,PROPNAME_DEFAULT_NUMBER_OF_RESULTS,DEFAULT_DEFAULT_NUMBER_OF_RESULTS);
@@ -380,8 +384,6 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_ID_LENGTH);
-        parseString(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_INVALID_ID_STRING);
-        parseString(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_INVALID_ID_STRING);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH);
@@ -413,6 +415,8 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_RELATED_WITH_ATTR);
         parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_DATE_ATTR);
         parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_INDEX_REQUEST_ID_ATTR);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME);
+        parseString(parsedProperties,propertiesToConvert,PROPNAME_KEY_FOR_STORAGE_RESPONSE_TIME);
         parseString(parsedProperties,propertiesToConvert, PROPNAME_KEY_FOR_INDEX_REQUEST_ITEM_ARRAY_ATTR);
         parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME);
         parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME);
@@ -806,6 +810,16 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getDefaultElasticSearchPort() {
         return DEFAULT_ELASTIC_SEARCH_PORT;
+    }
+
+    @Override
+    public String getKeyForStorageResponseTime() {
+        return KEY_FOR_STORAGE_RESPONSE_TIME;
+    }
+
+    @Override
+    public String getKeyForSearchProcessingResponseTime() {
+        return KEY_FOR_SEARCH_PROCESSING_TIME;
     }
 
     @Override

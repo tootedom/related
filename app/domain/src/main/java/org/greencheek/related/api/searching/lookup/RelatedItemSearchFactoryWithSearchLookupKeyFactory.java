@@ -36,9 +36,10 @@ public class RelatedItemSearchFactoryWithSearchLookupKeyFactory implements Relat
 
     @Override
     public void populateSearchObject(RelatedItemSearch objectToPopulate,
-                                            RelatedItemSearchType type,
-                                            Map<String, String> properties) {
+                                     RelatedItemSearchType type,
+                                     Map<String, String> properties) {
 
+        objectToPopulate.setStartOfRequestNanos(System.nanoTime());
         String sizeKey = configuration.getRequestParameterForSize();
         String idKey = configuration.getRequestParameterForId();
         try {

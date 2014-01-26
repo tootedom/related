@@ -3,6 +3,7 @@ package org.greencheek.related.searching.responseprocessing.resultsconverter;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONStyle;
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
+import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
@@ -30,8 +31,10 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
         this.configuration = configuration;
     }
 
-    private Map<String,Object> createJson(FrequentlyRelatedSearchResult[] results) {
-        if(results==null) return createEmptyJson();
+    private Map<String,Object> createJson(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> searchResultsEvent) {
+        SearchResultsEvent<FrequentlyRelatedSearchResult[]> event = searchResultsEvent.getResponse();
+        if(event==null) return createEmptyJson();
+        FrequentlyRelatedSearchResult[] results = event.getSearchResults();
         int resultsSize = results.length;
         if(resultsSize==0) return createEmptyJson();
 
@@ -49,6 +52,8 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
         }
         resultsMap.put(configuration.getKeyForFrequencyResults(), relatedItems);
+        resultsMap.put(configuration.getKeyForStorageResponseTime(),searchResultsEvent.getSearchExecutionTime());
+        resultsMap.put(configuration.getKeyForSearchProcessingResponseTime(),((System.nanoTime() - searchResultsEvent.getStartOfSearchRequestProcessing())/1000000));
 
         return resultsMap;
 
@@ -67,14 +72,14 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
     }
 
     @Override
-    public String convertToString(SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
+    public String convertToString(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> results) {
         Map<String,Object> jsonResults = null;
 
         if(results==null) {
             jsonResults = createEmptyJson();
         }
         else {
-            jsonResults = createJson(results.getSearchResults());
+            jsonResults = createJson(results);
         }
         return JSONObject.toJSONString(jsonResults,JSONStyle.LT_COMPRESS);
     }

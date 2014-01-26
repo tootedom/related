@@ -87,7 +87,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         SearchResultEventWithSearchRequestKey[] results = new SearchResultEventWithSearchRequestKey[searches.length];
         for(MultiSearchResponse.Item item : searchResponse.getResponses()) {
             SearchRequestLookupKey key = searches[i].getLookupKey();
-            results[i++] = frequentlyRelatedWithResultsConverter(key,item.getResponse(),item.getFailureMessage(),item.isFailure());
+            results[i] = frequentlyRelatedWithResultsConverter(key,item.getResponse(),item.getFailureMessage(),item.isFailure(),searches[i++].getStartOfRequestNanos());
         }
 
         return results;
@@ -96,12 +96,17 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
     private SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> frequentlyRelatedWithResultsConverter(SearchRequestLookupKey key,
                                                                      SearchResponse searchResponse,
                                                                      String failureMessage,
-                                                                     boolean isFailure) {
+                                                                     boolean isFailure,
+                                                                     long requestStartTime) {
         final FrequentlyRelatedSearchResult[] results;
         SearchResultsOutcome outcome;
         if(isFailure) {
             log.error("Search response failure for search request key : {}",key,failureMessage);
-            return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
+            if(searchResponse!=null) {
+                return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key,searchResponse.getTookInMillis(),requestStartTime);
+            } else {
+                return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key,-1,requestStartTime);
+            }
         }
         else {
             TermsFacet f = (TermsFacet) searchResponse.getFacets().facetsAsMap().get(facetResultName);
@@ -117,13 +122,13 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
                 outcome = SearchResultsOutcome.HAS_RESULTS;
             } else {
                 log.debug("no related content found for search key {}",key);
-                return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
+                return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS,key,searchResponse.getTookInMillis(),requestStartTime);
             }
 
         }
 
         return new SearchResultEventWithSearchRequestKey(new SearchResultsEvent(outcome,results),
-                                                         key);
+                                                         key,searchResponse.getTookInMillis(),requestStartTime);
 
     }
 

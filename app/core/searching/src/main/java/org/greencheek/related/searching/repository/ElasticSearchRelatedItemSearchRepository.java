@@ -44,27 +44,31 @@ public class ElasticSearchRelatedItemSearchRepository implements RelatedItemSear
         log.debug("request to execute {} searches",searches.length);
         SearchResultEventWithSearchRequestKey[] results;
         MultiSearchResponse sr;
+        long startNanos = System.nanoTime();
         try {
             sr = frequentlyRelatedWithSearchBuilder.executeSearch(elasticClient,searches);
             log.debug("Processing results for search {} request(s)",searches.length);
             results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
             log.debug("Search Completed, returning processed results.");
         } catch(ElasticSearchTimeoutException timeoutException) {
+            long time = (System.nanoTime()-startNanos)/1000000;
             log.warn("Timeout exception executing search request: ",timeoutException);
             int size = searches.length;
             results = new SearchResultEventWithSearchRequestKey[size];
 
             for(int i=0;i<size;i++) {
                 SearchRequestLookupKey key = searches[i].getLookupKey();
-                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
+                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS,key,time,searches[i].getStartOfRequestNanos());
             }
         } catch(Exception searchException) {
+            long time = (System.nanoTime()-startNanos)/1000000;
+
             log.warn("Exception executing search request: ",searchException);
             int size = searches.length;
             results = new SearchResultEventWithSearchRequestKey[size];
             for(int i=0;i<size;i++) {
                 SearchRequestLookupKey key = searches[i].getLookupKey();
-                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key);
+                results[i] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,key,time,searches[i].getStartOfRequestNanos());
             }
 
         }

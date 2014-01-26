@@ -2,6 +2,8 @@ package org.greencheek.related.searching.responseprocessing.resultsconverter;
 
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
+import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
+import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.SystemPropertiesConfiguration;
@@ -97,7 +99,7 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
     }
 
     private void testForEmptyResults(SearchResultsConverter converter, SearchResultsEvent results) {
-        String s = converter.convertToString(results);
+        String s = converter.convertToString(new SearchResultEventWithSearchRequestKey(results,new SipHashSearchRequestLookupKey("1"),0,System.nanoTime()));
         System.out.println(s);
 
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultOverallResultsSize()+"'",s.contains("\""+configuration.getKeyForFrequencyResultOverallResultsSize()+"\""));
@@ -109,7 +111,7 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
     }
 
     private void testConversionOfResults(SearchResultsConverter converter, SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
-        String s = converter.convertToString(results);
+        String s = converter.convertToString(new SearchResultEventWithSearchRequestKey(results,new SipHashSearchRequestLookupKey("1"),0,System.nanoTime()));
 
         assertTrue(s.contains("\"" + configuration.getKeyForFrequencyResults() +"\""));
         System.out.println(s);

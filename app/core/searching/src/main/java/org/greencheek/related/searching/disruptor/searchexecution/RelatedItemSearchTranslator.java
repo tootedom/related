@@ -24,5 +24,6 @@ public class RelatedItemSearchTranslator implements EventTranslatorOneArg<Relate
         searchRequest.getAdditionalSearchCriteria().copyTo(event.getAdditionalSearchCriteria());
         event.setRelatedItemSearchType(searchRequest.getRelatedItemSearchType());
         event.setLookupKey(searchRequest.getLookupKey());
+        event.setStartOfRequestNanos(searchRequest.getStartOfRequestNanos());
     }
 }

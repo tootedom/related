@@ -13,7 +13,6 @@ public class ConfigurationConstants {
     public static final String PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES = "related-item.max.number.related.item.properties";
     public static final String PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM = "related-item.max.number.related.items.per.item";
     public static final String PROPNAME_RELATED_ITEM_ID_LENGTH = "related-item.related.item.id.length";
-    public static final String PROPNAME_RELATED_ITEM_INVALID_ID_STRING = "related-item.related.item.invalid.id.string";
     public static final String PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = "related-item.max.related.item.post.data.size.in.bytes";
     public static final String PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = "related-item.min.related.item.post.data.size.in.bytes";
     public static final String PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH = "related-item.additional.prop.key.length";
@@ -28,6 +27,9 @@ public class ConfigurationConstants {
     public static final String PROPNAME_NUMBER_OF_EXPECTED_LIKE_FOR_LIKE_REQUESTS = "related-item.searching.number.of.expected.like.for.like.requests";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULT_ID = "related-item.searching.key.for.frequency.result.id";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE = "related-item.searching.key.for.frequency.result.occurrence";
+
+    public static final String PROPNAME_KEY_FOR_STORAGE_RESPONSE_TIME = "related-item.searching.key.for.storage.response.time";
+    public static final String PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME = "related-item.searching.key.for.search.processing.time";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS = "related-item.searching.key.for.frequency.result.overall.no.of.related.items";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULTS ="related-item.searching.key.for.frequency.results";
     public static final String PROPNAME_REQUEST_PARAMETER_FOR_SIZE = "related-item.searching.request.parameter.for.size";
@@ -106,6 +108,10 @@ public class ConfigurationConstants {
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_DATE_ATTR = "date";
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_ID_ATTR = "id";
     public static final String DEFAULT_KEY_FOR_INDEX_REQUEST_ITEM_ARRAY_ATTR ="items";
+
+    public static final String DEFAULT_KEY_FOR_STORAGE_RESPONSE_TIME = "storage_response_time";
+    public static final String DEFAULT_KEY_FOR_SEARCH_PROCESSING_TIME = "response_time";
+
     public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = "default-transport-elasticsearch.yml";
     public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = "default-node-elasticsearch.yml";
     public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_OVERRIDE_SETTINGS_FILE_NAME = "elasticsearch.yml";
@@ -160,7 +166,6 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES, DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES);
         configuration.put(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         configuration.put(PROPNAME_RELATED_ITEM_ID_LENGTH, DEFAULT_RELATED_ITEM_ID_LENGTH);
-        configuration.put(PROPNAME_RELATED_ITEM_INVALID_ID_STRING, DEFAULT_RELATED_ITEM_INVALID_ID_STRING);
         configuration.put(PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         configuration.put(PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         configuration.put(PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH, DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH);
@@ -177,6 +182,10 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,DEFAULT_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS, DEFAULT_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS);
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,DEFAULT_KEY_FOR_FREQUENCY_RESULTS);
+
+        configuration.put(PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME,DEFAULT_KEY_FOR_SEARCH_PROCESSING_TIME);
+        configuration.put(PROPNAME_KEY_FOR_STORAGE_RESPONSE_TIME,DEFAULT_KEY_FOR_STORAGE_RESPONSE_TIME);
+
         configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,DEFAULT_REQUEST_PARAMETER_FOR_SIZE);
         configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_ID,DEFAULT_REQUEST_PARAMETER_FOR_ID);
         configuration.put(PROPNAME_DEFAULT_NUMBER_OF_RESULTS,DEFAULT_DEFAULT_NUMBER_OF_RESULTS);

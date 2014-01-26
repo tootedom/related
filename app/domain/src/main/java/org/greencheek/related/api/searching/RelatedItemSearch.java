@@ -23,9 +23,11 @@ public class RelatedItemSearch {
     private int maxResults;
     private RelatedItemSearchType searchType;
     private SearchRequestLookupKey lookupKey;
+    private long startOfRequestNanos;
 
     private final RelatedItemInfoIdentifier relatedItemId;
     private final RelatedItemAdditionalProperties additionalSearchCriteria;
+
 
 
     public RelatedItemSearch(Configuration config) {
@@ -79,6 +81,7 @@ public class RelatedItemSearch {
         newCopy.setMaxResults(this.maxResults);
         newCopy.setRelatedItemSearchType(this.searchType);
         newCopy.setLookupKey(this.getLookupKey());
+        newCopy.setStartOfRequestNanos(this.getStartOfRequestNanos());
         this.additionalSearchCriteria.copyTo(newCopy.additionalSearchCriteria);
         return newCopy;
     }
@@ -91,4 +94,11 @@ public class RelatedItemSearch {
         return lookupKey;
     }
 
+    public long getStartOfRequestNanos() {
+        return startOfRequestNanos;
+    }
+
+    public void setStartOfRequestNanos(long startOfRequestNanos) {
+        this.startOfRequestNanos = startOfRequestNanos;
+    }
 }

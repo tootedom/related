@@ -8,7 +8,7 @@ import org.greencheek.related.api.searching.SearchResultsOutcome;
  */
 public class SearchResultsEvent<T> {
 
-    private static FrequentlyRelatedSearchResult[] EMPTY_FRSR= new FrequentlyRelatedSearchResult[0];
+    private final static FrequentlyRelatedSearchResult[] EMPTY_FRSR= new FrequentlyRelatedSearchResult[0];
 
     public final static SearchResultsEvent<FrequentlyRelatedSearchResult[]> EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent<FrequentlyRelatedSearchResult[]>(SearchResultsOutcome.EMPTY_RESULTS, EMPTY_FRSR);
     public final static SearchResultsEvent<FrequentlyRelatedSearchResult[]> EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS = new SearchResultsEvent<FrequentlyRelatedSearchResult[]>(SearchResultsOutcome.FAILED_REQUEST,EMPTY_FRSR);

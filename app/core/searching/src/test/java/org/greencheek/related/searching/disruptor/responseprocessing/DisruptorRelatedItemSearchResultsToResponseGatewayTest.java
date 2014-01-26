@@ -171,7 +171,7 @@ public class DisruptorRelatedItemSearchResultsToResponseGatewayTest {
 
         assertTrue(added);
 
-        SearchResultEventWithSearchRequestKey results = new SearchResultEventWithSearchRequestKey(mock(SearchResultsEvent.class),new SipHashSearchRequestLookupKey("1"));
+        SearchResultEventWithSearchRequestKey results = new SearchResultEventWithSearchRequestKey(mock(SearchResultsEvent.class),new SipHashSearchRequestLookupKey("1"),0,0);
 
         gateway.sendSearchResultsToResponseContexts(new SearchResultEventWithSearchRequestKey[]{results});
 

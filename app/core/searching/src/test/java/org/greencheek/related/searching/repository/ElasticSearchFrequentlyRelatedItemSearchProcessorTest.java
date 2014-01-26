@@ -17,6 +17,7 @@ import org.greencheek.related.api.searching.RelatedItemSearchType;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKeyFactory;
+import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.NodeBasedElasticSearchClientFactory;
@@ -308,7 +309,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         for(TermsFacet.Entry term : tf.getEntries()) {
           b.append(term.getTerm().string()).append(".*");
         }
-        String s = converter.convertToString(results);
+        String s = converter.convertToString(new SearchResultEventWithSearchRequestKey(results,new SipHashSearchRequestLookupKey("1"),0,0));
         assertTrue(s.matches(b.toString()));
     }
 

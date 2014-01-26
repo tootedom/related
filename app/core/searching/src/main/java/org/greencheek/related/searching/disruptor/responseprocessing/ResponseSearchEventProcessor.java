@@ -41,15 +41,15 @@ public class ResponseSearchEventProcessor implements SearchEventProcessor {
         log.debug("Distributing {} search response(s) to awaiting parties",results.length);
 
         List<List<SearchResponseContext>> responseContexts = new ArrayList<List<SearchResponseContext>>(results.length);
-        SearchResultsEvent[] searchResults = new SearchResultsEvent[results.length];
+//        SearchResultsEvent[] searchResults = new SearchResultsEvent[results.length];
 
         for (int i = 0; i < results.length; i++) {
             SearchResultEventWithSearchRequestKey res = results[i];
             responseContexts.add(searchContext.removeContexts(res.getRequest()));
-            searchResults[i] = res.getResponse();
+//            searchResults[i] = res.getResponse();
         }
 
-        responseEventHandler.handleResponseEvents(searchResults,responseContexts);
+        responseEventHandler.handleResponseEvents(results,responseContexts);
     }
 
     @Override

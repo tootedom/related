@@ -2,6 +2,8 @@ package org.greencheek.related.searching.disruptor.responseprocessing;
 
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
+import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
+import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.searching.requestprocessing.AsyncServletSearchResponseContext;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
@@ -57,7 +59,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         return new DisruptorBasedResponseContextTypeBasedResponseEventHandler(configuration,new ResponseEventHandler() {
             ResponseEventHandler delegate = new ResponseContextTypeBasedResponseEventHandler(responseContextHandler,factory);
             @Override
-            public void handleResponseEvents(SearchResultsEvent[] searchResults, List<List<SearchResponseContext>> responseContexts) {
+            public void handleResponseEvents(SearchResultEventWithSearchRequestKey[] searchResults, List<List<SearchResponseContext>> responseContexts) {
                 delegate.handleResponseEvents(searchResults,responseContexts);
                 latch.countDown();
             }
@@ -134,7 +136,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         List<List<SearchResponseContext>> contexts = new ArrayList<List<SearchResponseContext>>(1);
         contexts.add(holder);
 
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{searchResultsEvent},contexts);
+        eventHandler.handleResponseEvents(createSearchResultsEvent(new SearchResultsEvent[]{searchResultsEvent}),contexts);
 //        eventHandler.onEvent(frequentlyRelatedSearchResultsResponse, 2, true);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
@@ -147,7 +149,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
             fail("Failed waiting for latch");
         }
         assertEquals(1, contextHandler.getMethodInvocationCount());
-        assertEquals(searchResultsConverter.convertToString(searchResultsEvent),contextHandler.getResultsString());
+        assertEquals(searchResultsConverter.convertToString(createSearchResultsEvent(new SearchResultsEvent[]{searchResultsEvent})[0]),contextHandler.getResultsString());
         assertEquals(0,defaultHandler.getMethodInvocationCount());
 
         assertEquals(2, searchResultsConverter.getNoOfExecutions());
@@ -184,7 +186,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         SearchResultsEvent searchResultsEvent =  createStringResponse();
         List<List<SearchResponseContext>> list= new ArrayList<List<SearchResponseContext>>(1);
         list.add(holder);
-        eventHandler.handleResponseEvents(new SearchResultsEvent[] {searchResultsEvent},list);
+        eventHandler.handleResponseEvents(createSearchResultsEvent(new SearchResultsEvent[] {searchResultsEvent}),list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
@@ -224,7 +226,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         holder.add(context);
         List<List<SearchResponseContext>> list= new ArrayList<List<SearchResponseContext>>(1);
         list.add(holder);
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
+        eventHandler.handleResponseEvents(createSearchResultsEvent(new SearchResultsEvent[]{createStringResponse()}),list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
@@ -267,7 +269,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         list.add(holder);
 
 
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
+        eventHandler.handleResponseEvents(createSearchResultsEvent(new SearchResultsEvent[]{createStringResponse()}),list);
 
         // Tests that FrequentlyRelatedSearchResult[] search results are handled with the NumberOfSearchResultsConverter, and that the
         // AsyncContext contextHandler is called
@@ -287,7 +289,7 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         reset(contextHandler,defaultHandler);
 
 
-        eventHandler.handleResponseEvents(new SearchResultsEvent[]{createStringResponse()},list);
+        eventHandler.handleResponseEvents(createSearchResultsEvent(new SearchResultsEvent[]{createStringResponse()}),list);
 
         try {
             boolean handled = latch.await(2000, TimeUnit.MILLISECONDS);
@@ -301,6 +303,14 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         verify(defaultHandler,times(0)).sendResults(anyString(),anyString(),any(SearchResultsEvent.class),any(SearchResponseContext.class));
 
 
+    }
+
+    private SearchResultEventWithSearchRequestKey[] createSearchResultsEvent(SearchResultsEvent[] results) {
+        SearchResultEventWithSearchRequestKey[] objs = new SearchResultEventWithSearchRequestKey[results.length];
+        for(int i =0;i<results.length;i++) {
+            objs[i] = new SearchResultEventWithSearchRequestKey(results[i],new SipHashSearchRequestLookupKey("1"),0,0);
+        }
+        return objs;
     }
 
 
@@ -384,9 +394,9 @@ public class ResponseContextTypeBasedResponseEventHandlerTest {
         }
 
         @Override
-        public String convertToString(SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
+        public String convertToString(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> results) {
             executions.incrementAndGet();
-            return "{ \"num\": \""+Integer.toString(results.getSearchResults().length) +"\" }";
+            return "{ \"num\": \""+Integer.toString(results.getResponse().getSearchResults().length) +"\" }";
         }
     }
 }

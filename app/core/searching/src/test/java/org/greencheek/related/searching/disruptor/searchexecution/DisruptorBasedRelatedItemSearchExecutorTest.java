@@ -91,7 +91,7 @@ public class DisruptorBasedRelatedItemSearchExecutorTest {
                 latch.countDown();
                 return null;
             }
-        }).when(responseEventHandler).handleResponseEvents(any(SearchResultsEvent[].class), anyList());
+        }).when(responseEventHandler).handleResponseEvents(any(SearchResultEventWithSearchRequestKey[].class), anyList());
 
 
         searchRepositoryWith2SecondDelay = mock(RelatedItemSearchRepository.class);
@@ -181,7 +181,7 @@ public class DisruptorBasedRelatedItemSearchExecutorTest {
         assertTrue(contextLookup.addContext(key,new SearchResponseContext[0]));
 
         try {
-            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultsEvent[].class), anyList());
+            verify(responseEventHandler,times(1)).handleResponseEvents(any(SearchResultEventWithSearchRequestKey[].class), anyList());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,7 +246,7 @@ public class DisruptorBasedRelatedItemSearchExecutorTest {
         SearchResultEventWithSearchRequestKey[] results = new SearchResultEventWithSearchRequestKey[1];
 
         results[0] = new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS,
-               new SipHashSearchRequestLookupKey("1"));
+               new SipHashSearchRequestLookupKey("1"),0,0);
 
         return results;
     }

@@ -29,6 +29,7 @@ public class RelatedItemSearchRequestTranslator implements IncomingSearchRequest
                             SearchResponseContext[] contexts) {
         log.debug("Creating Related Product Search Request {}, {}",event.getSearchRequest().getLookupKey(),params);
         event.setRequestContexts(contexts);
+
         relatedItemSearchFactory.populateSearchObject(event.getSearchRequest(), type,params);
     }
 }
