@@ -179,6 +179,79 @@ Which will result in just the one related item:
 
 Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It *DOES NOT* return the matching document's information.  This doesn't mean in the future it will not return the matching document details.  
 
+## More Indexing##  
+
+    {
+        "channel": "de", 
+        "date": "2013-12-25T09:44:41.943", 
+        "items": [
+            {
+                "id": "1", 
+                "type": "map"
+            }, 
+            {
+                "id": "2", 
+                "type": "compass"
+            }, 
+            {
+                "id": "3", 
+                "type": "torch"
+            }, 
+            {
+                "channel": "uk", 
+                "id": "4", 
+                "type": "torch"
+            }
+        ], 
+        "site": "amazon"
+    }
+
+
+{
+    "channel": "de", 
+    "date": "2013-12-24T09:44:41.943+10:00", 
+    "items": [
+        {
+            "id": "1", 
+            "type": "map"
+        }, 
+        {
+            "id": "2", 
+            "type": "compass"
+        }, 
+        {
+            "id": "3", 
+            "type": "torch"
+        }, 
+        {
+            "channel": "uk", 
+            "id": "4", 
+            "type": "torch"
+        }
+    ], 
+    "site": "amazon"
+}
+
+{
+_index: relateditems-2013-12-23
+_type: related
+_id: EmHW1qQBQv2BMgmQAlyMiA
+_version: 1
+_score: 1
+_source: {
+id: 3
+date: 2013-12-23T23:44:41.943Z
+related-with: [
+4
+1
+2
+]
+type: torch
+site: amazon
+channel: de
+}
+}
+
 ## Elasticsearch ##
 
 As mentioned above, the related item data is stored in elasticsearch and the ability to find the frequently related items, for an item, is provided by that of elasticsearch and its faceting.  
@@ -253,7 +326,62 @@ Below shows the heap configuration for indexing and search.  The difference betw
 
 
 
+## Load Testing ##
 
+Below show the load testing results from indexing and searching tests performed against the application during development and testing.  You will obviously have different results based on your representative indexing data and searches.  
+
+The load tests results are from running a 1GB heap and running indexing and searching completely independently of each other.
+
+Elasticsearch version 0.90.9 is running on 2 hosts:
+
+* Mac mini 2.3 GHz Core i5 (I5-2415M)
+* macbook pro 17" 2.5 GHz Core i7 (I7-2860QM) 
+
+The indexing and searching applications are running on:
+
+* Dell poweredge t420, 2 cpu Intel(R) Xeon(R) CPU E5-2407 2.20GHz.
+* tomcat 7u42, NIO connector.
+* centos 6.5
+
+The connection between the dell t420 and the macbook pro is wifi 5g, and to mac mini 100mbps lan.
+
+The gatling load test is run on another host, running 1000 concurrent users.
+
+    ================================================================================
+    ---- Global Information --------------------------------------------------------
+    > numberOfRequests                                 2346426 (OK=2346426 KO=0     )
+    > minResponseTime                                        0 (OK=0      KO=-     )
+    > maxResponseTime                                     1570 (OK=1570   KO=-     )
+    > meanResponseTime                                       3 (OK=3      KO=-     )
+    > stdDeviation                                          29 (OK=29     KO=-     )
+    > percentiles1                                          10 (OK=10     KO=-     )
+    > percentiles2                                          10 (OK=10     KO=-     )
+    > meanNumberOfRequestsPerSecond                       3351 (OK=3351   KO=-     )
+    ---- Response Time Distribution ------------------------------------------------
+    > t < 800 ms                                       2345586 ( 99%)
+    > 800 ms < t < 1200 ms                                  82 (  0%)
+    > t > 1200 ms                                          758 (  0%)
+    > failed                                                 0 (  0%)
+    ================================================================================
+
+Searching load testing results:
+
+    ================================================================================
+    ---- Global Information --------------------------------------------------------
+    > numberOfRequests                                 3350140 (OK=3350140 KO=0     )
+    > minResponseTime                                        0 (OK=0      KO=-     )
+    > maxResponseTime                                     4310 (OK=4310   KO=-     )
+    > meanResponseTime                                      76 (OK=76     KO=-     )
+    > stdDeviation                                         110 (OK=110    KO=-     )
+    > percentiles1                                         140 (OK=140    KO=-     )
+    > percentiles2                                         470 (OK=470    KO=-     )
+    > meanNumberOfRequestsPerSecond                       4785 (OK=4785   KO=-     )
+    ---- Response Time Distribution ------------------------------------------------
+    > t < 800 ms                                       3335529 ( 99%)
+    > 800 ms < t < 1200 ms                               11950 (  0%)
+    > t > 1200 ms                                         2661 (  0%)
+    > failed                                                 0 (  0%)
+    ================================================================================
 
 #Indexing info
 
