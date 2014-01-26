@@ -1,4 +1,6 @@
-# ![Relateit](./relateitlogo.png) #
+# ![Relateit](./relateitlogo.png)
+## (**\*BETA\***)
+
 
 **Relateit** is a simple and easy way to relate one item to several others.  Once several items are related to other items you can enquire:  For this item, what are the most frequently related items.  
 

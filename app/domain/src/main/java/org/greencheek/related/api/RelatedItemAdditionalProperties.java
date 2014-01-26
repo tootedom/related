@@ -34,9 +34,11 @@ public class RelatedItemAdditionalProperties {
      */
     public RelatedItemAdditionalProperties(Configuration configuration, int maxNumOfProperties) {
         additionalProperties = new RelatedItemAdditionalProperty[maxNumOfProperties];
+        int keyLength = configuration.getRelatedItemAdditionalPropertyKeyLength();
+        int valueLength = configuration.getRelatedItemAdditionalPropertyValueLength();
 
         for(int i=0;i<maxNumOfProperties;i++) {
-            additionalProperties[i] = new RelatedItemAdditionalProperty(configuration);
+            additionalProperties[i] = new RelatedItemAdditionalProperty(keyLength,valueLength);
         }
 
     }
@@ -172,12 +174,12 @@ public class RelatedItemAdditionalProperties {
 
     public String toUrlQueryTypeString() {
 
-
-        if(getNumberOfProperties()>0) {
+        int noOfProperties = getNumberOfProperties();
+        if(noOfProperties>0) {
             int lengthOfString =  getUrlQueryTypeStringLength();
             StringBuilder string = new StringBuilder(lengthOfString);
 
-            for(int i=0;i<getNumberOfProperties();i++) {
+            for(int i=0;i<noOfProperties;i++) {
                 RelatedItemAdditionalProperty prop = additionalProperties[i];
                 string.append(prop.name,0,prop.nameLength).append('=').append(prop.value,0,prop.valueLength).append('&');
             }
@@ -213,9 +215,9 @@ public class RelatedItemAdditionalProperties {
 
         }
 
-        public RelatedItemAdditionalProperty(Configuration configuration) {
-            maxNameLength = configuration.getRelatedItemAdditionalPropertyKeyLength();
-            maxValueLength = configuration.getRelatedItemAdditionalPropertyValueLength();
+        public RelatedItemAdditionalProperty(int keyLength, int valueLength) {
+            maxNameLength = keyLength;
+            maxValueLength = valueLength;
             name = new char[maxNameLength];
             value =  new char[maxValueLength];
         }
