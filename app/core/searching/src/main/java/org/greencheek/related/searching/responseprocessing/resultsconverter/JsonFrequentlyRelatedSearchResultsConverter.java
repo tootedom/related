@@ -52,8 +52,8 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
         }
         resultsMap.put(configuration.getKeyForFrequencyResults(), relatedItems);
-        resultsMap.put(configuration.getKeyForStorageResponseTime(),searchResultsEvent.getSearchExecutionTime());
-        resultsMap.put(configuration.getKeyForSearchProcessingResponseTime(),((System.nanoTime() - searchResultsEvent.getStartOfSearchRequestProcessing())/1000000));
+        resultsMap.put(configuration.getKeyForStorageResponseTime(),Long.toString(searchResultsEvent.getSearchExecutionTime()));
+        resultsMap.put(configuration.getKeyForSearchProcessingResponseTime(),Long.toString((System.nanoTime() - searchResultsEvent.getStartOfSearchRequestProcessing())/1000000));
 
         return resultsMap;
 

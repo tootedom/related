@@ -18,13 +18,13 @@ public class RelatedItemIndexingMessageFactoryTest {
     @After
     public void tearDown() {
         System.clearProperty(PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES);
-        System.clearProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
+        System.clearProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
 
     }
 
     @Test
     public void testRelatedItemIndexingMessageWith4RelatedItems() throws Exception {
-        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"4");
+        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"4");
         Configuration config = new SystemPropertiesConfiguration();
 
         RelatedItemIndexingMessageFactory factory = new RelatedItemIndexingMessageFactory(config);
@@ -37,7 +37,7 @@ public class RelatedItemIndexingMessageFactoryTest {
     @Test
     public void testRelatedItemIndexingMessage() {
 
-        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"2");
+        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"2");
         Configuration config = new SystemPropertiesConfiguration();
 
         RelatedItemIndexingMessageFactory factory = new RelatedItemIndexingMessageFactory(config);
@@ -51,7 +51,7 @@ public class RelatedItemIndexingMessageFactoryTest {
     @Test
     public void testRelatedItemIndexingMessageRestrictsNumberOfProperties() {
 
-        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"2");
+        System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"2");
         System.setProperty(PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES,"3");
         Configuration config = new SystemPropertiesConfiguration();
 

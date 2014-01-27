@@ -48,7 +48,7 @@ public class RoundRobinRelatedItemIndexingMessageEventHandlerTest {
 
     @Before
     public void setUp() {
-        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"10");
         System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE, "25");
         System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS,"2");
         configuration = new SystemPropertiesConfiguration();
@@ -59,7 +59,7 @@ public class RoundRobinRelatedItemIndexingMessageEventHandlerTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         System.clearProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE);
         System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS);
         handler.shutdown();

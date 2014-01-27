@@ -36,7 +36,7 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
     public void tearDown() {
         super.tearDown();
         System.clearProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS);
-        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
     }
 
 
@@ -76,7 +76,7 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
     @Test
     public void testExceptionIsThrownWhenJsonContainsTooManyProducts() {
         System.setProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS,"true");
-        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"1");
         String json =
                 "{" +
                         "    \"channel\" : \"uk\"," +
@@ -96,7 +96,7 @@ public class JsonSmartIndexingRequestConverterTest extends JsonIndexingRequestCo
     @Test
     public void testExceptionIsNotThrownWhenJsonContainsTooManyProducts() {
         System.setProperty(ConfigurationConstants.PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS,"false");
-        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM,"2");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST,"2");
         String json =
                 "{" +
                         "    \"channel\" : \"uk\"," +

@@ -1,7 +1,7 @@
 related-item:
   safe.to.output.index.request.data: true
   max.number.related.item.properties: 1
-  max.number.related.items.per.item: 1
+  max.number.related.items.per.index.request: 1
   related.item.id.length: 4
   related.item.invalid.id.string: WRONG
   max.related.item.post.data.size.in.bytes: 65536

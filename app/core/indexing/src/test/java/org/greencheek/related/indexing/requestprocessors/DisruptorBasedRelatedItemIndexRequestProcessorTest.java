@@ -36,7 +36,7 @@ public class DisruptorBasedRelatedItemIndexRequestProcessorTest {
 
     @Before
     public void setUp() {
-        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST, "1");
         configuation = new SystemPropertiesConfiguration();
         factory = new RelatedItemIndexingMessageFactory(configuation);
         byteBufferToIndexingRequestMessageConverter = new JsonSmartIndexingRequestConverterFactory(new JodaISO8601UTCCurrentDateAndTimeFormatter());
@@ -48,7 +48,7 @@ public class DisruptorBasedRelatedItemIndexRequestProcessorTest {
 
     @After
     public void tearDown() {
-        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
+        System.clearProperty(ConfigurationConstants.PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         processor.shutdown();
     }
 

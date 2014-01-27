@@ -18,6 +18,7 @@ The search technology Elasticsearch provides the storage, and searching mechanis
 
 The Indexing and Searching components do not need to directly be used.  In other words you can just post data in the relevant format into elasticsearch, and then perform searching directly against elasticsearch to obtain the most frequently related items.   However, it is the Indexing and Searching components that provide a means of batching indexing and searching requests that are being send to elasticsearch.
 
+___
 
 ## Indexing and Searching Overview ##
 
@@ -239,6 +240,8 @@ The reason behind not returning the matching documents source, is that there cou
        ]
     }'
 
+___
+
 ## More Indexing##  
 
 When a group of related items are indexed, by default they are stored in elasticsearch in a dated index, for example "relateditems-YYYY-MM-DD":
@@ -347,6 +350,8 @@ The document itself is:
         "channel": "de"
     }    
 
+____
+
 ### Post Document Format ###
 
 The related items document that is POST'ed to the indexing web application has a couple of keys that it refers to:
@@ -429,9 +434,26 @@ If an element exist in the item's property that was defined in the parent enclos
 
 With the above you can see that the second item has an extra field "memory", than that of the first document.  Whilst it does not make much difference to the backend (elasticsearch) or the web applications (searching or indexing), for consistencies sake you shouldn't really have key existing in one related item that do not appear in the.  However, it is entirely up to you.  
 
+### How Many Items Can Be Included in a Single Related Item POST? ###
+
+By fault 10 related items per POST request can be handled.  By default if there are 11 items in the indexing request; the last item is silently ignored (a warning is output in the logs).  The below are the properties that are available for configuration, for adjusting these defaults
+
+    * related-item.max.number.related.items.per.index.request = 10
+    * related-item.max.related.item.post.data.size.in.bytes = 10240
+    * related-item.indexing.discard.storage.requests.with.too.many.relations = false
+
 ### How Many Properties Can I Have for Related Item ###
 
-The answer to this question is that you 
+The answer to this question is that you can have as many properties as you like per indexed relate item.  However, in order to have as many items as you like you need to pay for that, in terms of memory allocated to the application, or reduction in the ring buffer size, and or length of the property keys/values.
+
+The following properties are available for configuration, show with their defaults.  As a result if you know a related item will have more than 10 properties (remember this leaves you with 7 configurable properties of your choosing; id, date and related-with take already taken)
+
+    * related-item.max.number.related.item.properties = 10
+    * related-item.additional.prop.key.length = 30 (characters)
+    * related-item.additional.prop.key.length = 30 (characters)
+    * related-item.indexing.size.of.incoming.request.queue = 16384
+    
+___
 
 ## Elasticsearch ##
 
@@ -441,11 +463,11 @@ The indexing and searching web applications use the elasticsearch java library.
 
 The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol.  Meaning, the version of the client embedded within the web applications (indexing and searching), *MUST* match that of the elasticsearch server.  Also, the version of JAVA on the client and the server *MUST* be the same.
 
-* Current embedded elasticsearch version is: **0.90.9**
+    * Current embedded elasticsearch version is: **0.90.9**
 
 By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:
 
-    client.transport.sniff : true
+    * client.transport.sniff : true
 
 (Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).
 
@@ -458,11 +480,11 @@ The defaults for indexing and searching have been set based on a JVM the is runn
 
 At minimum the only configuration required is the connection details for your elasticsearch installation:
 
-    -Drelated-item.elastic.search.transport.hosts=10.0.1.19:9300
+    * related-item.elastic.search.transport.hosts=10.0.1.19:9300
 
 This can be a comma separated list of hosts:
 
-    -Drelated-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
+    * related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
 
 By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.
 
@@ -527,6 +549,49 @@ If the related documents you are indexed are going to have more properties (i.e.
         }
     }'
 
+
+
+### Elasticsearch Server Configuration ###
+
+The elasticsearch server itself also requires some configuration.  By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the *data/* directory in it's download installation location.  You more than like want to:
+
+    * Move to unicast if your network does not cope with multicast traffic routing well (i.e. multiple data centres, etc.)
+    * Move the local storage to a raid array, with raid 1, 5 or raid 1+0 (10), away from the data/ directory.  So that you can update the elasticsearch binaries without affecting the data indexed.
+
+The elasticsearch configuration file (**config/elasticsearch.yml**), needs to be updated to reflect the default cluster name that the indexing and searching applications will be looking for the elasticsearch nodes to have.  The name of the cluster is controlled by the property:
+
+    * related-item.storage.cluster.name
+
+Therefore the elasticsearch configuration should have:
+ 
+    cluster.name: relateditems
+
+There are several other properties that are not by default in the elasticsearch.yml file, that assist in its operations (searching, bulk indexing and indexing).  The following configuration reduces the size of the queue, and the maximum number of threads that elasticsearch can run of the given operations.  By changing the defaults we are allowing existing operations to complete, without flooding it with more requests until it is unable to cope with the load.  As a result we bound the size of the pools and queues, in order to apply back pressure to the request's origin.
+
+The settings are as follows 
+
+#### Search pool
+
+    * threadpool.search.type: fixed
+    * threadpool.search.size: 20
+    * threadpool.search.queue_size: 100000
+
+# Bulk pool
+    * threadpool.bulk.type: fixed
+    * threadpool.bulk.size: 25
+    * threadpool.bulk.queue_size: 100000
+
+    * threadpool.get.type: fixed
+    * threadpool.get.size: 1
+    * threadpool.get.queue_size: 1
+
+
+# Index pool
+    * threadpool.index.type: fixed
+    * threadpool.index.size: 20
+    * threadpool.index.queue_size: 100000
+----
+
 ### JVM Options and Configuration Defaults #
 
 The default configuration for indexing and searching are based on a 1GB heap (-Xmx1024m -Xms1024m) configuration.  
@@ -566,6 +631,7 @@ Below shows the heap configuration for indexing and search.  The difference betw
     -Xss256k
 
 
+----
 
 
 ## Load Testing ##
@@ -586,8 +652,10 @@ The indexing and searching applications are running on:
 * centos 6.5
 
 The connection between the dell t420 and the macbook pro is wifi 5g, and to mac mini 100mbps lan.
-
 The gatling load test is run on another host, running 1000 concurrent users.
+
+--- 
+### Indexing Load Test Output ###
 
     ================================================================================
     ---- Global Information --------------------------------------------------------
@@ -605,8 +673,8 @@ The gatling load test is run on another host, running 1000 concurrent users.
     > t > 1200 ms                                          758 (  0%)
     > failed                                                 0 (  0%)
     ================================================================================
-
-Searching load testing results:
+----
+### Searching Load Test Output ###
 
     ================================================================================
     ---- Global Information --------------------------------------------------------
@@ -625,113 +693,3 @@ Searching load testing results:
     > failed                                                 0 (  0%)
     ================================================================================
 
-#Indexing info
-
-
-    HOST=localhost
-
-
-
-
-
-'''
-
-Elastic config
-'''
-cluster.name: relateditems
-
-# Search pool
-threadpool.search.type: fixed
-threadpool.search.size: 20
-threadpool.search.queue_size: 1000000
-
-# Bulk pool
-threadpool.bulk.type: fixed
-threadpool.bulk.size: 25
-threadpool.bulk.queue_size: 1000000
-
-threadpool.get.type: fixed
-threadpool.get.size: 1
-threadpool.get.queue_size: 1
-
-
-# Index pool
-threadpool.index.type: fixed
-threadpool.index.size: 20
-threadpool.index.queue_size: 1000000
-'''
-
-
-
-
-Sample indexing json
-
-'''
-{
-   "channel":"de",
-   "site":"amazon",
-   "items":[
-      {
-         "id":"1",
-         "type":"map"
-      },
-      {
-         "id":"2",
-         "type":"compass"
-      },
-      {
-         "id":"3",
-         "type":"torch"
-      }
-   ]
-}
-'''
-
-
-Sample curl request for indexing:
-
-
-    curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d         '{ "channel" : "uk", "site" : "amazon", "date" : "2013-05-22T20:31:35", "items" : [ { "id" :     "111","type":"coat"}, { "id" : "123","type":"socks"}, { "id" : "23334","type":"button"} ]  }'
-
-
-Sample indexing configuration params:
-
-'''
--Drelated-product.wait.strategy=busy -Drelated-product.size.of.incoming.request.queue=131072 -Drelated-product.number.of.indexing.request.processors=8 -Drelated-product.index.batch.size=125 -Drelated-product.elastic.search.transport.hosts=10.0.1.19:9300
-'''
-
-
----
-
-Sample search request
-
-    curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/8855?channel=uk
-
-    curl -v -N http://localhost:8080/searching/frequentlyrelatedto/123?channel=uk
-
-
-
-in elastic this would be:
-
-'''
-curl -XPOST http://macmini:9200/relateditemss*/relateditem/_search -d '
-{
-  "query" :
-        {
-            "bool" : {
-                "must" : [
-                    {"field" : {"id" : "338906"} },
-                    {"field" : {"channel" : "uk"} },
-                    {"field" : {"site" : "amazon"} }
-                ]
-            }
-        },
-        "facets" : {
-            "frequently-related-with" : {
-                "terms" : {"field" : "related-with", "size" : 5 }
-            }
-        },
-        "size":0
-}
-'
-'''

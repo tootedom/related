@@ -11,7 +11,7 @@ public class ConfigurationConstants {
 
     public static final String PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA = "related-item.safe.to.output.index.request.data";
     public static final String PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES = "related-item.max.number.related.item.properties";
-    public static final String PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM = "related-item.max.number.related.items.per.item";
+    public static final String PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST = "related-item.max.number.related.items.per.index.request";
     public static final String PROPNAME_RELATED_ITEM_ID_LENGTH = "related-item.related.item.id.length";
     public static final String PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = "related-item.max.related.item.post.data.size.in.bytes";
     public static final String PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = "related-item.min.related.item.post.data.size.in.bytes";
@@ -136,7 +136,7 @@ public class ConfigurationConstants {
     public static final boolean DEFAULT_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = false;
 
 //    public static final String[] PROPERTY_NAMES = new String[]{PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES,
-//            PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, PROPNAME_RELATED_ITEM_ID_LENGTH, PROPNAME_RELATED_ITEM_INVALID_ID_STRING,
+//            PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST, PROPNAME_RELATED_ITEM_ID_LENGTH, PROPNAME_RELATED_ITEM_INVALID_ID_STRING,
 //            PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES,
 //            PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH, PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_VALUE_LENGTH,
 //            PROPNAME_SIZE_OF_INCOMING_REQUEST_QUEUE, PROPNAME_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE, PROPNAME_BATCH_INDEX_SIZE,
@@ -164,7 +164,7 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_WAIT_STRATEGY,DEFAULT_WAIT_STRATEGY);
         configuration.put(PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA,DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA);
         configuration.put(PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES, DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES);
-        configuration.put(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
+        configuration.put(PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         configuration.put(PROPNAME_RELATED_ITEM_ID_LENGTH, DEFAULT_RELATED_ITEM_ID_LENGTH);
         configuration.put(PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         configuration.put(PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);

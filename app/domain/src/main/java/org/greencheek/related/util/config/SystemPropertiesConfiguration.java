@@ -176,10 +176,10 @@ public class SystemPropertiesConfiguration implements Configuration {
      * @param properties
      */
     protected SystemPropertiesConfiguration(Map<String,Object> properties) {
-        NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(getInt(properties,PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS,DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS));
+        NUMBER_OF_SEARCHING_REQUEST_PROCESSORS = Util.ceilingNextPowerOfTwo(getInt(properties, PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, DEFAULT_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS));
         SAFE_TO_OUTPUT_REQUEST_DATA = getBoolean(properties, PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA, DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA);
         MAX_NUMBER_OF_RELATED_PRODUCT_PROPERTIES = getInt(properties, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES, DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES);
-        MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = getInt(properties, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
+        MAX_NUMBER_OF_RELATED_PRODUCTS_PER_PURCHASE = getInt(properties, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST, DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
         RELATED_PRODUCT_ID_LENGTH = getInt(properties, PROPNAME_RELATED_ITEM_ID_LENGTH, DEFAULT_RELATED_ITEM_ID_LENGTH);
         MAX_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties, PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         MIN_RELATED_PRODUCT_POST_DATA_SIZE_IN_BYTES = getInt(properties, PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES, DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
@@ -380,10 +380,10 @@ public class SystemPropertiesConfiguration implements Configuration {
     public static Map<String,Object> parseProperties(Map<String,String> propertiesToConvert) {
         Map<String,Object> parsedProperties = new HashMap<String,Object>();
 
-        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
+        parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES);
-        parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_ITEM);
-        parseInt(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_ID_LENGTH);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_RELATED_ITEM_ID_LENGTH);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES);
         parseInt(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH);
