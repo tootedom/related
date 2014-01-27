@@ -473,8 +473,8 @@ By default both applications use the Transport protocol to connect to elasticsea
 
 The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client.  HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes.  So at the moment only the "**node**", or "**transport**" option are available.  With the default being that of **transport**.
 
-
-## Elasticsearch Connection Configuration ##
+----
+### Elasticsearch Connection Configuration ##
 
 The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).
 
@@ -487,6 +487,10 @@ This can be a comma separated list of hosts:
     * related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
 
 By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.
+
+----
+
+### Elasticsearch Relate Item Type Mapping
 
 When the indexing and searching applications talk to elasticsearch they search for documents within the index "relateditems-YYYY-MM-DD" for the document type "related".  As previously mentioned the defined properties require for the "related" type are: 
 
@@ -570,13 +574,13 @@ There are several other properties that are not by default in the elasticsearch.
 
 The settings are as follows 
 
-#### Search pool
+### Search pool
 
     * threadpool.search.type: fixed
     * threadpool.search.size: 20
     * threadpool.search.queue_size: 100000
 
-# Bulk pool
+### Bulk pool
     * threadpool.bulk.type: fixed
     * threadpool.bulk.size: 25
     * threadpool.bulk.queue_size: 100000
@@ -586,13 +590,13 @@ The settings are as follows
     * threadpool.get.queue_size: 1
 
 
-# Index pool
+### Index pool
     * threadpool.index.type: fixed
     * threadpool.index.size: 20
     * threadpool.index.queue_size: 100000
 ----
 
-### JVM Options and Configuration Defaults #
+## JVM Options and Configuration Defaults #
 
 The default configuration for indexing and searching are based on a 1GB heap (-Xmx1024m -Xms1024m) configuration.  
 
@@ -600,7 +604,7 @@ The application configuration
 
 The specific recommended (tested against) JVM options for searching and indexing are listed below (jdk7 - the following options *WILL NOT* work on jdk6).  The JVM options slightly differ between searching and indexing.  The common options are listed and then the differences listed:
 
-### Common options
+### Common options for Web Applications
 
     -XX:CMSInitiatingOccupancyFraction=85
     -XX:MaxTenuringThreshold=15
@@ -614,6 +618,7 @@ The specific recommended (tested against) JVM options for searching and indexing
     -XX:+AggressiveOpts
     -XX:+UseCondCardMark
 
+----
 Below shows the heap configuration for indexing and search.  The difference between the two is that of the eden space.
 
 ### Searching Heap ###
@@ -629,7 +634,6 @@ Below shows the heap configuration for indexing and search.  The difference betw
     -Xmn256m
     -Xms1024m
     -Xss256k
-
 
 ----
 
