@@ -2,9 +2,9 @@
 ## (**\*BETA\***)
 
 
-**Relateit** is a simple and easy way to relate one item to several others.  Once several items are related to other items you can enquire:  For this item, what are the most frequently related items.  
+**relateit** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."
 
-This can be used on a web site to associate the items the people are purchasing.  If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.  When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is frequently purchased with.
+An example use case of this functionality is on a web site to associate the items the people are purchasing.  If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.  When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is most frequently purchased with.  
 
 This application has 3 parts to it:
 
@@ -12,12 +12,16 @@ This application has 3 parts to it:
 * A Searching Web Application
 * [Elasticsearch](http://www.elasticsearch.org/ "Elasticsearch") backend
 
-The indexing and searching components make use of the [Disruptor](https://github.com/LMAX-Exchange/disruptor "Disruptor") library.  Whilst the Indexing and Searching components do not need to directly be used, they provide a means of batching indexing and searching requests.
+The indexing and searching components (web applications) make use of the [Disruptor](https://github.com/LMAX-Exchange/disruptor "Disruptor") library.  
+
+The search technology Elasticsearch provides the storage, and searching mechanism for providing the related product search.
+
+The Indexing and Searching components do not need to directly be used.  In other words you can just post data in the relevant format into elasticsearch, and then perform searching directly against elasticsearch to obtain the most frequently related items.   However, it is the Indexing and Searching components that provide a means of batching indexing and searching requests that are being send to elasticsearch.
 
 
 ## Indexing and Searching Overview ##
 
-The index web application is POSTed data containing the related items:
+The index web application is POSTed data containing a group of related items, i.e. for example a purchase.  A post request is as follows:
 
     curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
     {
@@ -144,7 +148,7 @@ As a result you can say.  Give with the frequently related product that are most
 The result is:
 
     {
-        "response_time": 11, 
+        "response_time": "11", 
         "results": [
             {
                 "frequency": "1", 
@@ -156,7 +160,7 @@ The result is:
             }
         ], 
         "size": "2", 
-        "storage_response_time": 2
+        "storage_response_time": "2"
     }
 
 You can go further and search for torches, just in channel uk, which is:
@@ -177,9 +181,76 @@ Which will result in just the one related item:
         "storage_response_time": 1
     }
 
-Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It *DOES NOT* return the matching document's information.  This doesn't mean in the future it will not return the matching document details.  
+Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It *DOES NOT* return the matching document's information.  
+
+The reason behind not returning the matching documents source, is that there could be literally hundreds of matching documents.  For example, the dvd "The Raid" could be bought many many times, with a range of other products.  For the below related item POSTs, the dvd "The Raid", is associated with "Enter the dragon" and "kick boxer".  Where the it is associated with "kick boxer" twice, and therefore "kick boxer" is the most frequently related item.  In the backend (elasticsearch), there are two actual physical documents that represent "kick boxer".  If we are to return the matching documents for the "most frequently related", we have to return the source both documents.  Expanding this further you could quite easily have a item related to another 100's of times; which would mean 100's of matching documents.  It is for this reason the content of that matches are not returned.
+
+    curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+    {
+       "channel":"uk",
+       "site":"amazon",
+       "items":[
+          {
+             "id":"1",
+             "title":"The Raid",
+             "type":"dvd"
+          },
+          {
+             "id":"2",
+             "title":"Enter the dragon",
+             "type":"dvd"           
+          }
+       ]
+    }'
+
+    curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+    {
+       "channel":"uk",
+       "site":"amazon",
+       "items":[
+          {
+             "id":"1",
+             "title":"The Raid",
+             "type":"dvd"
+          },
+          {
+             "id":"2",
+             "title":"kick boxer",
+             "type":"dvd"           
+          }
+       ]
+    }'
+    
+    curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+    {
+       "channel":"uk",
+       "site":"amazon",
+       "items":[
+          {
+             "id":"1",
+             "title":"The Raid",
+             "type":"dvd"
+          },
+          {
+             "id":"2",
+             "title":"kick boxer",
+             "type":"dvd"           
+          }
+       ]
+    }'
 
 ## More Indexing##  
+
+When a group of related items are indexed, by default they are stored in elasticsearch in a dated index, for example "relateditems-YYYY-MM-DD":
+
+Each date based index, is an index of it's own in elasticsearch.  If you were searching directly against elasticsearch you could independently search the one dated index.  
+
+The date of the index is based on the UTC date of either:
+
+* The date contained within the RELATED ITEMS POST (converted to UTC)
+* The current date set on the server on which the indexing application is running.
+
+The previous POST contained no date.  However, the following example POST contains a date that is in UTC timezone.  As an index named "**relateditems-2013-12-25**" will be created and the 4 related item documents indexed within that index.
 
     {
         "channel": "de", 
@@ -207,50 +278,160 @@ Currently the search result just returns the id's of the related items, and the 
     }
 
 
-{
-    "channel": "de", 
-    "date": "2013-12-24T09:44:41.943+10:00", 
-    "items": [
-        {
-            "id": "1", 
-            "type": "map"
-        }, 
-        {
-            "id": "2", 
-            "type": "compass"
-        }, 
-        {
-            "id": "3", 
-            "type": "torch"
-        }, 
-        {
-            "channel": "uk", 
-            "id": "4", 
-            "type": "torch"
-        }
-    ], 
-    "site": "amazon"
-}
+As mentioned above, if the date in the related items POST contains a date with time zone information, it will be converted to UTC, and then the date used.  For example, the below POST contains:
 
-{
-_index: relateditems-2013-12-23
-_type: related
-_id: EmHW1qQBQv2BMgmQAlyMiA
-_version: 1
-_score: 1
-_source: {
-id: 3
-date: 2013-12-23T23:44:41.943Z
-related-with: [
-4
-1
-2
-]
-type: torch
-site: amazon
-channel: de
-}
-}
+
+    "date": "2013-12-24T09:44:41.943+10:00"
+
+Given this date, the 4 related item documents will be indexed within the index named:
+
+    relateditems-2013-12-23
+
+The reason being that "2013-12-24T09:44:41.943+10:00" is "2013-12-23T23:44:41.943" in UTC timezone.  The resulting 4 related documents will contain the UTC timestamp.
+
+    {
+        "channel": "de", 
+        "date": "2013-12-24T09:44:41.943+10:00", 
+        "items": [
+            {
+                "id": "1", 
+                "type": "map"
+            }, 
+            {
+                "id": "2", 
+                "type": "compass"
+            }, 
+            {
+                "id": "3", 
+                "type": "torch"
+            }, 
+            {
+                "channel": "uk", 
+                "id": "4", 
+                "type": "torch"
+            }
+        ], 
+        "site": "amazon"
+    }
+
+An example document indexed in "**relateditems-2013-12-23**" looks as follows (taken from elasticsearch head):
+
+    {
+        _index: relateditems-2013-12-23
+        _type: related
+        _id: EmHW1qQBQv2BMgmQAlyMiA
+        _version: 1
+        _score: 1
+        _source: {
+            id: 3
+            date: 2013-12-23T23:44:41.943Z
+            related-with: [
+                4
+                1
+                2
+            ]
+            type: torch
+            site: amazon
+            channel: de
+        }
+    }
+
+The document itself is:
+
+    {
+        "id": "3" ,
+        "date": "2013-12-23T23:44:41.943Z",
+        "related-with": [ "4","1","2"],
+        "type": "torch",
+        "site": "amazon",
+        "channel": "de"
+    }    
+
+### Post Document Format ###
+
+The related items document that is POST'ed to the indexing web application has a couple of keys that it refers to:
+
+* "**items**": An array of items that are related, i.e. just been purchased together
+* "**id**":    The id of the item, this is your identify for the item, for example the Product Id.
+* "**date**":  The date at which the related items were created, i.e. the purchase time
+
+Example:
+
+    {
+        "date": "2013-12-24T09:44:41.943+10:00", 
+        "items": [
+            {
+                "id": "1"      
+            }, 
+            {
+                "id": "2" 
+            } 
+        ] 
+    }
+ 
+Or in short form:
+
+    {
+        "date": "2013-12-24T09:44:41.943+10:00", 
+        "items": [ "1","2" ]
+    }
+
+The short form of the post makes the assumption that the strings in the "**items**" array are the "**id**"'s 
+
+As previously seen the indexing POST document can contain extra keys and values that are associated to either the related items POST in it's entirety, or can be specific to a particular item in the related items document.
+
+For example:
+
+    {
+        "date": "2013-12-24T09:44:41.943+10:00", 
+        "site": "amazon", 
+        "channel" : "uk",       
+        "items": [
+            {
+                "department" : "electronics",
+                "category" : "storage",
+                "type" : "hard disk",
+                "id": "1",      
+            }, 
+            {
+                "department" : "electronics",
+                "category" : "notebooks",
+                "type" : "macbook pro",
+                "memory" : "8gb",
+                "channel" : "de",
+                "id": "2", 
+            } 
+        ] 
+    }
+
+Given the above the key/value: **"site": "amazon"**, will apply to all the related item documents that are indexed in elasticsearch (2 documents in the above).  The key/value pairs within the "items" array will apply just to that item's document that is indexed.  
+
+Document with "id": "1" will have the key/values:
+
+    "date": "2013-12-23T23:44:41.943"
+    "site": "amazon", 
+    "channel" : "uk",    
+    "department" : "electronics",
+    "category" : "storage",
+    "type" : "hard disk",    
+
+Document with "id" : "2" will have the key/values:
+
+    "date": "2013-12-23T23:44:41.943"
+    "site": "amazon", 
+    "channel" : "de",    
+    "department" : "electronics",
+    "category" : "notebooks",
+    "type" : "macbook pro",
+    "memory" : "8gb"
+
+If an element exist in the item's property that was defined in the parent enclosing document, then the item's value takes precedence and overrides that of the enclosing document's setting.
+
+With the above you can see that the second item has an extra field "memory", than that of the first document.  Whilst it does not make much difference to the backend (elasticsearch) or the web applications (searching or indexing), for consistencies sake you shouldn't really have key existing in one related item that do not appear in the.  However, it is entirely up to you.  
+
+### How Many Properties Can I Have for Related Item ###
+
+The answer to this question is that you 
 
 ## Elasticsearch ##
 
@@ -271,7 +452,7 @@ By default both applications use the Transport protocol to connect to elasticsea
 The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client.  HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes.  So at the moment only the "**node**", or "**transport**" option are available.  With the default being that of **transport**.
 
 
-## Configuration ##
+## Elasticsearch Connection Configuration ##
 
 The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).
 
@@ -284,6 +465,67 @@ This can be a comma separated list of hosts:
     -Drelated-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
 
 By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.
+
+When the indexing and searching applications talk to elasticsearch they search for documents within the index "relateditems-YYYY-MM-DD" for the document type "related".  As previously mentioned the defined properties require for the "related" type are: 
+
+* id 
+* related-with
+* date
+
+When indexing documents in elasticsearch, if a type (i.e. "related") does not have an associated mapping then a dynamic mapping of a document's json properties are created.  Which may or may not be what is required.  As a result, you should define a mapping for the type.  The mapping for the related type should at minimum be the following:
+
+    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
+        "template" : "relateditems*",
+        "settings" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 1,
+            "index.refresh_interval" : "5s",
+            "index.store.compress.stored" : false,
+            "index.query.default_field" : "id",
+            "index.routing.allocation.total_shards_per_node" : 1,
+            "indices.memory.index_buffer_size" : 30
+        },
+        "mappings" : {
+            "related" : {
+               "_all" : {"enabled" : false},
+               "dynamic" : false,
+               "properties" : {
+                  "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+                  "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+                  "date": { "type": "date", "index": "not_analyzed", "store" : "no" }
+               }
+            }
+        }
+    }'
+
+If the related documents you are indexed are going to have more properties (i.e. channel, type, etc).  You need to expand upon the mapping above to detail those properties.  A guide to mapping can be found [In the following elasticsearch documentation](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html)
+
+    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
+        "template" : "relateditems*",
+        "settings" : {
+            "number_of_shards" : 1,
+            "number_of_replicas" : 1,
+            "index.refresh_interval" : "5s",
+            "index.store.compress.stored" : false,
+            "index.query.default_field" : "id",
+            "index.routing.allocation.total_shards_per_node" : 1,
+            "indices.memory.index_buffer_size" : 30
+        },
+        "mappings" : {
+            "related" : {
+               "_all" : {"enabled" : false},
+               "dynamic" : false,
+               "properties" : {
+                  "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+                  "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+                  "date": { "type": "date", "index": "not_analyzed", "store" : "no" },
+                  "channel" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+                  "site" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+                  "type" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" }
+               }
+            }
+        }
+    }'
 
 ### JVM Options and Configuration Defaults #
 
@@ -387,32 +629,7 @@ Searching load testing results:
 
 
     HOST=localhost
-    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
-        "template" : "relateditems*",
-        "settings" : {
-            "number_of_shards" : 1,
-            "number_of_replicas" : 1,
-            "index.refresh_interval" : "5s",
-            "index.store.compress.stored" : false,
-            "index.query.default_field" : "id",
-            "index.routing.allocation.total_shards_per_node" : 1,
-            "indices.memory.index_buffer_size" : 30
-        },
-        "mappings" : {
-            "related" : {
-               "_all" : {"enabled" : false},
-               "dynamic" : false,
-               "properties" : {
-                  "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
-                  "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
-                  "date": { "type": "date", "index": "not_analyzed", "store" : "no" },
-                  "channel" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
-                  "site" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
-                  "type" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" }
-               }
-            }
-        }
-    }'
+
 
 
 
