@@ -576,24 +576,24 @@ The settings are as follows
 
 ### Search pool
 
-    * threadpool.search.type: fixed
-    * threadpool.search.size: 20
-    * threadpool.search.queue_size: 100000
+    threadpool.search.type: fixed
+    threadpool.search.size: 20
+    threadpool.search.queue_size: 100000
 
 ### Bulk pool
-    * threadpool.bulk.type: fixed
-    * threadpool.bulk.size: 25
-    * threadpool.bulk.queue_size: 100000
+    threadpool.bulk.type: fixed
+    threadpool.bulk.size: 25
+    threadpool.bulk.queue_size: 100000
 
-    * threadpool.get.type: fixed
-    * threadpool.get.size: 1
-    * threadpool.get.queue_size: 1
-
+### Get Pool
+    threadpool.get.type: fixed
+    threadpool.get.size: 1
+    threadpool.get.queue_size: 1
 
 ### Index pool
-    * threadpool.index.type: fixed
-    * threadpool.index.size: 20
-    * threadpool.index.queue_size: 100000
+    threadpool.index.type: fixed
+    threadpool.index.size: 20
+    threadpool.index.queue_size: 100000
 ----
 
 ## JVM Options and Configuration Defaults #
@@ -637,6 +637,83 @@ Below shows the heap configuration for indexing and search.  The difference betw
 
 ----
 
+
+## Application Configuration ##
+
+The Searching and Indexing web applications can be configured via a wide range of properties.  These can either be set using System Properties:
+
+* -Drelated-item.max.number.related.item.propetties=10
+
+Or by using a yaml configuration file.  The following will list all the properties that are available for configuration, along with their use.  Some properties are specifically for searching, others specifically for indexing, and others for both.  This will be noted.
+
+
+    | Property Name   | usage | Searching/Indxing/ALL |
+    | ----------------| ----- | --------------------- |
+    | related-item.safe.to.output.index.request.data | Writes to logs (when DEBUG) the index request data | Indexing |
+    | related-item.max.number.related.item.properties | The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering | Indexing | 
+    | related-item.max.number.related.items.per.index.request | The max number of related items in a single index POST request | Indexing |
+    | related-item.related.item.id.length | The max number of characters that the "id" of a related items can have | All |
+    | related-item.max.related.item.post.data.size.in.bytes | max size in bytes of the POST data for an index request| Indexing |
+    | related-item.min.related.item.post.data.size.in.bytes | The minimum size, in bytes, of the POSTed json data for an index request | Indexing |
+    | related-item.additional.prop.key.length | The max number of characters a property name can have| All |
+    | related-item.additional.prop.value.length | the max number of characters a property value can have | All |
+    | related-item.indexing.size.of.incoming.request.queue | Size of the ring buffer that accepts incoming indexing POST requests | Indexing |
+    | related-item.indexing.size.of.batch.indexing.request.queue  | The size of the ring buffer for each indexing processor that batch posts indexing requests to elasticsearch | Indexing |
+    | related-item.indexing.batch.size | The max number of related item objects (a single index request will have many related item objects), that can be sent for batching indexing to elastic search.| Indexing |
+    | related-item.searching.size.of.related.content.search.request.queue | Size of the ring buffer that accepts incoming search requests | Searching |
+    | related-item.searching.size.of.related.content.search.request.handler.queue | Size of the ring buffer for each search processor that submits search requests to elasticsearch | Searching |
+    | related-item.searching.size.of.related.content.search.request.and.response.queue | Size of the ring buffer that is used to store incoming Request AsyncContext objects for later retrieval | Searching |
+    | related-item.searching.max.number.of.search.criteria.for.related.content | number of additional properties that will be searched on | Searching |
+    | related-item.searching.number.of.expected.like.for.like.requests | | Searching |
+    related-item.searching.key.for.frequency.result.id
+    related-item.searching.key.for.frequency.result.occurrence
+    related-item.searching.key.for.storage.response.time
+    related-item.searching.key.for.search.processing.time
+    related-item.searching.key.for.frequency.result.overall.no.of.related.items
+    related-item.searching.key.for.frequency.results
+    related-item.searching.request.parameter.for.size
+    related-item.searching.request.parameter.for.id
+    related-item.searching.default.number.of.results
+    related-item.searching.size.of.response.processing.queue
+    related-item.indexing.number.of.indexing.request.processors
+    related-item.searching.number.of.searching.request.processors
+    related-item.storage.index.name.prefix
+    related-item.storage.index.name.alias
+    related-item.storage.content.type.name
+    related-item.storage.cluster.name
+    related-item.storage.frequently.related.items.facet.results.facet.name
+    related-item.storage.searching.facet.search.execution.hint
+    related-item.indexing.key.for.index.request.related.with.attr
+    related-item.indexing.key.for.index.request.date.attr
+    related-item.indexing.key.for.index.request.id.attr
+    related-item.indexing.key.for.index.request.item.array.attr
+    related-item.elastic.search.client.default.transport.settings.file.name
+    related-item.elastic.search.client.default.node.settings.file.name
+    related-item.elastic.search.client.override.settings.file.name
+    related-item.searching.frequently.related.search.timeout.in.millis
+    related-item.storage.location.mapper
+    related-item.searching.timed.out.search.request.status.code
+    related-item.searching.failed.search.request.status.code
+    related-item.searching.not.found.search.request.status.code
+    related-item.searching.found.search.results.handler.status.code
+    related-item.searching.missing.search.results.handler.status.code
+    related-item.additional.prop.string.encoding
+    related-item.wait.strategy
+    related-item.es.client.type
+    related-item.indexing.indexname.date.caching.enabled
+    related-item.indexing.number.of.indexname.to.cache
+    related-item.indexing.replace.old.indexed.content
+    related-item.use.separate.repository.storage.thread
+    related-item.indexing.discard.storage.requests.with.too.many.relations
+    related-item.elastic.search.transport.hosts
+    related-item.elastic.search.default.port
+    related-item.searching.use.shared.search.repository
+    related-item.searching.response.debug.output.enabled
+
+
+By default the Searching and Indexing web applications will look for a yaml configuration file from which to load the configuration details.  Any settings in the con  The order of precedence for loading the configuration
+
+* -Drelated-items.settings.file=/etc/relateditems.yml
 
 ## Load Testing ##
 
