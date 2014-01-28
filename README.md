@@ -649,24 +649,25 @@ Or by using a yaml configuration file.  The following will list all the properti
 
 | Property Name   | usage | Searching/Indxing/ALL |
 | ----------------| ----- | --------------------- |
-| related-item.safe.to.output.index.request.data | Writes to logs (when DEBUG) the index request data | Indexing |
-| related-item.max.number.related.item.properties | The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering | Indexing | 
-| related-item.max.number.related.items.per.index.request | The max number of related items in a single index POST request | Indexing |
-| related-item.related.item.id.length | The max number of characters that the "id" of a related items can have | All |
-| related-item.max.related.item.post.data.size.in.bytes | max size in bytes of the POST data for an index request| Indexing |
-| related-item.min.related.item.post.data.size.in.bytes | The minimum size, in bytes, of the POSTed json data for an index request | Indexing |
-    | related-item.additional.prop.key.length | The max number of characters a property name can have| All |
-    | related-item.additional.prop.value.length | the max number of characters a property value can have | All |
-    | related-item.indexing.size.of.incoming.request.queue | Size of the ring buffer that accepts incoming indexing POST requests | Indexing |
-    | related-item.indexing.size.of.batch.indexing.request.queue  | The size of the ring buffer for each indexing processor that batch posts indexing requests to elasticsearch | Indexing |
-    | related-item.indexing.batch.size | The max number of related item objects (a single index request will have many related item objects), that can be sent for batching indexing to elastic search.| Indexing |
-    | related-item.searching.size.of.related.content.search.request.queue | Size of the ring buffer that accepts incoming search requests | Searching |
-    | related-item.searching.size.of.related.content.search.request.handler.queue | Size of the ring buffer for each search processor that submits search requests to elasticsearch | Searching |
-    | related-item.searching.size.of.related.content.search.request.and.response.queue | Size of the ring buffer that is used to store incoming Request AsyncContext objects for later retrieval | Searching |
-    | related-item.searching.max.number.of.search.criteria.for.related.content | number of additional properties that will be searched on | Searching |
-    | related-item.searching.number.of.expected.like.for.like.requests | | Searching |
-    related-item.searching.key.for.frequency.result.id
-    related-item.searching.key.for.frequency.result.occurrence
+* related-item.safe.to.output.index.request.data | Writes to logs (when DEBUG) the index request data | Indexing |
+* related-item.max.number.related.item.properties | The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering | Indexing | 
+* related-item.max.number.related.items.per.index.request | The max number of related items in a single index POST request | Indexing |
+* related-item.related.item.id.length | The max number of characters that the "id" of a related items can have | All |
+* related-item.max.related.item.post.data.size.in.bytes | max size in bytes of the POST data for an index request| Indexing |
+* related-item.min.related.item.post.data.size.in.bytes | The minimum size, in bytes, of the POSTed json data for an index request | Indexing |
+* related-item.additional.prop.key.length | The max number of characters a property name can have| All |
+* related-item.additional.prop.value.length | the max number of characters a property value can have | All |
+* related-item.indexing.size.of.incoming.request.queue | Size of the ring buffer that accepts incoming indexing POST requests | Indexing |
+* related-item.indexing.size.of.batch.indexing.request.queue  | The size of the ring buffer for each indexing processor that batch posts indexing requests to elasticsearch | Indexing |
+* related-item.indexing.batch.size | The max number of related item objects (a single index request will have many related item objects), that can be sent for batching indexing to elastic search.| Indexing |
+* related-item.searching.size.of.related.content.search.request.queue | Size of the ring buffer that accepts incoming search requests | Searching |
+* related-item.searching.size.of.related.content.search.request.handler.queue | Size of the ring buffer for each search processor that submits search requests to elasticsearch | Searching |
+* related-item.searching.size.of.related.content.search.request.and.response.queue | Size of the ring buffer that is used to store incoming Request AsyncContext objects for later retrieval | Searching |
+* related-item.searching.max.number.of.search.criteria.for.related.content | number of additional properties that will be searched on | Searching |
+* related-item.searching.number.of.expected.like.for.like.requests | The number of search request that we expect to be similar| Searching |
+* related-item.searching.key.for.frequency.result.id | The key used for the id field in the search result json| Searching |
+* related-item.searching.key.for.frequency.result.occurrence | The key used for the frequency in the search results json |
+
     related-item.searching.key.for.storage.response.time
     related-item.searching.key.for.search.processing.time
     related-item.searching.key.for.frequency.result.overall.no.of.related.items
