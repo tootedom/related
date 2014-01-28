@@ -24,7 +24,7 @@ import org.greencheek.related.indexing.util.JodaUTCCurrentDateAndHourAndMinuteFo
 import org.greencheek.related.indexing.util.JodaUTCCurrentDateAndHourFormatter;
 import org.greencheek.related.indexing.util.JodaUTCCurrentDateFormatter;
 import org.greencheek.related.util.config.Configuration;
-import org.greencheek.related.util.config.SystemPropertiesConfiguration;
+import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 
 
 /**
@@ -62,8 +62,10 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
             locationMapper = new DayBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateFormatter());
         } else if(storageLocationMapperType.equalsIgnoreCase("hour")) {
             locationMapper = new HourBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourFormatter());
-        } else {
+        } else if(storageLocationMapperType.equalsIgnoreCase("min")) {
             locationMapper = new MinuteBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateAndHourAndMinuteFormatter());
+        } else {
+            locationMapper = new DayBasedStorageLocationMapper(applicationConfiguration, new JodaUTCCurrentDateFormatter());
         }
 
         return locationMapper;
@@ -83,7 +85,7 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
     }
 
     public Configuration createConfiguration() {
-         return new SystemPropertiesConfiguration();
+         return new YamlSystemPropertiesConfiguration();
     }
 
     /**

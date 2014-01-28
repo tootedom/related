@@ -17,7 +17,7 @@ import org.greencheek.related.indexing.RelatedItemStorageRepositoryFactory;
 import org.greencheek.related.indexing.web.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
-import org.greencheek.related.util.config.SystemPropertiesConfiguration;
+import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -689,7 +689,7 @@ public class RelatedItemIndexOrderServletTest {
         }
 
         public Configuration createConfiguration() {
-            return new SystemPropertiesConfiguration();
+            return new YamlSystemPropertiesConfiguration();
         }
 
         public TestRelatedItemStorageRepositoryFactory getRepository() {

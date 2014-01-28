@@ -75,7 +75,6 @@ public class ConfigurationConstants {
     public static final int DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES = 10;
     public static final int DEFAULT_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST = 10;
     public static final int DEFAULT_RELATED_ITEM_ID_LENGTH = 36;
-    public static final String DEFAULT_RELATED_ITEM_INVALID_ID_STRING = "INVALID_ID";
     public static final int DEFAULT_MAX_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = 10240;
     public static final int DEFAULT_MIN_RELATED_ITEM_POST_DATA_SIZE_IN_BYTES = 4096;
     public static final int DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_KEY_LENGTH = 30;

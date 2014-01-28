@@ -43,7 +43,7 @@ public class YamlSystemPropertiesConfiguration extends SystemPropertiesConfigura
                 properties.putAll(parseProperties(settings));
             }
         } catch (Exception e) {
-            log.error("Unable to load YAML settings: {}. Defaults and System Properties will be in place", filePath);
+            log.warn("Unable to load YAML settings: {}. Defaults and System Properties will be in place", filePath);
         }
 
         return properties;

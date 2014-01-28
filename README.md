@@ -666,55 +666,68 @@ Or by using a yaml configuration file.  The following will list all the properti
 * related-item.searching.max.number.of.search.criteria.for.related.content | number of additional properties that will be searched on | Searching |
 * related-item.searching.number.of.expected.like.for.like.requests | The number of search request that we expect to be similar| Searching |
 * related-item.searching.key.for.frequency.result.id | The key used for the id field in the search result json| Searching |
-* related-item.searching.key.for.frequency.result.occurrence | The key used for the frequency in the search results json |
-
-    related-item.searching.key.for.storage.response.time
-    related-item.searching.key.for.search.processing.time
-    related-item.searching.key.for.frequency.result.overall.no.of.related.items
-    related-item.searching.key.for.frequency.results
-    related-item.searching.request.parameter.for.size
-    related-item.searching.request.parameter.for.id
-    related-item.searching.default.number.of.results
-    related-item.searching.size.of.response.processing.queue
-    related-item.indexing.number.of.indexing.request.processors
-    related-item.searching.number.of.searching.request.processors
-    related-item.storage.index.name.prefix
-    related-item.storage.index.name.alias
-    related-item.storage.content.type.name
-    related-item.storage.cluster.name
-    related-item.storage.frequently.related.items.facet.results.facet.name
-    related-item.storage.searching.facet.search.execution.hint
-    related-item.indexing.key.for.index.request.related.with.attr
-    related-item.indexing.key.for.index.request.date.attr
-    related-item.indexing.key.for.index.request.id.attr
-    related-item.indexing.key.for.index.request.item.array.attr
-    related-item.elastic.search.client.default.transport.settings.file.name
-    related-item.elastic.search.client.default.node.settings.file.name
-    related-item.elastic.search.client.override.settings.file.name
-    related-item.searching.frequently.related.search.timeout.in.millis
-    related-item.storage.location.mapper
-    related-item.searching.timed.out.search.request.status.code
-    related-item.searching.failed.search.request.status.code
-    related-item.searching.not.found.search.request.status.code
-    related-item.searching.found.search.results.handler.status.code
-    related-item.searching.missing.search.results.handler.status.code
-    related-item.additional.prop.string.encoding
-    related-item.wait.strategy
-    related-item.es.client.type
-    related-item.indexing.indexname.date.caching.enabled
-    related-item.indexing.number.of.indexname.to.cache
-    related-item.indexing.replace.old.indexed.content
-    related-item.use.separate.repository.storage.thread
-    related-item.indexing.discard.storage.requests.with.too.many.relations
-    related-item.elastic.search.transport.hosts
-    related-item.elastic.search.default.port
-    related-item.searching.use.shared.search.repository
-    related-item.searching.response.debug.output.enabled
+* related-item.searching.key.for.frequency.result.occurrence | The key used for the frequency in the search results json | Searching |
+* related-item.searching.key.for.storage.response.time | Key used to represent how long the elasticsearch request took, in the json response doc | Searching | 
+* related-item.searching.key.for.search.processing.time | Key used to represent how long the complete search request took.  It is the key used in the response json | Searching |
+* related-item.searching.key.for.frequency.result.overall.no.of.related.items | key in the search response used to represent the number of frequencies returned | Searching |
+* related-item.searching.key.for.frequency.results | key in the search response json under which the frequencies are found | Searching |
+* related-item.searching.request.parameter.for.size | request parameter used to specify the max number of frequencies to return| Searching | 
+* related-item.searching.request.parameter.for.id | parameter used to associate the id in a map of request parameters | Searching |
+* related-item.searching.default.number.of.results | default number of search result (frequencies) to return | Searching |
+* related-item.searching.size.of.response.processing.queue | size of ring buffer for processing search results and sending json response to the awaiting AsyncContext | Searching |
+* related-item.indexing.number.of.indexing.request.processors | number of processors used to perform indexing (sending batch indexing requests) to elasticsearch | Indexing | 
+* related-item.searching.number.of.searching.request.processors | The number of ring buffers (processors) that will be sending search requests to elasticsearch | Searching |
+* related-item.storage.index.name.prefix | The name of the index used in elasticsearch for storing related item documents (i.e. relateditems-<YYYY-MM-DD>) | All |
+* related-item.storage.index.name.alias | The name of the index alias against which to search (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/) | All |
+* related-item.storage.content.type.name | The index type | All |
+* related-item.storage.cluster.name | The name of the elasticsearch cluster | All |
+* related-item.storage.frequently.related.items.facet.results.facet.name | The property used for naming the facet during the search request to elastic search  | Searching |
+* related-item.storage.searching.facet.search.execution.hint | Used during search request to elastic search.  The setting of 'map' is the default.  Makes request much much faster | Searching |
+* related-item.indexing.key.for.index.request.related.with.attr | The key used in the indexed document for the storing the related ids | All |
+* related-item.indexing.key.for.index.request.date.attr | The key used in the indexed document for the date attribute | All |
+* related-item.indexing.key.for.index.request.id.attr | The key against which the id is stored in the indexed document | All |
+* related-item.indexing.key.for.index.request.item.array.attr | The key in the incoming user json indexing request that contains the list of items | All |
+* related-item.elastic.search.client.default.transport.settings.file.name | name of the elastic search file containing the transport client settings (defaults) | All |
+* related-item.elastic.search.client.default.node.settings.file.name | name of the elasticsearch file containing the node client settings (defaults) | All |
+* related-item.elastic.search.client.override.settings.file.name | name of the elasticsearch file than can be distributed to override the default node/transport settings | All |  
+* related-item.searching.frequently.related.search.timeout.in.millis | timeout in millis for elasticsearch requests | All |
+* related-item.storage.location.mapper | day/hour/min used to convert date to a string used for creating the index name in which documents are stored | All |
+* related-item.searching.timed.out.search.request.status.code | the http status code when a timeout occurs | Searching |
+* related-item.searching.failed.search.request.status.code | the http status code when a search request fails to talk to elasticsearch | Searching |
+* related-item.searching.not.found.search.request.status.code | the http status code when no search result is found | Searching |
+* related-item.searching.found.search.results.handler.status.code | the http status code when a match is found | Searching |
+* related-item.searching.missing.search.results.handler.status.code | the http status code when we cannot handle the json search response | Searching |
+* related-item.wait.strategy | The type of ring buffer wait strategy: yield/busy/sleep/block | All |
+* related-item.es.client.type | The type of elasticsearch client to use | All |
+* related-item.indexing.indexname.date.caching.enabled | caching of index date | All |
+* related-item.indexing.number.of.indexname.to.cache | number of index names to cache | All |
+* related-item.indexing.replace.old.indexed.content | replace existing content (false) | Indexing | 
+* related-item.use.separate.repository.storage.thread | Use a separate thread for performing indexing | Indexing |
+* related-item.indexing.discard.storage.requests.with.too.many.relations | silently discard related items in the indexing request it there are too many.  Indexes up to the max, discards the others | Indexing |
+* related-item.elastic.search.transport.hosts | The host:port,host:port contain the unicast addresses of the search nodes in elastic search to talk to | All |
+* related-item.elastic.search.default.port | the default port if not specified to talk to in elasticsearch | All |
+* related-item.searching.use.shared.search.repository | Whether the search processors use a shared connection to elastic search | Searching | 
+* related-item.searching.response.debug.output.enabled | output the response json being sent to the client, also to a log file.  | Searching |
 
 
-By default the Searching and Indexing web applications will look for a yaml configuration file from which to load the configuration details.  Any settings in the con  The order of precedence for loading the configuration
+By default the Searching and Indexing web applications will look for a yaml configuration file from which to load the configuration details.  Any settings in the configuration file, override the defaults.  Any system properties set will override the settings that are contained within the yaml configuration.  
+
+By default the yaml file **related-items.yaml** is looked for on the class path.  The location of the file can be specified by the property, **related-items.settings.file**, for example:
 
 * -Drelated-items.settings.file=/etc/relateditems.yml
+
+The yaml file, may look like the following:
+
+    related-item:
+           searching:
+                  number.of.searching.request.processors: 16
+                  size.of.related.content.search.request.handler.queue: 1024
+
+           indexing:
+                  size.of.batch.indexing.request.queue: 4096
+
+
+
 
 ## Load Testing ##
 

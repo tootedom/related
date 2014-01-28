@@ -31,7 +31,7 @@ import org.greencheek.related.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
-import org.greencheek.related.util.config.SystemPropertiesConfiguration;
+import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class RelatedItemSearchServletTest {
         System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_INDEX_NAME_PREFIX,indexName);
         // Set the clustername
         System.setProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME, "relatedprogrammes");
-        configuration = new SystemPropertiesConfiguration();
+        configuration = new YamlSystemPropertiesConfiguration();
 
         // Start the Elastic Search Server
         server = new ElasticSearchServer(configuration.getStorageClusterName(),true);
@@ -80,7 +80,7 @@ public class RelatedItemSearchServletTest {
 
         // Create the client pointing to the above server
         System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
-        configuration = new SystemPropertiesConfiguration();
+        configuration = new YamlSystemPropertiesConfiguration();
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
         // Create the repo

@@ -27,7 +27,7 @@ import org.greencheek.related.searching.responseprocessing.resultsconverter.Freq
 import org.greencheek.related.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.related.util.config.Configuration;
-import org.greencheek.related.util.config.SystemPropertiesConfiguration;
+import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 
 /**
  * Created with IntelliJ IDEA.
@@ -55,7 +55,7 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
     private final boolean useSharedSearchRepository;
 
     public SearchBootstrapApplicationCtx() {
-        this.config = new SystemPropertiesConfiguration();
+        this.config = new YamlSystemPropertiesConfiguration();
         this.validatorLocator = new MapBasedSearchRequestParameterValidatorLookup(config);
         this.searchRequestProcessorHandlerFactory = new RoundRobinRelatedContentSearchRequestProcessorHandlerFactory();
 

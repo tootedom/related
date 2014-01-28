@@ -438,7 +438,6 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseBoolean(parsedProperties,propertiesToConvert, PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS);
         parseString(parsedProperties,propertiesToConvert,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
         parseInt(parsedProperties,propertiesToConvert,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT);
-        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_USE_SHARED_SEARCH_REPOSITORY);
         parseBoolean(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
         return parsedProperties;
     }
