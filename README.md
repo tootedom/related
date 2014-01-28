@@ -647,14 +647,14 @@ The Searching and Indexing web applications can be configured via a wide range o
 Or by using a yaml configuration file.  The following will list all the properties that are available for configuration, along with their use.  Some properties are specifically for searching, others specifically for indexing, and others for both.  This will be noted.
 
 
-    | Property Name   | usage | Searching/Indxing/ALL |
-    | ----------------| ----- | --------------------- |
-    | related-item.safe.to.output.index.request.data | Writes to logs (when DEBUG) the index request data | Indexing |
-    | related-item.max.number.related.item.properties | The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering | Indexing | 
-    | related-item.max.number.related.items.per.index.request | The max number of related items in a single index POST request | Indexing |
-    | related-item.related.item.id.length | The max number of characters that the "id" of a related items can have | All |
-    | related-item.max.related.item.post.data.size.in.bytes | max size in bytes of the POST data for an index request| Indexing |
-    | related-item.min.related.item.post.data.size.in.bytes | The minimum size, in bytes, of the POSTed json data for an index request | Indexing |
+| Property Name   | usage | Searching/Indxing/ALL |
+| ----------------| ----- | --------------------- |
+| related-item.safe.to.output.index.request.data | Writes to logs (when DEBUG) the index request data | Indexing |
+| related-item.max.number.related.item.properties | The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering | Indexing | 
+| related-item.max.number.related.items.per.index.request | The max number of related items in a single index POST request | Indexing |
+| related-item.related.item.id.length | The max number of characters that the "id" of a related items can have | All |
+| related-item.max.related.item.post.data.size.in.bytes | max size in bytes of the POST data for an index request| Indexing |
+| related-item.min.related.item.post.data.size.in.bytes | The minimum size, in bytes, of the POSTed json data for an index request | Indexing |
     | related-item.additional.prop.key.length | The max number of characters a property name can have| All |
     | related-item.additional.prop.value.length | the max number of characters a property value can have | All |
     | related-item.indexing.size.of.incoming.request.queue | Size of the ring buffer that accepts incoming indexing POST requests | Indexing |
