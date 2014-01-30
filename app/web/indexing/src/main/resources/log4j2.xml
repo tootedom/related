@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="WARN" monitorInterval="120">
+    <appenders>
+        <RollingRandomAccessFile name="INDEXING" fileName="${sys:related-item.indexing.log.file}"
+                                 immediateFlush="false" append="true"
+                                 filePattern="${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </appenders>
+    <loggers>
+        <root level="${sys:related-item.indexing.log.level}" includeLocation="false">
+            <appender-ref ref="INDEXING"/>
+        </root>
+    </loggers>
+</configuration>
