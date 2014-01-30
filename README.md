@@ -166,7 +166,7 @@ The result is:
 
 You can go further and search for torches, just in channel uk, which is:
 
-    curl -v -N "http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch&channel=uk" | python -mjson.tool
+    curl -v -N "http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&channel=uk" | python -mjson.tool
 
 Which will result in just the one related item:
 
@@ -350,6 +350,118 @@ The document itself is:
         "channel": "de"
     }    
 
+
+----
+
+### Indexing and Searching Logging ###
+
+The indexing and searching application uses log4j2, the default log configuration is as follows.  Log4j2 is used due to use of the disruptor framework to perform logging asynchronously.  In order for the default logging configuration to kick in the following property is required
+
+    -DLog4jContextSelector="org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+
+If you don't like the look of the below configuration you can specify your own configuration file via:  
+
+    -Dlog4j.configurationFile=<absolute path to my file>
+
+If the below configuration looks adequate, then you can customs the configurations with the following system properties:
+
+    -Drelated-item.searching.log.file=<absolute location of file>
+    -Drelated-item.searching.log.level=ERROR
+    -Drelated-item.indexing.log.file=<absolute location of file>
+    -Drelated-item.indexing.log.level=ERROR
+
+The defaults are "WARN" and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir
+
+The log4j2.xml configuration files are as follows:
+
+*Searching*
+
+```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration status="WARN" monitorInterval="120">
+        <appenders>
+            <RollingRandomAccessFile name="SEARCHING" fileName="${sys:related-item.searching.log.file}"
+                                 immediateFlush="false" append="true"
+                                 filePattern="${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
+                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+                <Policies>
+                    <TimeBasedTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="50 MB"/>
+                </Policies>
+            </RollingRandomAccessFile>
+        </appenders>
+        <loggers>
+            <root level="${sys:related-item.searching.log.level}" includeLocation="false">
+                <appender-ref ref="SEARCHING"/>
+            </root>
+        </loggers>
+    </configuration>
+```
+
+*Indexing*
+
+```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration status="WARN" monitorInterval="120">
+        <appenders>
+            <RollingRandomAccessFile name="INDEXING" fileName="${sys:related-item.indexing.log.file}"
+                                 immediateFlush="false" append="true"
+                                 filePattern="${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
+                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+                <Policies>
+                    <TimeBasedTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="50 MB"/>
+                </Policies>
+            </RollingRandomAccessFile>
+        </appenders>
+        <loggers>
+            <root level="${sys:related-item.indexing.log.level}" includeLocation="false">
+                <appender-ref ref="INDEXING"/>
+            </root>
+        </loggers>
+    </configuration>
+```
+
+
+
+
+### Indexes Searched Across by Default ###
+
+By default the indexes that are searched in elasticsearch are are index that have the name starting with "**relateditems-**".  In other words a wild card search across all dated indexes starting with **relateditems-**
+
+The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and then indexing will index the document in a dated index:
+
+    -Drelated-item.storage.index.name.prefix
+
+For example with the setting:
+
+    -Drelated-item.storage.index.name.prefix=related
+
+Documents will be indexed in "**related-YYYY-MM-DD**".
+
+It is also possible to use index alias's instead against which to search (the alias does not apply to indexing):
+
+    curl -XPOST localhost:9200/_aliases -d '
+    {
+        "actions": [
+            { 
+                "add": {
+                    "alias": "related",
+                    "index": ["relateditems-2013-12-23","relateditems-2013-12-24"]
+                }
+            }
+        ]
+    }
+
+You can choose the name of the alias by using the following parameter:
+
+    -Drelated-item.storage.index.name.alias=related
+
+
+For more information about index alias in elasticsearch please read:
+
+    http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+
 ____
 
 ### Post Document Format ###
@@ -500,7 +612,7 @@ When the indexing and searching applications talk to elasticsearch they search f
 
 When indexing documents in elasticsearch, if a type (i.e. "related") does not have an associated mapping then a dynamic mapping of a document's json properties are created.  Which may or may not be what is required.  As a result, you should define a mapping for the type.  The mapping for the related type should at minimum be the following:
 
-    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
+    curl -XPUT http://localhost:9200/_template/relateditems -d '{
         "template" : "relateditems*",
         "settings" : {
             "number_of_shards" : 1,
@@ -727,7 +839,13 @@ The yaml file, may look like the following:
                   size.of.batch.indexing.request.queue: 4096
 
 
+With the above in place the following properties are overridden:
 
+* related-item.searching.number.of.searching.request.processors
+* related-item.searching.size.of.related.content.search.request.handler.queue
+* related-time.indexing.size.of.batch.indexing.reqeust.queue
+
+If a system properties was set (-Drelated-item.searching.number.of.searching.request.processors=2), that would override the setting in the yaml file.
 
 ## Load Testing ##
 

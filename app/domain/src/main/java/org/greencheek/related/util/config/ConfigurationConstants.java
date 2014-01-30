@@ -9,6 +9,11 @@ import java.util.Map;
 public class ConfigurationConstants {
     public static final String APPLICATION_CONTEXT_ATTRIBUTE_NAME = "ApplicationContext";
 
+    public static final String PROPNAME_SEARCHING_LOG_FILE = "related-item.searching.log.file";
+    public static final String PROPNAME_INDEXING_LOG_FILE = "related-item.indexing.log.file";
+    public static final String PROPNAME_INDEXING_LOG_LEVEL = "related-item.indexing.log.level";
+    public static final String PROPNAME_SEARCHING_LOG_LEVEL = "related-item.searching.log.level";
+
     public static final String PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA = "related-item.safe.to.output.index.request.data";
     public static final String PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES = "related-item.max.number.related.item.properties";
     public static final String PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST = "related-item.max.number.related.items.per.index.request";
@@ -227,6 +232,34 @@ public class ConfigurationConstants {
 
         DEFAULT_SETTINGS = configuration;
     }
+
+
+    public static void setLoggingProperties(String logFilePropertyName,String loglevelPropertyName,
+                                            String defaultLogName, String defaultLevel ) {
+        String logfile = System.getProperty(logFilePropertyName);
+        if(logfile==null || logfile.trim().length()==0) {
+            String logfileLocation;
+            String tomcat = System.getProperty("CATALINA.BASE",System.getProperty("catalina.base"));
+            if(tomcat==null || tomcat.trim().length()==0) {
+                logfileLocation = System.getProperty("java.io.tmpdir");
+                if (!logfileLocation.endsWith(System.getProperty("file.separator"))) {
+                    logfileLocation += System.getProperty("file.separator");
+                }
+                logfileLocation += defaultLogName;
+
+            } else {
+                logfileLocation = tomcat + "/logs/"+defaultLogName;
+            }
+
+            System.setProperty(logFilePropertyName,logfileLocation);
+        }
+
+        String loglevel = System.getProperty(loglevelPropertyName);
+        if(loglevel == null || loglevel.trim().length()==0) {
+            System.setProperty(loglevelPropertyName,defaultLevel);
+        }
+    }
+
 
 
 }

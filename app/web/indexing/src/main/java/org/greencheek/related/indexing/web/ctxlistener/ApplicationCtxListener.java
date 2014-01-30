@@ -3,6 +3,7 @@ package org.greencheek.related.indexing.web.ctxlistener;
 import org.greencheek.related.indexing.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.indexing.web.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
+import org.greencheek.related.util.config.ConfigurationConstants;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -20,6 +21,9 @@ import javax.servlet.annotation.WebListener;
 public class ApplicationCtxListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
+        ConfigurationConstants.setLoggingProperties(ConfigurationConstants.PROPNAME_INDEXING_LOG_FILE,
+                ConfigurationConstants.PROPNAME_INDEXING_LOG_LEVEL,
+                "indexing.log","WARN");
         ServletContext ctx = servletContextEvent.getServletContext();
         ApplicationCtx applicationCtx = new BootstrapApplicationCtx();
 

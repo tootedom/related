@@ -32,7 +32,7 @@ public class YamlSystemPropertiesConfiguration extends SystemPropertiesConfigura
     public static Map<String,Object> yamlProperties(String filePath) {
         Map<String,Object> properties = new HashMap<String,Object>(100);
         Environment env = new Environment();
-        InputStream is=null;
+        InputStream is;
         try {
             URL url = env.resolveConfig(filePath);
             String resourceName = url.toExternalForm();

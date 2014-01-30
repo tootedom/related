@@ -3,6 +3,7 @@ package org.greencheek.related.searching.web.ctxlistener;
 import org.greencheek.related.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
+import org.greencheek.related.util.config.ConfigurationConstants;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -22,6 +23,9 @@ public class ApplicationCtxListener implements ServletContextListener{
     private final ApplicationCtx applicationCtx;
 
     public ApplicationCtxListener() {
+        ConfigurationConstants.setLoggingProperties(ConfigurationConstants.PROPNAME_SEARCHING_LOG_FILE,
+                ConfigurationConstants.PROPNAME_SEARCHING_LOG_LEVEL,
+                "searching.log","WARN");
         applicationCtx = new SearchBootstrapApplicationCtx();
     }
 
