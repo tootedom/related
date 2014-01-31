@@ -1,5 +1,5 @@
 # ![Relateit](./relateitlogo.png)
-## (**\*BETA\***)
+## (** \*BETA\* **)
 
 
 **relateit** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."
@@ -423,13 +423,13 @@ The log4j2.xml configuration files are as follows:
 ```
 
 
-
+----
 
 ### Indexes Searched Across by Default ###
 
-By default the indexes that are searched in elasticsearch are are index that have the name starting with "**relateditems-**".  In other words a wild card search across all dated indexes starting with **relateditems-**
+By default the indexes that are searched in elasticsearch are any index that have a name starting with "**relateditems-**".  In other words a wild card search across all dated indexes starting with **relateditems-**
 
-The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and then indexing will index the document in a dated index:
+The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:
 
     -Drelated-item.storage.index.name.prefix
 
@@ -437,30 +437,49 @@ For example with the setting:
 
     -Drelated-item.storage.index.name.prefix=related
 
-Documents will be indexed in "**related-YYYY-MM-DD**".
+Documents will be indexed and Searching in/from indexes named: "**related-YYYY-MM-DD**".
 
-It is also possible to use index alias's instead against which to search (the alias does not apply to indexing):
+It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (**note** The alias does not apply to indexing).
+
+The below gives an example of the curl request used to set up an index in elasticsearch.  It creates an alias "**related**"", which is an alias for the indexes: "**relateditems-2013-12-23**" and "**relateditems-2013-12-24**".  When "**related**" is used to search, the search will be performed only against those two indexes.
 
     curl -XPOST localhost:9200/_aliases -d '
     {
         "actions": [
-            { 
-                "add": {
-                    "alias": "related",
-                    "index": ["relateditems-2013-12-23","relateditems-2013-12-24"]
-                }
-            }
+            { "add": {"alias": "related", "index": "relateditems-2013-12-23"} },
+            { "add": { "alias": "related","index": "relateditems-2013-12-24"} }
         ]
-    }
+    }'
 
-You can choose the name of the alias by using the following parameter:
+To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:
 
     -Drelated-item.storage.index.name.alias=related
 
+#### Why Use an Alias? ####
+
+An alias can give you added flexibility over the content that is being searched.  However, this comes at the cost of added complexity from having to maintain the alias. 
+
+An example usage for an alias could be the following.  Imagine one day you are having a promotion for a new selection of products.  You could choose to promote those products against a selection of other products.  One way to do this is to re-associate the alias to a prepared index of those products and the associated items:
+
+    curl -XPOST localhost:9200/_aliases -d '
+    {
+        "actions": [
+            { "add" :   { "alias" : "related", "index": "promotion-2013-12-25"   } },
+            { "remove": { "alias" : "related", "index": "relateditems-2013-12-23"} },
+            { "remove": { "alias" : "related", "index": "relateditems-2013-12-24"} }
+        ]
+    }'
+
+The above removes the existing mappings and creates the new mapping.  This can be done a runtime, without starting either elasticsearch or the searching application.  However, the downside here is the maintenance of the alias.  
+
+The alias cannot use a wildcard, and it needs to point to a valid index that exists.  Therefore, a maintenance script needs to create that would periodically run to update the alias mapping to point to new indexes.
+
+Unfortunately at the moment support for assigning index alias's at index creation time does not currently exist (https://github.com/elasticsearch/elasticsearch/pull/2739 and https://github.com/elasticsearch/elasticsearch/issues/4920).
 
 For more information about index alias in elasticsearch please read:
 
     http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+
 
 ____
 
