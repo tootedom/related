@@ -403,6 +403,7 @@
         <!-- You'll probably want to test this out with a local copy of Nexus OSS. -->
         <!-- Remove these entries and uncomment the Sonatype Nexus repositories
             below when you actually want to release. -->
+        <!--
         <snapshotRepository>
             <id>localhost-nexus-snapshots</id>
             <name>Local Nexus snapshot repository</name>
@@ -413,16 +414,17 @@
             <name>Local Nexus release repository</name>
             <url>http://localhost:8081/nexus/content/repositories/releases/</url>
         </repository>
-        <!-- 		<snapshotRepository> -->
-        <!-- 			<id>sonatype-nexus-snapshots</id> -->
-        <!-- 			<name>Sonatype Nexus snapshot repository</name> -->
-        <!-- 			<url>https://oss.sonatype.org/content/repositories/snapshots</url> -->
-        <!-- 		</snapshotRepository> -->
-        <!-- 		<repository> -->
-        <!-- 			<id>sonatype-nexus-staging</id> -->
-        <!-- 			<name>Sonatype Nexus release repository</name> -->
-        <!-- 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url> -->
-        <!-- 		</repository> -->
+        -->
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Nexus release repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
     </distributionManagement>
     <profiles>
 
