@@ -1,3 +1,24 @@
+/*
+ *
+ *  * Licensed to Relateit under one or more contributor
+ *  * license agreements. See the NOTICE file distributed with
+ *  * this work for additional information regarding copyright
+ *  * ownership. Relateit licenses this file to you under
+ *  * the Apache License, Version 2.0 (the "License"); you may
+ *  * not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *    http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing,
+ *  * software distributed under the License is distributed on an
+ *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  * KIND, either express or implied.  See the License for the
+ *  * specific language governing permissions and limitations
+ *  * under the License.
+ *
+ */
+
 package org.greencheek.related.indexing.locationmappers;
 
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
@@ -8,12 +29,9 @@ import org.greencheek.related.util.config.Configuration;
 
 import java.util.concurrent.ConcurrentMap;
 
+
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 22/06/2013
- * Time: 12:37
- * To change this template use File | Settings | File Templates.
+ * Creates an indexname that has [prefix]-yyyy-MM-dd
  */
 public class DayBasedStorageLocationMapper implements RelatedItemStorageLocationMapper {
 
@@ -47,7 +65,7 @@ public class DayBasedStorageLocationMapper implements RelatedItemStorageLocation
         if(dateStr==null) {
             date = currentDayFormatter.getCurrentDay();
         } else {
-            date = currentDayFormatter.parseToDate(product.getDate());
+            date = currentDayFormatter.parseToDate(dateStr);
         }
 
         if(dateCachingEnabled) {

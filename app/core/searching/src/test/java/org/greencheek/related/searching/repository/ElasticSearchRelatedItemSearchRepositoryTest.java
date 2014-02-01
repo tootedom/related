@@ -1,3 +1,24 @@
+/*
+ *
+ *  * Licensed to Relateit under one or more contributor
+ *  * license agreements. See the NOTICE file distributed with
+ *  * this work for additional information regarding copyright
+ *  * ownership. Relateit licenses this file to you under
+ *  * the Apache License, Version 2.0 (the "License"); you may
+ *  * not use this file except in compliance with the License.
+ *  * You may obtain a copy of the License at
+ *  *
+ *  *    http://www.apache.org/licenses/LICENSE-2.0
+ *  *
+ *  * Unless required by applicable law or agreed to in writing,
+ *  * software distributed under the License is distributed on an
+ *  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  * KIND, either express or implied.  See the License for the
+ *  * specific language governing permissions and limitations
+ *  * under the License.
+ *
+ */
+
 package org.greencheek.related.searching.repository;
 
 import org.elasticsearch.action.search.MultiSearchResponse;
@@ -101,6 +122,9 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
     public void testFailedResultsAreReturnedWhenNoIndexExists() {
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
         assertEquals(2,results.length);
+        System.out.println("testFailedResultsAreReturnedWhenNoIndexExists, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
+        System.out.println("testFailedResultsAreReturnedWhenNoIndexExists, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
+
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
     }
@@ -111,6 +135,8 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
         assertEquals(2,results.length);
+        System.out.println("testFailedResultsAreReturnedWhenIndexIsEmpty, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
+        System.out.println("testFailedResultsAreReturnedWhenIndexIsEmpty, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
         assertSame(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
         assertSame(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
     }
@@ -121,13 +147,15 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         server.createIndex(configuration.getStorageIndexNamePrefix());
 
         // set the time tp 1 millis
-        System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "0");
         try {
             Configuration config = new SystemPropertiesConfiguration();
             ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config));
 
             SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
             assertEquals(2,results.length);
+            System.out.println("testTimeoutResultsAreReturned, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
+            System.out.println("testTimeoutResultsAreReturned, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
             assertSame(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
             assertSame(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
         }
@@ -146,6 +174,8 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         RelatedItemSearch[] searches = createSearch();
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, searches);
         assertEquals(2,results.length);
+        System.out.println("testFailureIsReturnedOnException, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
+        System.out.println("testFailureIsReturnedOnException, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
 
@@ -156,6 +186,8 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
         results = repository.findRelatedItems(configuration, searches);
         assertEquals(2,results.length);
+        System.out.println("testFailureIsReturnedOnException, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
+        System.out.println("testFailureIsReturnedOnException, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
         assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
 

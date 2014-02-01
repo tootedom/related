@@ -1,0 +1,11 @@
+Relateit
+Copyright 2013-2014 Relateit
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+Disruptor is producer by lmax under Apache 2 license:
+https://github.com/LMAX-Exchange/disruptor
+
+Elasticsearch is under Apache 2 license:
+https://github.com/elasticsearch/elasticsearch/

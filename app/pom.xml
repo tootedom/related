@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.greencheek</groupId>
-    <artifactId>related</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <groupId>org.greencheek.related</groupId>
+    <artifactId>related-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Related Content via ElasticSearch</name>
@@ -15,6 +15,27 @@
 
     <url>https://github.com/tootedom/related</url>
 
+    <!-- Required: license information: -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <!-- Required: developer information: -->
+    <developers>
+        <developer>
+            <id>tootedom</id>
+            <name>Dominic Tootell</name>
+            <email>dominic.tootell@relateit.io</email>
+            <organization>greencheek.org</organization>
+            <organizationUrl>https://github.com/tootedom</organizationUrl>
+            <url>https://github.com/tootedom</url>
+        </developer>
+    </developers>
     <scm>
         <connection>scm:git:git@github.com:tootedom/related.git</connection>
         <url>scm:git:git@github.com:tootedom/related.git</url>
@@ -128,6 +149,17 @@
     </dependencies>
 
     <build>
+        <!-- Include the README, NOTICE and LICENSE files: -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>README*</include>
+                    <include>NOTICE*</include>
+                    <include>LICENSE*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -358,18 +390,60 @@
         <module>web</module>
     </modules>
     <distributionManagement>
-        <site>
-            <id>sites</id>
-            <url>${git.sites.repo.url}/${artifactId}</url>
-        </site>
-        <repository>
-            <id>repo</id>
-            <url>${git.releases.repo.url}</url>
-        </repository>
+        <!-- You'll probably want to test this out with a local copy of Nexus OSS. -->
+        <!-- Remove these entries and uncomment the Sonatype Nexus repositories
+            below when you actually want to release. -->
         <snapshotRepository>
-            <id>snapshot-repo</id>
-            <url>${git.snapshots.repo.url}</url>
+            <id>localhost-nexus-snapshots</id>
+            <name>Local Nexus snapshot repository</name>
+            <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
+        <repository>
+            <id>localhost-nexus-staging</id>
+            <name>Local Nexus release repository</name>
+            <url>http://localhost:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <!-- 		<snapshotRepository> -->
+        <!-- 			<id>sonatype-nexus-snapshots</id> -->
+        <!-- 			<name>Sonatype Nexus snapshot repository</name> -->
+        <!-- 			<url>https://oss.sonatype.org/content/repositories/snapshots</url> -->
+        <!-- 		</snapshotRepository> -->
+        <!-- 		<repository> -->
+        <!-- 			<id>sonatype-nexus-staging</id> -->
+        <!-- 			<name>Sonatype Nexus release repository</name> -->
+        <!-- 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url> -->
+        <!-- 		</repository> -->
     </distributionManagement>
+    <profiles>
 
+        <!-- GPG Signature on release -->
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 </project>
