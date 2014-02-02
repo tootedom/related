@@ -9,3 +9,6 @@ https://github.com/LMAX-Exchange/disruptor
 
 Elasticsearch is under Apache 2 license:
 https://github.com/elasticsearch/elasticsearch/
+
+SipHash was taken and modified from, it is apache 2 licensed:
+https://github.com/emboss/siphash-java

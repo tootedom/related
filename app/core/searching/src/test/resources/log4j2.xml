@@ -4,11 +4,6 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <FastFile name="FastFile" fileName="searching.log" immediateFlush="false" append="false">
-            <PatternLayout>
-                <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
-            </PatternLayout>
-        </FastFile>
     </appenders>
     <loggers>
         <root level="debug" includeLocation="false">

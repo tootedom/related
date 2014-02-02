@@ -34,16 +34,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 08/06/2013
- * Time: 18:54
- * To change this template use File | Settings | File Templates.
+ * Converts a {@link SearchResultEventWithSearchRequestKey} with an array of {@link org.greencheek.related.api.searching.FrequentlyRelatedSearchResult}
+ * results to a json like the following:
+ *
+ * <pre>
+ * {
+ *     "size": "1",
+        "storage_response_time": 1,
+        "response_time": 3,
+        "results": [
+                {
+                    "frequency": "1",
+                    "id": "4"
+                },
+                ....
+                ..
+        ]
+   }
+ * </pre>
+ *
+ *
+ *
  */
 public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResultsConverter<FrequentlyRelatedSearchResult[]> {
-
-    private static final Logger log = LoggerFactory.getLogger(JsonFrequentlyRelatedSearchResultsConverter.class);
-
 
     private static final String JSON_CONTENT_TYPE = "application/json";
     private final Configuration configuration;
@@ -54,10 +67,10 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
     private Map<String,Object> createJson(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> searchResultsEvent) {
         SearchResultsEvent<FrequentlyRelatedSearchResult[]> event = searchResultsEvent.getResponse();
-        if(event==null) return createEmptyJson();
+        if(event==null) return createEmptyJson(searchResultsEvent);
         FrequentlyRelatedSearchResult[] results = event.getSearchResults();
         int resultsSize = results.length;
-        if(resultsSize==0) return createEmptyJson();
+        if(resultsSize==0) return createEmptyJson(searchResultsEvent);
 
         Map<String,Object> resultsMap = new HashMap<String,Object>((int)Math.ceil((2 + (resultsSize*2))/0.75));
         resultsMap.put(configuration.getKeyForFrequencyResultOverallResultsSize(),Integer.toString(resultsSize));
@@ -80,10 +93,18 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
     }
 
-    private Map<String,Object> createEmptyJson() {
+    private Map<String,Object> createEmptyJson(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> searchResultsEvent) {
         Map<String,Object> resultsMap = new HashMap<String,Object>(4);
         resultsMap.put(configuration.getKeyForFrequencyResultOverallResultsSize(),"0");
         resultsMap.put(configuration.getKeyForFrequencyResults(),new String[0]);
+        if(searchResultsEvent!=null) {
+            resultsMap.put(configuration.getKeyForStorageResponseTime(),Long.toString(searchResultsEvent.getSearchExecutionTime()));
+            resultsMap.put(configuration.getKeyForSearchProcessingResponseTime(),Long.toString((System.nanoTime() - searchResultsEvent.getStartOfSearchRequestProcessing())/1000000));
+        } else {
+            resultsMap.put(configuration.getKeyForStorageResponseTime(),"0");
+            resultsMap.put(configuration.getKeyForSearchProcessingResponseTime(),"0");
+        }
+
         return resultsMap;
     }
 
@@ -94,10 +115,10 @@ public class JsonFrequentlyRelatedSearchResultsConverter implements SearchResult
 
     @Override
     public String convertToString(SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]> results) {
-        Map<String,Object> jsonResults = null;
+        Map<String,Object> jsonResults;
 
         if(results==null) {
-            jsonResults = createEmptyJson();
+            jsonResults = createEmptyJson(null);
         }
         else {
             jsonResults = createJson(results);

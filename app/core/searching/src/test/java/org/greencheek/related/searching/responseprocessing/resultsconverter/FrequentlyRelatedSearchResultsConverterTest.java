@@ -21,6 +21,8 @@
 
 package org.greencheek.related.searching.responseprocessing.resultsconverter;
 
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
@@ -35,6 +37,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -123,12 +126,19 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
         String s = converter.convertToString(new SearchResultEventWithSearchRequestKey(results,new SipHashSearchRequestLookupKey("1"),0,System.nanoTime()));
         System.out.println(s);
 
+        assertTrue("results should contain '" + configuration.getKeyForSearchProcessingResponseTime() + "'",s.contains("\"" + configuration.getKeyForSearchProcessingResponseTime()+"\""));
+        assertTrue("results should contain '" + configuration.getKeyForStorageResponseTime() + "'",s.contains("\"" + configuration.getKeyForStorageResponseTime()+"\""));
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultOverallResultsSize()+"'",s.contains("\""+configuration.getKeyForFrequencyResultOverallResultsSize()+"\""));
         assertTrue(s.contains("" + 0));
         assertTrue(s.contains("\"" + configuration.getKeyForFrequencyResults() +"\""));
         assertTrue(s.matches(".*\"results\"[^:]*:[^\\[]*\\[[^\\]]*[\\]].*"));
 
-
+        JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
+        try {
+            p.parse(s);
+        } catch (ParseException e) {
+            fail("unable to parse json");
+        }
     }
 
     private void testConversionOfResults(SearchResultsConverter converter, SearchResultsEvent<FrequentlyRelatedSearchResult[]> results) {
@@ -149,5 +159,11 @@ public abstract class FrequentlyRelatedSearchResultsConverterTest {
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultOverallResultsSize()+"'",s.contains("\""+configuration.getKeyForFrequencyResultOverallResultsSize()+"\""));
         assertTrue("results should contain '" + configuration.getKeyForFrequencyResultId()+"'",s.contains("\""+configuration.getKeyForFrequencyResultId()+"\""));
 
+        JSONParser p = new JSONParser(JSONParser.MODE_RFC4627);
+        try {
+            p.parse(s);
+        } catch (ParseException e) {
+            fail("unable to parse json");
+        }
     }
 }

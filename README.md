@@ -8,8 +8,8 @@ An example use case of this functionality is on a web site to associate the item
 
 This application has 3 parts to it:
 
-* A Indexing Web Application
-* A Searching Web Application
+* A Indexing Web Application (Java)
+* A Searching Web Application (Java)
 * [Elasticsearch](http://www.elasticsearch.org/ "Elasticsearch") backend
 
 The indexing and searching components (web applications) make use of the [Disruptor](https://github.com/LMAX-Exchange/disruptor "Disruptor") library.  
@@ -17,6 +17,14 @@ The indexing and searching components (web applications) make use of the [Disrup
 The search technology Elasticsearch provides the storage, and searching mechanism for providing the related product search.
 
 The Indexing and Searching components do not need to directly be used.  In other words you can just post data in the relevant format into elasticsearch, and then perform searching directly against elasticsearch to obtain the most frequently related items.   However, it is the Indexing and Searching components that provide a means of batching indexing and searching requests that are being send to elasticsearch.
+
+----
+
+## Requirements ##
+
+JDK 7 (recommended jdk7u40+).
+Java Web Application Server (Tested on Tomcat).
+Elasticsearch 0.90.9
 
 ___
 
@@ -242,7 +250,7 @@ The reason behind not returning the matching documents source, is that there cou
 
 ___
 
-## More Indexing##  
+## More Indexing ##
 
 When a group of related items are indexed, by default they are stored in elasticsearch in a dated index, for example "relateditems-YYYY-MM-DD":
 
@@ -729,11 +737,14 @@ These pool settings are as follows.  The settings a highly dependent upon the si
 
 ## JVM Options and Configuration Defaults #
 
-The default configuration for indexing and searching are based on a 1GB heap (-Xmx1024m -Xms1024m) configuration.  
+The default configuration for indexing and searching are based on a 1GB heap
+(-Xmx1024m -Xms1024m) configuration.  It is for this default configuration
+that the below JVM options and Heap configuration is specified.
 
-The application configuration
-
-The specific recommended (tested against) JVM options for searching and indexing are listed below (jdk7 - the following options *WILL NOT* work on jdk6).  The JVM options slightly differ between searching and indexing.  The common options are listed and then the differences listed:
+The specific recommended (tested against) JVM options for searching and indexing
+are listed below (jdk7 - the following options *WILL NOT* work on jdk6).
+The JVM options slightly differ between searching and indexing.  The common options
+are listed and then the differences listed:
 
 ### Common options for Web Applications
 
@@ -750,7 +761,8 @@ The specific recommended (tested against) JVM options for searching and indexing
     -XX:+UseCondCardMark
 
 ----
-Below shows the heap configuration for indexing and search.  The difference between the two is that of the eden space.
+Below shows the heap configuration for indexing and search.  The difference between
+the two is that of the eden space.
 
 ### Searching Heap ###
 

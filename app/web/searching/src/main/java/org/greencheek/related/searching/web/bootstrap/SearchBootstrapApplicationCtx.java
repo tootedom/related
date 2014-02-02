@@ -47,6 +47,7 @@ import org.greencheek.related.searching.responseprocessing.SearchResponseContext
 import org.greencheek.related.searching.responseprocessing.resultsconverter.FrequentlyRelatedSearchResultsArrayConverterFactory;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
+import org.greencheek.related.searching.responseprocessing.resultsconverter.StringBasedJsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 
@@ -116,7 +117,7 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
 
     @Override
     public SearchResultsConverterFactory getSearchResultsConverterFactory() {
-        return new FrequentlyRelatedSearchResultsArrayConverterFactory(new JsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
+        return new FrequentlyRelatedSearchResultsArrayConverterFactory(new StringBasedJsonFrequentlyRelatedSearchResultsConverter(getConfiguration()));
     }
 
     @Override
