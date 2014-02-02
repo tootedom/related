@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.greencheek.related</groupId>
         <artifactId>related-web</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
