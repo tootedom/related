@@ -25,7 +25,6 @@
 		- [Common options for Web Applications](#common-options-for-web-applications)
 		- [Searching Heap](#searching-heap)
 		- [Indexing Heap](#indexing-heap)
-	- [    threadpool.index.queue_size: 100000](#threadpoolindexqueue_size-100000)
 	- [Application Configuration](#application-configuration)
 	- [Searching and Indexing Architecture](#searching-and-indexing-architecture)
 			- [Searching](#searching-1)
