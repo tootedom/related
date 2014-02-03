@@ -118,7 +118,11 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
                         handler.sendResults(response, mediaType, event, sctx);
                     }
                 } finally {
-                    sctx.close();
+                    try {
+                        sctx.close();
+                    } catch (Exception e) {
+                        log.warn("Unable to call complete on SearchResponseContext.  Timeout more than likely occurred",e);
+                    }
                 }
 
 

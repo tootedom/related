@@ -36,6 +36,5 @@ public class DebugSearchResponseContextHandler implements SearchResponseContextH
     @Override
     public void sendResults(String resultsAsString, String mediaType, SearchResultsEvent results, SearchResponseContext sctx) {
         log.debug("Content-Type:{}[{}]",mediaType,resultsAsString);
-        sctx.close();
     }
 }

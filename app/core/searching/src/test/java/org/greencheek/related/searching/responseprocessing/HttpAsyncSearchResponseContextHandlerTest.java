@@ -118,7 +118,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
         }
 
         assertEquals("results",s);
-
+        responseHolder.close();
         verify(userResponse,times(1)).complete();
 
     }
@@ -137,7 +137,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
         handler.sendResults("results","appplication/json",null,responseHolder);
 
         verify(configuration,times(0)).getResponseCode(any(SearchResultsOutcome.class));
-
+        responseHolder.close();
         verify(userResponse,times(1)).complete();
     }
 
@@ -167,6 +167,7 @@ public class HttpAsyncSearchResponseContextHandlerTest {
 
 
         verify(response,times(1)).setStatus(500);
+        responseHolder.close();
         verify(userResponse, times(1)).complete();
     }
 

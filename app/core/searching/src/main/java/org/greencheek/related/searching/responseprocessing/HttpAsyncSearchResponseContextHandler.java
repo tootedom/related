@@ -69,12 +69,6 @@ public class HttpAsyncSearchResponseContextHandler implements SearchResponseCont
             }
         } catch (IllegalStateException e) {
             log.warn("Async Context not available",e);
-        } finally {
-            try {
-                ctx.complete();
-            } catch (IllegalStateException e) {
-                log.warn("Async Context not available, unable to call complete.  Timeout more than likely occurred",e);
-            }
         }
     }
 }

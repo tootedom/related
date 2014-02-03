@@ -21,6 +21,9 @@
 
 package org.greencheek.related.searching.requestprocessing;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.AsyncContext;
 
 /**
@@ -30,6 +33,7 @@ import javax.servlet.AsyncContext;
  *
  */
 public class AsyncServletSearchResponseContext implements SearchResponseContext<AsyncContext> {
+    private static final Logger log = LoggerFactory.getLogger(AsyncServletSearchResponseContext.class);
 
     private static final Class<AsyncContext> contextType = AsyncContext.class;
     private final AsyncContext context;
@@ -60,7 +64,7 @@ public class AsyncServletSearchResponseContext implements SearchResponseContext<
             try {
                 context.complete();
             } catch(Exception e) {
-                //
+                log.warn("Unable to call complete on AsyncContext.  Timeout more than likely occurred",e);
             }
         }
     }
