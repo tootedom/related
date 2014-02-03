@@ -1,6 +1,42 @@
-# ![Relateit](./relateitlogo.png)
-## (** \*BETA\* **)
+![Relateit](./relateitlogo.png) 
 
+----
+
+- [Relateit]
+	- [Requirements](#requirements)
+	- [Indexing and Searching Overview](#indexing-and-searching-overview)
+	- [More Indexing](#more-indexing)
+		- [Post Document Format](#post-document-format)
+		- [How Many Items Can Be Included in a Single Related Item POST?](#how-many-items-can-be-included-in-a-single-related-item-post)
+		- [How Many Properties Can I Have for Related Item](#how-many-properties-can-i-have-for-related-item)
+		- [Indexing and Searching Logging](#indexing-and-searching-logging)
+	- [Searching](#searching)
+		- [Indexes Searched Across by Default](#indexes-searched-across-by-default)
+			- [Why Use an Alias?](#why-use-an-alias)
+	- [Elasticsearch](#elasticsearch)
+		- [Elasticsearch Connection Configuration](#elasticsearch-connection-configuration)
+		- [Elasticsearch Relate Item Type Mapping](#elasticsearch-relate-item-type-mapping)
+		- [Elasticsearch Server Configuration](#elasticsearch-server-configuration)
+		- [Search pool](#search-pool)
+		- [Bulk pool](#bulk-pool)
+		- [Get Pool](#get-pool)
+		- [Index pool](#index-pool)
+	- [JVM Options and Configuration Defaults](#jvm-options-and-configuration-defaults)
+		- [Common options for Web Applications](#common-options-for-web-applications)
+		- [Searching Heap](#searching-heap)
+		- [Indexing Heap](#indexing-heap)
+	- [    threadpool.index.queue_size: 100000](#threadpoolindexqueue_size-100000)
+	- [Application Configuration](#application-configuration)
+	- [Searching and Indexing Architecture](#searching-and-indexing-architecture)
+			- [Searching](#searching-1)
+			- [Indexing](#indexing)
+	- [Load Testing](#load-testing)
+		- [Indexing Load Test Output](#indexing-load-test-output)
+		- [Searching Load Test Output](#searching-load-test-output)
+
+----
+
+# Relateit
 
 **relateit** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."
 
@@ -358,137 +394,6 @@ The document itself is:
         "channel": "de"
     }    
 
-
-----
-
-### Indexing and Searching Logging ###
-
-The indexing and searching application uses log4j2, the default log configuration is as follows.  Log4j2 is used due to use of the disruptor framework to perform logging asynchronously.  In order for the default logging configuration to kick in the following property is required
-
-    -DLog4jContextSelector="org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
-
-If you don't like the look of the below configuration you can specify your own configuration file via:  
-
-    -Dlog4j.configurationFile=<absolute path to my file>
-
-If the below configuration looks adequate, then you can customs the configurations with the following system properties:
-
-    -Drelated-item.searching.log.file=<absolute location of file>
-    -Drelated-item.searching.log.level=ERROR
-    -Drelated-item.indexing.log.file=<absolute location of file>
-    -Drelated-item.indexing.log.level=ERROR
-
-The defaults are "WARN" and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir
-
-The log4j2.xml configuration files are as follows:
-
-*Searching*
-
-```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <configuration status="WARN" monitorInterval="120">
-        <appenders>
-            <RollingRandomAccessFile name="SEARCHING" fileName="${sys:related-item.searching.log.file}"
-                                 immediateFlush="false" append="true"
-                                 filePattern="${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
-                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-                <Policies>
-                    <TimeBasedTriggeringPolicy />
-                    <SizeBasedTriggeringPolicy size="50 MB"/>
-                </Policies>
-            </RollingRandomAccessFile>
-        </appenders>
-        <loggers>
-            <root level="${sys:related-item.searching.log.level}" includeLocation="false">
-                <appender-ref ref="SEARCHING"/>
-            </root>
-        </loggers>
-    </configuration>
-```
-
-*Indexing*
-
-```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <configuration status="WARN" monitorInterval="120">
-        <appenders>
-            <RollingRandomAccessFile name="INDEXING" fileName="${sys:related-item.indexing.log.file}"
-                                 immediateFlush="false" append="true"
-                                 filePattern="${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
-                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-                <Policies>
-                    <TimeBasedTriggeringPolicy />
-                    <SizeBasedTriggeringPolicy size="50 MB"/>
-                </Policies>
-            </RollingRandomAccessFile>
-        </appenders>
-        <loggers>
-            <root level="${sys:related-item.indexing.log.level}" includeLocation="false">
-                <appender-ref ref="INDEXING"/>
-            </root>
-        </loggers>
-    </configuration>
-```
-
-
-----
-
-### Indexes Searched Across by Default ###
-
-By default the indexes that are searched in elasticsearch are any index that have a name starting with "**relateditems-**".  In other words a wild card search across all dated indexes starting with **relateditems-**
-
-The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:
-
-    -Drelated-item.storage.index.name.prefix
-
-For example with the setting:
-
-    -Drelated-item.storage.index.name.prefix=related
-
-Documents will be indexed and Searching in/from indexes named: "**related-YYYY-MM-DD**".
-
-It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (**note** The alias does not apply to indexing).
-
-The below gives an example of the curl request used to set up an index in elasticsearch.  It creates an alias "**related**"", which is an alias for the indexes: "**relateditems-2013-12-23**" and "**relateditems-2013-12-24**".  When "**related**" is used to search, the search will be performed only against those two indexes.
-
-    curl -XPOST localhost:9200/_aliases -d '
-    {
-        "actions": [
-            { "add": {"alias": "related", "index": "relateditems-2013-12-23"} },
-            { "add": { "alias": "related","index": "relateditems-2013-12-24"} }
-        ]
-    }'
-
-To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:
-
-    -Drelated-item.storage.index.name.alias=related
-
-#### Why Use an Alias? ####
-
-An alias can give you added flexibility over the content that is being searched.  However, this comes at the cost of added complexity from having to maintain the alias. 
-
-An example usage for an alias could be the following.  Imagine one day you are having a promotion for a new selection of products.  You could choose to promote those products against a selection of other products.  One way to do this is to re-associate the alias to a prepared index of those products and the associated items:
-
-    curl -XPOST localhost:9200/_aliases -d '
-    {
-        "actions": [
-            { "add" :   { "alias" : "related", "index": "promotion-2013-12-25"   } },
-            { "remove": { "alias" : "related", "index": "relateditems-2013-12-23"} },
-            { "remove": { "alias" : "related", "index": "relateditems-2013-12-24"} }
-        ]
-    }'
-
-The above removes the existing mappings and creates the new mapping.  This can be done a runtime, without starting either elasticsearch or the searching application.  However, the downside here is the maintenance of the alias.  
-
-The alias cannot use a wildcard, and it needs to point to a valid index that exists.  Therefore, a maintenance script needs to create that would periodically run to update the alias mapping to point to new indexes.
-
-Unfortunately at the moment support for assigning index alias's at index creation time does not currently exist (https://github.com/elasticsearch/elasticsearch/pull/2739 and https://github.com/elasticsearch/elasticsearch/issues/4920).
-
-For more information about index alias in elasticsearch please read:
-
-    http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-
-
 ____
 
 ### Post Document Format ###
@@ -573,6 +478,8 @@ If an element exist in the item's property that was defined in the parent enclos
 
 With the above you can see that the second item has an extra field "memory", than that of the first document.  Whilst it does not make much difference to the backend (elasticsearch) or the web applications (searching or indexing), for consistencies sake you shouldn't really have key existing in one related item that do not appear in the.  However, it is entirely up to you.  
 
+---
+
 ### How Many Items Can Be Included in a Single Related Item POST? ###
 
 By fault 10 related items per POST request can be handled.  By default if there are 11 items in the indexing request; the last item is silently ignored (a warning is output in the logs).  The below are the properties that are available for configuration, for adjusting these defaults
@@ -580,6 +487,8 @@ By fault 10 related items per POST request can be handled.  By default if there 
     * related-item.max.number.related.items.per.index.request = 10
     * related-item.max.related.item.post.data.size.in.bytes = 10240
     * related-item.indexing.discard.storage.requests.with.too.many.relations = false
+
+---
 
 ### How Many Properties Can I Have for Related Item ###
 
@@ -592,7 +501,139 @@ The following properties are available for configuration, show with their defaul
     * related-item.additional.prop.key.length = 30 (characters)
     * related-item.indexing.size.of.incoming.request.queue = 16384
     
-___
+----
+
+### Indexing and Searching Logging ###
+
+The indexing and searching application uses log4j2, the default log configuration is as follows.  Log4j2 is used due to use of the disruptor framework to perform logging asynchronously.  In order for the default logging configuration to kick in the following property is required
+
+    -DLog4jContextSelector="org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+
+If you don't like the look of the below configuration you can specify your own configuration file via:  
+
+    -Dlog4j.configurationFile=<absolute path to my file>
+
+If the below configuration looks adequate, then you can customs the configurations with the following system properties:
+
+    -Drelated-item.searching.log.file=<absolute location of file>
+    -Drelated-item.searching.log.level=ERROR
+    -Drelated-item.indexing.log.file=<absolute location of file>
+    -Drelated-item.indexing.log.level=ERROR
+
+The defaults are "WARN" and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir
+
+The log4j2.xml configuration files are as follows:
+
+*Searching*
+
+```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration status="WARN" monitorInterval="120">
+        <appenders>
+            <RollingRandomAccessFile name="SEARCHING" fileName="${sys:related-item.searching.log.file}"
+                                 immediateFlush="false" append="true"
+                                 filePattern="${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
+                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+                <Policies>
+                    <TimeBasedTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="50 MB"/>
+                </Policies>
+            </RollingRandomAccessFile>
+        </appenders>
+        <loggers>
+            <root level="${sys:related-item.searching.log.level}" includeLocation="false">
+                <appender-ref ref="SEARCHING"/>
+            </root>
+        </loggers>
+    </configuration>
+```
+
+*Indexing*
+
+```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration status="WARN" monitorInterval="120">
+        <appenders>
+            <RollingRandomAccessFile name="INDEXING" fileName="${sys:related-item.indexing.log.file}"
+                                 immediateFlush="false" append="true"
+                                 filePattern="${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
+                <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+                <Policies>
+                    <TimeBasedTriggeringPolicy />
+                    <SizeBasedTriggeringPolicy size="50 MB"/>
+                </Policies>
+            </RollingRandomAccessFile>
+        </appenders>
+        <loggers>
+            <root level="${sys:related-item.indexing.log.level}" includeLocation="false">
+                <appender-ref ref="INDEXING"/>
+            </root>
+        </loggers>
+    </configuration>
+```
+
+
+----
+## Searching ##
+
+
+### Indexes Searched Across by Default ###
+
+By default the indexes that are searched in elasticsearch are any index that have a name starting with "**relateditems-**".  In other words a wild card search across all dated indexes starting with **relateditems-**
+
+The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:
+
+    -Drelated-item.storage.index.name.prefix
+
+For example with the setting:
+
+    -Drelated-item.storage.index.name.prefix=related
+
+Documents will be indexed and Searching in/from indexes named: "**related-YYYY-MM-DD**".
+
+It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (**note** The alias does not apply to indexing).
+
+The below gives an example of the curl request used to set up an index in elasticsearch.  It creates an alias "**related**"", which is an alias for the indexes: "**relateditems-2013-12-23**" and "**relateditems-2013-12-24**".  When "**related**" is used to search, the search will be performed only against those two indexes.
+
+    curl -XPOST localhost:9200/_aliases -d '
+    {
+        "actions": [
+            { "add": {"alias": "related", "index": "relateditems-2013-12-23"} },
+            { "add": { "alias": "related","index": "relateditems-2013-12-24"} }
+        ]
+    }'
+
+To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:
+
+    -Drelated-item.storage.index.name.alias=related
+
+#### Why Use an Alias? ####
+
+An alias can give you added flexibility over the content that is being searched.  However, this comes at the cost of added complexity from having to maintain the alias. 
+
+An example usage for an alias could be the following.  Imagine one day you are having a promotion for a new selection of products.  You could choose to promote those products against a selection of other products.  One way to do this is to re-associate the alias to a prepared index of those products and the associated items:
+
+    curl -XPOST localhost:9200/_aliases -d '
+    {
+        "actions": [
+            { "add" :   { "alias" : "related", "index": "promotion-2013-12-25"   } },
+            { "remove": { "alias" : "related", "index": "relateditems-2013-12-23"} },
+            { "remove": { "alias" : "related", "index": "relateditems-2013-12-24"} }
+        ]
+    }'
+
+The above removes the existing mappings and creates the new mapping.  This can be done a runtime, without starting either elasticsearch or the searching application.  However, the downside here is the maintenance of the alias.  
+
+The alias cannot use a wildcard, and it needs to point to a valid index that exists.  Therefore, a maintenance script needs to create that would periodically run to update the alias mapping to point to new indexes.
+
+Unfortunately at the moment support for assigning index alias's at index creation time does not currently exist (https://github.com/elasticsearch/elasticsearch/pull/2739 and https://github.com/elasticsearch/elasticsearch/issues/4920).
+
+For more information about index alias in elasticsearch please read:
+
+    http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+
+
+---
 
 ## Elasticsearch ##
 

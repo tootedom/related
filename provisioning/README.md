@@ -1,3 +1,8 @@
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Details](#details)
+- [](#)
+
 ## Details
 
 Currently in Developement/Anaylsis Phase
