@@ -8,8 +8,8 @@
 
 <nav>
   <ul>
-    <li><a href='/' {% if current[1] == 'about' %}class='current'{% endif %}>Home</a></li>
-    <li><a href='/downloads.html' {% if current[1] == 'about' %}class='current'{% endif %}>Downloads</a></li>
+    <li><a href='{{site.url}}' {% if current[1] == 'about' %}class='current'{% endif %}>Home</a></li>
+    <li><a href='{{site.url}}/downloads.html' {% if current[1] == 'about' %}class='current'{% endif %}>Downloads</a></li>
   </ul>
 </nav>
         </header>
