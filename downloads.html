@@ -1,0 +1,11 @@
+---
+layout: default
+published: true
+---
+{% for item in site.posts limit:1000 %}
+{% if item.is_release == true %}
+     <div>
+	<h2>{{item.release_no}}:</h2><a href="/releases/{{item.release_no}}/searching.war">searching.war</a> | <a href="/releases/{{item.release_no}}/indexing.war">indexing.war</a></h1>
+     </div>
+{% endif %}
+{% endfor %}

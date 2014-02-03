@@ -1,0 +1,8 @@
+---
+layout: default
+published: true
+---
+
+{% for item in site.posts limit:1000 %}
+	{{item.content}}
+{% endfor %}
