@@ -4,6 +4,7 @@
 
 - [Relateit]
 	- [Requirements](#requirements)
+	- [Releases](#release)
 	- [Indexing and Searching Overview](#indexing-and-searching-overview)
 	- [More Indexing](#more-indexing)
 		- [Post Document Format](#post-document-format)
@@ -61,6 +62,28 @@ The Indexing and Searching components do not need to directly be used.  In other
 * Java Web Application Server (Tested on Tomcat).
 * Requires Servlet 3
 * Elasticsearch 0.90.9
+
+
+## Releases ##
+
+Currently releases for the indexing and searching war can be found in the sonatype releases repo:
+
+- https://oss.sonatype.org/content/repositories/releases/org/greencheek/related
+
+This mean you can download manually, or via maven.
+
+Apologies for the lack of other options at the moment, and formats.  An rpm download format (with possible customization)
+will be available in the future.
+
+### Searching War ###
+
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war
+* 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war
+
+### Indexing War ###
+
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war
+* 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war
 
 ___
 
