@@ -57,9 +57,10 @@ The Indexing and Searching components do not need to directly be used.  In other
 
 ## Requirements ##
 
-JDK 7 (recommended jdk7u40+).
-Java Web Application Server (Tested on Tomcat).
-Elasticsearch 0.90.9
+* JDK 7 (recommended jdk7u40+).
+* Java Web Application Server (Tested on Tomcat).
+* Requires Servlet 3
+* Elasticsearch 0.90.9
 
 ___
 

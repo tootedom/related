@@ -45,11 +45,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 09/06/2013
- * Time: 19:47
- * To change this template use File | Settings | File Templates.
+ * Creates the search request and executes it against elastic search.
  */
 public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiSearchResponseProcessor<FrequentlyRelatedSearchResult[]> {
 
@@ -59,8 +55,11 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
     private final String indexName;
     private final String facetResultName;
     private final long searchTimeout;
+    private final TimeValue searchTimeoutValue;
     private final String executionHint;
     private final boolean hasExecutionHint;
+    private final String relatedWithAttribute;
+    private final String itemIdentifierAttribute;
 //    private final Map<String,SearchFieldType> searchFieldType;
 
     public ElasticSearchFrequentlyRelatedItemSearchProcessor(Configuration configuration) {
@@ -73,6 +72,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         }
         this.facetResultName = configuration.getStorageFrequentlyRelatedItemsFacetResultsFacetName();
         this.searchTimeout = configuration.getFrequentlyRelatedItemsSearchTimeoutInMillis();
+        this.searchTimeoutValue = TimeValue.timeValueMillis(searchTimeout);
 
         String executionHint = configuration.getStorageFacetExecutionHint();
 
@@ -88,6 +88,9 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         }
 
         this.executionHint = executionHint;
+
+        this.relatedWithAttribute = configuration.getKeyForIndexRequestRelatedWithAttr();
+        this.itemIdentifierAttribute = configuration.getKeyForIndexRequestIdAttr();
     }
 
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedItemSearch[] searches) {
@@ -206,7 +209,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
 //        BoolQueryBuilder b = QueryBuilders.boolQuery();
 
         BoolFilterBuilder b = FilterBuilders.boolFilter();
-        b.must(FilterBuilders.termFilter(configuration.getKeyForIndexRequestRelatedWithAttr(), id));
+        b.must(FilterBuilders.termFilter(relatedWithAttribute, id));
 
         SearchRequestBuilder sr = searchClient.prepareSearch();
 
@@ -222,7 +225,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         ConstantScoreQueryBuilder cs = QueryBuilders.constantScoreQuery(b);
 
 
-        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestIdAttr()).size(search.getMaxResults());
+        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(itemIdentifierAttribute).size(search.getMaxResults());
         if(hasExecutionHint) {
             facetBuilder.executionHint(executionHint);
         }
@@ -230,7 +233,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         sr.setIndices(indexName);
         sr.setSize(0);
         sr.setQuery(cs);
-        sr.setTimeout(TimeValue.timeValueMillis(searchTimeout));
+        sr.setTimeout(searchTimeoutValue);
         sr.addFacet(facetBuilder);
         log.debug("Executing Query {}",sr);
         return sr;
