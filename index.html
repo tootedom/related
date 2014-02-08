@@ -1,13 +1,42 @@
 ---
-layout: blog
+layout: main
 published: true
 ---
-
+    <style type="text/css">
+      pre {
+      	overflow: scroll;
+      }
+    </style>
 {% for item in site.posts limit:1000 %}
-	{% if item.is_for_main_page == true %}
-	<article>
-		<h2>{{item.title}}</h2>        
-		{{item.content}}
-	</article>
+	{% if item.is_main_overview == true %}
+	<div class="row">
+       <div class="large-12 columns">
+      	{{item.content}}
+        <hr>
+      </div>
+    </div>	
 	{% endif %}
+	{% if item.is_indexing_overview == true %}
+		{% assign indexing_overview_title = item.title %}
+		{% assign indexing_overview_content = item.content %}
+	{% endif %}
+	{% if item.is_searching_overview == true %}
+		{% assign searching_overview_title = item.title %}
+		{% assign searching_overview_content = item.content %}
+	{% endif %}	
 {% endfor %}
+
+	<div class="row">	    
+	    <div class="large-12 columns">	      
+	      <div class="row">
+	        <div class="large-6 columns">
+	          <h4>{{indexing_overview_title}}</h4>
+	          {{indexing_overview_content}}
+	        </div>
+	        <div class="large-6 columns">
+	          <h4>{{searching_overview_title}}</h4>
+	          {{searching_overview_content}}
+	        </div>
+	      </div>
+	    </div>
+  	</div>

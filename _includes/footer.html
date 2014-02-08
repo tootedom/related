@@ -18,8 +18,12 @@
 </footer>
 <script src="{{site.baseurl}}/javascripts/vendor/jquery.js"></script>
 <script src="{{site.baseurl}}/javascripts/foundation/foundation.js"></script>
+<script src="{{site.baseurl}}/javascripts/foundation/foundation.dropdown.js"></script>
 <script>
-      $(document).foundation();
+      $(document).foundation({
+        // specify the class used for active dropdowns
+        active_class: 'open'
+      });
 
       var doc = document.documentElement;
       doc.setAttribute('data-useragent', navigator.userAgent);

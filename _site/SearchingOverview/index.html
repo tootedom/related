@@ -1,0 +1,39 @@
+<p>Find the items that are mostly purchased with product <strong>1</strong>, filtering the results to that of “torches” (type=torch):</p>
+
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch | python -mjson.tool</code></pre>
+
+<p>The result is:</p>
+
+<pre><code>{
+    &quot;response_time&quot;: &quot;11&quot;, 
+    &quot;results&quot;: [
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;4&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;3&quot;
+        }
+    ], 
+    &quot;size&quot;: &quot;2&quot;, 
+    &quot;storage_response_time&quot;: &quot;2&quot;
+}</code></pre>
+
+<p>This can be reduced event further to search for torches, just in channel uk, which is:</p>
+
+<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot; | python -mjson.tool</code></pre>
+
+<p>Which will result in just the one related item:</p>
+
+<pre><code>{
+    &quot;response_time&quot;: 3, 
+    &quot;results&quot;: [
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;4&quot;
+        }
+    ], 
+    &quot;size&quot;: &quot;1&quot;, 
+    &quot;storage_response_time&quot;: 1
+}</code></pre>

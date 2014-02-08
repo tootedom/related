@@ -28,10 +28,22 @@
 	<nav>
 	  <div class="row">
 	    <div class="large-12 columns">
-	      <div class="nav-bar right">
+	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='/index.html' class="button">Home</a></li>
-	         <li><a href='/downloads.html'  class="button">Downloads</a></li>         
+	         <li><a href='/index.html' class="radius small button">Home</a></li>
+	          <li class="divider"></li>
+	         <li><a href='/indexing/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
+				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
+				  <li><a href="/indexing/indexing1/index.html">Indexing Overview</a></li>
+				  <li><a href="/indexing/indexing2/index.html">Indexing Date Names</a></li>
+				  <li><a href="/indexing/indexing3/index.html">Post Document Format</a></li>
+				  <li><a href="/indexing/indexing4/index.html">Related Item Properties</a></li>
+				</ul>
+			</li>
+	         <li><a href='/searching/searching.html' class="radius small button">Searching</a></li>
+	         <li><a href='/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='/bog.html' class="radius small button">Blog</a></li>
+	         <li><a href='/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
 	      </div>
 	      <h1><img src="/images/relateitlogo.png"></h1>
@@ -54,6 +66,20 @@
     <div class="large-9 columns" role="content">
 
     
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
 	
 
 	
@@ -2473,8 +2499,12 @@ The gatling load test is run on another host, running 1000 concurrent users.</p>
 </footer>
 <script src="/javascripts/vendor/jquery.js"></script>
 <script src="/javascripts/foundation/foundation.js"></script>
+<script src="/javascripts/foundation/foundation.dropdown.js"></script>
 <script>
-      $(document).foundation();
+      $(document).foundation({
+        // specify the class used for active dropdowns
+        active_class: 'open'
+      });
 
       var doc = document.documentElement;
       doc.setAttribute('data-useragent', navigator.userAgent);

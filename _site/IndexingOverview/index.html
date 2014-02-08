@@ -1,0 +1,26 @@
+<p>The index web application is POSTed data containing a group of related items, i.e. for example a purchase containing several items.</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;de&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;1&quot;,
+         &quot;type&quot;:&quot;map&quot;
+      },
+      {
+         &quot;id&quot;:&quot;2&quot;,
+         &quot;type&quot;:&quot;compass&quot;
+      },
+      {
+         &quot;id&quot;:&quot;3&quot;,
+         &quot;type&quot;:&quot;torch&quot;
+      },
+      {
+         &quot;id&quot;:&quot;4&quot;,
+         &quot;type&quot;:&quot;torch&quot;,
+         &quot;channel&quot;:&quot;uk&quot;
+      }
+   ]
+}&#39;</code></pre>

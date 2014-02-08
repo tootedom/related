@@ -3,10 +3,22 @@
 	<nav>
 	  <div class="row">
 	    <div class="large-12 columns">
-	      <div class="nav-bar right">
+	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='{{site.baseurl}}/index.html' class="button">Home</a></li>
-	         <li><a href='{{site.baseurl}}/downloads.html'  class="button">Downloads</a></li>         
+	         <li><a href='{{site.baseurl}}/index.html' class="radius small button">Home</a></li>
+	          <li class="divider"></li>
+	         <li><a href='{{site.baseurl}}/indexing/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
+				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
+				  <li><a href="{{site.baseurl}}/indexing/indexing1/index.html">Indexing Overview</a></li>
+				  <li><a href="{{site.baseurl}}/indexing/indexing2/index.html">Indexing Date Names</a></li>
+				  <li><a href="{{site.baseurl}}/indexing/indexing3/index.html">Post Document Format</a></li>
+				  <li><a href="{{site.baseurl}}/indexing/indexing4/index.html">Related Item Properties</a></li>
+				</ul>
+			</li>
+	         <li><a href='{{site.baseurl}}/searching/searching.html' class="radius small button">Searching</a></li>
+	         <li><a href='{{site.baseurl}}/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='{{site.baseurl}}/bog.html' class="radius small button">Blog</a></li>
+	         <li><a href='{{site.baseurl}}/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
 	      </div>
 	      <h1><img src="{{site.baseurl}}/images/relateitlogo.png"></h1>

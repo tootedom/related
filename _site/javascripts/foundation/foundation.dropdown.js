@@ -26,7 +26,7 @@
         .off('.dropdown')
         .on('click.fndtn.dropdown', '[data-dropdown]', function (e) {
           var settings = $(this).data('dropdown-init') || self.settings;
-          e.preventDefault();
+          // e.preventDefault();
 
           self.closeall.call(self);
 

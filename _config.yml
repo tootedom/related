@@ -1,3 +1,5 @@
 
 baseurl : "http://tootedom.github.io/related"
 paginate : 1
+permalink: /:categories/:title
+paginate_path: posts/page:num
