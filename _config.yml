@@ -1,2 +1,3 @@
 
-baseurl: "http://tootedom.github.io/related"
+baseurl : "http://tootedom.github.io/related"
+paginate : 1

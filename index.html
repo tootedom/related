@@ -1,8 +1,13 @@
 ---
-layout: default
+layout: blog
 published: true
 ---
 
 {% for item in site.posts limit:1000 %}
-	{{item.content}}
+	{% if item.is_for_main_page == true %}
+	<article>
+		<h2>{{item.title}}</h2>        
+		{{item.content}}
+	</article>
+	{% endif %}
 {% endfor %}
