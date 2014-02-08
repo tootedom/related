@@ -1,4 +1,8 @@
 <!doctype html>
+
+
+
+
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
    
@@ -61,32 +65,116 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-
+    
     <!-- Main Blog Content -->
     <div class="large-9 columns" role="content">
+    <h1><a href="/indexing/indexing2">Indexing Date Names</a></h1>
+    <p>When a group of related items are indexed, by default they are stored in elasticsearch in a dated index, for example “relateditems-YYYY-MM-DD”:</p>
 
-    
-	
+<p>Each date based index, is an index of it’s own in elasticsearch. If you were searching directly against elasticsearch you could independently search the one dated index.</p>
 
-	
+<p>The date of the index is based on the UTC date of either:</p>
 
-	
+<ul>
+<li>The date contained within the RELATED ITEMS POST (converted to UTC)</li>
 
-	
+<li>The current date set on the server on which the indexing application is running.</li>
+</ul>
 
-	
+<p>The previous POST contained no date. However, the following example POST contains a date that is in UTC timezone. As an index named ”<strong>relateditems-2013-12-25</strong>” will be created and the 4 related item documents indexed within that index.</p>
 
-	
+<pre><code>{
+    &quot;channel&quot;: &quot;de&quot;, 
+    &quot;date&quot;: &quot;2013-12-25T09:44:41.943&quot;, 
+    &quot;items&quot;: [
+        {
+            &quot;id&quot;: &quot;1&quot;, 
+            &quot;type&quot;: &quot;map&quot;
+        }, 
+        {
+            &quot;id&quot;: &quot;2&quot;, 
+            &quot;type&quot;: &quot;compass&quot;
+        }, 
+        {
+            &quot;id&quot;: &quot;3&quot;, 
+            &quot;type&quot;: &quot;torch&quot;
+        }, 
+        {
+            &quot;channel&quot;: &quot;uk&quot;, 
+            &quot;id&quot;: &quot;4&quot;, 
+            &quot;type&quot;: &quot;torch&quot;
+        }
+    ], 
+    &quot;site&quot;: &quot;amazon&quot;
+}</code></pre>
 
-	
+<p>As mentioned above, if the date in the related items POST contains a date with time zone information, it will be converted to UTC, and then the date used. For example, the below POST contains:</p>
 
-	
+<pre><code>&quot;date&quot;: &quot;2013-12-24T09:44:41.943+10:00&quot;</code></pre>
 
-	
+<p>Given this date, the 4 related item documents will be indexed within the index named:</p>
 
-	
+<pre><code>relateditems-2013-12-23</code></pre>
 
+<p>The reason being that “2013-12-24T09:44:41.943+10:00” is “2013-12-23T23:44:41.943” in UTC timezone. The resulting 4 related documents will contain the UTC timestamp.</p>
 
+<pre><code>{
+    &quot;channel&quot;: &quot;de&quot;, 
+    &quot;date&quot;: &quot;2013-12-24T09:44:41.943+10:00&quot;, 
+    &quot;items&quot;: [
+        {
+            &quot;id&quot;: &quot;1&quot;, 
+            &quot;type&quot;: &quot;map&quot;
+        }, 
+        {
+            &quot;id&quot;: &quot;2&quot;, 
+            &quot;type&quot;: &quot;compass&quot;
+        }, 
+        {
+            &quot;id&quot;: &quot;3&quot;, 
+            &quot;type&quot;: &quot;torch&quot;
+        }, 
+        {
+            &quot;channel&quot;: &quot;uk&quot;, 
+            &quot;id&quot;: &quot;4&quot;, 
+            &quot;type&quot;: &quot;torch&quot;
+        }
+    ], 
+    &quot;site&quot;: &quot;amazon&quot;
+}</code></pre>
+
+<p>An example document indexed in ”<strong>relateditems-2013-12-23</strong>” looks as follows (taken from elasticsearch head):</p>
+
+<pre><code>{
+    _index: relateditems-2013-12-23
+    _type: related
+    _id: EmHW1qQBQv2BMgmQAlyMiA
+    _version: 1
+    _score: 1
+    _source: {
+        id: 3
+        date: 2013-12-23T23:44:41.943Z
+        related-with: [
+            4
+            1
+            2
+        ]
+        type: torch
+        site: amazon
+        channel: de
+    }
+}</code></pre>
+
+<p>The document itself is:</p>
+
+<pre><code>{
+    &quot;id&quot;: &quot;3&quot; ,
+    &quot;date&quot;: &quot;2013-12-23T23:44:41.943Z&quot;,
+    &quot;related-with&quot;: [ &quot;4&quot;,&quot;1&quot;,&quot;2&quot;],
+    &quot;type&quot;: &quot;torch&quot;,
+    &quot;site&quot;: &quot;amazon&quot;,
+    &quot;channel&quot;: &quot;de&quot;
+}    </code></pre>
 
 <!--       <article>
 
@@ -163,7 +251,33 @@
 
   <!-- End Main Content and Sidebar -->
 
+<div class="pagination-centered">
+  <ul class="pagination">
+  
+  
 
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+  
+
+   
+  
+    <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
+  
+
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
+  
+
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
+  
+
+  </ul>
+</div>
   <!-- Footer -->
   <footer class="row">
     <div class="large-12 columns">
@@ -208,3 +322,4 @@
 </script>
   </body>
 </html>
+

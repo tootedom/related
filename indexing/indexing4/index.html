@@ -1,4 +1,8 @@
 <!doctype html>
+
+
+
+
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
    
@@ -61,32 +65,28 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-
+    
     <!-- Main Blog Content -->
     <div class="large-9 columns" role="content">
+    <h1><a href="/indexing/indexing4">Related Item Properties</a></h1>
+    <h3 id="how_many_items_can_be_included_in_a_single_related_item_post">How Many Items Can Be Included in a Single Related Item POST?</h3>
 
-    
-	
+<p>By fault 10 related items per POST request can be handled. By default if there are 11 items in the indexing request; the last item is silently ignored (a warning is output in the logs). The below are the properties that are available for configuration, for adjusting these defaults</p>
 
-	
+<pre><code>* related-item.max.number.related.items.per.index.request = 10
+* related-item.max.related.item.post.data.size.in.bytes = 10240
+* related-item.indexing.discard.storage.requests.with.too.many.relations = false</code></pre>
+<hr />
+<h3 id="how_many_properties_can_i_have_for_related_item">How Many Properties Can I Have for Related Item</h3>
 
-	
+<p>The answer to this question is that you can have as many properties as you like per indexed relate item. However, in order to have as many items as you like you need to pay for that, in terms of memory allocated to the application, or reduction in the ring buffer size, and or length of the property keys/values.</p>
 
-	
+<p>The following properties are available for configuration, show with their defaults. As a result if you know a related item will have more than 10 properties (remember this leaves you with 7 configurable properties of your choosing; id, date and related-with take already taken)</p>
 
-	
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
+<pre><code>* related-item.max.number.related.item.properties = 10
+* related-item.additional.prop.key.length = 30 (characters)
+* related-item.additional.prop.key.length = 30 (characters)
+* related-item.indexing.size.of.incoming.request.queue = 16384</code></pre>
 
 <!--       <article>
 
@@ -163,7 +163,33 @@
 
   <!-- End Main Content and Sidebar -->
 
+<div class="pagination-centered">
+  <ul class="pagination">
+  
+  
 
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+  
+
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
+  
+
+   
+  
+    <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
+  
+
+   
+  
+    <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
+  
+
+  </ul>
+</div>
   <!-- Footer -->
   <footer class="row">
     <div class="large-12 columns">
@@ -208,3 +234,4 @@
 </script>
   </body>
 </html>
+

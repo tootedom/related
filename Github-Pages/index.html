@@ -1,0 +1,1238 @@
+<p>Is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."</p>
+
+<p>An example use case of this functionality is on a web site to associate the items the people are purchasing.  If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.  When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is most frequently purchased with.  </p>
+
+<p>This application has 3 parts to it:</p>
+
+<ul>
+<li>A Indexing Web Application (Java)</li>
+<li>A Searching Web Application (Java)</li>
+<li>
+<a href="http://www.elasticsearch.org/" title="Elasticsearch">Elasticsearch</a> backend</li>
+</ul><p>The indexing and searching components (web applications) make use of the <a href="https://github.com/LMAX-Exchange/disruptor" title="Disruptor">Disruptor</a> library.  </p>
+
+<p>The search technology Elasticsearch provides the storage, and searching mechanism for providing the related product search.</p>
+
+<p>The Indexing and Searching components do not need to directly be used.  In other words you can just post data in the relevant format into elasticsearch, and then perform searching directly against elasticsearch to obtain the most frequently related items.   However, it is the Indexing and Searching components that provide a means of batching indexing and searching requests that are being send to elasticsearch.</p>
+
+<hr><h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>JDK 7 (recommended jdk7u40+).
+Java Web Application Server (Tested on Tomcat).
+Elasticsearch 0.90.9</p>
+
+<hr><h2>
+<a name="indexing-and-searching-overview" class="anchor" href="#indexing-and-searching-overview"><span class="octicon octicon-link"></span></a>Indexing and Searching Overview</h2>
+
+<p>The index web application is POSTed data containing a group of related items, i.e. for example a purchase.  A post request is as follows:</p>
+
+<pre><code>curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+{
+   "channel":"de",
+   "site":"amazon",
+   "items":[
+      {
+         "id":"1",
+         "type":"map"
+      },
+      {
+         "id":"2",
+         "type":"compass"
+      },
+      {
+         "id":"3",
+         "type":"torch"
+      },
+      {
+         "id":"4",
+         "type":"torch",
+         "channel":"uk"
+      }
+   ]
+}'
+</code></pre>
+
+<p>The indexing application returns a 202 accepted status code to the client that issued the indexing request.  This indicate to the client that the request has been accepted for processing and indexing (this doesn't mean the json data is valid.  It just means the POST data is a valid binary payload).  </p>
+
+<p>It is at this point the POSTed data is assembled into several documents.  For example, for the above request; 3 JSON documents will be assembled and submitted to elasticsearch for storage and indexing:</p>
+
+<pre><code>{
+    "id": "1" ,
+    "date": "2013-12-24T17:44:41.943Z",
+    "related-with": [ "2","3","4"],
+    "type": "map",
+    "site": "amazon",
+    "channel": "de"
+}
+
+{
+    "id": "2" ,
+    "date": "2013-12-24T17:44:41.943Z",
+    "related-with": [ "1","3","4"],
+    "type": "compass",
+    "site": "amazon",
+    "channel": "de"
+}
+
+{
+    "id": "3" ,
+    "date": "2013-12-24T17:44:41.943Z",
+    "related-with": [ "1","2","4"],
+    "type": "torch",
+    "site": "amazon",
+    "channel": "de"
+}
+
+{
+    "id": "4" ,
+    "date": "2013-12-24T17:44:41.943Z",
+    "related-with": [ "1","2","3"],
+    "type": "torch",
+    "site": "amazon",
+    "channel": "uk"
+}
+</code></pre>
+
+<p>The json element "related-with", will be used during search, to provide faceting information.  It is this facet that allows us to say:</p>
+
+<ul>
+<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
+</ul><p>The search web application is then called to request the frequently related items for a product (a GET request):</p>
+
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1
+</code></pre>
+
+<p>Which returns json data containing the list of items (their id's) that are frequently related to that item:</p>
+
+<pre><code>{
+    "response_time": "2", 
+    "results": [
+        {
+            "frequency": "1", 
+            "id": "4"
+        }, 
+        {
+            "frequency": "1", 
+            "id": "3"
+        }, 
+        {
+            "frequency": "1", 
+            "id": "2"
+        }
+    ], 
+    "size": "3", 
+    "storage_response_time": "0"
+</code></pre>
+
+<p>}</p>
+
+<p>Note the search does not only provide the ability to search on the id.  It allows you to filter the result based on a property of the indexed document.  For example, from the initial POST there was 4 related items:</p>
+
+<ul>
+<li>3 of those had the property: <strong>channel: de</strong>
+</li>
+<li>1 of those had the property: <strong>channel: uk</strong>
+</li>
+</ul><p>The item that had overridden the <strong>"channel"</strong> property was the following:</p>
+
+<pre><code>{
+    "id": "4" ,
+    "date": "2013-12-24T17:44:41.943Z",
+    "related-with": [ "1","2","3"],
+    "type": "torch",
+    "site": "amazon",
+    "channel": "uk"
+}
+</code></pre>
+
+<p>In the above, there are 3 extra elements that can be searched on:</p>
+
+<ul>
+<li>type</li>
+<li>site</li>
+<li>channel</li>
+</ul><p>As a result you can say.  Give with the frequently related product that are mostly purchased with product <strong>1</strong>, filtered the results to reduce to that of "tourches", i.e. type=torch:</p>
+
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch
+</code></pre>
+
+<p>The result is:</p>
+
+<pre><code>{
+    "response_time": "11", 
+    "results": [
+        {
+            "frequency": "1", 
+            "id": "4"
+        }, 
+        {
+            "frequency": "1", 
+            "id": "3"
+        }
+    ], 
+    "size": "2", 
+    "storage_response_time": "2"
+}
+</code></pre>
+
+<p>You can go further and search for torches, just in channel uk, which is:</p>
+
+<pre><code>curl -v -N "http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk" | python -mjson.tool
+</code></pre>
+
+<p>Which will result in just the one related item:</p>
+
+<pre><code>{
+    "response_time": 3, 
+    "results": [
+        {
+            "frequency": "1", 
+            "id": "4"
+        }
+    ], 
+    "size": "1", 
+    "storage_response_time": 1
+}
+</code></pre>
+
+<p>Currently the search result just returns the id's of the related items, and the frequency by which it was related with the searched for item it.   It <em>DOES NOT</em> return the matching document's information.  </p>
+
+<p>The reason behind not returning the matching documents source, is that there could be literally hundreds of matching documents.  For example, the dvd "The Raid" could be bought many many times, with a range of other products.  For the below related item POSTs, the dvd "The Raid", is associated with "Enter the dragon" and "kick boxer".  Where the it is associated with "kick boxer" twice, and therefore "kick boxer" is the most frequently related item.  In the backend (elasticsearch), there are two actual physical documents that represent "kick boxer".  If we are to return the matching documents for the "most frequently related", we have to return the source both documents.  Expanding this further you could quite easily have a item related to another 100's of times; which would mean 100's of matching documents.  It is for this reason the content of that matches are not returned.</p>
+
+<pre><code>curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+{
+   "channel":"uk",
+   "site":"amazon",
+   "items":[
+      {
+         "id":"1",
+         "title":"The Raid",
+         "type":"dvd"
+      },
+      {
+         "id":"2",
+         "title":"Enter the dragon",
+         "type":"dvd"           
+      }
+   ]
+}'
+
+curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+{
+   "channel":"uk",
+   "site":"amazon",
+   "items":[
+      {
+         "id":"1",
+         "title":"The Raid",
+         "type":"dvd"
+      },
+      {
+         "id":"2",
+         "title":"kick boxer",
+         "type":"dvd"           
+      }
+   ]
+}'
+
+curl -H"Content-Type:text/json" -XPOST -v http://localhost:8080/indexing/index -d '
+{
+   "channel":"uk",
+   "site":"amazon",
+   "items":[
+      {
+         "id":"1",
+         "title":"The Raid",
+         "type":"dvd"
+      },
+      {
+         "id":"2",
+         "title":"kick boxer",
+         "type":"dvd"           
+      }
+   ]
+}'
+</code></pre>
+
+<hr><h2>
+<a name="more-indexing" class="anchor" href="#more-indexing"><span class="octicon octicon-link"></span></a>More Indexing</h2>
+
+<p>When a group of related items are indexed, by default they are stored in elasticsearch in a dated index, for example "relateditems-YYYY-MM-DD":</p>
+
+<p>Each date based index, is an index of it's own in elasticsearch.  If you were searching directly against elasticsearch you could independently search the one dated index.  </p>
+
+<p>The date of the index is based on the UTC date of either:</p>
+
+<ul>
+<li>The date contained within the RELATED ITEMS POST (converted to UTC)</li>
+<li>The current date set on the server on which the indexing application is running.</li>
+</ul><p>The previous POST contained no date.  However, the following example POST contains a date that is in UTC timezone.  As an index named "<strong>relateditems-2013-12-25</strong>" will be created and the 4 related item documents indexed within that index.</p>
+
+<pre><code>{
+    "channel": "de", 
+    "date": "2013-12-25T09:44:41.943", 
+    "items": [
+        {
+            "id": "1", 
+            "type": "map"
+        }, 
+        {
+            "id": "2", 
+            "type": "compass"
+        }, 
+        {
+            "id": "3", 
+            "type": "torch"
+        }, 
+        {
+            "channel": "uk", 
+            "id": "4", 
+            "type": "torch"
+        }
+    ], 
+    "site": "amazon"
+}
+</code></pre>
+
+<p>As mentioned above, if the date in the related items POST contains a date with time zone information, it will be converted to UTC, and then the date used.  For example, the below POST contains:</p>
+
+<pre><code>"date": "2013-12-24T09:44:41.943+10:00"
+</code></pre>
+
+<p>Given this date, the 4 related item documents will be indexed within the index named:</p>
+
+<pre><code>relateditems-2013-12-23
+</code></pre>
+
+<p>The reason being that "2013-12-24T09:44:41.943+10:00" is "2013-12-23T23:44:41.943" in UTC timezone.  The resulting 4 related documents will contain the UTC timestamp.</p>
+
+<pre><code>{
+    "channel": "de", 
+    "date": "2013-12-24T09:44:41.943+10:00", 
+    "items": [
+        {
+            "id": "1", 
+            "type": "map"
+        }, 
+        {
+            "id": "2", 
+            "type": "compass"
+        }, 
+        {
+            "id": "3", 
+            "type": "torch"
+        }, 
+        {
+            "channel": "uk", 
+            "id": "4", 
+            "type": "torch"
+        }
+    ], 
+    "site": "amazon"
+}
+</code></pre>
+
+<p>An example document indexed in "<strong>relateditems-2013-12-23</strong>" looks as follows (taken from elasticsearch head):</p>
+
+<pre><code>{
+    _index: relateditems-2013-12-23
+    _type: related
+    _id: EmHW1qQBQv2BMgmQAlyMiA
+    _version: 1
+    _score: 1
+    _source: {
+        id: 3
+        date: 2013-12-23T23:44:41.943Z
+        related-with: [
+            4
+            1
+            2
+        ]
+        type: torch
+        site: amazon
+        channel: de
+    }
+}
+</code></pre>
+
+<p>The document itself is:</p>
+
+<pre><code>{
+    "id": "3" ,
+    "date": "2013-12-23T23:44:41.943Z",
+    "related-with": [ "4","1","2"],
+    "type": "torch",
+    "site": "amazon",
+    "channel": "de"
+}    
+</code></pre>
+
+<hr><h3>
+<a name="indexing-and-searching-logging" class="anchor" href="#indexing-and-searching-logging"><span class="octicon octicon-link"></span></a>Indexing and Searching Logging</h3>
+
+<p>The indexing and searching application uses log4j2, the default log configuration is as follows.  Log4j2 is used due to use of the disruptor framework to perform logging asynchronously.  In order for the default logging configuration to kick in the following property is required</p>
+
+<pre><code>-DLog4jContextSelector="org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
+</code></pre>
+
+<p>If you don't like the look of the below configuration you can specify your own configuration file via:  </p>
+
+<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;
+</code></pre>
+
+<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
+
+<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
+-Drelated-item.searching.log.level=ERROR
+-Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
+-Drelated-item.indexing.log.level=ERROR
+</code></pre>
+
+<p>The defaults are "WARN" and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
+
+<p>The log4j2.xml configuration files are as follows:</p>
+
+<p><em>Searching</em></p>
+
+<div class="highlight highlight-xml"><pre>    <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+    <span class="nt">&lt;configuration</span> <span class="na">status=</span><span class="s">"WARN"</span> <span class="na">monitorInterval=</span><span class="s">"120"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;appenders&gt;</span>
+            <span class="nt">&lt;RollingRandomAccessFile</span> <span class="na">name=</span><span class="s">"SEARCHING"</span> <span class="na">fileName=</span><span class="s">"${sys:related-item.searching.log.file}"</span>
+                                 <span class="na">immediateFlush=</span><span class="s">"false"</span> <span class="na">append=</span><span class="s">"true"</span>
+                                 <span class="na">filePattern=</span><span class="s">"${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;Policies&gt;</span>
+                    <span class="nt">&lt;TimeBasedTriggeringPolicy</span> <span class="nt">/&gt;</span>
+                    <span class="nt">&lt;SizeBasedTriggeringPolicy</span> <span class="na">size=</span><span class="s">"50 MB"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/Policies&gt;</span>
+            <span class="nt">&lt;/RollingRandomAccessFile&gt;</span>
+        <span class="nt">&lt;/appenders&gt;</span>
+        <span class="nt">&lt;loggers&gt;</span>
+            <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">"${sys:related-item.searching.log.level}"</span> <span class="na">includeLocation=</span><span class="s">"false"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">"SEARCHING"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/root&gt;</span>
+        <span class="nt">&lt;/loggers&gt;</span>
+    <span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+
+<p><em>Indexing</em></p>
+
+<div class="highlight highlight-xml"><pre>    <span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+    <span class="nt">&lt;configuration</span> <span class="na">status=</span><span class="s">"WARN"</span> <span class="na">monitorInterval=</span><span class="s">"120"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;appenders&gt;</span>
+            <span class="nt">&lt;RollingRandomAccessFile</span> <span class="na">name=</span><span class="s">"INDEXING"</span> <span class="na">fileName=</span><span class="s">"${sys:related-item.indexing.log.file}"</span>
+                                 <span class="na">immediateFlush=</span><span class="s">"false"</span> <span class="na">append=</span><span class="s">"true"</span>
+                                 <span class="na">filePattern=</span><span class="s">"${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;PatternLayout</span> <span class="na">pattern=</span><span class="s">"%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;Policies&gt;</span>
+                    <span class="nt">&lt;TimeBasedTriggeringPolicy</span> <span class="nt">/&gt;</span>
+                    <span class="nt">&lt;SizeBasedTriggeringPolicy</span> <span class="na">size=</span><span class="s">"50 MB"</span><span class="nt">/&gt;</span>
+                <span class="nt">&lt;/Policies&gt;</span>
+            <span class="nt">&lt;/RollingRandomAccessFile&gt;</span>
+        <span class="nt">&lt;/appenders&gt;</span>
+        <span class="nt">&lt;loggers&gt;</span>
+            <span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">"${sys:related-item.indexing.log.level}"</span> <span class="na">includeLocation=</span><span class="s">"false"</span><span class="nt">&gt;</span>
+                <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">"INDEXING"</span><span class="nt">/&gt;</span>
+            <span class="nt">&lt;/root&gt;</span>
+        <span class="nt">&lt;/loggers&gt;</span>
+    <span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+
+<hr><h3>
+<a name="indexes-searched-across-by-default" class="anchor" href="#indexes-searched-across-by-default"><span class="octicon octicon-link"></span></a>Indexes Searched Across by Default</h3>
+
+<p>By default the indexes that are searched in elasticsearch are any index that have a name starting with "<strong>relateditems-</strong>".  In other words a wild card search across all dated indexes starting with <strong>relateditems-</strong></p>
+
+<p>The prefix of the index name is controlled by the following configuration parameter.  A hyphen "-", will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:</p>
+
+<pre><code>-Drelated-item.storage.index.name.prefix
+</code></pre>
+
+<p>For example with the setting:</p>
+
+<pre><code>-Drelated-item.storage.index.name.prefix=related
+</code></pre>
+
+<p>Documents will be indexed and Searching in/from indexes named: "<strong>related-YYYY-MM-DD</strong>".</p>
+
+<p>It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (<strong>note</strong> The alias does not apply to indexing).</p>
+
+<p>The below gives an example of the curl request used to set up an index in elasticsearch.  It creates an alias "<strong>related</strong>"", which is an alias for the indexes: "<strong>relateditems-2013-12-23</strong>" and "<strong>relateditems-2013-12-24</strong>".  When "<strong>related</strong>" is used to search, the search will be performed only against those two indexes.</p>
+
+<pre><code>curl -XPOST localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "add": {"alias": "related", "index": "relateditems-2013-12-23"} },
+        { "add": { "alias": "related","index": "relateditems-2013-12-24"} }
+    ]
+}'
+</code></pre>
+
+<p>To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:</p>
+
+<pre><code>-Drelated-item.storage.index.name.alias=related
+</code></pre>
+
+<h4>
+<a name="why-use-an-alias" class="anchor" href="#why-use-an-alias"><span class="octicon octicon-link"></span></a>Why Use an Alias?</h4>
+
+<p>An alias can give you added flexibility over the content that is being searched.  However, this comes at the cost of added complexity from having to maintain the alias. </p>
+
+<p>An example usage for an alias could be the following.  Imagine one day you are having a promotion for a new selection of products.  You could choose to promote those products against a selection of other products.  One way to do this is to re-associate the alias to a prepared index of those products and the associated items:</p>
+
+<pre><code>curl -XPOST localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "add" :   { "alias" : "related", "index": "promotion-2013-12-25"   } },
+        { "remove": { "alias" : "related", "index": "relateditems-2013-12-23"} },
+        { "remove": { "alias" : "related", "index": "relateditems-2013-12-24"} }
+    ]
+}'
+</code></pre>
+
+<p>The above removes the existing mappings and creates the new mapping.  This can be done a runtime, without starting either elasticsearch or the searching application.  However, the downside here is the maintenance of the alias.  </p>
+
+<p>The alias cannot use a wildcard, and it needs to point to a valid index that exists.  Therefore, a maintenance script needs to create that would periodically run to update the alias mapping to point to new indexes.</p>
+
+<p>Unfortunately at the moment support for assigning index alias's at index creation time does not currently exist (<a href="https://github.com/elasticsearch/elasticsearch/pull/2739">https://github.com/elasticsearch/elasticsearch/pull/2739</a> and <a href="https://github.com/elasticsearch/elasticsearch/issues/4920">https://github.com/elasticsearch/elasticsearch/issues/4920</a>).</p>
+
+<p>For more information about index alias in elasticsearch please read:</p>
+
+<pre><code>http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+</code></pre>
+
+<hr><h3>
+<a name="post-document-format" class="anchor" href="#post-document-format"><span class="octicon octicon-link"></span></a>Post Document Format</h3>
+
+<p>The related items document that is POST'ed to the indexing web application has a couple of keys that it refers to:</p>
+
+<ul>
+<li>"<strong>items</strong>": An array of items that are related, i.e. just been purchased together</li>
+<li>"<strong>id</strong>":    The id of the item, this is your identify for the item, for example the Product Id.</li>
+<li>"<strong>date</strong>":  The date at which the related items were created, i.e. the purchase time</li>
+</ul><p>Example:</p>
+
+<pre><code>{
+    "date": "2013-12-24T09:44:41.943+10:00", 
+    "items": [
+        {
+            "id": "1"      
+        }, 
+        {
+            "id": "2" 
+        } 
+    ] 
+}
+</code></pre>
+
+<p>Or in short form:</p>
+
+<pre><code>{
+    "date": "2013-12-24T09:44:41.943+10:00", 
+    "items": [ "1","2" ]
+}
+</code></pre>
+
+<p>The short form of the post makes the assumption that the strings in the "<strong>items</strong>" array are the "<strong>id</strong>"'s </p>
+
+<p>As previously seen the indexing POST document can contain extra keys and values that are associated to either the related items POST in it's entirety, or can be specific to a particular item in the related items document.</p>
+
+<p>For example:</p>
+
+<pre><code>{
+    "date": "2013-12-24T09:44:41.943+10:00", 
+    "site": "amazon", 
+    "channel" : "uk",       
+    "items": [
+        {
+            "department" : "electronics",
+            "category" : "storage",
+            "type" : "hard disk",
+            "id": "1",      
+        }, 
+        {
+            "department" : "electronics",
+            "category" : "notebooks",
+            "type" : "macbook pro",
+            "memory" : "8gb",
+            "channel" : "de",
+            "id": "2", 
+        } 
+    ] 
+}
+</code></pre>
+
+<p>Given the above the key/value: <strong>"site": "amazon"</strong>, will apply to all the related item documents that are indexed in elasticsearch (2 documents in the above).  The key/value pairs within the "items" array will apply just to that item's document that is indexed.  </p>
+
+<p>Document with "id": "1" will have the key/values:</p>
+
+<pre><code>"date": "2013-12-23T23:44:41.943"
+"site": "amazon", 
+"channel" : "uk",    
+"department" : "electronics",
+"category" : "storage",
+"type" : "hard disk",    
+</code></pre>
+
+<p>Document with "id" : "2" will have the key/values:</p>
+
+<pre><code>"date": "2013-12-23T23:44:41.943"
+"site": "amazon", 
+"channel" : "de",    
+"department" : "electronics",
+"category" : "notebooks",
+"type" : "macbook pro",
+"memory" : "8gb"
+</code></pre>
+
+<p>If an element exist in the item's property that was defined in the parent enclosing document, then the item's value takes precedence and overrides that of the enclosing document's setting.</p>
+
+<p>With the above you can see that the second item has an extra field "memory", than that of the first document.  Whilst it does not make much difference to the backend (elasticsearch) or the web applications (searching or indexing), for consistencies sake you shouldn't really have key existing in one related item that do not appear in the.  However, it is entirely up to you.  </p>
+
+<h3>
+<a name="how-many-items-can-be-included-in-a-single-related-item-post" class="anchor" href="#how-many-items-can-be-included-in-a-single-related-item-post"><span class="octicon octicon-link"></span></a>How Many Items Can Be Included in a Single Related Item POST?</h3>
+
+<p>By fault 10 related items per POST request can be handled.  By default if there are 11 items in the indexing request; the last item is silently ignored (a warning is output in the logs).  The below are the properties that are available for configuration, for adjusting these defaults</p>
+
+<pre><code>* related-item.max.number.related.items.per.index.request = 10
+* related-item.max.related.item.post.data.size.in.bytes = 10240
+* related-item.indexing.discard.storage.requests.with.too.many.relations = false
+</code></pre>
+
+<h3>
+<a name="how-many-properties-can-i-have-for-related-item" class="anchor" href="#how-many-properties-can-i-have-for-related-item"><span class="octicon octicon-link"></span></a>How Many Properties Can I Have for Related Item</h3>
+
+<p>The answer to this question is that you can have as many properties as you like per indexed relate item.  However, in order to have as many items as you like you need to pay for that, in terms of memory allocated to the application, or reduction in the ring buffer size, and or length of the property keys/values.</p>
+
+<p>The following properties are available for configuration, show with their defaults.  As a result if you know a related item will have more than 10 properties (remember this leaves you with 7 configurable properties of your choosing; id, date and related-with take already taken)</p>
+
+<pre><code>* related-item.max.number.related.item.properties = 10
+* related-item.additional.prop.key.length = 30 (characters)
+* related-item.additional.prop.key.length = 30 (characters)
+* related-item.indexing.size.of.incoming.request.queue = 16384
+</code></pre>
+
+<hr><h2>
+<a name="elasticsearch" class="anchor" href="#elasticsearch"><span class="octicon octicon-link"></span></a>Elasticsearch</h2>
+
+<p>As mentioned above, the related item data is stored in elasticsearch and the ability to find the frequently related items, for an item, is provided by that of elasticsearch and its faceting.  </p>
+
+<p>The indexing and searching web applications use the elasticsearch java library.  </p>
+
+<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol.  Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server.  Also, the version of JAVA on the client and the server <em>MUST</em> be the same.</p>
+
+<pre><code>* Current embedded elasticsearch version is: **0.90.9**
+</code></pre>
+
+<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
+
+<pre><code>* client.transport.sniff : true
+</code></pre>
+
+<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
+
+<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client.  HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes.  So at the moment only the "<strong>node</strong>", or "<strong>transport</strong>" option are available.  With the default being that of <strong>transport</strong>.</p>
+
+<hr><h3>
+<a name="elasticsearch-connection-configuration" class="anchor" href="#elasticsearch-connection-configuration"><span class="octicon octicon-link"></span></a>Elasticsearch Connection Configuration</h3>
+
+<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
+
+<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
+
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300
+</code></pre>
+
+<p>This can be a comma separated list of hosts:</p>
+
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
+</code></pre>
+
+<p>By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+
+<hr><h3>
+<a name="elasticsearch-relate-item-type-mapping" class="anchor" href="#elasticsearch-relate-item-type-mapping"><span class="octicon octicon-link"></span></a>Elasticsearch Relate Item Type Mapping</h3>
+
+<p>When the indexing and searching applications talk to elasticsearch they search for documents within the index "relateditems-YYYY-MM-DD" for the document type "related".  As previously mentioned the defined properties require for the "related" type are: </p>
+
+<ul>
+<li>id </li>
+<li>related-with</li>
+<li>date</li>
+</ul><p>When indexing documents in elasticsearch, if a type (i.e. "related") does not have an associated mapping then a dynamic mapping of a document's json properties are created.  Which may or may not be what is required.  As a result, you should define a mapping for the type.  The mapping for the related type should at minimum be the following:</p>
+
+<pre><code>curl -XPUT http://localhost:9200/_template/relateditems -d '{
+    "template" : "relateditems*",
+    "settings" : {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1,
+        "index.refresh_interval" : "5s",
+        "index.store.compress.stored" : false,
+        "index.query.default_field" : "id",
+        "index.routing.allocation.total_shards_per_node" : 1,
+        "indices.memory.index_buffer_size" : 30
+    },
+    "mappings" : {
+        "related" : {
+           "_all" : {"enabled" : false},
+           "dynamic" : false,
+           "properties" : {
+              "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+              "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+              "date": { "type": "date", "index": "not_analyzed", "store" : "no" }
+           }
+        }
+    }
+}'
+</code></pre>
+
+<p>If the related documents you are indexed are going to have more properties (i.e. channel, type, etc).  You need to expand upon the mapping above to detail those properties.  A guide to mapping can be found <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html">In the following elasticsearch documentation</a></p>
+
+<pre><code>curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
+    "template" : "relateditems*",
+    "settings" : {
+        "number_of_shards" : 1,
+        "number_of_replicas" : 1,
+        "index.refresh_interval" : "5s",
+        "index.store.compress.stored" : false,
+        "index.query.default_field" : "id",
+        "index.routing.allocation.total_shards_per_node" : 1,
+        "indices.memory.index_buffer_size" : 30
+    },
+    "mappings" : {
+        "related" : {
+           "_all" : {"enabled" : false},
+           "dynamic" : false,
+           "properties" : {
+              "id": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+              "related-with": { "type": "string", "index": "not_analyzed", "store" : "yes" },
+              "date": { "type": "date", "index": "not_analyzed", "store" : "no" },
+              "channel" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+              "site" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" },
+              "type" : {"type" : "string" , "index" : "not_analyzed", "store" : "no" }
+           }
+        }
+    }
+}'
+</code></pre>
+
+<h3>
+<a name="elasticsearch-server-configuration" class="anchor" href="#elasticsearch-server-configuration"><span class="octicon octicon-link"></span></a>Elasticsearch Server Configuration</h3>
+
+<p>The elasticsearch server itself also requires some configuration.  By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the <em>data/</em> directory in it's download installation location.  You more than like want to:</p>
+
+<pre><code>* Move to unicast if your network does not cope with multicast traffic routing well (i.e. multiple data centres, etc.)
+* Move the local storage to a raid array, with raid 1, 5 or raid 1+0 (10), away from the data/ directory.  So that you can update the elasticsearch binaries without affecting the data indexed.
+</code></pre>
+
+<p>The elasticsearch configuration file (<strong>config/elasticsearch.yml</strong>), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being "<strong>relateditems</strong>").  The name of the cluster is controlled by the following property on the Searching or Indexing web application:</p>
+
+<pre><code>* related-item.storage.cluster.name
+</code></pre>
+
+<p>Therefore the elasticsearch configuration (<strong>config/elasticsearch.yml</strong>) should have the following set:</p>
+
+<pre><code>cluster.name: relateditems
+</code></pre>
+
+<p>There are several other properties that are not by default in the elasticsearch.yml file, that assist in its operations (searching, bulk operations, getting and indexing).  The following configuration reduces the size of the queue, and the maximum number of threads that elasticsearch can run of the given operations.  By changing the defaults we are allowing existing operations to complete, without flooding it with more requests until it is unable to cope with the load.  As a result we bound the size of the pools and queues, in order to apply back pressure to the request's origin (I.e. The search application and the indexing application)</p>
+
+<p>These pool settings are as follows.  The settings a highly dependent upon the size of your elastic search cluster.  This is just a set of recommendations.</p>
+
+<h3>
+<a name="search-pool" class="anchor" href="#search-pool"><span class="octicon octicon-link"></span></a>Search pool</h3>
+
+<pre><code>threadpool.search.type: fixed
+threadpool.search.size: 20
+threadpool.search.queue_size: 100000
+</code></pre>
+
+<h3>
+<a name="bulk-pool" class="anchor" href="#bulk-pool"><span class="octicon octicon-link"></span></a>Bulk pool</h3>
+
+<pre><code>threadpool.bulk.type: fixed
+threadpool.bulk.size: 25
+threadpool.bulk.queue_size: 100000
+</code></pre>
+
+<h3>
+<a name="get-pool" class="anchor" href="#get-pool"><span class="octicon octicon-link"></span></a>Get Pool</h3>
+
+<pre><code>threadpool.get.type: fixed
+threadpool.get.size: 1
+threadpool.get.queue_size: 1
+</code></pre>
+
+<h3>
+<a name="index-pool" class="anchor" href="#index-pool"><span class="octicon octicon-link"></span></a>Index pool</h3>
+
+<pre><code>threadpool.index.type: fixed
+threadpool.index.size: 20
+threadpool.index.queue_size: 100000
+</code></pre>
+
+<hr><h2>
+<a name="jvm-options-and-configuration-defaults" class="anchor" href="#jvm-options-and-configuration-defaults"><span class="octicon octicon-link"></span></a>JVM Options and Configuration Defaults</h2>
+
+<p>The default configuration for indexing and searching are based on a 1GB heap
+(-Xmx1024m -Xms1024m) configuration.  It is for this default configuration
+that the below JVM options and Heap configuration is specified.</p>
+
+<p>The specific recommended (tested against) JVM options for searching and indexing
+are listed below (jdk7 - the following options <em>WILL NOT</em> work on jdk6).
+The JVM options slightly differ between searching and indexing.  The common options
+are listed and then the differences listed:</p>
+
+<h3>
+<a name="common-options-for-web-applications" class="anchor" href="#common-options-for-web-applications"><span class="octicon octicon-link"></span></a>Common options for Web Applications</h3>
+
+<pre><code>-XX:CMSInitiatingOccupancyFraction=85
+-XX:MaxTenuringThreshold=15
+-XX:CMSWaitDuration=70000    
+-XX:MaxPermSize=128m
+-XX:ParGCCardsPerStrideChunk=4096
+-XX:+UseParNewGC
+-XX:+UseConcMarkSweepGC
+-XX:+UseCMSInitiatingOccupancyOnly    
+-XX:+UnlockDiagnosticVMOptions
+-XX:+AggressiveOpts
+-XX:+UseCondCardMark
+</code></pre>
+
+<hr><p>Below shows the heap configuration for indexing and search.  The difference between
+the two is that of the eden space.</p>
+
+<h3>
+<a name="searching-heap" class="anchor" href="#searching-heap"><span class="octicon octicon-link"></span></a>Searching Heap</h3>
+
+<pre><code>-Xmx1024m
+-Xmn700m
+-Xms1024m
+-Xss256k
+</code></pre>
+
+<h3>
+<a name="indexing-heap" class="anchor" href="#indexing-heap"><span class="octicon octicon-link"></span></a>Indexing Heap</h3>
+
+<pre><code>-Xmx1024m
+-Xmn256m
+-Xms1024m
+-Xss256k
+</code></pre>
+
+<hr><h2>
+<a name="application-configuration" class="anchor" href="#application-configuration"><span class="octicon octicon-link"></span></a>Application Configuration</h2>
+
+<p>The Searching and Indexing web applications can be configured via a wide range of properties.  These can either be set using System Properties:</p>
+
+<ul>
+<li>-Drelated-item.max.number.related.item.propetties=10</li>
+</ul><p>Or by using a yaml configuration file.  The following will list all the properties that are available for configuration, along with their use.  Some properties are specifically for searching, others specifically for indexing, and others for both.  This will be noted.</p>
+
+<table>
+<thead><tr>
+<th>Property Name</th>
+<th>usage</th>
+<th>Searching/Indxing/ALL</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>* related-item.safe.to.output.index.request.data</td>
+<td>Writes to logs (when DEBUG) the index request data</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.max.number.related.item.properties</td>
+<td>The max number of properties a related item can have.  More properties than this will be silently discarded.  There is no guarantee of ordering</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.max.number.related.items.per.index.request</td>
+<td>The max number of related items in a single index POST request</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.related.item.id.length</td>
+<td>The max number of characters that the "id" of a related items can have</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.max.related.item.post.data.size.in.bytes</td>
+<td>max size in bytes of the POST data for an index request</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.min.related.item.post.data.size.in.bytes</td>
+<td>The minimum size, in bytes, of the POSTed json data for an index request</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.additional.prop.key.length</td>
+<td>The max number of characters a property name can have</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.additional.prop.value.length</td>
+<td>the max number of characters a property value can have</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.size.of.incoming.request.queue</td>
+<td>Size of the ring buffer that accepts incoming indexing POST requests</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.indexing.size.of.batch.indexing.request.queue</td>
+<td>The size of the ring buffer for each indexing processor that batch posts indexing requests to elasticsearch</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.indexing.batch.size</td>
+<td>The max number of related item objects (a single index request will have many related item objects), that can be sent for batching indexing to elastic search.</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.searching.size.of.related.content.search.request.queue</td>
+<td>Size of the ring buffer that accepts incoming search requests</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.size.of.related.content.search.request.handler.queue</td>
+<td>Size of the ring buffer for each search processor that submits search requests to elasticsearch</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.size.of.related.content.search.request.and.response.queue</td>
+<td>Size of the ring buffer that is used to store incoming Request AsyncContext objects for later retrieval</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.max.number.of.search.criteria.for.related.content</td>
+<td>number of additional properties that will be searched on</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.number.of.expected.like.for.like.requests</td>
+<td>The number of search request that we expect to be similar</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.frequency.result.id</td>
+<td>The key used for the id field in the search result json</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.frequency.result.occurrence</td>
+<td>The key used for the frequency in the search results json</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.storage.response.time</td>
+<td>Key used to represent how long the elasticsearch request took, in the json response doc</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.search.processing.time</td>
+<td>Key used to represent how long the complete search request took.  It is the key used in the response json</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.frequency.result.overall.no.of.related.items</td>
+<td>key in the search response used to represent the number of frequencies returned</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.key.for.frequency.results</td>
+<td>key in the search response json under which the frequencies are found</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.request.parameter.for.size</td>
+<td>request parameter used to specify the max number of frequencies to return</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.request.parameter.for.id</td>
+<td>parameter used to associate the id in a map of request parameters</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.default.number.of.results</td>
+<td>default number of search result (frequencies) to return</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.size.of.response.processing.queue</td>
+<td>size of ring buffer for processing search results and sending json response to the awaiting AsyncContext</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.indexing.number.of.indexing.request.processors</td>
+<td>number of processors used to perform indexing (sending batch indexing requests) to elasticsearch</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.searching.number.of.searching.request.processors</td>
+<td>The number of ring buffers (processors) that will be sending search requests to elasticsearch</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.storage.index.name.prefix</td>
+<td>The name of the index used in elasticsearch for storing related item documents (i.e. relateditems-)</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.storage.index.name.alias</td>
+<td>The name of the index alias against which to search (<a href="http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/">http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/</a>)</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.storage.content.type.name</td>
+<td>The index type</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.storage.cluster.name</td>
+<td>The name of the elasticsearch cluster</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.storage.frequently.related.items.facet.results.facet.name</td>
+<td>The property used for naming the facet during the search request to elastic search</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.storage.searching.facet.search.execution.hint</td>
+<td>Used during search request to elastic search.  The setting of 'map' is the default.  Makes request much much faster</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.indexing.key.for.index.request.related.with.attr</td>
+<td>The key used in the indexed document for the storing the related ids</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.key.for.index.request.date.attr</td>
+<td>The key used in the indexed document for the date attribute</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.key.for.index.request.id.attr</td>
+<td>The key against which the id is stored in the indexed document</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.key.for.index.request.item.array.attr</td>
+<td>The key in the incoming user json indexing request that contains the list of items</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.elastic.search.client.default.transport.settings.file.name</td>
+<td>name of the elastic search file containing the transport client settings (defaults)</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.elastic.search.client.default.node.settings.file.name</td>
+<td>name of the elasticsearch file containing the node client settings (defaults)</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.elastic.search.client.override.settings.file.name</td>
+<td>name of the elasticsearch file than can be distributed to override the default node/transport settings</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.searching.frequently.related.search.timeout.in.millis</td>
+<td>timeout in millis for elasticsearch requests</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.storage.location.mapper</td>
+<td>day/hour/min used to convert date to a string used for creating the index name in which documents are stored</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.searching.timed.out.search.request.status.code</td>
+<td>the http status code when a timeout occurs</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.failed.search.request.status.code</td>
+<td>the http status code when a search request fails to talk to elasticsearch</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.not.found.search.request.status.code</td>
+<td>the http status code when no search result is found</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.found.search.results.handler.status.code</td>
+<td>the http status code when a match is found</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.missing.search.results.handler.status.code</td>
+<td>the http status code when we cannot handle the json search response</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.wait.strategy</td>
+<td>The type of ring buffer wait strategy: yield/busy/sleep/block</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.es.client.type</td>
+<td>The type of elasticsearch client to use</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.indexname.date.caching.enabled</td>
+<td>caching of index date</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.number.of.indexname.to.cache</td>
+<td>number of index names to cache</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.indexing.replace.old.indexed.content</td>
+<td>replace existing content (false)</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.use.separate.repository.storage.thread</td>
+<td>Use a separate thread for performing indexing</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.indexing.discard.storage.requests.with.too.many.relations</td>
+<td>silently discard related items in the indexing request it there are too many.  Indexes up to the max, discards the others</td>
+<td>Indexing</td>
+</tr>
+<tr>
+<td>* related-item.elastic.search.transport.hosts</td>
+<td>The host:port,host:port contain the unicast addresses of the search nodes in elastic search to talk to</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.elastic.search.default.port</td>
+<td>the default port if not specified to talk to in elasticsearch</td>
+<td>All</td>
+</tr>
+<tr>
+<td>* related-item.searching.use.shared.search.repository</td>
+<td>Whether the search processors use a shared connection to elastic search</td>
+<td>Searching</td>
+</tr>
+<tr>
+<td>* related-item.searching.response.debug.output.enabled</td>
+<td>output the response json being sent to the client, also to a log file.</td>
+<td>Searching</td>
+</tr>
+</tbody>
+</table><p>By default the Searching and Indexing web applications will look for a yaml configuration file from which to load the configuration details.  Any settings in the configuration file, override the defaults.  Any system properties set will override the settings that are contained within the yaml configuration.  </p>
+
+<p>By default the yaml file <strong>related-items.yaml</strong> is looked for on the class path.  The location of the file can be specified by the property, <strong>related-items.settings.file</strong>, for example:</p>
+
+<ul>
+<li>-Drelated-items.settings.file=/etc/relateditems.yml</li>
+</ul><p>The yaml file, may look like the following:</p>
+
+<pre><code>related-item:
+       searching:
+              number.of.searching.request.processors: 16
+              size.of.related.content.search.request.handler.queue: 1024
+
+       indexing:
+              size.of.batch.indexing.request.queue: 4096
+</code></pre>
+
+<p>With the above in place the following properties are overridden:</p>
+
+<ul>
+<li>related-item.searching.number.of.searching.request.processors</li>
+<li>related-item.searching.size.of.related.content.search.request.handler.queue</li>
+<li>related-time.indexing.size.of.batch.indexing.reqeust.queue</li>
+</ul><p>If a system properties was set (-Drelated-item.searching.number.of.searching.request.processors=2), that would override the setting in the yaml file.</p>
+
+<hr><h2>
+<a name="searching-and-indexing-architecture" class="anchor" href="#searching-and-indexing-architecture"><span class="octicon octicon-link"></span></a>Searching and Indexing Architecture</h2>
+
+<p>The below shows a couple of simple high level architecture diagrams for the indexing and searching.</p>
+
+<h4>
+<a name="searching" class="anchor" href="#searching"><span class="octicon octicon-link"></span></a>Searching</h4>
+
+<p><img src="http://tootedom.github.io/related/images/SearchExecutionArch.png" alt="Search Application Architecture"></p>
+
+<h4>
+<a name="indexing" class="anchor" href="#indexing"><span class="octicon octicon-link"></span></a>Indexing</h4>
+
+<p><img src="http://tootedom.github.io/related/images/IndexExecutionArch.png" alt="Index Application Architecture"></p>
+
+<h2>
+<a name="load-testing" class="anchor" href="#load-testing"><span class="octicon octicon-link"></span></a>Load Testing</h2>
+
+<p>Below show the load testing results from indexing and searching tests performed against the application during development and testing.  You will obviously have different results based on your representative indexing data and searches.  </p>
+
+<p>The load tests results are from running a 1GB heap and running indexing and searching completely independently of each other.</p>
+
+<p>Elasticsearch version 0.90.9 is running on 2 hosts:</p>
+
+<ul>
+<li>Mac mini 2.3 GHz Core i5 (I5-2415M)</li>
+<li>macbook pro 17" 2.5 GHz Core i7 (I7-2860QM) </li>
+</ul><p>The indexing and searching applications are running on:</p>
+
+<ul>
+<li>Dell poweredge t420, 2 cpu Intel(R) Xeon(R) CPU E5-2407 2.20GHz.</li>
+<li>tomcat 7u42, NIO connector.</li>
+<li>centos 6.5</li>
+</ul><p>The connection between the dell t420 and the macbook pro is wifi 5g, and to mac mini 100mbps lan.
+The gatling load test is run on another host, running 1000 concurrent users.</p>
+
+<hr><h3>
+<a name="indexing-load-test-output" class="anchor" href="#indexing-load-test-output"><span class="octicon octicon-link"></span></a>Indexing Load Test Output</h3>
+
+<pre><code>================================================================================
+---- Global Information --------------------------------------------------------
+&gt; numberOfRequests                                 2346426 (OK=2346426 KO=0     )
+&gt; minResponseTime                                        0 (OK=0      KO=-     )
+&gt; maxResponseTime                                     1570 (OK=1570   KO=-     )
+&gt; meanResponseTime                                       3 (OK=3      KO=-     )
+&gt; stdDeviation                                          29 (OK=29     KO=-     )
+&gt; percentiles1                                          10 (OK=10     KO=-     )
+&gt; percentiles2                                          10 (OK=10     KO=-     )
+&gt; meanNumberOfRequestsPerSecond                       3351 (OK=3351   KO=-     )
+---- Response Time Distribution ------------------------------------------------
+&gt; t &lt; 800 ms                                       2345586 ( 99%)
+&gt; 800 ms &lt; t &lt; 1200 ms                                  82 (  0%)
+&gt; t &gt; 1200 ms                                          758 (  0%)
+&gt; failed                                                 0 (  0%)
+================================================================================
+</code></pre>
+
+<hr><h3>
+<a name="searching-load-test-output" class="anchor" href="#searching-load-test-output"><span class="octicon octicon-link"></span></a>Searching Load Test Output</h3>
+
+<pre><code>================================================================================
+---- Global Information --------------------------------------------------------
+&gt; numberOfRequests                                 3350140 (OK=3350140 KO=0     )
+&gt; minResponseTime                                        0 (OK=0      KO=-     )
+&gt; maxResponseTime                                     4310 (OK=4310   KO=-     )
+&gt; meanResponseTime                                      76 (OK=76     KO=-     )
+&gt; stdDeviation                                         110 (OK=110    KO=-     )
+&gt; percentiles1                                         140 (OK=140    KO=-     )
+&gt; percentiles2                                         470 (OK=470    KO=-     )
+&gt; meanNumberOfRequestsPerSecond                       4785 (OK=4785   KO=-     )
+---- Response Time Distribution ------------------------------------------------
+&gt; t &lt; 800 ms                                       3335529 ( 99%)
+&gt; 800 ms &lt; t &lt; 1200 ms                               11950 (  0%)
+&gt; t &gt; 1200 ms                                         2661 (  0%)
+&gt; failed                                                 0 (  0%)
+================================================================================
+</code></pre>
+      

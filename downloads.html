@@ -1,11 +1,135 @@
----
-layout: default
-published: true
----
-{% for item in site.posts limit:1000 %}
-{% if item.is_release == true %}
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relate It</title>
+
+    
+    <meta name="description" content="Relate it: Tracks Frequently Related Items." />
+    
+    <meta name="author" content="Dominic Tootell" />
+    <meta name="copyright" content="relate it (c) 2013-2014" />
+
+    <link rel="stylesheet" href="http://tootedom.github.io/related/stylesheets/foundation.css" />
+    <script src="http://tootedom.github.io/related/javascripts/vendor/modernizr.js"></script>
+</head>
+
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+
+	<nav>
+	  <div class="row">
+	    <div class="large-12 columns">
+	      <div class="nav-bar right" style="padding-top: 30px">
+	       <ul class="button-group">
+	         <li><a href='http://tootedom.github.io/related/index.html' class="radius small button">Home</a></li>
+	          <li class="divider"></li>
+	         <li><a href='http://tootedom.github.io/related/indexing/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
+				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
+				  <li><a href="http://tootedom.github.io/related/indexing/indexing1/index.html">Indexing Overview</a></li>
+				  <li><a href="http://tootedom.github.io/related/indexing/indexing2/index.html">Indexing Date Names</a></li>
+				  <li><a href="http://tootedom.github.io/related/indexing/indexing3/index.html">Post Document Format</a></li>
+				  <li><a href="http://tootedom.github.io/related/indexing/indexing4/index.html">Related Item Properties</a></li>
+				</ul>
+			</li>
+	         <li><a href='http://tootedom.github.io/related/searching/searching.html' class="radius small button">Searching</a></li>
+	         <li><a href='http://tootedom.github.io/related/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='http://tootedom.github.io/related/bog.html' class="radius small button">Blog</a></li>
+	         <li><a href='http://tootedom.github.io/related/downloads.html'  class="radius small button">Downloads</a></li>         
+	        </ul>
+	      </div>
+	      <h1><img src="http://tootedom.github.io/related/images/relateitlogo.png"></h1>
+	      <hr />
+	    </div>
+	  </div>
+	</nav>
+
+</header>
+
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+
+
+
+
+
+
+
      <div>
-	<h2>{{item.release_no}}:</h2><a href="{{site.baseurl}}/releases/{{item.release_no}}/searching.war">searching.war</a> | <a href="/releases/{{item.release_no}}/indexing.war">indexing.war</a></h1>
+	<h2>1.0.0:</h2><a href="http://tootedom.github.io/related/releases/1.0.0/searching.war">searching.war</a> | <a href="/releases/1.0.0/indexing.war">indexing.war</a></h1>
      </div>
-{% endif %}
-{% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-6 columns">
+          <p class="copyright">&copy; relate it maintained by <a href="https://github.com/tootedom">tootedom</a></p>
+        </div>
+        <div class="large-6 columns">
+          <ul class="inline-list right">
+            <li><a href="#">Link 1</a></li>
+            <li><a href="#">Link 2</a></li>
+            <li><a href="#">Link 3</a></li>
+            <li><a href="#">Link 4</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</footer>
+<script src="http://tootedom.github.io/related/javascripts/vendor/jquery.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.dropdown.js"></script>
+<script>
+      $(document).foundation({
+        // specify the class used for active dropdowns
+        active_class: 'open'
+      });
+
+      var doc = document.documentElement;
+      doc.setAttribute('data-useragent', navigator.userAgent);
+</script>
+
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-47714522-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
