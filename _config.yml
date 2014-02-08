@@ -1,4 +1,5 @@
 
+exclude: ['Gemfile', 'Gemfile.lock', 'Rakefile', 'README.md']
 baseurl : "http://tootedom.github.io/related"
 paginate : 1
 permalink: /:categories/:title
