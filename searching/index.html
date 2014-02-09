@@ -1,12 +1,11 @@
 ---
 layout: blog
 published: true
-category : indexing
-category_layout : paginated_indexing.html
+category : searching
+category_layout : paginated_searching.html
 ---
 
-{% include indexing_pagination.html %}
-
+{% include searching_pagination.html %}
 <!-- This loops through the paginated posts -->
 {% for post in paginator.posts %}
   <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>
@@ -15,4 +14,4 @@ category_layout : paginated_indexing.html
   </div>
 {% endfor %}
 
-{% include indexing_pagination.html %}
+{% include searching_pagination.html %}

@@ -1,4 +1,8 @@
 <!doctype html>
+
+
+
+
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
    
@@ -69,48 +73,109 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-
+    <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li><a href="/indexing/indexing1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing2">2</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing3">3</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing4">4</a></li>
+        
+      
+         
+        
+        <li class="current"><a href="/indexing/indexing5">5</a></li>
+        
+      
+      </ul>
+    </div>
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
-
     
 
+    <h1><a href="/indexing/indexing5">Logging Configuration</a></h1>
+    <p>The indexing and searching application uses log4j2, the default log configuration is as follows. Log4j2 is used due to use of the disruptor framework to perform logging asynchronously. In order for the default logging configuration to kick in the following property is required</p>
 
+<pre><code>-DLog4jContextSelector=&quot;org.apache.logging.log4j.core.async.AsyncLoggerContextSelector&quot;</code></pre>
 
+<p>If you don’t like the look of the below configuration you can specify your own configuration file via:</p>
 
+<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;</code></pre>
 
+<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
 
+<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
+-Drelated-item.searching.log.level=ERROR
+-Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
+-Drelated-item.indexing.log.level=ERROR</code></pre>
 
-     <div>
-	<h2>1.0.1:</h2><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war">searching.war</a> | <a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war">indexing.war</a></h1>
-     </div>
+<p>The defaults are “WARN” and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
 
+<p>The log4j2.xml configuration files are as follows:</p>
 
+<p><em>Searching</em></p>
 
-     <div>
-	<h2>1.0.0:</h2><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war">searching.war</a> | <a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war">indexing.war</a></h1>
-     </div>
+<pre class="xml"><code class="xml">
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
+        &lt;appenders&gt;
+            &lt;RollingRandomAccessFile name=&quot;SEARCHING&quot; fileName=&quot;${sys:related-item.searching.log.file}&quot;
+                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
+                                 filePattern=&quot;${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
+                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
+                &lt;Policies&gt;
+                    &lt;TimeBasedTriggeringPolicy /&gt;
+                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
+                &lt;/Policies&gt;
+            &lt;/RollingRandomAccessFile&gt;
+        &lt;/appenders&gt;
+        &lt;loggers&gt;
+            &lt;root level=&quot;${sys:related-item.searching.log.level}&quot; includeLocation=&quot;false&quot;&gt;
+                &lt;appender-ref ref=&quot;SEARCHING&quot;/&gt;
+            &lt;/root&gt;
+        &lt;/loggers&gt;
+    &lt;/configuration&gt;
+</code></pre>
 
+<p><em>Indexing</em></p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<pre class="xml"><code class="xml">
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
+        &lt;appenders&gt;
+            &lt;RollingRandomAccessFile name=&quot;INDEXING&quot; fileName=&quot;${sys:related-item.indexing.log.file}&quot;
+                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
+                                 filePattern=&quot;${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
+                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
+                &lt;Policies&gt;
+                    &lt;TimeBasedTriggeringPolicy /&gt;
+                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
+                &lt;/Policies&gt;
+            &lt;/RollingRandomAccessFile&gt;
+        &lt;/appenders&gt;
+        &lt;loggers&gt;
+            &lt;root level=&quot;${sys:related-item.indexing.log.level}&quot; includeLocation=&quot;false&quot;&gt;
+                &lt;appender-ref ref=&quot;INDEXING&quot;/&gt;
+            &lt;/root&gt;
+        &lt;/loggers&gt;
+    &lt;/configuration&gt;
+</code></pre>
 
 <!--       <article>
 
@@ -187,6 +252,38 @@
 
   <!-- End Main Content and Sidebar -->
 
+  <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li><a href="/indexing/indexing1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing2">2</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing3">3</a></li>
+        
+      
+         
+        
+        <li><a href="/indexing/indexing4">4</a></li>
+        
+      
+         
+        
+        <li class="current"><a href="/indexing/indexing5">5</a></li>
+        
+      
+      </ul>
+    </div>
 
   <!-- Footer -->
   <footer class="row">
@@ -230,3 +327,4 @@
 </script>
   </body>
 </html>
+

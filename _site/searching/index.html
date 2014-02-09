@@ -73,43 +73,106 @@
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
 
-    
+        <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li class="current"><a href="/searching/searching1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/searching/searching2">2</a></li>
+        
+      
+      </ul>
+    </div>
+<!-- This loops through the paginated posts -->
+
+  <h1><a href="/searching/searching1">Searching Overview</a></h1>
+  <div class="content">
+    <p>In the Indexing section, we saw that the related items POST document is constructed in to many small documents and stored in elasticsearch. These tiny documents contain the <code>related-with</code> field. It is this json element <code>related-with</code>, that will be used during searching, to provide faceting.<br />This faceting that allows us to say:</p>
+
+<ul>
+<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
+</ul>
+
+<p>For example for previously indexed POST request:</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;de&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;1&quot;,
+         &quot;type&quot;:&quot;map&quot;
+      },
+      {
+         &quot;id&quot;:&quot;2&quot;,
+         &quot;type&quot;:&quot;compass&quot;
+      },
+      {
+         &quot;id&quot;:&quot;3&quot;,
+         &quot;type&quot;:&quot;torch&quot;
+      },
+      {
+         &quot;id&quot;:&quot;4&quot;,
+         &quot;type&quot;:&quot;torch&quot;,
+         &quot;channel&quot;:&quot;uk&quot;
+      }
+   ]
+}&#39;</code></pre>
+
+<p>The search web application is then called to request the frequently related items for a product (Item with id 1 in this case):</p>
+
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1</code></pre>
+
+<p>This returns json data containing the list of items (their id’s) that are frequently related to that item:</p>
+
+<pre><code>{
+    &quot;response_time&quot;: &quot;2&quot;, 
+    &quot;results&quot;: [
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;4&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;3&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;2&quot;
+        }
+    ], 
+    &quot;size&quot;: &quot;3&quot;, 
+    &quot;storage_response_time&quot;: &quot;0&quot;</code></pre>
+
+<p>}</p>
+  </div>
 
 
-
-
-
-
-
-     <div>
-	<h2>1.0.1:</h2><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war">searching.war</a> | <a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war">indexing.war</a></h1>
-     </div>
-
-
-
-     <div>
-	<h2>1.0.0:</h2><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war">searching.war</a> | <a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war">indexing.war</a></h1>
-     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li class="current"><a href="/searching/searching1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/searching/searching2">2</a></li>
+        
+      
+      </ul>
+    </div>
 
 
 <!--       <article>
