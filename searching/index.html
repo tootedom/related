@@ -73,44 +73,34 @@
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
 
-    <div class="pagination-centered">
+        <div class="pagination-centered">
       <ul class="pagination">
       
       
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/searching/searching1">1</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing5">5</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching2">2</a></li>
         
       
       </ul>
     </div>
-
 <!-- This loops through the paginated posts -->
 
-  <h1><a href="/indexing/indexing1">Indexing Overview</a></h1>
+  <h1><a href="/searching/searching1">Searching Overview</a></h1>
   <div class="content">
-    <p>The index web application is POSTed data containing a group of related items, i.e. for example a purchase containing several items.</p>
+    <p>In the Indexing section, we saw that the related items POST document is constructed in to many small documents and stored in elasticsearch. These tiny documents contain the <code>related-with</code> field. It is this json element <code>related-with</code>, that will be used during searching, to provide faceting.<br />This faceting that allows us to say:</p>
+
+<ul>
+<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
+</ul>
+
+<p>For example for previously indexed POST request:</p>
 
 <pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
 {
@@ -137,90 +127,48 @@
    ]
 }&#39;</code></pre>
 
-<p>The indexing application returns a 202 accepted status code to the client that issued the indexing request. This indicates to the client that the request has been accepted for processing and indexing. Please note that the returning of 202 doesn’t mean that the related items have been stored in Elasticsearch. It means that the item is current held within the disruptor ring buffer pending processing and storage. The indexing application can return the following status codes:</p>
+<p>The search web application is then called to request the frequently related items for a product (Item with id 1 in this case):</p>
 
-<ul>
-<li>400 : The indexing json contains no products, or is invalid jason</li>
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1</code></pre>
 
-<li>503 : The ring buffer is full, and cannot accept any more items for processing.</li>
-
-<li>202 : Item is being processed</li>
-</ul>
-
-<p>It is at this point the POSTed json data is assembled into several documents. For example, for the above request; 3 JSON documents will be assembled and submitted to elasticsearch for storage and indexing:</p>
+<p>This returns json data containing the list of items (their id’s) that are frequently related to that item:</p>
 
 <pre><code>{
-    &quot;id&quot;: &quot;1&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;2&quot;,&quot;3&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;map&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
+    &quot;response_time&quot;: &quot;2&quot;, 
+    &quot;results&quot;: [
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;4&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;3&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;2&quot;
+        }
+    ], 
+    &quot;size&quot;: &quot;3&quot;, 
+    &quot;storage_response_time&quot;: &quot;0&quot;</code></pre>
 
-{
-    &quot;id&quot;: &quot;2&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;3&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;compass&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
-
-{
-    &quot;id&quot;: &quot;3&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
-
-{
-    &quot;id&quot;: &quot;4&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;3&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;uk&quot;
-}</code></pre>
-
-<p>It is the json element “related-with”, that will be used during search, to provide faceting information. It is this faceting functionality provided by Elasticsearch that allows us to say:</p>
-
-<ul>
-<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
-</ul>
+<p>}</p>
   </div>
 
 
-<div class="pagination-centered">
+    <div class="pagination-centered">
       <ul class="pagination">
       
       
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/searching/searching1">1</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing5">5</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching2">2</a></li>
         
       
       </ul>
