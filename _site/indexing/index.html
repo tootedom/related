@@ -32,24 +32,10 @@
 	    <div class="large-12 columns">
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='/index.html' class="radius small button">Home</a></li>
-	         <li class="divider"></li>
-	         <li><a href='/indexing/index.html' data-dropdown="indexingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
-				<ul id="indexingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/indexing/indexing1/index.html">Indexing Overview</a></li>
-				  <li><a href="/indexing/indexing2/index.html">Indexing Date Names</a></li>				  
-				  <li><a href="/indexing/indexing3/index.html">Related Item Properties</a></li>
-				  <li><a href="/indexing/indexing4/index.html">Post Document Format</a></li>
-				  <li><a href="/indexing/indexing5/index.html">Logging</a></li>
-				</ul>
-			 </li>
-	         <li><a href='/searching/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Searching</a><br/>
-				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/searching/searching1/index.html">Searching Overview</a></li>
-				  <li><a href="/searching/searching2/index.html">Searching by properties</a></li>				  
-				</ul>
-			 </li>
-	         <li><a href='/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='/index.html' class="radius small button">Home</a></li>	         
+	         <li><a href='/indexing/index.html' class="radius small button">Indexing</a><br/></li>
+	         <li><a href='/searching/index.html' class="radius small button">Searching</a><br/></li>							 
+	         <li><a href='/configuration/index.html' class="radius small button">Configuration</a></li>
 	         <li><a href='/bog.html' class="radius small button">Blog</a></li>
 	         <li><a href='/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
@@ -73,38 +59,39 @@
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
 
-    <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
+    
+<div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+      <dl class="sub-nav">
+        <dt>INDEXING:</dt>
+        
+        
          
         
-        <li class="current"><a href="/indexing/indexing1">1</a></li>
+          <dd data-magellan-arrival="1" class="active"><a href="/indexing/indexing1">Indexing Overview</a></dd>       
         
-      
+        
          
         
-        <li><a href="/indexing/indexing2">2</a></li>
+          <dd data-magellan-arrival="2" ><a href="/indexing/indexing2">Indexing Date Names</a></dd>
         
-      
+        
          
         
-        <li><a href="/indexing/indexing3">3</a></li>
+          <dd data-magellan-arrival="3" ><a href="/indexing/indexing3">Post Document Format</a></dd>
         
-      
+        
          
         
-        <li><a href="/indexing/indexing4">4</a></li>
+          <dd data-magellan-arrival="4" ><a href="/indexing/indexing4">Related Item Properties</a></dd>
         
-      
+        
          
         
-        <li><a href="/indexing/indexing5">5</a></li>
+          <dd data-magellan-arrival="5" ><a href="/indexing/indexing5">Logging Configuration</a></dd>
         
-      
-      </ul>
-    </div>
+                
+      </dl>
+</div>      
 
 <!-- This loops through the paginated posts -->
 
@@ -193,7 +180,7 @@
   </div>
 
 
-<div class="pagination-centered">
+    <div class="pagination-centered">
       <ul class="pagination">
       
       
@@ -323,6 +310,7 @@
 <script src="/javascripts/vendor/jquery.js"></script>
 <script src="/javascripts/foundation/foundation.js"></script>
 <script src="/javascripts/foundation/foundation.dropdown.js"></script>
+<script src="/javascripts/foundation/foundation.magellan.js"></script>
 <script>
       $(document).foundation({
         // specify the class used for active dropdowns

@@ -1,13 +1,12 @@
 ---
 layout: blog
 published: true
-category : indexing
-category_layout : paginated_indexing.html
+category : configuration
+category_layout : paginated_config.html
 ---
 
-{% assign categoryName = 'indexing' %}
+{% assign categoryName = 'configuration' %}
 {% include subnav.html %}
-
 <!-- This loops through the paginated posts -->
 {% for post in paginator.posts %}
   <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>

@@ -36,24 +36,10 @@
 	    <div class="large-12 columns">
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='/index.html' class="radius small button">Home</a></li>
-	         <li class="divider"></li>
-	         <li><a href='/indexing/index.html' data-dropdown="indexingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
-				<ul id="indexingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/indexing/indexing1/index.html">Indexing Overview</a></li>
-				  <li><a href="/indexing/indexing2/index.html">Indexing Date Names</a></li>				  
-				  <li><a href="/indexing/indexing3/index.html">Related Item Properties</a></li>
-				  <li><a href="/indexing/indexing4/index.html">Post Document Format</a></li>
-				  <li><a href="/indexing/indexing5/index.html">Logging</a></li>
-				</ul>
-			 </li>
-	         <li><a href='/searching/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Searching</a><br/>
-				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/searching/searching1/index.html">Searching Overview</a></li>
-				  <li><a href="/searching/searching2/index.html">Searching by properties</a></li>				  
-				</ul>
-			 </li>
-	         <li><a href='/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='/index.html' class="radius small button">Home</a></li>	         
+	         <li><a href='/indexing/index.html' class="radius small button">Indexing</a><br/></li>
+	         <li><a href='/searching/index.html' class="radius small button">Searching</a><br/></li>							 
+	         <li><a href='/configuration/index.html' class="radius small button">Configuration</a></li>
 	         <li><a href='/bog.html' class="radius small button">Blog</a></li>
 	         <li><a href='/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
@@ -73,61 +59,127 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-    <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
-         
         
-        <li><a href="/indexing/indexing1">1</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li class="current"><a href="/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing5">5</a></li>
-        
-      
-      </ul>
-    </div>
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
     
+    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+      <dl class="sub-nav">
+        <dt>INDEXING:</dt>
+        
+        
+         
+        
+          <dd data-magellan-arrival="1" ><a href="/indexing/indexing1">Indexing Overview</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="2" ><a href="/indexing/indexing2">Indexing Date Names</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="3" class="active"><a href="/indexing/indexing3">Post Document Format</a></dd>       
+        
+        
+         
+        
+          <dd data-magellan-arrival="4" ><a href="/indexing/indexing4">Related Item Properties</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="5" ><a href="/indexing/indexing5">Logging Configuration</a></dd>
+        
+                
+      </dl>
+</div>      
 
-    <h1><a href="/indexing/indexing4">Related Item Properties</a></h1>
-    <h3 id="how_many_items_can_be_included_in_a_single_related_item_post">How Many Items Can Be Included in a Single Related Item POST?</h3>
+    <h1><a href="/indexing/indexing3">Post Document Format</a></h1>
+    <p>The related items document that is POST’ed to the indexing web application has a couple of keys that it refers to:</p>
 
-<p>By fault 10 related items per POST request can be handled. By default if there are 11 items in the indexing request; the last item is silently ignored (a warning is output in the logs). The below are the properties that are available for configuration, for adjusting these defaults</p>
+<ul>
+<li>”<strong>items</strong>”: An array of items that are related, i.e. just been purchased together</li>
 
-<pre><code>* related-item.max.number.related.items.per.index.request = 10
-* related-item.max.related.item.post.data.size.in.bytes = 10240
-* related-item.indexing.discard.storage.requests.with.too.many.relations = false</code></pre>
-<hr />
-<h3 id="how_many_properties_can_i_have_for_related_item">How Many Properties Can I Have for Related Item</h3>
+<li>”<strong>id</strong>”: The id of the item, this is your identify for the item, for example the Product Id.</li>
 
-<p>The answer to this question is that you can have as many properties as you like per indexed relate item. However, in order to have as many items as you like you need to pay for that, in terms of memory allocated to the application, or reduction in the ring buffer size, and or length of the property keys/values.</p>
+<li>”<strong>date</strong>”: The date at which the related items were created, i.e. the purchase time</li>
+</ul>
 
-<p>The following properties are available for configuration, show with their defaults. As a result if you know a related item will have more than 10 properties (remember this leaves you with 7 configurable properties of your choosing; id, date and related-with take already taken)</p>
+<p>Example:</p>
 
-<pre><code>* related-item.max.number.related.item.properties = 10
-* related-item.additional.prop.key.length = 30 (characters)
-* related-item.additional.prop.key.length = 30 (characters)
-* related-item.indexing.size.of.incoming.request.queue = 16384</code></pre>
+<pre><code>{
+    &quot;date&quot;: &quot;2013-12-24T09:44:41.943+10:00&quot;, 
+    &quot;items&quot;: [
+        {
+            &quot;id&quot;: &quot;1&quot;      
+        }, 
+        {
+            &quot;id&quot;: &quot;2&quot; 
+        } 
+    ] 
+}</code></pre>
+
+<p>Or in short form:</p>
+
+<pre><code>{
+    &quot;date&quot;: &quot;2013-12-24T09:44:41.943+10:00&quot;, 
+    &quot;items&quot;: [ &quot;1&quot;,&quot;2&quot; ]
+}</code></pre>
+
+<p>The short form of the post makes the assumption that the strings in the ”<strong>items</strong>” array are the ”<strong>id</strong>“‘s</p>
+
+<p>As previously seen the indexing POST document can contain extra keys and values that are associated to either the related items POST in it’s entirety, or can be specific to a particular item in the related items document.</p>
+
+<p>For example:</p>
+
+<pre><code>{
+    &quot;date&quot;: &quot;2013-12-24T09:44:41.943+10:00&quot;, 
+    &quot;site&quot;: &quot;amazon&quot;, 
+    &quot;channel&quot; : &quot;uk&quot;,       
+    &quot;items&quot;: [
+        {
+            &quot;department&quot; : &quot;electronics&quot;,
+            &quot;category&quot; : &quot;storage&quot;,
+            &quot;type&quot; : &quot;hard disk&quot;,
+            &quot;id&quot;: &quot;1&quot;,      
+        }, 
+        {
+            &quot;department&quot; : &quot;electronics&quot;,
+            &quot;category&quot; : &quot;notebooks&quot;,
+            &quot;type&quot; : &quot;macbook pro&quot;,
+            &quot;memory&quot; : &quot;8gb&quot;,
+            &quot;channel&quot; : &quot;de&quot;,
+            &quot;id&quot;: &quot;2&quot;, 
+        } 
+    ] 
+}</code></pre>
+
+<p>Given the above the key/value: <strong>“site”: “amazon”</strong>, will apply to all the related item documents that are indexed in elasticsearch (2 documents in the above). The key/value pairs within the “items” array will apply just to that item’s document that is indexed.</p>
+
+<p>Document with “id”: “1” will have the key/values:</p>
+
+<pre><code>&quot;date&quot;: &quot;2013-12-23T23:44:41.943&quot;
+&quot;site&quot;: &quot;amazon&quot;, 
+&quot;channel&quot; : &quot;uk&quot;,    
+&quot;department&quot; : &quot;electronics&quot;,
+&quot;category&quot; : &quot;storage&quot;,
+&quot;type&quot; : &quot;hard disk&quot;,    </code></pre>
+
+<p>Document with “id” : “2” will have the key/values:</p>
+
+<pre><code>&quot;date&quot;: &quot;2013-12-23T23:44:41.943&quot;
+&quot;site&quot;: &quot;amazon&quot;, 
+&quot;channel&quot; : &quot;de&quot;,    
+&quot;department&quot; : &quot;electronics&quot;,
+&quot;category&quot; : &quot;notebooks&quot;,
+&quot;type&quot; : &quot;macbook pro&quot;,
+&quot;memory&quot; : &quot;8gb&quot;</code></pre>
+
+<p>If an element exist in the item’s property that was defined in the parent enclosing document, then the item’s value takes precedence and overrides that of the enclosing document’s setting.</p>
+
+<p>With the above you can see that the second item has an extra field “memory”, than that of the first document. Whilst it does not make much difference to the backend (elasticsearch) or the web applications (searching or indexing), for consistencies sake you shouldn’t really have key existing in one related item that do not appear in the. However, it is entirely up to you.</p>
 
 <!--       <article>
 
@@ -204,7 +256,7 @@
 
   <!-- End Main Content and Sidebar -->
 
-  <div class="pagination-centered">
+      <div class="pagination-centered">
       <ul class="pagination">
       
       
@@ -257,6 +309,7 @@
 <script src="/javascripts/vendor/jquery.js"></script>
 <script src="/javascripts/foundation/foundation.js"></script>
 <script src="/javascripts/foundation/foundation.dropdown.js"></script>
+<script src="/javascripts/foundation/foundation.magellan.js"></script>
 <script>
       $(document).foundation({
         // specify the class used for active dropdowns

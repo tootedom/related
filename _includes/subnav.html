@@ -1,0 +1,14 @@
+<div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+      <dl class="sub-nav">
+        <dt>{{ categoryName | upcase }}:</dt>
+        {% assign post_count = 0 %}
+        {% for postinfo in site.categories[categoryName] %}
+        {% assign post_count = post_count|plus:1 %} 
+        {% if "#post_count == paginator.page %}
+          <dd data-magellan-arrival="{{post_count}}" class="active"><a href="{{site.baseurl}}/{{categoryName}}/{{categoryName}}{{post_count}}">{{postinfo.title}}</a></dd>       
+        {% else %}
+          <dd data-magellan-arrival="{{post_count}}" ><a href="{{site.baseurl}}/{{categoryName}}/{{categoryName}}{{post_count}}">{{postinfo.title}}</a></dd>
+        {% endif %}
+        {% endfor %}        
+      </dl>
+</div>      

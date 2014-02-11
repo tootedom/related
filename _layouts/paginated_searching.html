@@ -21,9 +21,11 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-    {% include searching_pagination.html %}
+    
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
+    {% assign categoryName = 'searching' %}
+    {% include subnav.html %}
     <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>
     {{post.content}}
 
@@ -102,7 +104,7 @@
 
   <!-- End Main Content and Sidebar -->
 
-  {% include searching_pagination.html %}
+  {% include pagination.html %}
 
   <!-- Footer -->
   {% include footer.html %}

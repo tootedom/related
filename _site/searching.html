@@ -32,24 +32,10 @@
 	    <div class="large-12 columns">
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='/index.html' class="radius small button">Home</a></li>
-	         <li class="divider"></li>
-	         <li><a href='/indexing/index.html' data-dropdown="indexingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
-				<ul id="indexingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/indexing/indexing1/index.html">Indexing Overview</a></li>
-				  <li><a href="/indexing/indexing2/index.html">Indexing Date Names</a></li>				  
-				  <li><a href="/indexing/indexing3/index.html">Related Item Properties</a></li>
-				  <li><a href="/indexing/indexing4/index.html">Post Document Format</a></li>
-				  <li><a href="/indexing/indexing5/index.html">Logging</a></li>
-				</ul>
-			 </li>
-	         <li><a href='/searching/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Searching</a><br/>
-				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="/searching/searching1/index.html">Searching Overview</a></li>
-				  <li><a href="/searching/searching2/index.html">Searching by properties</a></li>				  
-				</ul>
-			 </li>
-	         <li><a href='/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='/index.html' class="radius small button">Home</a></li>	         
+	         <li><a href='/indexing/index.html' class="radius small button">Indexing</a><br/></li>
+	         <li><a href='/searching/index.html' class="radius small button">Searching</a><br/></li>							 
+	         <li><a href='/configuration/index.html' class="radius small button">Configuration</a></li>
 	         <li><a href='/bog.html' class="radius small button">Blog</a></li>
 	         <li><a href='/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
@@ -75,9 +61,68 @@
 
     
 	
+	<article>
+		<h2>Overview</h2>        
+		<p>In the Indexing section, we saw that the related items POST document is constructed in to many small documents and stored in elasticsearch. These tiny documents contain the <code>related-with</code> field. It is this json element <code>related-with</code>, that will be used during searching, to provide faceting.<br />This faceting that allows us to say:</p>
 
-	
+<ul>
+<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
+</ul>
 
+<p>For example for previously indexed POST request:</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;de&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;1&quot;,
+         &quot;type&quot;:&quot;map&quot;
+      },
+      {
+         &quot;id&quot;:&quot;2&quot;,
+         &quot;type&quot;:&quot;compass&quot;
+      },
+      {
+         &quot;id&quot;:&quot;3&quot;,
+         &quot;type&quot;:&quot;torch&quot;
+      },
+      {
+         &quot;id&quot;:&quot;4&quot;,
+         &quot;type&quot;:&quot;torch&quot;,
+         &quot;channel&quot;:&quot;uk&quot;
+      }
+   ]
+}&#39;</code></pre>
+
+<p>The search web application is then called to request the frequently related items for a product (Item with id 1 in this case):</p>
+
+<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1</code></pre>
+
+<p>This returns json data containing the list of items (their id’s) that are frequently related to that item:</p>
+
+<pre><code>{
+    &quot;response_time&quot;: &quot;2&quot;, 
+    &quot;results&quot;: [
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;4&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;3&quot;
+        }, 
+        {
+            &quot;frequency&quot;: &quot;1&quot;, 
+            &quot;id&quot;: &quot;2&quot;
+        }
+    ], 
+    &quot;size&quot;: &quot;3&quot;, 
+    &quot;storage_response_time&quot;: &quot;0&quot;</code></pre>
+
+<p>}</p>
+	</article>
 	
 
 	
@@ -86,7 +131,7 @@
 
 	
 	<article>
-		<h2>Searching by properties</h2>        
+		<h2>Filtering</h2>        
 		<p>The search functionality allows you to filter the result based on a property of the indexed document. For example, from the initial POST there was 4 related items:</p>
 
 <pre><code>{
@@ -249,68 +294,146 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 	
 
 	
+
+	
+
+	
 	<article>
-		<h2>Searching Overview</h2>        
-		<p>In the Indexing section, we saw that the related items POST document is constructed in to many small documents and stored in elasticsearch. These tiny documents contain the <code>related-with</code> field. It is this json element <code>related-with</code>, that will be used during searching, to provide faceting.<br />This faceting that allows us to say:</p>
+		<h2>Logging</h2>        
+		<p>The indexing and searching application uses log4j2, the default log configuration is as follows. Log4j2 is used due to use of the disruptor framework to perform logging asynchronously. In order for the default logging configuration to kick in the following property is required</p>
 
-<ul>
-<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
-</ul>
+<pre><code>-DLog4jContextSelector=&quot;org.apache.logging.log4j.core.async.AsyncLoggerContextSelector&quot;</code></pre>
 
-<p>For example for previously indexed POST request:</p>
+<p>If you don’t like the look of the below configuration you can specify your own configuration file via:</p>
 
-<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;</code></pre>
+
+<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
+
+<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
+-Drelated-item.searching.log.level=ERROR
+-Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
+-Drelated-item.indexing.log.level=ERROR</code></pre>
+
+<p>The defaults are “WARN” and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
+
+<p>The log4j2.xml configuration files are as follows:</p>
+
+<p><em>Searching</em></p>
+
+<pre class="xml"><code class="xml">
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
+        &lt;appenders&gt;
+            &lt;RollingRandomAccessFile name=&quot;SEARCHING&quot; fileName=&quot;${sys:related-item.searching.log.file}&quot;
+                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
+                                 filePattern=&quot;${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
+                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
+                &lt;Policies&gt;
+                    &lt;TimeBasedTriggeringPolicy /&gt;
+                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
+                &lt;/Policies&gt;
+            &lt;/RollingRandomAccessFile&gt;
+        &lt;/appenders&gt;
+        &lt;loggers&gt;
+            &lt;root level=&quot;${sys:related-item.searching.log.level}&quot; includeLocation=&quot;false&quot;&gt;
+                &lt;appender-ref ref=&quot;SEARCHING&quot;/&gt;
+            &lt;/root&gt;
+        &lt;/loggers&gt;
+    &lt;/configuration&gt;
+</code></pre>
+
+<p><em>Indexing</em></p>
+
+<pre class="xml"><code class="xml">
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
+        &lt;appenders&gt;
+            &lt;RollingRandomAccessFile name=&quot;INDEXING&quot; fileName=&quot;${sys:related-item.indexing.log.file}&quot;
+                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
+                                 filePattern=&quot;${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
+                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
+                &lt;Policies&gt;
+                    &lt;TimeBasedTriggeringPolicy /&gt;
+                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
+                &lt;/Policies&gt;
+            &lt;/RollingRandomAccessFile&gt;
+        &lt;/appenders&gt;
+        &lt;loggers&gt;
+            &lt;root level=&quot;${sys:related-item.indexing.log.level}&quot; includeLocation=&quot;false&quot;&gt;
+                &lt;appender-ref ref=&quot;INDEXING&quot;/&gt;
+            &lt;/root&gt;
+        &lt;/loggers&gt;
+    &lt;/configuration&gt;
+</code></pre>
+	</article>
+	
+
+	
+
+	
+	<article>
+		<h2>Indexes</h2>        
+		<p>By default the indexes that are searched in elasticsearch are any index that have a name starting with <code>**relateditems-**</code>. In other words a wild card search across all dated indexes starting with <strong>relateditems-</strong></p>
+
+<p>The prefix of the index name is controlled by the following configuration parameter. A hyphen <code>-</code>, will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:</p>
+
+<pre><code>-Drelated-item.storage.index.name.prefix</code></pre>
+
+<p>For example with the setting:</p>
+
+<pre><code>-Drelated-item.storage.index.name.prefix=related</code></pre>
+
+<p>Documents will be indexed and Searching in/from indexes named: <code>related-YYYY-MM-DD</code>.</p>
+
+<p>It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (<strong>note</strong> The alias does not apply to indexing).</p>
+
+<p>The below gives an example of the curl request used to set up an index in elasticsearch. It creates an alias <code>related</code>, which is an alias for the indexes: <code>relateditems-2013-12-23</code> and <code>relateditems-2013-12-24</code>. When <code>related</code> is used to search, the search will be performed only against those two indexes.</p>
+
+<pre><code>curl -XPOST localhost:9200/_aliases -d &#39;
 {
-   &quot;channel&quot;:&quot;de&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;type&quot;:&quot;map&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;type&quot;:&quot;compass&quot;
-      },
-      {
-         &quot;id&quot;:&quot;3&quot;,
-         &quot;type&quot;:&quot;torch&quot;
-      },
-      {
-         &quot;id&quot;:&quot;4&quot;,
-         &quot;type&quot;:&quot;torch&quot;,
-         &quot;channel&quot;:&quot;uk&quot;
-      }
-   ]
+    &quot;actions&quot;: [
+        { &quot;add&quot;: {&quot;alias&quot;: &quot;related&quot;, &quot;index&quot;: &quot;relateditems-2013-12-23&quot;} },
+        { &quot;add&quot;: { &quot;alias&quot;: &quot;related&quot;,&quot;index&quot;: &quot;relateditems-2013-12-24&quot;} }
+    ]
 }&#39;</code></pre>
 
-<p>The search web application is then called to request the frequently related items for a product (Item with id 1 in this case):</p>
+<p>To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:</p>
 
-<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1</code></pre>
-
-<p>This returns json data containing the list of items (their id’s) that are frequently related to that item:</p>
-
-<pre><code>{
-    &quot;response_time&quot;: &quot;2&quot;, 
-    &quot;results&quot;: [
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;4&quot;
-        }, 
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;3&quot;
-        }, 
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;2&quot;
-        }
-    ], 
-    &quot;size&quot;: &quot;3&quot;, 
-    &quot;storage_response_time&quot;: &quot;0&quot;</code></pre>
-
-<p>}</p>
+<pre><code>-Drelated-item.storage.index.name.alias=related</code></pre>
 	</article>
+	
+
+	
+
+	
+	<article>
+		<h2>Aliases</h2>        
+		<p>An alias can give you added flexibility over the content that is being searched. However, this comes at the cost of added complexity from having to maintain the alias.</p>
+
+<p>An example usage for an alias could be the following. Imagine one day you are having a promotion for a new selection of products. You could choose to promote those products against a selection of other products. One way to do this is to re-associate the alias to a prepared index of those products and the associated items:</p>
+
+<pre><code>curl -XPOST localhost:9200/_aliases -d &#39;
+{
+    &quot;actions&quot;: [
+        { &quot;add&quot; :   { &quot;alias&quot; : &quot;related&quot;, &quot;index&quot;: &quot;promotion-2013-12-25&quot;   } },
+        { &quot;remove&quot;: { &quot;alias&quot; : &quot;related&quot;, &quot;index&quot;: &quot;relateditems-2013-12-23&quot;} },
+        { &quot;remove&quot;: { &quot;alias&quot; : &quot;related&quot;, &quot;index&quot;: &quot;relateditems-2013-12-24&quot;} }
+    ]
+}&#39;</code></pre>
+
+<p>The above removes the existing mappings and creates the new mapping. This can be done a runtime, without starting either elasticsearch or the searching application. However, the downside here is the maintenance of the alias.</p>
+
+<p>The alias cannot use a wildcard, and it needs to point to a valid index that exists. Therefore, a maintenance script needs to create that would periodically run to update the alias mapping to point to new indexes.</p>
+
+<p>Unfortunately at the moment support for assigning index alias’s at index creation time does not currently exist (https://github.com/elasticsearch/elasticsearch/pull/2739 and https://github.com/elasticsearch/elasticsearch/issues/4920).</p>
+
+<p>For more information about index alias in elasticsearch please read:</p>
+
+<pre><code>http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/</code></pre>
+	</article>
+	
+
 	
 
 	
@@ -425,6 +548,7 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 <script src="/javascripts/vendor/jquery.js"></script>
 <script src="/javascripts/foundation/foundation.js"></script>
 <script src="/javascripts/foundation/foundation.dropdown.js"></script>
+<script src="/javascripts/foundation/foundation.magellan.js"></script>
 <script>
       $(document).foundation({
         // specify the class used for active dropdowns

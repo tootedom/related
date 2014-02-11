@@ -59,201 +59,57 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-    
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
     
     <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">
-        <dt>SEARCHING:</dt>
+        <dt>CONFIGURATION:</dt>
         
         
          
         
-          <dd data-magellan-arrival="1" ><a href="/searching/searching1">Overview</a></dd>
+          <dd data-magellan-arrival="1" class="active"><a href="/configuration/configuration1">Elasticsearch</a></dd>       
         
         
          
         
-          <dd data-magellan-arrival="2" class="active"><a href="/searching/searching2">Filtering</a></dd>       
-        
-        
-         
-        
-          <dd data-magellan-arrival="3" ><a href="/searching/searching3">Logging</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="4" ><a href="/searching/searching4">Indexes</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="5" ><a href="/searching/searching5">Aliases</a></dd>
+          <dd data-magellan-arrival="2" ><a href="/configuration/configuration2">ES Type Mapping</a></dd>
         
                 
       </dl>
 </div>      
-    <h1><a href="/searching/searching2">Filtering</a></h1>
-    <p>The search functionality allows you to filter the result based on a property of the indexed document. For example, from the initial POST there was 4 related items:</p>
 
-<pre><code>{
-   &quot;channel&quot;:&quot;de&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;type&quot;:&quot;map&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;type&quot;:&quot;compass&quot;
-      },
-      {
-         &quot;id&quot;:&quot;3&quot;,
-         &quot;type&quot;:&quot;torch&quot;
-      },
-      {
-         &quot;id&quot;:&quot;4&quot;,
-         &quot;type&quot;:&quot;torch&quot;,
-         &quot;channel&quot;:&quot;uk&quot;
-      }
-   ]
-}&#39;</code></pre>
+    <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
+    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
 
-<ul>
-<li>3 of those had the property: <code>channel: de</code></li>
+<p>The indexing and searching web applications use the elasticsearch java library.</p>
 
-<li>1 of those had the property: <code>channel: uk</code></li>
-</ul>
+<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <em>MUST</em> be the same.</p>
 
-<p>The item that had overridden the <code>channel</code> property was the following (The document with id 4):</p>
+<pre><code>* Current embedded elasticsearch version is: **0.90.9**</code></pre>
 
-<pre><code>{
-    &quot;id&quot;: &quot;4&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;3&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;uk&quot;
-}</code></pre>
+<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
 
-<p>In the above, there are 3 extra elements that can be searched on:</p>
+<pre><code>client.transport.sniff : true</code></pre>
 
-<ul>
-<li><code>type</code></li>
+<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
 
-<li><code>site</code></li>
+<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
 
-<li><code>channel</code></li>
-</ul>
+<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
 
-<p>As a result you can say. Give me the frequently related products that are mostly purchased with product <strong>1</strong>, filtering the results to return only that of “tourches”, i.e. type=torch:</p>
+<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
 
-<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch</code></pre>
+<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
 
-<p>The result is:</p>
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
 
-<pre><code>{
-    &quot;response_time&quot;: &quot;11&quot;, 
-    &quot;results&quot;: [
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;4&quot;
-        }, 
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;3&quot;
-        }
-    ], 
-    &quot;size&quot;: &quot;2&quot;, 
-    &quot;storage_response_time&quot;: &quot;2&quot;
-}</code></pre>
+<p>This can be a comma separated list of hosts:</p>
 
-<p>You can go further and search for torches, just in <code>channel:uk</code>, which is:</p>
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
 
-<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot;</code></pre>
-
-<p>Handy little command line json formatter is than of python. Try:</p>
-
-<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot;  | python -mjson.tool</code></pre>
-
-<p>Which will result in just the one related item:</p>
-
-<pre><code>{
-    &quot;response_time&quot;: 3, 
-    &quot;results&quot;: [
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;4&quot;
-        }
-    ], 
-    &quot;size&quot;: &quot;1&quot;, 
-    &quot;storage_response_time&quot;: 1
-}</code></pre>
-
-<p>Currently the search result just returns the id’s of the related items, and the frequency by which it was related with the searched for item it. It <em>DOES NOT</em> return the matching document’s information.</p>
-
-<p>The reason behind not returning the matching documents source, is that there could be literally hundreds of matching documents. An example would be the dvd <code>The Raid</code>. This could be bought many many times, and with a number of other items; and often with the same related item many times.</p>
-
-<p>For the below related item POSTs, the dvd <code>The Raid</code>, is associated with <code>Enter the dragon</code> and <code>kick boxer</code>. It is associated with <code>kick boxer</code> twice, and therefore <code>kick boxer</code> is the most frequently related item.</p>
-
-<p>In the backend (elasticsearch), there are two actual physical documents that represent <code>kick boxer</code>. If we are to return the matching documents for the <code>most frequently related</code>, we have to return the source of both <code>kick boxer</code> documents. Expanding this further you could quite easily have am item related to another item 100’s of times; which would mean 100’s of matching documents. It is for this reason the content of that matches are not returned.</p>
-
-<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;Enter the dragon&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
-}&#39;
-
-curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;kick boxer&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
-}&#39;
-
-curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;kick boxer&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
-}&#39;</code></pre>
+<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
 
 <!--       <article>
 
@@ -337,27 +193,12 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
       
          
         
-        <li><a href="/searching/searching1">1</a></li>
+        <li class="current"><a href="/configuration/configuration1">1</a></li>
         
       
          
         
-        <li class="current"><a href="/searching/searching2">2</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching3">3</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching4">4</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching5">5</a></li>
+        <li><a href="/configuration/configuration2">2</a></li>
         
       
       </ul>

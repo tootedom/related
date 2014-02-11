@@ -59,200 +59,91 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-    
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
     
     <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">
-        <dt>SEARCHING:</dt>
+        <dt>CONFIGURATION:</dt>
         
         
          
         
-          <dd data-magellan-arrival="1" ><a href="/searching/searching1">Overview</a></dd>
+          <dd data-magellan-arrival="1" ><a href="/configuration/configuration1">Elasticsearch</a></dd>
         
         
          
         
-          <dd data-magellan-arrival="2" class="active"><a href="/searching/searching2">Filtering</a></dd>       
-        
-        
-         
-        
-          <dd data-magellan-arrival="3" ><a href="/searching/searching3">Logging</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="4" ><a href="/searching/searching4">Indexes</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="5" ><a href="/searching/searching5">Aliases</a></dd>
+          <dd data-magellan-arrival="2" class="active"><a href="/configuration/configuration2">ES Type Mapping</a></dd>       
         
                 
       </dl>
 </div>      
-    <h1><a href="/searching/searching2">Filtering</a></h1>
-    <p>The search functionality allows you to filter the result based on a property of the indexed document. For example, from the initial POST there was 4 related items:</p>
 
-<pre><code>{
-   &quot;channel&quot;:&quot;de&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;type&quot;:&quot;map&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;type&quot;:&quot;compass&quot;
-      },
-      {
-         &quot;id&quot;:&quot;3&quot;,
-         &quot;type&quot;:&quot;torch&quot;
-      },
-      {
-         &quot;id&quot;:&quot;4&quot;,
-         &quot;type&quot;:&quot;torch&quot;,
-         &quot;channel&quot;:&quot;uk&quot;
-      }
-   ]
+    <h1><a href="/configuration/configuration2">ES Type Mapping</a></h1>
+    <p>When the indexing and searching applications talk to elasticsearch they search for documents within the index <code>relateditems-YYYY-MM-DD</code> for the document type <code>related</code>. The defined properties require for the <code>related</code> type are that of:</p>
+
+<ul>
+<li>id</li>
+
+<li>related-with</li>
+
+<li>date</li>
+</ul>
+
+<p>When indexing documents in elasticsearch, if a type (i.e. “related”) does not have an associated mapping then a dynamic mapping of a document’s json properties are created by that of elasticsearch (the default behaviour of elasticsearch) Which may or may not be what is required. As a result, you should define a mapping for the type. The mapping for the related type should at minimum be the following:</p>
+
+<pre><code>curl -XPUT http://localhost:9200/_template/relateditems -d &#39;{
+    &quot;template&quot; : &quot;relateditems*&quot;,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 1,
+        &quot;number_of_replicas&quot; : 1,
+        &quot;index.refresh_interval&quot; : &quot;5s&quot;,
+        &quot;index.store.compress.stored&quot; : false,
+        &quot;index.query.default_field&quot; : &quot;id&quot;,
+        &quot;index.routing.allocation.total_shards_per_node&quot; : 1,
+        &quot;indices.memory.index_buffer_size&quot; : 30
+    },
+    &quot;mappings&quot; : {
+        &quot;related&quot; : {
+           &quot;_all&quot; : {&quot;enabled&quot; : false},
+           &quot;dynamic&quot; : false,
+           &quot;properties&quot; : {
+              &quot;id&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;related-with&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;date&quot;: { &quot;type&quot;: &quot;date&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; }
+           }
+        }
+    }
 }&#39;</code></pre>
 
-<ul>
-<li>3 of those had the property: <code>channel: de</code></li>
+<p>If the related documents you are indexed are going to have more properties (i.e. channel, type, etc). You need to expand upon the mapping above to detail those properties. A guide to mapping can be found <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html">In the following elasticsearch documentation</a></p>
 
-<li>1 of those had the property: <code>channel: uk</code></li>
-</ul>
-
-<p>The item that had overridden the <code>channel</code> property was the following (The document with id 4):</p>
-
-<pre><code>{
-    &quot;id&quot;: &quot;4&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;3&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;uk&quot;
-}</code></pre>
-
-<p>In the above, there are 3 extra elements that can be searched on:</p>
-
-<ul>
-<li><code>type</code></li>
-
-<li><code>site</code></li>
-
-<li><code>channel</code></li>
-</ul>
-
-<p>As a result you can say. Give me the frequently related products that are mostly purchased with product <strong>1</strong>, filtering the results to return only that of “tourches”, i.e. type=torch:</p>
-
-<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch</code></pre>
-
-<p>The result is:</p>
-
-<pre><code>{
-    &quot;response_time&quot;: &quot;11&quot;, 
-    &quot;results&quot;: [
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;4&quot;
-        }, 
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;3&quot;
+<pre><code>curl -XPUT http://10.0.1.19:9200/_template/relateditems -d &#39;{
+    &quot;template&quot; : &quot;relateditems*&quot;,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 1,
+        &quot;number_of_replicas&quot; : 1,
+        &quot;index.refresh_interval&quot; : &quot;5s&quot;,
+        &quot;index.store.compress.stored&quot; : false,
+        &quot;index.query.default_field&quot; : &quot;id&quot;,
+        &quot;index.routing.allocation.total_shards_per_node&quot; : 1,
+        &quot;indices.memory.index_buffer_size&quot; : 30
+    },
+    &quot;mappings&quot; : {
+        &quot;related&quot; : {
+           &quot;_all&quot; : {&quot;enabled&quot; : false},
+           &quot;dynamic&quot; : false,
+           &quot;properties&quot; : {
+              &quot;id&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;related-with&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;date&quot;: { &quot;type&quot;: &quot;date&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;channel&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;site&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;type&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; }
+           }
         }
-    ], 
-    &quot;size&quot;: &quot;2&quot;, 
-    &quot;storage_response_time&quot;: &quot;2&quot;
-}</code></pre>
-
-<p>You can go further and search for torches, just in <code>channel:uk</code>, which is:</p>
-
-<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot;</code></pre>
-
-<p>Handy little command line json formatter is than of python. Try:</p>
-
-<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot;  | python -mjson.tool</code></pre>
-
-<p>Which will result in just the one related item:</p>
-
-<pre><code>{
-    &quot;response_time&quot;: 3, 
-    &quot;results&quot;: [
-        {
-            &quot;frequency&quot;: &quot;1&quot;, 
-            &quot;id&quot;: &quot;4&quot;
-        }
-    ], 
-    &quot;size&quot;: &quot;1&quot;, 
-    &quot;storage_response_time&quot;: 1
-}</code></pre>
-
-<p>Currently the search result just returns the id’s of the related items, and the frequency by which it was related with the searched for item it. It <em>DOES NOT</em> return the matching document’s information.</p>
-
-<p>The reason behind not returning the matching documents source, is that there could be literally hundreds of matching documents. An example would be the dvd <code>The Raid</code>. This could be bought many many times, and with a number of other items; and often with the same related item many times.</p>
-
-<p>For the below related item POSTs, the dvd <code>The Raid</code>, is associated with <code>Enter the dragon</code> and <code>kick boxer</code>. It is associated with <code>kick boxer</code> twice, and therefore <code>kick boxer</code> is the most frequently related item.</p>
-
-<p>In the backend (elasticsearch), there are two actual physical documents that represent <code>kick boxer</code>. If we are to return the matching documents for the <code>most frequently related</code>, we have to return the source of both <code>kick boxer</code> documents. Expanding this further you could quite easily have am item related to another item 100’s of times; which would mean 100’s of matching documents. It is for this reason the content of that matches are not returned.</p>
-
-<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;Enter the dragon&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
-}&#39;
-
-curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;kick boxer&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
-}&#39;
-
-curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;uk&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;title&quot;:&quot;The Raid&quot;,
-         &quot;type&quot;:&quot;dvd&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;title&quot;:&quot;kick boxer&quot;,
-         &quot;type&quot;:&quot;dvd&quot;           
-      }
-   ]
+    }
 }&#39;</code></pre>
 
 <!--       <article>
@@ -337,27 +228,12 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
       
          
         
-        <li><a href="/searching/searching1">1</a></li>
+        <li><a href="/configuration/configuration1">1</a></li>
         
       
          
         
-        <li class="current"><a href="/searching/searching2">2</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching3">3</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching4">4</a></li>
-        
-      
-         
-        
-        <li><a href="/searching/searching5">5</a></li>
+        <li class="current"><a href="/configuration/configuration2">2</a></li>
         
       
       </ul>
