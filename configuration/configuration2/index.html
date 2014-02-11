@@ -59,110 +59,92 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-        
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
     
     <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">
-        <dt>INDEXING:</dt>
+        <dt>CONFIGURATION:</dt>
         
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/indexing/indexing1">Indexing Overview</a></dd>
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>
         
         
          
         
-          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/indexing/indexing2">Indexing Date Names</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/indexing/indexing3">Post Document Format</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/indexing/indexing4">Related Item Properties</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="5" class="active"><a href="http://tootedom.github.io/related/indexing/indexing5">Logging Configuration</a></dd>       
+          <dd data-magellan-arrival="2" class="active"><a href="http://tootedom.github.io/related/configuration/configuration2">ES Type Mapping</a></dd>       
         
                 
       </dl>
 </div>      
 
-    <h1><a href="/indexing/indexing5">Logging Configuration</a></h1>
-    <p>The indexing and searching application uses log4j2, the default log configuration is as follows. Log4j2 is used due to use of the disruptor framework to perform logging asynchronously. In order for the default logging configuration to kick in the following property is required</p>
+    <h1><a href="/configuration/configuration2">ES Type Mapping</a></h1>
+    <p>When the indexing and searching applications talk to elasticsearch they search for documents within the index <code>relateditems-YYYY-MM-DD</code> for the document type <code>related</code>. The defined properties require for the <code>related</code> type are that of:</p>
 
-<pre><code>-DLog4jContextSelector=&quot;org.apache.logging.log4j.core.async.AsyncLoggerContextSelector&quot;</code></pre>
+<ul>
+<li>id</li>
 
-<p>If you don’t like the look of the below configuration you can specify your own configuration file via:</p>
+<li>related-with</li>
 
-<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;</code></pre>
+<li>date</li>
+</ul>
 
-<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
+<p>When indexing documents in elasticsearch, if a type (i.e. “related”) does not have an associated mapping then a dynamic mapping of a document’s json properties are created by that of elasticsearch (the default behaviour of elasticsearch) Which may or may not be what is required. As a result, you should define a mapping for the type. The mapping for the related type should at minimum be the following:</p>
 
-<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
--Drelated-item.searching.log.level=ERROR
--Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
--Drelated-item.indexing.log.level=ERROR</code></pre>
+<pre><code>curl -XPUT http://localhost:9200/_template/relateditems -d &#39;{
+    &quot;template&quot; : &quot;relateditems*&quot;,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 1,
+        &quot;number_of_replicas&quot; : 1,
+        &quot;index.refresh_interval&quot; : &quot;5s&quot;,
+        &quot;index.store.compress.stored&quot; : false,
+        &quot;index.query.default_field&quot; : &quot;id&quot;,
+        &quot;index.routing.allocation.total_shards_per_node&quot; : 1,
+        &quot;indices.memory.index_buffer_size&quot; : 30
+    },
+    &quot;mappings&quot; : {
+        &quot;related&quot; : {
+           &quot;_all&quot; : {&quot;enabled&quot; : false},
+           &quot;dynamic&quot; : false,
+           &quot;properties&quot; : {
+              &quot;id&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;related-with&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;date&quot;: { &quot;type&quot;: &quot;date&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; }
+           }
+        }
+    }
+}&#39;</code></pre>
 
-<p>The defaults are “WARN” and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
+<p>If the related documents you are indexed are going to have more properties (i.e. channel, type, etc). You need to expand upon the mapping above to detail those properties. A guide to mapping can be found <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html">In the following elasticsearch documentation</a></p>
 
-<p>The log4j2.xml configuration files are as follows:</p>
-
-<p><em>Searching</em></p>
-
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;SEARCHING&quot; fileName=&quot;${sys:related-item.searching.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.searching.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;SEARCHING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
-
-<p><em>Indexing</em></p>
-
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;INDEXING&quot; fileName=&quot;${sys:related-item.indexing.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.indexing.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;INDEXING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
+<pre><code>curl -XPUT http://10.0.1.19:9200/_template/relateditems -d &#39;{
+    &quot;template&quot; : &quot;relateditems*&quot;,
+    &quot;settings&quot; : {
+        &quot;number_of_shards&quot; : 1,
+        &quot;number_of_replicas&quot; : 1,
+        &quot;index.refresh_interval&quot; : &quot;5s&quot;,
+        &quot;index.store.compress.stored&quot; : false,
+        &quot;index.query.default_field&quot; : &quot;id&quot;,
+        &quot;index.routing.allocation.total_shards_per_node&quot; : 1,
+        &quot;indices.memory.index_buffer_size&quot; : 30
+    },
+    &quot;mappings&quot; : {
+        &quot;related&quot; : {
+           &quot;_all&quot; : {&quot;enabled&quot; : false},
+           &quot;dynamic&quot; : false,
+           &quot;properties&quot; : {
+              &quot;id&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;related-with&quot;: { &quot;type&quot;: &quot;string&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;yes&quot; },
+              &quot;date&quot;: { &quot;type&quot;: &quot;date&quot;, &quot;index&quot;: &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;channel&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;site&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; },
+              &quot;type&quot; : {&quot;type&quot; : &quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;, &quot;store&quot; : &quot;no&quot; }
+           }
+        }
+    }
+}&#39;</code></pre>
 
 <!--       <article>
 
@@ -246,27 +228,12 @@
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+        <li><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing5">5</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration2">2</a></li>
         
       
       </ul>

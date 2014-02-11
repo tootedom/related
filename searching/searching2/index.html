@@ -36,24 +36,10 @@
 	    <div class="large-12 columns">
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
-	         <li><a href='http://tootedom.github.io/related/index.html' class="radius small button">Home</a></li>
-	         <li class="divider"></li>
-	         <li><a href='http://tootedom.github.io/related/indexing/index.html' data-dropdown="indexingdrop" data-options="is_hover:true" class="radius small button dropdown">Indexing</a><br/>
-				<ul id="indexingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="http://tootedom.github.io/related/indexing/indexing1/index.html">Indexing Overview</a></li>
-				  <li><a href="http://tootedom.github.io/related/indexing/indexing2/index.html">Indexing Date Names</a></li>				  
-				  <li><a href="http://tootedom.github.io/related/indexing/indexing3/index.html">Related Item Properties</a></li>
-				  <li><a href="http://tootedom.github.io/related/indexing/indexing4/index.html">Post Document Format</a></li>
-				  <li><a href="http://tootedom.github.io/related/indexing/indexing5/index.html">Logging</a></li>
-				</ul>
-			 </li>
-	         <li><a href='http://tootedom.github.io/related/searching/index.html' data-dropdown="searchingdrop" data-options="is_hover:true" class="radius small button dropdown">Searching</a><br/>
-				<ul id="searchingdrop" data-dropdown-content class="small content f-dropdown">
-				  <li><a href="http://tootedom.github.io/related/searching/searching1/index.html">Searching Overview</a></li>
-				  <li><a href="http://tootedom.github.io/related/searching/searching2/index.html">Searching by properties</a></li>				  
-				</ul>
-			 </li>
-	         <li><a href='http://tootedom.github.io/related/configuration.html' class="radius small button">Configuration</a></li>
+	         <li><a href='http://tootedom.github.io/related/index.html' class="radius small button">Home</a></li>	         
+	         <li><a href='http://tootedom.github.io/related/indexing/index.html' class="radius small button">Indexing</a><br/></li>
+	         <li><a href='http://tootedom.github.io/related/searching/index.html' class="radius small button">Searching</a><br/></li>							 
+	         <li><a href='http://tootedom.github.io/related/configuration/index.html' class="radius small button">Configuration</a></li>
 	         <li><a href='http://tootedom.github.io/related/bog.html' class="radius small button">Blog</a></li>
 	         <li><a href='http://tootedom.github.io/related/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
@@ -73,26 +59,43 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-        <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/searching/searching1">1</a></li>
-        
-      
-         
-        
-        <li class="current"><a href="http://tootedom.github.io/related/searching/searching2">2</a></li>
-        
-      
-      </ul>
-    </div>
+    
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
-    <h1><a href="/searching/searching2">Searching by properties</a></h1>
+    
+    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+      <dl class="sub-nav">
+        <dt>SEARCHING:</dt>
+        
+        
+         
+        
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/searching/searching1">Overview</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="2" class="active"><a href="http://tootedom.github.io/related/searching/searching2">Filtering</a></dd>       
+        
+        
+         
+        
+          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/searching/searching3">Logging</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/searching/searching4">Indexes</a></dd>
+        
+        
+         
+        
+          <dd data-magellan-arrival="5" ><a href="http://tootedom.github.io/related/searching/searching5">Aliases</a></dd>
+        
+                
+      </dl>
+</div>      
+    <h1><a href="/searching/searching2">Filtering</a></h1>
     <p>The search functionality allows you to filter the result based on a property of the indexed document. For example, from the initial POST there was 4 related items:</p>
 
 <pre><code>{
@@ -342,6 +345,21 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
         <li class="current"><a href="http://tootedom.github.io/related/searching/searching2">2</a></li>
         
       
+         
+        
+        <li><a href="http://tootedom.github.io/related/searching/searching3">3</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/searching/searching4">4</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/searching/searching5">5</a></li>
+        
+      
       </ul>
     </div>
 
@@ -365,6 +383,7 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 <script src="http://tootedom.github.io/related/javascripts/vendor/jquery.js"></script>
 <script src="http://tootedom.github.io/related/javascripts/foundation/foundation.js"></script>
 <script src="http://tootedom.github.io/related/javascripts/foundation/foundation.dropdown.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.magellan.js"></script>
 <script>
       $(document).foundation({
         // specify the class used for active dropdowns

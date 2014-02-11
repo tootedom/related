@@ -1,8 +1,4 @@
 <!doctype html>
-
-
-
-
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
    
@@ -59,110 +55,82 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-        
+
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
+
     
-    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+<div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">
-        <dt>INDEXING:</dt>
+        <dt>CONFIGURATION:</dt>
         
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/indexing/indexing1">Indexing Overview</a></dd>
+          <dd data-magellan-arrival="1" class="active"><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>       
         
         
          
         
-          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/indexing/indexing2">Indexing Date Names</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/indexing/indexing3">Post Document Format</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/indexing/indexing4">Related Item Properties</a></dd>
-        
-        
-         
-        
-          <dd data-magellan-arrival="5" class="active"><a href="http://tootedom.github.io/related/indexing/indexing5">Logging Configuration</a></dd>       
+          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/configuration/configuration2">ES Type Mapping</a></dd>
         
                 
       </dl>
 </div>      
+<!-- This loops through the paginated posts -->
 
-    <h1><a href="/indexing/indexing5">Logging Configuration</a></h1>
-    <p>The indexing and searching application uses log4j2, the default log configuration is as follows. Log4j2 is used due to use of the disruptor framework to perform logging asynchronously. In order for the default logging configuration to kick in the following property is required</p>
+  <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
+  <div class="content">
+    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
 
-<pre><code>-DLog4jContextSelector=&quot;org.apache.logging.log4j.core.async.AsyncLoggerContextSelector&quot;</code></pre>
+<p>The indexing and searching web applications use the elasticsearch java library.</p>
 
-<p>If you don’t like the look of the below configuration you can specify your own configuration file via:</p>
+<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <em>MUST</em> be the same.</p>
 
-<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;</code></pre>
+<pre><code>* Current embedded elasticsearch version is: **0.90.9**</code></pre>
 
-<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
+<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
 
-<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
--Drelated-item.searching.log.level=ERROR
--Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
--Drelated-item.indexing.log.level=ERROR</code></pre>
+<pre><code>client.transport.sniff : true</code></pre>
 
-<p>The defaults are “WARN” and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
+<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
 
-<p>The log4j2.xml configuration files are as follows:</p>
+<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
 
-<p><em>Searching</em></p>
+<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
 
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;SEARCHING&quot; fileName=&quot;${sys:related-item.searching.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.searching.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;SEARCHING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
+<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
 
-<p><em>Indexing</em></p>
+<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
 
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;INDEXING&quot; fileName=&quot;${sys:related-item.indexing.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.indexing.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;INDEXING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
+
+<p>This can be a comma separated list of hosts:</p>
+
+<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
+
+<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+  </div>
+
+
+    <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration2">2</a></li>
+        
+      
+      </ul>
+    </div>
+
 
 <!--       <article>
 
@@ -239,38 +207,6 @@
 
   <!-- End Main Content and Sidebar -->
 
-      <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing5">5</a></li>
-        
-      
-      </ul>
-    </div>
 
   <!-- Footer -->
   <footer class="row">
@@ -315,4 +251,3 @@
 </script>
   </body>
 </html>
-

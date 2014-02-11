@@ -59,110 +59,70 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-        
+    
     <!-- Main Blog Content -->
     <div class="large-12 columns" role="content">
     
     <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">
-        <dt>INDEXING:</dt>
+        <dt>SEARCHING:</dt>
         
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/indexing/indexing1">Indexing Overview</a></dd>
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/searching/searching1">Overview</a></dd>
         
         
          
         
-          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/indexing/indexing2">Indexing Date Names</a></dd>
+          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/searching/searching2">Filtering</a></dd>
         
         
          
         
-          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/indexing/indexing3">Post Document Format</a></dd>
+          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/searching/searching3">Logging</a></dd>
         
         
          
         
-          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/indexing/indexing4">Related Item Properties</a></dd>
+          <dd data-magellan-arrival="4" class="active"><a href="http://tootedom.github.io/related/searching/searching4">Indexes</a></dd>       
         
         
          
         
-          <dd data-magellan-arrival="5" class="active"><a href="http://tootedom.github.io/related/indexing/indexing5">Logging Configuration</a></dd>       
+          <dd data-magellan-arrival="5" ><a href="http://tootedom.github.io/related/searching/searching5">Aliases</a></dd>
         
                 
       </dl>
 </div>      
+    <h1><a href="/searching/searching4">Indexes</a></h1>
+    <p>By default the indexes that are searched in elasticsearch are any index that have a name starting with <code>**relateditems-**</code>. In other words a wild card search across all dated indexes starting with <strong>relateditems-</strong></p>
 
-    <h1><a href="/indexing/indexing5">Logging Configuration</a></h1>
-    <p>The indexing and searching application uses log4j2, the default log configuration is as follows. Log4j2 is used due to use of the disruptor framework to perform logging asynchronously. In order for the default logging configuration to kick in the following property is required</p>
+<p>The prefix of the index name is controlled by the following configuration parameter. A hyphen <code>-</code>, will added to the end of the prefix, and any subsequent indexing will index documents into a dated index:</p>
 
-<pre><code>-DLog4jContextSelector=&quot;org.apache.logging.log4j.core.async.AsyncLoggerContextSelector&quot;</code></pre>
+<pre><code>-Drelated-item.storage.index.name.prefix</code></pre>
 
-<p>If you don’t like the look of the below configuration you can specify your own configuration file via:</p>
+<p>For example with the setting:</p>
 
-<pre><code>-Dlog4j.configurationFile=&lt;absolute path to my file&gt;</code></pre>
+<pre><code>-Drelated-item.storage.index.name.prefix=related</code></pre>
 
-<p>If the below configuration looks adequate, then you can customs the configurations with the following system properties:</p>
+<p>Documents will be indexed and Searching in/from indexes named: <code>related-YYYY-MM-DD</code>.</p>
 
-<pre><code>-Drelated-item.searching.log.file=&lt;absolute location of file&gt;
--Drelated-item.searching.log.level=ERROR
--Drelated-item.indexing.log.file=&lt;absolute location of file&gt;
--Drelated-item.indexing.log.level=ERROR</code></pre>
+<p>It is also possible to use an alias against which to perform searches, rather than performing a wild search search. (<strong>note</strong> The alias does not apply to indexing).</p>
 
-<p>The defaults are “WARN” and searching.log/indexing.log either in CATALINA_BASE/logs/ or java.io.tmpdir</p>
+<p>The below gives an example of the curl request used to set up an index in elasticsearch. It creates an alias <code>related</code>, which is an alias for the indexes: <code>relateditems-2013-12-23</code> and <code>relateditems-2013-12-24</code>. When <code>related</code> is used to search, the search will be performed only against those two indexes.</p>
 
-<p>The log4j2.xml configuration files are as follows:</p>
+<pre><code>curl -XPOST localhost:9200/_aliases -d &#39;
+{
+    &quot;actions&quot;: [
+        { &quot;add&quot;: {&quot;alias&quot;: &quot;related&quot;, &quot;index&quot;: &quot;relateditems-2013-12-23&quot;} },
+        { &quot;add&quot;: { &quot;alias&quot;: &quot;related&quot;,&quot;index&quot;: &quot;relateditems-2013-12-24&quot;} }
+    ]
+}&#39;</code></pre>
 
-<p><em>Searching</em></p>
+<p>To tell the Search Web Application to use that alias, instead of the wildcard index search, you specify the alias name using the following parameter:</p>
 
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;SEARCHING&quot; fileName=&quot;${sys:related-item.searching.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.searching.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;SEARCHING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
-
-<p><em>Indexing</em></p>
-
-<pre class="xml"><code class="xml">
-    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-    &lt;configuration status=&quot;WARN&quot; monitorInterval=&quot;120&quot;&gt;
-        &lt;appenders&gt;
-            &lt;RollingRandomAccessFile name=&quot;INDEXING&quot; fileName=&quot;${sys:related-item.indexing.log.file}&quot;
-                                 immediateFlush=&quot;false&quot; append=&quot;true&quot;
-                                 filePattern=&quot;${sys:related-item.indexing.log.file}-%d{yyyy-MM-dd}-%i.log.gz&quot;&gt;
-                &lt;PatternLayout pattern=&quot;%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n&quot;/&gt;
-                &lt;Policies&gt;
-                    &lt;TimeBasedTriggeringPolicy /&gt;
-                    &lt;SizeBasedTriggeringPolicy size=&quot;50 MB&quot;/&gt;
-                &lt;/Policies&gt;
-            &lt;/RollingRandomAccessFile&gt;
-        &lt;/appenders&gt;
-        &lt;loggers&gt;
-            &lt;root level=&quot;${sys:related-item.indexing.log.level}&quot; includeLocation=&quot;false&quot;&gt;
-                &lt;appender-ref ref=&quot;INDEXING&quot;/&gt;
-            &lt;/root&gt;
-        &lt;/loggers&gt;
-    &lt;/configuration&gt;
-</code></pre>
+<pre><code>-Drelated-item.storage.index.name.alias=related</code></pre>
 
 <!--       <article>
 
@@ -246,27 +206,27 @@
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing1">1</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching1">1</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing2">2</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching2">2</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing3">3</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching3">3</a></li>
         
       
          
         
-        <li><a href="http://tootedom.github.io/related/indexing/indexing4">4</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/searching/searching4">4</a></li>
         
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/indexing/indexing5">5</a></li>
+        <li><a href="http://tootedom.github.io/related/searching/searching5">5</a></li>
         
       
       </ul>
