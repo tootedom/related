@@ -31,25 +31,24 @@
 
   <header class="inner">
 
-	<nav>
-	  <div class="row">
-	    <div class="large-12 columns">
+	<nav>	  
+	  <div class="row">	  	
+	    <div class="large-12 columns">	      
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
 	         <li><a href='/index.html' class="radius small button">Home</a></li>	         
 	         <li><a href='/indexing/index.html' class="radius small button">Indexing</a><br/></li>
 	         <li><a href='/searching/index.html' class="radius small button">Searching</a><br/></li>							 
 	         <li><a href='/configuration/index.html' class="radius small button">Configuration</a></li>
-	         <li><a href='/bog.html' class="radius small button">Blog</a></li>
+	         <li><a href='/blog/index.html' class="radius small button">Blog</a></li>
 	         <li><a href='/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
 	      </div>
-	      <h1><img src="/images/relateitlogo.png"></h1>
+	      <h1><a href='https://github.com/tootedom/related'><img src="/images/relateitlogo.png"></a></h1>
 	      <hr />
 	    </div>
 	  </div>
-	</nav>
-
+	</nav>	
 </header>
 
 
@@ -59,23 +58,188 @@
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
+    
+        <div class="large-3 medium-4 columns">
+      <div class="hide-for-small">
+        <div class="sidebar">
+          <h5>Documentation:</h5>          
+          <nav>
+            <ul class="side-nav">
+              <li class="heading">Indexing</li>
+              
+              
+                
+              
+              
+
+ 
+
+	<li><a href="/indexing/indexing1" data-search>Overview</a></li>
+
+
+ 
+
+	<li><a href="/indexing/indexing2" data-search>Dates</a></li>
+
+
+ 
+
+	<li><a href="/indexing/indexing3" data-search>Document Format</a></li>
+
+
+ 
+
+	<li><a href="/indexing/indexing4" data-search>Properties</a></li>
+
+
+ 
+
+	<li><a href="/indexing/indexing5" data-search>Logging</a></li>
+
+
+              <li class="divider"></li>
+              <li class="heading">Searching</li>
+              
+              
+                
+              
+              
+
+ 
+
+	<li><a href="/searching/searching1" data-search>Overview</a></li>
+
+
+ 
+
+	<li><a href="/searching/searching2" data-search>Filters</a></li>
+
+
+ 
+
+	<li><a href="/searching/searching3" data-search>Logging</a></li>
+
+
+ 
+
+	<li><a href="/searching/searching4" data-search>Indexes</a></li>
+
+
+ 
+
+	<li><a href="/searching/searching5" data-search>Aliases</a></li>
+
+
+              <li class="divider"></li>
+              <li class="heading">Configuration</li>
+              
+              
+                
+              
+              
+
+ 
+
+	
+	<li><a href="/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration2" data-search>ES Type Mapping</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration3" data-search>ES Configuration</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration4" data-search>JVM</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration5" data-search>App Config</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration6" data-search>Tomcat</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="/configuration/configuration7" data-search>Diagrams</a></li>
+	
+
+
+            </ul>
+          </nav>
+        </div> 
+      </div>
+    </div>
     <!-- Main Blog Content -->
-    <div class="large-12 columns" role="content">
+    <div class="large-9 medium-8 columns" role="content">
     
     <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
-      <dl class="sub-nav">
-        <dt>CONFIGURATION:</dt>
+      <dl class="sub-nav">        
         
         
          
         
           <dd data-magellan-arrival="1" class="active"><a href="/configuration/configuration1">Elasticsearch</a></dd>       
         
+        <li class="divider">|</li>
         
          
         
           <dd data-magellan-arrival="2" ><a href="/configuration/configuration2">ES Type Mapping</a></dd>
         
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="3" ><a href="/configuration/configuration3">ES Configuration</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="4" ><a href="/configuration/configuration4">JVM</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="5" ><a href="/configuration/configuration5">App Config</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="6" ><a href="/configuration/configuration6">Tomcat</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="7" ><a href="/configuration/configuration7">Diagrams</a></dd>
+        
+        <li class="divider">|</li>
                 
       </dl>
 </div>      
@@ -85,9 +249,9 @@
 
 <p>The indexing and searching web applications use the elasticsearch java library.</p>
 
-<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <em>MUST</em> be the same.</p>
+<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
 
-<pre><code>* Current embedded elasticsearch version is: **0.90.9**</code></pre>
+<pre><code>Current embedded elasticsearch version is: **0.90.9**</code></pre>
 
 <p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
 
@@ -103,11 +267,11 @@
 
 <p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
 
-<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
+<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
 
 <p>This can be a comma separated list of hosts:</p>
 
-<pre><code>* related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
+<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
 
 <p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
 
@@ -201,6 +365,31 @@
         <li><a href="/configuration/configuration2">2</a></li>
         
       
+         
+        
+        <li><a href="/configuration/configuration3">3</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration4">4</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration5">5</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration6">6</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration7">7</a></li>
+        
+      
       </ul>
     </div>
 
@@ -214,6 +403,7 @@
         </div>
         <div class="large-6 columns">
           <ul class="inline-list right">
+            <li><a href="https://github.com/tootedom/related"><i class="fa fa-github"></i> Relate it (Source)</a></li>
             <li><address><a href="mailto:dominic.tootell@relateit.io"><i class="fa fa-envelope"></i> Dominic Tootell</a></address></li>
             <li><a href="https://twitter.com/tootedom"><i class="fa fa-twitter"></i>@tootedom</a></li>
           </ul>

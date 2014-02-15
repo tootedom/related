@@ -1,0 +1,13 @@
+{% assign post_count = 0 %}
+{% for postinfo in site.categories[categoryName] %}
+{% assign post_count = post_count|plus:1 %} 
+{% if #isActiveCategory == true %}
+	{% if #post_count == paginator.page %}
+	<li><a href="{{site.baseurl}}/{{categoryName}}/{{categoryName}}{{post_count}}" data-search class="active">{{postinfo.title}}</a></li>
+	{% else %}
+	<li><a href="{{site.baseurl}}/{{categoryName}}/{{categoryName}}{{post_count}}" data-search>{{postinfo.title}}</a></li>
+	{% endif %}
+{% else %}
+	<li><a href="{{site.baseurl}}/{{categoryName}}/{{categoryName}}{{post_count}}" data-search>{{postinfo.title}}</a></li>
+{% endif %}
+{% endfor %}

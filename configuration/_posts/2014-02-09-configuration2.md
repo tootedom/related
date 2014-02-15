@@ -67,3 +67,20 @@ If the related documents you are indexed are going to have more properties (i.e.
             }
         }
     }'
+
+----
+
+## Sharding/Replicas ##
+
+As previously mentioned within the searching section, by default a new index is created in elastcisearch each day ([Searching Indexes]({{site.baseurl}}/searching/searching4/).
+When a search is performed, the search is made across all those indexes.  In order to present the frequently related items elasticsearch facetting is used.  It is recommended
+that only 1 shard is used, in order for acurate results to be returned for the faceting.  As a new index is being created daily, (a shard is effectively a new index), the lack of
+sharding will not impact the system greatly.  For most information regarding using more than 1 shard please see the following bug report: [ES-1305](https://github.com/elasticsearch/elasticsearch/issues/1305).
+If you wish to use more the on shard then use either the property `related-item.searching.default.number.of.results`; setting it to a larger number, or at search time specify the query parameter: `maxresults` to a large value.
+
+However, be warned setting either `maxresults` or `related-item.searching.default.number.of.results`, means the search result will be larger.
+
+As a result, it is advisable to only have `1 shard`.  Instead you should have a least 1 or more `replicas`.  Whilst having 1 or more `replicas` will slow down indexing slightly (writes have to go to more than 1 index).  However, having 1 or more replicas makes sense from two aspects:
+
+* A backup of the index.  If one node fails; the replica living on another node can take over. 
+* Searches are more performant.

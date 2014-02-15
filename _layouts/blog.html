@@ -15,11 +15,12 @@
 
 
   <!-- Main Page Content and Sidebar -->
-
+  <section role="main">
   <div class="row">
+    {% include bloglefthandnav.html %}    
 
     <!-- Main Blog Content -->
-    <div class="large-12 columns" role="content">
+    <div class="large-9 medium-8 columns" role="content">
 
     {{content}}
 
@@ -102,5 +103,6 @@
   <!-- Footer -->
   {% include footer.html %}
   {% include ga.html %}
+  </section>
   </body>
 </html>

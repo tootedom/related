@@ -1,0 +1,37 @@
+    <div class="large-3 medium-4 columns">
+      <div class="hide-for-small">
+        <div class="sidebar">
+          <h5>Documentation:</h5>          
+          <nav>
+            <ul class="side-nav">
+              <li class="heading">Indexing</li>
+              {% assign categoryName ='indexing' %}
+              {% if activeCategory == 'indexing' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+              <li class="divider"></li>
+              <li class="heading">Searching</li>
+              {% assign categoryName ='searching' %}
+              {% if activeCategory == 'searching' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+              <li class="divider"></li>
+              <li class="heading">Configuration</li>
+              {% assign categoryName ='configuration' %}
+              {% if activeCategory == 'configuration' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+            </ul>
+          </nav>
+        </div> 
+      </div>
+    </div>

@@ -12,9 +12,9 @@ The related item data is stored in that of elasticsearch.  The ability to find t
 
 The indexing and searching web applications use the elasticsearch java library.  
 
-The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol.  Meaning, the version of the client embedded within the web applications (indexing and searching), *MUST* match that of the elasticsearch server.  Also, the version of JAVA on the client and the server *MUST* be the same.
+The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol.  Meaning, the version of the client embedded within the web applications (indexing and searching), *MUST* match that of the elasticsearch server.  Also, the version of JAVA on the client and the server `MUST` be the same.
 
-    * Current embedded elasticsearch version is: **0.90.9**
+    Current embedded elasticsearch version is: **0.90.9**
 
 By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:
 
@@ -30,10 +30,10 @@ The defaults for indexing and searching have been set based on a JVM the is runn
 
 At minimum the only configuration required is the connection details for your elasticsearch installation:
 
-    * related-item.elastic.search.transport.hosts=10.0.1.19:9300
+    related-item.elastic.search.transport.hosts=10.0.1.19:9300
 
 This can be a comma separated list of hosts:
 
-    * related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
+    related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300
 
 By default the application uses the TRANSPORT client to connect to elastic search.  If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.
