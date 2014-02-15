@@ -141,7 +141,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search>Elasticsearch</a></li>
 	
 
 
@@ -162,7 +162,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration4" data-search class="active">JVM</a></li>
 	
 
 
@@ -201,7 +201,7 @@
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>       
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>
         
         <li class="divider">|</li>
         
@@ -219,7 +219,7 @@
         
          
         
-          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/configuration/configuration4">JVM</a></dd>
+          <dd data-magellan-arrival="4" class="active"><a href="http://tootedom.github.io/related/configuration/configuration4">JVM</a></dd>       
         
         <li class="divider">|</li>
         
@@ -244,36 +244,40 @@
       </dl>
 </div>      
 
-    <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
-    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
+    <h1><a href="/configuration/configuration4">JVM</a></h1>
+    <p>The default configuration for indexing and searching applications (as shown below) are based on a 1GB heap (<code>-Xmx1024m -Xms1024m</code>) configuration. It is for this default configuration that the below JVM options and Heap configuration is specified.</p>
 
-<p>The indexing and searching web applications use the elasticsearch java library.</p>
+<p>The specific recommended (tested against) JVM options for searching and indexing are listed below (jdk7 - the following options <em>WILL NOT</em> work on jdk6). The JVM options slightly differ between searching and indexing. The common options are listed and then the differences listed:</p>
 
-<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
+<h3 id="common_options_for_web_applications">Common options for Web Applications</h3>
 
-<pre><code>Current embedded elasticsearch version is: **0.90.9**</code></pre>
+<pre><code>-XX:CMSInitiatingOccupancyFraction=85
+-XX:MaxTenuringThreshold=15
+-XX:CMSWaitDuration=70000    
+-XX:MaxPermSize=128m
+-XX:ParGCCardsPerStrideChunk=4096
+-XX:+UseParNewGC
+-XX:+UseConcMarkSweepGC
+-XX:+UseCMSInitiatingOccupancyOnly    
+-XX:+UnlockDiagnosticVMOptions
+-XX:+AggressiveOpts
+-XX:+UseCondCardMark</code></pre>
+<hr />
+<p>Below shows the heap configuration for indexing and search. The difference between the two is that of the eden space.</p>
 
-<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
+<h3 id="searching_heap">Searching Heap</h3>
 
-<pre><code>client.transport.sniff : true</code></pre>
+<pre><code>-Xmx1024m
+-Xmn700m
+-Xms1024m
+-Xss256k</code></pre>
 
-<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
+<h3 id="indexing_heap">Indexing Heap</h3>
 
-<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
-
-<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
-
-<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
-
-<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
-
-<p>This can be a comma separated list of hosts:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
-
-<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+<pre><code>-Xmx1024m
+-Xmn256m
+-Xms1024m
+-Xss256k</code></pre>
 
 <!--       <article>
 
@@ -357,7 +361,7 @@
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
+        <li><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
         
       
          
@@ -372,7 +376,7 @@
       
          
         
-        <li><a href="http://tootedom.github.io/related/configuration/configuration4">4</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration4">4</a></li>
         
       
          

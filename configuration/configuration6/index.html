@@ -141,7 +141,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search>Elasticsearch</a></li>
 	
 
 
@@ -176,7 +176,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration6" data-search>Tomcat</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration6" data-search class="active">Tomcat</a></li>
 	
 
 
@@ -201,7 +201,7 @@
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>       
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>
         
         <li class="divider">|</li>
         
@@ -231,7 +231,7 @@
         
          
         
-          <dd data-magellan-arrival="6" ><a href="http://tootedom.github.io/related/configuration/configuration6">Tomcat</a></dd>
+          <dd data-magellan-arrival="6" class="active"><a href="http://tootedom.github.io/related/configuration/configuration6">Tomcat</a></dd>       
         
         <li class="divider">|</li>
         
@@ -244,36 +244,17 @@
       </dl>
 </div>      
 
-    <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
-    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
+    <h1><a href="/configuration/configuration6">Tomcat</a></h1>
+    <p>The Searching and Indexing Web Applications have been tested on tomcat version <code>7.0.42</code> with the NIO Protocol. The tomcat was running on a 2 cpu (Intel(R) Xeon(R) CPU E5-2407 0 @ 2.20GHz), (4 cores each) server.</p>
 
-<p>The indexing and searching web applications use the elasticsearch java library.</p>
+<p>The NIO Configuration was as follows:</p>
 
-<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
-
-<pre><code>Current embedded elasticsearch version is: **0.90.9**</code></pre>
-
-<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
-
-<pre><code>client.transport.sniff : true</code></pre>
-
-<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
-
-<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
-
-<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
-
-<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
-
-<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
-
-<p>This can be a comma separated list of hosts:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
-
-<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+<pre><code>&lt;Connector port=&quot;8080&quot; protocol=&quot;org.apache.coyote.http11.Http11NioProtocol&quot;
+           connectionTimeout=&quot;60000&quot; processorCache=&quot;20000&quot; 
+           maxKeepAliveRequests=&quot;10000&quot; acceptorThreadCount=&quot;1&quot; 
+           socket.rxBufSize=&quot;4096&quot; socket.txBufSize=&quot;4096&quot; 
+           socket.tcpNoDelay=&quot;true&quot; acceptCount=&quot;1024&quot;
+           redirectPort=&quot;8443&quot; maxThreads=&quot;8&quot; asyncTimeout=&quot;120000&quot;/&gt;</code></pre>
 
 <!--       <article>
 
@@ -357,7 +338,7 @@
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
+        <li><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
         
       
          
@@ -382,7 +363,7 @@
       
          
         
-        <li><a href="http://tootedom.github.io/related/configuration/configuration6">6</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration6">6</a></li>
         
       
          

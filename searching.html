@@ -27,25 +27,24 @@
 
   <header class="inner">
 
-	<nav>
-	  <div class="row">
-	    <div class="large-12 columns">
+	<nav>	  
+	  <div class="row">	  	
+	    <div class="large-12 columns">	      
 	      <div class="nav-bar right" style="padding-top: 30px">
 	       <ul class="button-group">
 	         <li><a href='http://tootedom.github.io/related/index.html' class="radius small button">Home</a></li>	         
 	         <li><a href='http://tootedom.github.io/related/indexing/index.html' class="radius small button">Indexing</a><br/></li>
 	         <li><a href='http://tootedom.github.io/related/searching/index.html' class="radius small button">Searching</a><br/></li>							 
 	         <li><a href='http://tootedom.github.io/related/configuration/index.html' class="radius small button">Configuration</a></li>
-	         <li><a href='http://tootedom.github.io/related/bog.html' class="radius small button">Blog</a></li>
+	         <li><a href='http://tootedom.github.io/related/blog/index.html' class="radius small button">Blog</a></li>
 	         <li><a href='http://tootedom.github.io/related/downloads.html'  class="radius small button">Downloads</a></li>         
 	        </ul>
 	      </div>
-	      <h1><img src="http://tootedom.github.io/related/images/relateitlogo.png"></h1>
+	      <h1><a href='https://github.com/tootedom/related'><img src="http://tootedom.github.io/related/images/relateitlogo.png"></a></h1>
 	      <hr />
 	    </div>
 	  </div>
-	</nav>
-
+	</nav>	
 </header>
 
 
@@ -53,11 +52,35 @@
 
 
   <!-- Main Page Content and Sidebar -->
-
+  <section role="main">
   <div class="row">
+        <div class="large-3 medium-4 columns">
+      <div class="hide-for-small">
+        <div class="sidebar">             
+          <nav>
+            <ul class="side-nav">
+              
+                            
+               
+              <li>
+                <a href="http://tootedom.github.io/related/blog/blog1">Release 1.0.1</a>
+                <p><p>Release 1.0.1 is a minor release that fixed a bug with the AsyncContext being closed twice.</p></p>
+              </li>
+                            
+               
+              <li>
+                <a href="http://tootedom.github.io/related/blog/blog2">Release 1.0.0</a>
+                <p><p>The initial release of <code>Relate it</code>. Allowing you to relate items, and find the most frequently related items.</p></p>
+              </li>
+              
+            </ul>
+          </nav>
+        </div> 
+      </div>
+    </div>    
 
     <!-- Main Blog Content -->
-    <div class="large-12 columns" role="content">
+    <div class="large-9 medium-8 columns" role="content">
 
     
 	
@@ -130,8 +153,10 @@
 	
 
 	
+
+	
 	<article>
-		<h2>Filtering</h2>        
+		<h2>Filters</h2>        
 		<p>The search functionality allows you to filter the result based on a property of the indexed document. For example, from the initial POST there was 4 related items:</p>
 
 <pre><code>{
@@ -372,6 +397,8 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 	
 
 	
+
+	
 	<article>
 		<h2>Indexes</h2>        
 		<p>By default the indexes that are searched in elasticsearch are any index that have a name starting with <code>**relateditems-**</code>. In other words a wild card search across all dated indexes starting with <strong>relateditems-</strong></p>
@@ -407,6 +434,8 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 	
 
 	
+
+	
 	<article>
 		<h2>Aliases</h2>        
 		<p>An alias can give you added flexibility over the content that is being searched. However, this comes at the cost of added complexity from having to maintain the alias.</p>
@@ -432,6 +461,14 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
 
 <pre><code>http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/</code></pre>
 	</article>
+	
+
+	
+
+	
+
+	
+
 	
 
 	
@@ -538,6 +575,7 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
         </div>
         <div class="large-6 columns">
           <ul class="inline-list right">
+            <li><a href="https://github.com/tootedom/related"><i class="fa fa-github"></i> Relate it (Source)</a></li>
             <li><address><a href="mailto:dominic.tootell@relateit.io"><i class="fa fa-envelope"></i> Dominic Tootell</a></address></li>
             <li><a href="https://twitter.com/tootedom"><i class="fa fa-twitter"></i>@tootedom</a></li>
           </ul>
@@ -569,5 +607,6 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
             pageTracker._trackPageview();
             } catch(err) {}
 </script>
+  </section>
   </body>
 </html>

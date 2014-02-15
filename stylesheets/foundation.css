@@ -121,13 +121,18 @@ textarea {
 select {
   width: 100%; }
 
+.sidebar {
+  background: #fafafa;
+  padding: 32px 20px;
+}
+
 .row {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
   margin-top: 0;
   margin-bottom: 0;
-  max-width: 62.5em;
+  max-width: 80em;
   *zoom: 1; }
   .row:before, .row:after {
     content: " ";
@@ -2273,7 +2278,7 @@ button, .button {
   background: white;
   z-index: 50;
   min-width: 100%;
-  padding: 10px; }
+  padding: 0px; }
   [data-magellan-expedition] .sub-nav {
     margin-bottom: 0; }
     [data-magellan-expedition] .sub-nav dd {
@@ -2422,7 +2427,17 @@ ul.pagination {
       height: 0;
       padding: 0;
       list-style: none;
-      border-top-color: white; }
+      border-top-color: white;
+      margin: 16px 0px; }
+    .side-nav li a.active {
+        -webkit-border-radius: 3px;
+      border-radius: 3px;
+      font-weight: normal;
+      background: #2ba6cb;
+      padding: 0.1rem 0.2rem;
+      cursor: default;
+      color: white; 
+    }
 
 .accordion {
   *zoom: 1;
@@ -2567,7 +2582,13 @@ small {
 code {
   font-family: Consolas, "Liberation Mono", Courier, monospace;
   font-weight: bold;
-  color: #910b0e; }
+  color: #910b0e;   
+}
+
+.nowraptext {
+  white-space: nowrap;
+  overflow: scroll;
+}
 
 /* Lists */
 ul,
@@ -3190,15 +3211,18 @@ blockquote p {
   margin: -0.25rem 0 1.125rem;
   padding-top: 0.25rem;
   margin-right: 0;
-  margin-left: -0.75rem; }
+  margin-left: -0.75rem; }  
   .sub-nav dt {
     text-transform: uppercase; }
+  .sub-nav li.divider {
+    margin-left: 0.5rem;
+  }
   .sub-nav dt,
   .sub-nav dd,
-  .sub-nav li {
+  .sub-nav li {    
     float: left;
     display: inline;
-    margin-left: 1rem;
+    margin-left: 0.5rem;
     margin-bottom: 0.625rem;
     font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
     font-weight: normal;
@@ -3220,7 +3244,7 @@ blockquote p {
       border-radius: 3px;
       font-weight: normal;
       background: #2ba6cb;
-      padding: 0.1875rem 1rem;
+      padding: 0.1rem 0.2rem;
       cursor: default;
       color: white; }
       .sub-nav dt.active a:hover,
@@ -3755,8 +3779,8 @@ table {
       text-align: left; }
   table tr th,
   table tr td {
-    padding: 0.5625rem 0.625rem;
-    font-size: 0.875rem;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.8rem;
     color: #222222; }
   table tr.even, table tr.alt, table tr:nth-of-type(even) {
     background: #f9f9f9; }
@@ -4973,5 +4997,6 @@ th.hide-for-touch {
 pre {
     margin: 10px;
     padding: 4px;
+    overflow: scroll;
 
 }

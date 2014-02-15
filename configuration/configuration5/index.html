@@ -1,0 +1,517 @@
+<!doctype html>
+
+
+
+
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+   
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relate It</title>
+
+    
+    <meta name="description" content="Relate it: Tracks Frequently Related Items." />
+    
+    <meta name="author" content="Dominic Tootell" />
+    <meta name="copyright" content="relate it (c) 2013-2014" />
+    <link rel="shortcut icon" href="http://tootedom.github.io/related/favicon.ico" />
+
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://tootedom.github.io/related/stylesheets/foundation.css" />
+    <script src="http://tootedom.github.io/related/javascripts/vendor/modernizr.js"></script>
+</head>
+
+
+  <body>
+    
+
+<!-- Nav Bar -->
+
+  <header class="inner">
+
+	<nav>	  
+	  <div class="row">	  	
+	    <div class="large-12 columns">	      
+	      <div class="nav-bar right" style="padding-top: 30px">
+	       <ul class="button-group">
+	         <li><a href='http://tootedom.github.io/related/index.html' class="radius small button">Home</a></li>	         
+	         <li><a href='http://tootedom.github.io/related/indexing/index.html' class="radius small button">Indexing</a><br/></li>
+	         <li><a href='http://tootedom.github.io/related/searching/index.html' class="radius small button">Searching</a><br/></li>							 
+	         <li><a href='http://tootedom.github.io/related/configuration/index.html' class="radius small button">Configuration</a></li>
+	         <li><a href='http://tootedom.github.io/related/blog/index.html' class="radius small button">Blog</a></li>
+	         <li><a href='http://tootedom.github.io/related/downloads.html'  class="radius small button">Downloads</a></li>         
+	        </ul>
+	      </div>
+	      <h1><a href='https://github.com/tootedom/related'><img src="http://tootedom.github.io/related/images/relateitlogo.png"></a></h1>
+	      <hr />
+	    </div>
+	  </div>
+	</nav>	
+</header>
+
+
+  <!-- End Nav -->
+
+
+  <!-- Main Page Content and Sidebar -->
+
+  <div class="row">
+    
+        <div class="large-3 medium-4 columns">
+      <div class="hide-for-small">
+        <div class="sidebar">
+          <h5>Documentation:</h5>          
+          <nav>
+            <ul class="side-nav">
+              <li class="heading">Indexing</li>
+              
+              
+                
+              
+              
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/indexing/indexing1" data-search>Overview</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/indexing/indexing2" data-search>Dates</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/indexing/indexing3" data-search>Document Format</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/indexing/indexing4" data-search>Properties</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/indexing/indexing5" data-search>Logging</a></li>
+
+
+              <li class="divider"></li>
+              <li class="heading">Searching</li>
+              
+              
+                
+              
+              
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/searching/searching1" data-search>Overview</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/searching/searching2" data-search>Filters</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/searching/searching3" data-search>Logging</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/searching/searching4" data-search>Indexes</a></li>
+
+
+ 
+
+	<li><a href="http://tootedom.github.io/related/searching/searching5" data-search>Aliases</a></li>
+
+
+              <li class="divider"></li>
+              <li class="heading">Configuration</li>
+              
+              
+                
+              
+              
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search>Elasticsearch</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration2" data-search>ES Type Mapping</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration3" data-search>ES Configuration</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration4" data-search>JVM</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration5" data-search class="active">App Config</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration6" data-search>Tomcat</a></li>
+	
+
+
+ 
+
+	
+	<li><a href="http://tootedom.github.io/related/configuration/configuration7" data-search>Diagrams</a></li>
+	
+
+
+            </ul>
+          </nav>
+        </div> 
+      </div>
+    </div>
+    <!-- Main Blog Content -->
+    <div class="large-9 medium-8 columns" role="content">
+    
+    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+      <dl class="sub-nav">        
+        
+        
+         
+        
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="2" ><a href="http://tootedom.github.io/related/configuration/configuration2">ES Type Mapping</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/configuration/configuration3">ES Configuration</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="4" ><a href="http://tootedom.github.io/related/configuration/configuration4">JVM</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="5" class="active"><a href="http://tootedom.github.io/related/configuration/configuration5">App Config</a></dd>       
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="6" ><a href="http://tootedom.github.io/related/configuration/configuration6">Tomcat</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="7" ><a href="http://tootedom.github.io/related/configuration/configuration7">Diagrams</a></dd>
+        
+        <li class="divider">|</li>
+                
+      </dl>
+</div>      
+
+    <h1><a href="/configuration/configuration5">App Config</a></h1>
+    <p>The Searching and Indexing web applications can be configured via a wide range of properties. These can either be set using System Properties:</p>
+
+<pre><code>-Drelated-item.max.number.related.item.properties=10</code></pre>
+
+<p>Or by using a yaml configuration file:</p>
+
+<pre><code>related-item:  
+  max.related.item.post.data.size.in.bytes: 65536
+  additional.prop.key.length: 20
+  additional.prop.value.length: 20
+  max.number.related.item.properties: 10
+  indexing:
+    size.of.incoming.request.queue:  32</code></pre>
+
+<p>The following will list all the properties that are available for configuration, along with their use. Some properties are specifically for searching, others specifically for indexing, and others for both. This will be noted.</p>
+
+<h3 id="indexing">Indexing</h3>
+<table><thead><tr><th>Property</th><th>Use</th></tr></thead><tbody><tr><td class="nowraptext" style="text-align: left;"><code>related-item.safe.to.output.index.request.data=false</code></td><td style="text-align: left;">Writes to logs (when DEBUG) the index request data</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.max.number.related.item.properties=10</code></td><td style="text-align: left;">The max number of properties a related item can have. More properties than this will be silently discarded. There is no guarantee of ordering</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.max.number.related.items.per.index.request=10</code></td><td style="text-align: left;">The max number of related items in a single index POST request</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.max.related.item.post.data.size.in.bytes=10240</code></td><td style="text-align: left;">Max size in bytes of the POST data for an index request</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.min.related.item.post.data.size.in.bytes=4096</code></td><td style="text-align: left;">The minimum size, in bytes, of the POSTed json data for an index request</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.size.of.incoming.request.queue=16384</code></td><td style="text-align: left;">Size of the ring buffer that accepts incoming indexing POST requests</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.size.of.batch.indexing.request.queue=-1</code></td><td style="text-align: left;">The size of the ring buffer for each indexing processor that batch posts indexing requests to elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.batch.size=625</code></td><td style="text-align: left;">The max number of related item objects (a single index request will have many related item objects), that can be sent for batching indexing to elastic search.</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.number.of.indexing.request.processors=2</code></td><td style="text-align: left;">number of processors used to perform indexing (sending batch indexing requests) to elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.replace.old.indexed.content=false</code></td><td style="text-align: left;">replace existing content (false)</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.use.separate.repository.storage.thread=false</code></td><td style="text-align: left;">Use a separate thread for performing indexing</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.discard.storage.requests.with.too.many.relations=false</code></td><td style="text-align: left;">Silently discard related items in the indexing request it there are too many. Indexes up to the max, discards the others</td></tr>
+</tbody></table>
+<h3 id="searching">Searching</h3>
+<table><thead><tr><th>Property</th><th>Use</th></tr></thead><tbody><tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.size.of.related.content.search.request.queue=16384</code></td><td style="text-align: left;">Size of the ring buffer that accepts incoming search requests</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.size.of.related.content.search.request.handler.queue=-1</code></td><td style="text-align: left;">Size of the ring buffer for each search processor that submits search requests to elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.size.of.related.content.search.request.and.response.queue=-1</code></td><td style="text-align: left;">Size of the ring buffer that is used to store incoming Request AsyncContext objects for later retrieval</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.max.number.of.search.criteria.for.related.content=10</code></td><td style="text-align: left;">number of additional properties that will be searched on</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.number.of.expected.like.for.like.requests=10</code></td><td style="text-align: left;">The number of search request that we expect to be similar</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.frequency.result.id=id</code></td><td style="text-align: left;">The key used for the id field in the search result json</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.frequency.result.occurrence=frequency</code></td><td style="text-align: left;">The key used for the frequency in the search results json</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.storage.response.time=storage_response_time</code></td><td style="text-align: left;">Key used to represent how long the elasticsearch request took, in the json response doc</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.search.processing.time=response_time</code></td><td style="text-align: left;">Key used to represent how long the complete search request took. It is the key used in the response json</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.frequency.result.overall.no.of.related.items=size</code></td><td style="text-align: left;">Key in the search response used to represent the number of frequencies returned</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.key.for.frequency.results=results</code></td><td style="text-align: left;">Key in the search response json under which the frequencies are found</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.request.parameter.for.size=maxresults</code></td><td style="text-align: left;">Request parameter used to specify the max number of frequencies to return</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.request.parameter.for.id=id</code></td><td style="text-align: left;">Parameter used to associate the id in a map of request parameters</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.default.number.of.results=4</code></td><td style="text-align: left;">Default number of search result (frequencies) to return</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.size.of.response.processing.queue=-1</code></td><td style="text-align: left;">Size of ring buffer for processing search results and sending json response to the awaiting AsyncContext</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.number.of.searching.request.processors=2</code></td><td style="text-align: left;">The number of ring buffers (processors) that will be sending search requests to elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.frequently.related.items.facet.results.facet.name=frequently-related-with</code></td><td style="text-align: left;">The property used for naming the facet during the search request to elastic search</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.searching.facet.search.execution.hint=map</code></td><td style="text-align: left;">Used during search request to elastic search. The setting of ‘map’ is the default. Makes request much much faster</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.frequently.related.search.timeout.in.millis=5000</code></td><td style="text-align: left;">Timeout in millis for elasticsearch requests</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.timed.out.search.request.status.code=504</code></td><td style="text-align: left;">The http status code when a timeout occurs</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.failed.search.request.status.code=502</code></td><td style="text-align: left;">The http status code when a search request fails to talk to elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.not.found.search.request.status.code=404</code></td><td style="text-align: left;">The http status code when no search result is found</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.found.search.results.handler.status.code=200</code></td><td style="text-align: left;">The http status code when a match is found</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.missing.search.results.handler.status.code=500</code></td><td style="text-align: left;">The http status code when we cannot handle the json search response</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.use.shared.search.repository=false</code></td><td style="text-align: left;">Whether the search processors use a shared connection to elastic search</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.searching.response.debug.output.enabled=false</code></td><td style="text-align: left;">Output the response json being sent to the client, also to a log file.</td></tr>
+</tbody></table>
+<h3 id="both">Both</h3>
+<table><thead><tr><th>Property</th><th>Use</th></tr></thead><tbody><tr><td class="nowraptext" style="text-align: left;"><code>related-item.related.item.id.length=36</code></td><td style="text-align: left;">The max number of characters that the “id” of a related items can have</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.additional.prop.key.length=30</code></td><td style="text-align: left;">The max number of characters a property name can have</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.additional.prop.value.length=30</code></td><td style="text-align: left;">The max number of characters a property value can have</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.index.name.prefix=relateditems</code></td><td style="text-align: left;">The name of the index used in elasticsearch for storing related item documents (i.e. <code>relateditems-YYYY-MM-DD</code>)</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.index.name.alias=</code> (no alias)</td><td style="text-align: left;">The name of the index alias against which to search (http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/)</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.content.type.name=related</code></td><td style="text-align: left;">The index type</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.cluster.name=relateditems</code></td><td style="text-align: left;">The name of the elasticsearch cluster</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.key.for.index.request.related.with.attr=items</code></td><td style="text-align: left;">The key used in the indexed document for the storing the related ids</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.key.for.index.request.date.attr=date</code></td><td style="text-align: left;">The key used in the indexed document for the date attribute</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.key.for.index.request.id.attr=id</code></td><td style="text-align: left;">The key against which the id is stored in the indexed document</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.key.for.index.request.item.array.attr=items</code></td><td style="text-align: left;">The key in the incoming user json indexing request that contains the list of items</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.client.default.transport.settings.file.name=default-transport-elasticsearch.yml</code></td><td style="text-align: left;">name of the elastic search file containing the transport client settings (defaults)</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.client.default.node.settings.file.name=default-node-elasticsearch.yml</code></td><td style="text-align: left;">name of the elasticsearch file containing the node client settings (defaults)</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.client.override.settings.file.name=elasticsearch.yml</code></td><td style="text-align: left;">name of the elasticsearch file than can be distributed to override the default node/transport settings</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.storage.location.mapper=day</code></td><td style="text-align: left;">day/hour/min used to convert date to a string used for creating the index name in which documents are stored</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.wait.strategy=yield</code></td><td style="text-align: left;">The type of ring buffer wait strategy: yield/busy/sleep/block</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.es.client.type=transport</code></td><td style="text-align: left;">The type of elasticsearch client to use</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.indexname.date.caching.enabled=true</code></td><td style="text-align: left;">caching of index date</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.indexing.number.of.indexname.to.cache=365</code></td><td style="text-align: left;">number of index names to cache</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.transport.hosts=127.0.0.1:9300</code></td><td style="text-align: left;">The host:port,host:port contain the unicast addresses of the search nodes in elastic search to talk to</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.default.port=9300</code></td><td style="text-align: left;">The default port if not specified to talk to in elasticsearch</td></tr>
+</tbody></table><hr />
+<p>By default the Searching and Indexing web applications will look for a yaml configuration file from which to load the configuration details. Any settings in the configuration file, override the defaults. Any system properties set will override the settings that are contained within the yaml configuration.</p>
+
+<p>By default the yaml file <strong>related-items.yaml</strong> is looked for on the class path. The location of the file can be specified by the property, <strong>related-items.settings.file</strong>, for example:</p>
+
+<ul>
+<li>-Drelated-items.settings.file=/etc/relateditems.yml</li>
+</ul>
+
+<p>The yaml file, may look like the following:</p>
+
+<pre><code>related-item:
+       searching:
+              number.of.searching.request.processors: 16
+              size.of.related.content.search.request.handler.queue: 1024
+
+       indexing:
+              size.of.batch.indexing.request.queue: 4096</code></pre>
+
+<p>With the above in place the following properties are overridden:</p>
+
+<pre><code>related-item.searching.number.of.searching.request.processors
+related-item.searching.size.of.related.content.search.request.handler.queue
+related-time.indexing.size.of.batch.indexing.reqeust.queue</code></pre>
+
+<p>If a system properties was set <code>-Drelated-item.searching.number.of.searching.request.processors=2</code>, that would override the setting in the yaml file.</p>
+
+<!--       <article>
+
+        <h3><a href="#">Blog Post Title</a></h3>
+        <h6>Written by <a href="#">John Smith</a> on August 12, 2012.</h6>
+
+        <div class="row">
+          <div class="large-6 columns">
+            <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa.</p>
+            <p>Boudin aliqua adipisicing rump corned beef. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+          </div>
+          <div class="large-6 columns">
+            <img src="http://placehold.it/400x240&text=[img]" />
+          </div>
+        </div>
+
+        <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+
+        <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+
+      </article>
+
+      <hr />
+
+      <article>
+
+        <h3><a href="#">Blog Post Title</a></h3>
+        <h6>Written by <a href="#">John Smith</a> on August 12, 2012.</h6>
+
+        <div class="row">
+          <div class="large-6 columns">
+            <p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa.</p>
+            <p>Boudin aliqua adipisicing rump corned beef. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+          </div>
+          <div class="large-6 columns">
+            <img src="http://placehold.it/400x240&text=[img]" />
+          </div>
+        </div>
+
+        <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+
+        <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow. Nulla corned beef sunt ball tip, qui bresaola enim jowl. Capicola short ribs minim salami nulla nostrud pastrami.</p>
+
+      </article> -->
+
+    </div>
+
+    <!-- End Main Content -->
+
+
+    <!-- Sidebar -->
+
+<!--     <aside class="large-3 columns">
+
+      <h5>Categories</h5>
+      <ul class="side-nav">
+        <li><a href="#">News</a></li>
+        <li><a href="#">Code</a></li>
+        <li><a href="#">Design</a></li>
+        <li><a href="#">Fun</a></li>
+        <li><a href="#">Weasels</a></li>
+      </ul>
+
+      <div class="panel">
+        <h5>Featured</h5>
+        <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon nulla pork belly cupidatat meatloaf cow.</p>
+        <a href="#">Read More &rarr;</a>
+      </div>
+
+    </aside> -->
+
+    <!-- End Sidebar -->
+  </div>
+
+  <!-- End Main Content and Sidebar -->
+
+      <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration2">2</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration3">3</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration4">4</a></li>
+        
+      
+         
+        
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration5">5</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration6">6</a></li>
+        
+      
+         
+        
+        <li><a href="http://tootedom.github.io/related/configuration/configuration7">7</a></li>
+        
+      
+      </ul>
+    </div>
+
+  <!-- Footer -->
+  <footer class="row">
+    <div class="large-12 columns">
+      <hr />
+      <div class="row">
+        <div class="large-6 columns">
+          <p class="copyright">&copy; relate it maintained by <a href="https://github.com/tootedom">tootedom</a></p>
+        </div>
+        <div class="large-6 columns">
+          <ul class="inline-list right">
+            <li><a href="https://github.com/tootedom/related"><i class="fa fa-github"></i> Relate it (Source)</a></li>
+            <li><address><a href="mailto:dominic.tootell@relateit.io"><i class="fa fa-envelope"></i> Dominic Tootell</a></address></li>
+            <li><a href="https://twitter.com/tootedom"><i class="fa fa-twitter"></i>@tootedom</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</footer>
+<script src="http://tootedom.github.io/related/javascripts/vendor/jquery.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.dropdown.js"></script>
+<script src="http://tootedom.github.io/related/javascripts/foundation/foundation.magellan.js"></script>
+<script>
+      $(document).foundation({
+        // specify the class used for active dropdowns
+        active_class: 'open'
+      });
+
+      var doc = document.documentElement;
+      doc.setAttribute('data-useragent', navigator.userAgent);
+</script>
+
+  <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-47714522-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+</script>
+  </body>
+</html>
+

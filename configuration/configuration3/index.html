@@ -141,7 +141,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration1" data-search>Elasticsearch</a></li>
 	
 
 
@@ -155,7 +155,7 @@
  
 
 	
-	<li><a href="http://tootedom.github.io/related/configuration/configuration3" data-search>ES Configuration</a></li>
+	<li><a href="http://tootedom.github.io/related/configuration/configuration3" data-search class="active">ES Configuration</a></li>
 	
 
 
@@ -201,7 +201,7 @@
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>       
+          <dd data-magellan-arrival="1" ><a href="http://tootedom.github.io/related/configuration/configuration1">Elasticsearch</a></dd>
         
         <li class="divider">|</li>
         
@@ -213,7 +213,7 @@
         
          
         
-          <dd data-magellan-arrival="3" ><a href="http://tootedom.github.io/related/configuration/configuration3">ES Configuration</a></dd>
+          <dd data-magellan-arrival="3" class="active"><a href="http://tootedom.github.io/related/configuration/configuration3">ES Configuration</a></dd>       
         
         <li class="divider">|</li>
         
@@ -244,36 +244,47 @@
       </dl>
 </div>      
 
-    <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
-    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
+    <h1><a href="/configuration/configuration3">ES Configuration</a></h1>
+    <p>The elasticsearch server itself also requires some configuration. By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the <em>data/</em> directory in it’s download installation location. You more than like want to:</p>
 
-<p>The indexing and searching web applications use the elasticsearch java library.</p>
+<pre><code>* Move to unicast if your network does not cope with multicast traffic routing well (i.e. multiple data centres, etc.)
+* Move the local storage to a raid array, with raid 1, 5 or raid 1+0 (10), away from the data/ directory.  So that you can update the elasticsearch binaries without affecting the data indexed.</code></pre>
 
-<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
+<p>The elasticsearch configuration file (<code>config/elasticsearch.yml</code>), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being <code>&quot;relateditems&quot;</code>). The name of the cluster is controlled by the following property on the Searching or Indexing web application:</p>
 
-<pre><code>Current embedded elasticsearch version is: **0.90.9**</code></pre>
+<pre><code>* related-item.storage.cluster.name</code></pre>
 
-<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
+<p>Therefore the elasticsearch configuration (<strong>config/elasticsearch.yml</strong>) should have the following set:</p>
 
-<pre><code>client.transport.sniff : true</code></pre>
+<pre><code>cluster.name: relateditems</code></pre>
 
-<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
+<p>There are several other properties that are not by default in the elasticsearch.yml file, that assist in its operations (searching, bulk operations, getting and indexing). The following configuration reduces the size of the queue, and the maximum number of threads that elasticsearch can run of the given operations. By changing the defaults we are allowing existing operations to complete, without flooding it with more requests until it is unable to cope with the load. As a result we bound the size of the pools and queues, in order to apply back pressure to the request’s origin (I.e. The search application and the indexing application)</p>
 
-<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
+<p>These pool settings are as follows. The settings a highly dependent upon the size of your elastic search cluster. This is just a set of recommendations.</p>
 
-<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
+<h3 id="search_pool">Search pool</h3>
 
-<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
+<pre><code>threadpool.search.type: fixed
+threadpool.search.size: 20
+threadpool.search.queue_size: 100000</code></pre>
 
-<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
+<h3 id="bulk_pool">Bulk pool</h3>
 
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
+<pre><code>threadpool.bulk.type: fixed
+threadpool.bulk.size: 25
+threadpool.bulk.queue_size: 100000</code></pre>
 
-<p>This can be a comma separated list of hosts:</p>
+<h3 id="get_pool">Get Pool</h3>
 
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
+<pre><code>threadpool.get.type: fixed
+threadpool.get.size: 1
+threadpool.get.queue_size: 1</code></pre>
 
-<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+<h3 id="index_pool">Index pool</h3>
+
+<pre><code>threadpool.index.type: fixed
+threadpool.index.size: 20
+threadpool.index.queue_size: 100000</code></pre>
 
 <!--       <article>
 
@@ -357,7 +368,7 @@
       
          
         
-        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
+        <li><a href="http://tootedom.github.io/related/configuration/configuration1">1</a></li>
         
       
          
@@ -367,7 +378,7 @@
       
          
         
-        <li><a href="http://tootedom.github.io/related/configuration/configuration3">3</a></li>
+        <li class="current"><a href="http://tootedom.github.io/related/configuration/configuration3">3</a></li>
         
       
          
