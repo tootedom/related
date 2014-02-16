@@ -1,6 +1,6 @@
 
 exclude: ['Gemfile', 'Gemfile.lock', 'Rakefile', 'README.md']
-baseurl : "relateit.io"
+baseurl : "http://relateit.io"
 paginate : 1
 permalink: /:categories/:title
 paginate_path: posts/page:num
