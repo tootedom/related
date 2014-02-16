@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 1
 date : 2014-02-15
+category : configuration
 title : Elasticsearch
 categories : 
 - configuration

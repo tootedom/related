@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 5
 date : 2014-02-11
+category : configuration
 title : App Config
 categories : 
 - configuration

@@ -16,12 +16,12 @@
   {% include header.html %}
 
   <!-- End Nav -->
+  {% assign activeCategory = 'configuration' %}
 
-
+  {% include offside.html %}
   <!-- Main Page Content and Sidebar -->
 
   <div class="row">
-    {% assign activeCategory = 'configuration' %}
     {% include lefthandnav.html %}
     <!-- Main Blog Content -->
     <div class="large-9 medium-8 columns" role="content">

@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 2
 date : 2014-02-14
+category : configuration
 title : ES Type Mapping
 categories : 
 - configuration

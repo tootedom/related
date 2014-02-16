@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 3
 date : 2014-02-13
+category : configuration
 title : ES Configuration
 categories : 
 - configuration

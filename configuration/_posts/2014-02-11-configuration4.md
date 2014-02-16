@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 4
 date : 2014-02-12
+category : configuration
 title : JVM
 categories : 
 - configuration

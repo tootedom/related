@@ -1,0 +1,50 @@
+<div class="off-canvas-wrap">
+  <div class="inner-wrap">
+
+<nav class="tab-bar show-for-small">
+  <a class="left-off-canvas-toggle menu-icon">
+    <span></span>
+  </a>
+</nav>
+
+<aside class="left-off-canvas-menu">
+
+  <div class="sidebar-offcanvas">
+          <h5>Documentation:</h5>          
+          <nav>
+            <ul class="off-canvas-list">
+              <li class="heading">Indexing</li>
+              {% assign categoryName ='indexing' %}
+              {% if page.category == 'indexing' or activeCategory == 'indexing' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+              <li class="divider"></li>
+              <li class="heading">Searching</li>
+              {% assign categoryName ='searching' %}
+              {% if page.category == 'searching' or activeCategory == 'searching' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+              <li class="divider"></li>
+              <li class="heading">Configuration</li>
+              {% assign categoryName ='configuration' %}
+              {% if page.category == 'configuration' or activeCategory == 'configuration' %}
+                {% assign isActiveCategory = true %}
+              {% else %}
+                {% assign isActiveCategory = false %}
+              {% endif %}
+              {% include lefthandnav_links.html %}
+            </ul>
+          </nav>
+        </div> 
+
+ 
+</aside>
+
+<a class="exit-off-canvas" href="#"></a>
+

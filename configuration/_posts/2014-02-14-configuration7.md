@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 7
 date : 2014-02-09
+category : configuration
 title : Diagrams
 categories : 
 - configuration

@@ -2,6 +2,7 @@
 is_for_config : true
 page_no : 6
 date : 2014-02-10
+category : configuration
 title : Tomcat
 categories : 
 - configuration
