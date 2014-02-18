@@ -1,0 +1,69 @@
+---
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% assign post_count = 0 %}
+  {% for post in site.posts %}
+    {% assign post_count = post_count|plus:1 %} 
+    {% if post.page_no == 1 or post.page_no == 9999 %}
+    <url>
+      <loc>{{site.baseurl}}/{{ post.category }}/index.html</loc>
+      {% if post.lastmod == null %}
+      <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
+      {% else %}
+      <lastmod>{{ post.lastmod | date_to_xmlschema }}</lastmod>
+      {% endif %}
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+    {% endif %}
+    {% if post.sitemap_include == null or post.sitemap_include == true %}
+
+    <url>
+      <loc>{{site.baseurl}}{{ post.url }}/index.html</loc>
+      {% if post.lastmod == null %}
+      <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
+      {% else %}
+      <lastmod>{{ post.lastmod | date_to_xmlschema }}</lastmod>
+      {% endif %}
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+    {% endif %}
+  {% endfor %}
+  {% for page in site.pages %}    
+    {% if page.sitemap != null and page.sitemap != empty %}
+    {% if page.sitemap_include == null or page.sitemap_include == true %}
+      <url>
+        <loc>{{site.baseurl}}{{ page.url }}/index.html</loc>
+        <lastmod>{{ page.sitemap.lastmod | date_to_xmlschema }}</lastmod>
+        <changefreq>{{ page.sitemap.changefreq }}</changefreq>
+        <priority>{{ page.sitemap.priority }}</priority>
+      </url>
+    {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% for post in site.pages %}
+    {% if post.sitemap_include != null and post.sitemap_include == true %}
+
+    <url>
+      <loc>{{site.baseurl}}{{ post.url }}</loc>
+      {% if post.lastmod == null %}
+      <lastmod>{{ post.date | date: %Y-%m-%H | date_to_xmlschema }}</lastmod>
+      {% else %}
+      <lastmod>{{ post.lastmod | date_to_xmlschema }}</lastmod>
+      {% endif %}
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+    {% endif %}
+  {% endfor %}
+  
+  <url>
+      <loc>{{site.baseurl}}/index.html</loc>      
+      <lastmod>2014-02-18T00:00:00+00:00</lastmod>     
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+</urlset>

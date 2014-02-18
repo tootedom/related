@@ -1,6 +1,7 @@
 ---
 is_searching_overview : true
 title: Searching
+sitemap_include: false
 ---
 
 Find the items that are mostly purchased with product **1**, filtering the results to that of "torches" (type=torch):

@@ -1,6 +1,7 @@
 ---
 is_main_overview: true
 title: 
+sitemap_include: false
 ---
 **Relate it** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."
 

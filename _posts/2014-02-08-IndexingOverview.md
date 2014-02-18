@@ -1,6 +1,7 @@
 ---
 is_indexing_overview : true
 title: Indexing
+sitemap_include: false
 ---
 
 The index web application is POSTed data containing a group of related items, i.e. for example a purchase containing several items.  
