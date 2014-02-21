@@ -25,6 +25,9 @@ import org.greencheek.related.api.indexing.BasicRelatedItemIndexingMessageConver
 import org.greencheek.related.api.indexing.RelatedItemIndexingMessageConverter;
 import org.greencheek.related.api.indexing.RelatedItemIndexingMessageFactory;
 import org.greencheek.related.api.indexing.RelatedItemReferenceMessageFactory;
+import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpSniffAvailableNodes;
 import org.greencheek.related.indexing.IndexingRequestConverterFactory;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
 import org.greencheek.related.indexing.RelatedItemStorageRepositoryFactory;
@@ -109,12 +112,16 @@ public class BootstrapApplicationCtx implements ApplicationCtx {
          return new YamlSystemPropertiesConfiguration();
     }
 
+    public HttpElasticSearchClientFactory createHttpElasticSearchClientFactory(Configuration config) {
+        return new AHCHttpElasticSearchClientFactory(config);
+    }
+
     /**
      * Returns the factory that is responsible for creating the backend storage repository objects, that
      * basically store the {@link org.greencheek.related.api.indexing.RelatedItemIndexingMessage}
      */
     public RelatedItemStorageRepositoryFactory getStorageRepositoryFactory(Configuration applicationConfiguration) {
-        return new ElasticSearchRelatedItemStorageRepositoryFactory(applicationConfiguration);
+        return new ElasticSearchRelatedItemStorageRepositoryFactory(applicationConfiguration,createHttpElasticSearchClientFactory(applicationConfiguration));
     }
 
    /**

@@ -24,6 +24,7 @@ package org.greencheek.related.indexing.elasticsearch;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.related.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
 import org.greencheek.related.indexing.RelatedItemStorageRepository;
 import org.greencheek.related.indexing.RelatedItemStorageRepositoryFactory;
 import org.greencheek.related.util.config.Configuration;
@@ -36,26 +37,35 @@ import org.greencheek.related.util.config.Configuration;
 public class ElasticSearchRelatedItemStorageRepositoryFactory implements RelatedItemStorageRepositoryFactory {
 
     private final Configuration configuration;
+    private final  HttpElasticSearchClientFactory httpFactory;
 
-    public ElasticSearchRelatedItemStorageRepositoryFactory(Configuration configuration) {
+    public ElasticSearchRelatedItemStorageRepositoryFactory(Configuration configuration, HttpElasticSearchClientFactory httpFactory) {
         this.configuration = configuration;
+        this.httpFactory = httpFactory;
     }
 
     @Override
     public RelatedItemStorageRepository getRepository(Configuration configuration) {
-        ElasticSearchClientFactory factory;
+        RelatedItemStorageRepository storageRepository;
+        ElasticSearchClientFactory factory = null;
         switch(configuration.getElasticSearchClientType()) {
+            case HTTP:
+                storageRepository = new ElasticSearchRelatedItemHttpIndexingRepository(configuration,httpFactory);
+                break;
             case NODE:
                 factory = new NodeBasedElasticSearchClientFactory(configuration);
+                storageRepository = new ElasticSearchRelatedItemIndexingRepository(configuration,factory);
                 break;
             case TRANSPORT:
                 factory = new TransportBasedElasticSearchClientFactory(configuration);
-                break;
             default:
-                factory = new TransportBasedElasticSearchClientFactory(configuration);
+                if(factory == null) {
+                    factory = new TransportBasedElasticSearchClientFactory(configuration);
+                }
+                storageRepository = new ElasticSearchRelatedItemIndexingRepository(configuration,factory);
                 break;
         }
 
-        return new ElasticSearchRelatedItemIndexingRepository(configuration,factory);
+        return storageRepository;
     }
 }

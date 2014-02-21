@@ -84,8 +84,8 @@ public class MinuteBasedStorageLocationMapperTest {
         String name2 = minBasedMapper.getLocationName(product2);
 
 
-        assertEquals(config.getStorageIndexNamePrefix() + "-" + todayDate.format(new Date()), name);
-        assertEquals(config.getStorageIndexNamePrefix() + "-" + todayDate.format(new Date()),name2);
+        assertEquals(config.getStorageIndexNamePrefix() + "-" + todayDate.format(now), name);
+        assertEquals(config.getStorageIndexNamePrefix() + "-" + todayDate.format(now),name2);
 
         RelatedItem product3 = new RelatedItem("1".toCharArray(),"1920-01-02T23:59:59+00:00",null,new RelatedItemAdditionalProperties());
 

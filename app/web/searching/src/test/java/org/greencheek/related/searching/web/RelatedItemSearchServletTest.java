@@ -37,6 +37,7 @@ import org.greencheek.related.api.searching.RelatedItemSearch;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.searching.RelatedItemSearchExecutor;
 import org.greencheek.related.searching.RelatedItemSearchExecutorFactory;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
@@ -44,10 +45,10 @@ import org.greencheek.related.searching.RelatedItemSearchResultsToResponseGatewa
 import org.greencheek.related.searching.executor.SearchExecutorFactory;
 import org.greencheek.related.searching.repository.ElasticSearchFrequentlyRelatedItemSearchProcessor;
 import org.greencheek.related.searching.repository.ElasticSearchRelatedItemSearchRepository;
+import org.greencheek.related.searching.repository.FrequentRelatedSearchRequestBuilder;
 import org.greencheek.related.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContextLookup;
-import org.greencheek.related.searching.util.elasticsearch.ElasticSearchServer;
 import org.greencheek.related.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
@@ -105,7 +106,7 @@ public class RelatedItemSearchServletTest {
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
         // Create the repo
-        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration));
+        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration)));
 
         try {
             server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-14",RELATED_CONTENT_BLADES1_PURCHASEa);

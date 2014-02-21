@@ -49,7 +49,7 @@
         <git.releases.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/releases</git.releases.repo.url>
         <git.sites.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/sites</git.sites.repo.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elastic.version>0.90.9</elastic.version>
+        <elastic.version>0.90.11</elastic.version>
         <slf4j.version>1.7.5</slf4j.version>
         <log4j2.version>2.0-beta9</log4j2.version>
 
@@ -109,9 +109,6 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
-
-
-
 
         <!-- a la testing -->
         <dependency>

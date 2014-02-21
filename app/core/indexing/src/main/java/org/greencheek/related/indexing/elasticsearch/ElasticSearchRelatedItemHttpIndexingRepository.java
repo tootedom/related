@@ -31,22 +31,23 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.indexing.RelatedItem;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.*;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
 import org.greencheek.related.indexing.RelatedItemStorageRepository;
 import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.*;
-
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.List;
 
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemStorageRepository {
 
-    private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedItemIndexingRepository.class);
+public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedItemStorageRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(ElasticSearchRelatedItemHttpIndexingRepository.class);
 
 
     private final String indexType;
@@ -57,12 +58,13 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
     private final String idAttributeName;
     private final String dateAttributeName;
 
-    private final ElasticSearchClientFactory elasticSearchClientFactory;
-    private final Client elasticClient;
+    private final HttpElasticClient elasticClient;
+
+    private final String indexingEndpoint;
 
 
-    public ElasticSearchRelatedItemIndexingRepository(Configuration configuration,
-                                                      ElasticSearchClientFactory factory) {
+    public ElasticSearchRelatedItemHttpIndexingRepository(Configuration configuration,
+                                                          HttpElasticSearchClientFactory factory) {
 
         this.indexType = configuration.getStorageContentTypeName();
         this.idAttributeName = configuration.getKeyForIndexRequestIdAttr();
@@ -70,33 +72,46 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
         this.relatedWithAttributeName = configuration.getKeyForIndexRequestRelatedWithAttr();
         this.createOrIndex = configuration.getShouldReplaceOldContentIfExists() == true ? IndexRequest.OpType.INDEX : IndexRequest.OpType.CREATE;
         this.threadedIndexing = configuration.getShouldUseSeparateIndexStorageThread();
-        this.elasticSearchClientFactory = factory;
-        this.elasticClient = elasticSearchClientFactory.getClient();
+        this.elasticClient = factory.getClient();
+
+        StringBuilder b = new StringBuilder(60);
+        b.append("/_bulk?refresh=false&replication=async");
+        indexingEndpoint = b.toString();
     }
 
     @Override
     public void store(RelatedItemStorageLocationMapper indexLocationMapper, List<RelatedItem> relatedItems) {
-        BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
-        bulkRequest.setReplicationType(ReplicationType.ASYNC).setRefresh(false);
-
-
+        StringBuilder jsonRequest = new StringBuilder(256*relatedItems.size());
 
         int requestAdded = 0;
         for(RelatedItem product : relatedItems) {
-            requestAdded += addRelatedItem(indexLocationMapper, bulkRequest, product);
+            requestAdded += addRelatedItem(indexLocationMapper, jsonRequest, product);
         }
-        if(requestAdded>0) {
-            log.info("Sending Relating Product Index Requests to Elastic: {}",requestAdded);
-            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
 
-            if(bulkResponse.hasFailures()) {
-                log.warn(bulkResponse.buildFailureMessage());
+        if(requestAdded>0) {
+            log.info("Sending {} Relating Product Index Requests to Elastic:",requestAdded);
+//            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+//
+//            if(bulkResponse.hasFailures()) {
+//                log.warn(bulkResponse.buildFailureMessage());
+//            }
+            String request = jsonRequest.toString();
+            log.debug("Sending http request {}",request);
+
+            HttpResult res = elasticClient.executeSearch(HttpMethod.POST,indexingEndpoint,request);
+            if(res.getStatus()!= HttpSearchExecutionStatus.OK) {
+                String responseString = res.getResult();
+                if(responseString!=null) {
+                    log.warn("Bulk indexing request failed: {} with response {}",request,responseString);
+                } else {
+                    log.warn("Bulk indexing request failed: {}",request);
+                }
             }
         }
     }
 
     private int addRelatedItem(RelatedItemStorageLocationMapper indexLocationMapper,
-                               BulkRequestBuilder bulkRequest,
+                               StringBuilder bulkRequest,
                                RelatedItem product) {
 
         try {
@@ -120,15 +135,20 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
 
             builder.endObject();
 
+            if(createOrIndex== IndexRequest.OpType.INDEX) {
+                bulkRequest.append("{\"index\":{");
+            } else {
+                bulkRequest.append("{\"create\":{");
+            }
+            bulkRequest.append("\"_index\":\"").append(indexLocationMapper.getLocationName(product));
+            bulkRequest.append("\",\"_type\":\"").append(indexType);
+            bulkRequest.append("\"}}\n");
+            bulkRequest.append(builder.string()).append("\n");
 
-            IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexLocationMapper.getLocationName(product), indexType);
-            indexRequestBuilder.setOpType(createOrIndex);
-            indexRequestBuilder.setOperationThreaded(threadedIndexing);
             if(log.isDebugEnabled()) {
                 log.debug("added indexing request to batch request: {}", builder.string());
             }
 
-            bulkRequest.add(indexRequestBuilder.setSource(builder));
             return 1;
         } catch(IOException e) {
             return 0;
@@ -141,7 +161,7 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
     public void shutdown() {
         log.debug("Shutting down ElasticSearchRelatedItemIndexingRepository");
         try {
-            elasticSearchClientFactory.shutdown();
+            elasticClient.shutdown();
         } catch(Exception e) {
 
         }

@@ -16,6 +16,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.8.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>1.42</version>
+
+            <!-- Include this if you have dependency conflicts for Guava, Jetty, Jackson or Apache HTTP Client -->
+            <!--<classifier>standalone</classifier>-->
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -94,8 +94,30 @@ public class ConfigurationConstants {
     public static final String PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS ="related-item.indexing.discard.storage.requests.with.too.many.relations";
     public static final String PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS = "related-item.elastic.search.transport.hosts";
     public static final String PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT = "related-item.elastic.search.default.port";
+
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS = "related-item.elastic.search.http.hosts";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_DEFAULT_PORT = "related-item.elastic.search.http.default.port";
+
     public static final String PROPNAME_USE_SHARED_SEARCH_REPOSITORY = "related-item.searching.use.shared.search.repository";
     public static final String PROPNAME_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = "related-item.searching.response.debug.output.enabled";
+
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS = "related-item.elastic.search.http.request.timeout.ms";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS = "related-item.elastic.search.http.connect.timeout.ms";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES = "related-item.elastic.search.http.no.of.retries";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS = "related-item.elastic.search.http.follow.redirects";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED = "related-item.elastic.search.http.connection.pool.enabled";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED = "related-item.elastic.search.http.compression.enabled";
+
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS = "related-item.elastic.search.http.nodesniffing.request.timeout.ms";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS = "related-item.elastic.search.http.nodesniffing.connect.timeout.ms";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES = "related-item.elastic.search.http.nodesniffing.no.of.retries";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT = "related-item.elastic.search.http.multisearch.endpoint";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT = "related-item.elastic.search.http.nodesniffing.endpoint";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = "related-item.elastic.search.http.nodesniffing.retry.interval";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = "related-item.elastic.search.http.nodesniffing.retry.interval.unit";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = "related-item.elastic.search.http.nodesniffing.enabled";
+
+
 
     public static final boolean DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA = false;
     public static final int DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES = 10;
@@ -157,8 +179,29 @@ public class ConfigurationConstants {
     public static final boolean DEFAULT_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS = false;
     public static final String DEFAULT_ELASTIC_SEARCH_TRANSPORT_HOSTS = "127.0.0.1:9300";
     public static final int DEFAULT_DEFAULT_ELASTIC_SEARCH_PORT = 9300;
+
+    public static final String DEFAULT_ELASTIC_SEARCH_HTTP_HOSTS = "127.0.0.1:9200";
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_DEFAULT_PORT = 9201;
+
     public static final boolean DEFAULT_USE_SHARED_SEARCH_REPOSITORY = false;
     public static final boolean DEFAULT_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = false;
+
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS = 5000;
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS = 2000;
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES = 0;
+    public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS = false;
+    public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED = true;
+    public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED = true;
+
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS = 15000;
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS = 5000;
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES = 0;
+
+    public static final String DEFAULT_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT = "/_msearch";
+    public static final String DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT = "/_nodes/http";
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = 15;
+    public static final String DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = "mins";
+    public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = true;
 
 //    public static final String[] PROPERTY_NAMES = new String[]{PROPNAME_SAFE_TO_OUTPUT_REQUEST_DATA, PROPNAME_MAX_NO_OF_RELATED_ITEM_PROPERTES,
 //            PROPNAME_MAX_NO_OF_RELATED_ITEMS_PER_INDEX_REQUEST, PROPNAME_RELATED_ITEM_ID_LENGTH, PROPNAME_RELATED_ITEM_INVALID_ID_STRING,
@@ -247,9 +290,27 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS, DEFAULT_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS);
         configuration.put(PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,DEFAULT_ELASTIC_SEARCH_TRANSPORT_HOSTS);
         configuration.put(PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,DEFAULT_DEFAULT_ELASTIC_SEARCH_PORT);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS,DEFAULT_ELASTIC_SEARCH_HTTP_HOSTS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_DEFAULT_PORT,DEFAULT_ELASTIC_SEARCH_HTTP_DEFAULT_PORT);
         configuration.put(PROPNAME_USE_SHARED_SEARCH_REPOSITORY,DEFAULT_USE_SHARED_SEARCH_REPOSITORY);
         configuration.put(PROPNAME_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED, DEFAULT_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
 
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES,DEFAULT_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS,DEFAULT_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED);
+
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT);
+
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
 
         DEFAULT_SETTINGS = configuration;
     }

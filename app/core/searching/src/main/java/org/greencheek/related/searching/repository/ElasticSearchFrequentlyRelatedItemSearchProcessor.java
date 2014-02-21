@@ -55,14 +55,12 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
     private final String indexName;
     private final String facetResultName;
     private final long searchTimeout;
-    private final TimeValue searchTimeoutValue;
-    private final String executionHint;
-    private final boolean hasExecutionHint;
-    private final String relatedWithAttribute;
-    private final String itemIdentifierAttribute;
+    private final FrequentRelatedSearchRequestBuilder builder;
 //    private final Map<String,SearchFieldType> searchFieldType;
 
-    public ElasticSearchFrequentlyRelatedItemSearchProcessor(Configuration configuration) {
+    public ElasticSearchFrequentlyRelatedItemSearchProcessor(Configuration configuration,
+                                                             FrequentRelatedSearchRequestBuilder builder) {
+        this.builder = builder;
         this.configuration = configuration;
         String indexNameAlias = configuration.getStorageIndexNameAlias();
         if(indexNameAlias==null || indexNameAlias.trim().length()==0) {
@@ -72,25 +70,6 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         }
         this.facetResultName = configuration.getStorageFrequentlyRelatedItemsFacetResultsFacetName();
         this.searchTimeout = configuration.getFrequentlyRelatedItemsSearchTimeoutInMillis();
-        this.searchTimeoutValue = TimeValue.timeValueMillis(searchTimeout);
-
-        String executionHint = configuration.getStorageFacetExecutionHint();
-
-        if(executionHint == null) {
-            hasExecutionHint = false;
-        } else {
-            executionHint = executionHint.trim();
-            if(executionHint.length()==0) {
-                hasExecutionHint = false;
-            } else {
-                hasExecutionHint=true;
-            }
-        }
-
-        this.executionHint = executionHint;
-
-        this.relatedWithAttribute = configuration.getKeyForIndexRequestRelatedWithAttr();
-        this.itemIdentifierAttribute = configuration.getKeyForIndexRequestIdAttr();
     }
 
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedItemSearch[] searches) {
@@ -158,84 +137,44 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
 
 
 
-    /**
-     * Search like :
-     *
-     * "query" : {
-            "bool" : {
-                "must" : [
-                    {"field" : {"id" : "338906"}},
-                    {"field" : {"channel" : "uk"}},
-                    {"field" : {"site" : "amazon"}}
-                ]
+    /*
+     Creates a query like:
+
+        {
+          "size" : 0,
+          "timeout" : 5000,
+          "query" : {
+            "constant_score" : {
+              "filter" : {
+                "bool" : {
+                  "must" : [ {
+                    "term" : {
+                      "related-with" : "apparentice you're hired"
+                    }
+                  }, {
+                    "term" : {
+                      "channel" : "bbc"
+                    }
+                  } ]
+                }
+              }
             }
-        },
-        "facets" : {
+          },
+          "facets" : {
             "frequently-related-with" : {
-                "terms" : {"field" : "related-with", "size" : 5 }
+              "terms" : {
+                "field" : "id",
+                "size" : 5,
+                "execution_hint" : "map"
+              }
             }
-        },
-        "size":0
-     }'
-     * @param search
-     * @return
+          }
+        }
      */
-//    private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedItemSearch search, Client searchClient) {
-//        SearchRequestBuilder sr = searchClient.prepareSearch();
-//        String id = search.getRelatedItemId();
-//        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
-//        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
-//
-//        RelatedItemAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
-//        int numberOfProps = searchProps.getNumberOfProperties();
-//
-//        for(int i = 0;i<numberOfProps;i++) {
-//            bool.must(QueryBuilders.fieldQuery(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
-//        }
-//
-//        sr.setIndices(indexName);
-//        sr.setSize(0);
-//        sr.setQuery(bool);
-//        sr.setTimeout(TimeValue.timeValueMillis(searchTimeout));
-//        sr.addFacet(FacetBuilders.termsFacet(facetResultName).field(configuration.getKeyForIndexRequestRelatedWithAttr()).size(search.getMaxResults()));
-//        log.debug("Executing Query {}",sr);
-//        return sr;
-//
-//    }
-
     private SearchRequestBuilder createFrequentlyRelatedContentSearch(RelatedItemSearch search, Client searchClient) {
-        String id = search.getRelatedItemId();
-
-//        BoolQueryBuilder b = QueryBuilders.boolQuery();
-
-        BoolFilterBuilder b = FilterBuilders.boolFilter();
-        b.must(FilterBuilders.termFilter(relatedWithAttribute, id));
-
         SearchRequestBuilder sr = searchClient.prepareSearch();
-
-//        StringBuilder b = new StringBuilder(id.length()+2).append('"').append(id).append('"');
-//        BoolQueryBuilder bool = QueryBuilders.boolQuery().must(QueryBuilders.fieldQuery(configuration.getKeyForIndexRequestIdAttr(),b.toString()));
-
-        RelatedItemAdditionalProperties searchProps = search.getAdditionalSearchCriteria();
-        int numberOfProps = searchProps.getNumberOfProperties();
-
-        for(int i = 0;i<numberOfProps;i++) {
-            b.must(FilterBuilders.termFilter(searchProps.getPropertyName(i), searchProps.getPropertyValue(i)));
-        }
-        ConstantScoreQueryBuilder cs = QueryBuilders.constantScoreQuery(b);
-
-
-        TermsFacetBuilder facetBuilder = FacetBuilders.termsFacet(facetResultName).field(itemIdentifierAttribute).size(search.getMaxResults());
-        if(hasExecutionHint) {
-            facetBuilder.executionHint(executionHint);
-        }
-
+        sr.internalBuilder(builder.createFrequentlyRelatedContentSearch(search));
         sr.setIndices(indexName);
-        sr.setSize(0);
-        sr.setQuery(cs);
-        sr.setTimeout(searchTimeoutValue);
-        sr.addFacet(facetBuilder);
-        log.debug("Executing Query {}",sr);
         return sr;
 
     }

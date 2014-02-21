@@ -19,7 +19,7 @@
  *
  */
 
-package org.greencheek.related.searching.repository;
+package org.greencheek.related.searching.repository.http;
 
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
@@ -29,10 +29,15 @@ import org.greencheek.related.api.searching.RelatedItemSearchType;
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpSniffAvailableNodes;
 import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
+import org.greencheek.related.searching.RelatedItemSearchRepositoryFactory;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
+import org.greencheek.related.searching.repository.*;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
 import org.greencheek.related.util.config.SystemPropertiesConfiguration;
@@ -47,13 +52,14 @@ import static org.mockito.Mockito.*;
 /**
  * Test that we can find related products in elastic search
  */
-public class ElasticSearchRelatedItemSearchRepositoryTest {
+public class ElasticSearchRelatedItemHttpSearchRepositoryTest {
 
     ElasticSearchServer server;
     Configuration configuration;
-    ElasticSearchClientFactory factory;
     RelatedItemSearchRepository<FrequentlyRelatedSearchResult[]> repository;
-
+    HttpElasticSearchClientFactory factory;
+    RelatedItemSearchRepositoryFactory searchRepositoryFactory;
+    FrequentRelatedSearchRequestBuilder builder;
 
     @After
     public void tearDown() {
@@ -61,11 +67,15 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         System.clearProperty(ConfigurationConstants.PROPNAME_STORAGE_CLUSTER_NAME);
         System.clearProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
         System.clearProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
+
+        System.clearProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS);
+        System.clearProperty(ConfigurationConstants.PROPNAME_ES_CLIENT_TYPE);
+        System.clearProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS);
+
         if(server!=null) {
             server.shutdown();
         }
 
-        factory.shutdown();
         repository.shutdown();
 
     }
@@ -79,7 +89,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         configuration = new SystemPropertiesConfiguration();
 
         // Start the Elastic Search Server
-        server = new ElasticSearchServer(configuration.getStorageClusterName(),true);
+        server = new ElasticSearchServer(configuration.getStorageClusterName(),false,true);
 
         if(!server.isSetup()) throw new RuntimeException("ElasticSearch Not set");
 
@@ -87,11 +97,19 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
         // Create the client pointing to the above server
         System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,"localhost:" + server.getPort());
-        configuration = new SystemPropertiesConfiguration();
-        factory = new TransportBasedElasticSearchClientFactory(configuration);
 
-        // Create the repo
-        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration)));
+        System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS,"http://localhost:"+server.getHttpPort());
+        System.setProperty(ConfigurationConstants.PROPNAME_ES_CLIENT_TYPE,"http");
+
+        configuration = new SystemPropertiesConfiguration();
+        builder = new FrequentRelatedSearchRequestBuilder(configuration);
+        factory = new AHCHttpElasticSearchClientFactory(configuration);
+
+        searchRepositoryFactory = new NodeTransportOrHttpBasedElasticSearchClientFactoryCreator(NodeOrTransportBasedElasticSearchClientFactoryCreator.INSTANCE,
+                factory,new JsonSmartFrequentlyRelatedItemHttpResponseParser(configuration));
+
+
+
     }
 
     public void shutDown() {
@@ -120,6 +138,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
     @Test
     public void testFailedResultsAreReturnedWhenNoIndexExists() {
+        repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
         assertEquals(2,results.length);
         System.out.println("testFailedResultsAreReturnedWhenNoIndexExists, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
@@ -132,6 +151,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
     @Test
     public void testFailedResultsAreReturnedWhenIndexIsEmpty() {
         server.createIndex(configuration.getStorageIndexNamePrefix());
+        repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
 
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
         assertEquals(2,results.length);
@@ -143,14 +163,30 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
     @Test
     public void testTimeoutResultsAreReturned() {
+        // set the time tp 1 millis
+        System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS,"1");
+        if(repository!=null) {
+            repository.shutdown();
+        }
+
+        configuration = new SystemPropertiesConfiguration();
+
+        factory = new AHCHttpElasticSearchClientFactory(configuration);
+
+        searchRepositoryFactory = new NodeTransportOrHttpBasedElasticSearchClientFactoryCreator(NodeOrTransportBasedElasticSearchClientFactoryCreator.INSTANCE,
+                factory,new JsonSmartFrequentlyRelatedItemHttpResponseParser(configuration));
+
+
         // Create the index
         server.createIndex(configuration.getStorageIndexNamePrefix());
 
-        // set the time tp 1 millis
-        System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "0");
+        for(int i=0;i<1000;i++) {
+            server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-24",RELATED_CONTENT_BLADES1_PURCHASEb );
+        }
+
         try {
-            Configuration config = new SystemPropertiesConfiguration();
-            ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config,new FrequentRelatedSearchRequestBuilder(config)));
+            repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
 
             SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
             assertEquals(2,results.length);
@@ -160,6 +196,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
             assertSame(SearchResultsEvent.EMPTY_TIMED_OUT_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
         }
         finally {
+            repository.shutdown();
             System.clearProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS);
         }
     }
@@ -169,7 +206,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor processor = mock(ElasticSearchFrequentlyRelatedItemSearchProcessor.class);
         doThrow(new RuntimeException()).when(processor).executeSearch(any(Client.class), any(RelatedItemSearch[].class));
-        ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,processor);
+        repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
 
         RelatedItemSearch[] searches = createSearch();
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, searches);
@@ -274,6 +311,8 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         } catch(Exception e)  {
             fail("Cannot create test date for search test");
         }
+
+        repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
 
         // search 1 is for anchor man
         RelatedItemSearch[] searches = createSearch();

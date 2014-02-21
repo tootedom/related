@@ -19,15 +19,15 @@
  *
  */
 
-package org.greencheek.related.searching.util.elasticsearch;
+package org.greencheek.related.elastic.util;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
 import com.github.tlrx.elasticsearch.test.provider.LocalClientProvider;
-import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
@@ -39,6 +39,9 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.io.FileSystemUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +62,7 @@ public class ElasticSearchServer {
 
     private static final String TYPE = "related";
     private final int port;
-    private final EsSetup esSetup;
+    private final Node esSetup;
     private final Client esClient;
     private final boolean transportClient;
     private final boolean setup;
@@ -67,7 +70,12 @@ public class ElasticSearchServer {
 
 
     public ElasticSearchServer(String clustername, boolean transportClient) {
-        String tmpDirectory =  System.getProperty("java.io.tmpdir");
+        this(clustername, transportClient,false);
+    }
+
+    public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient) {
+
+            String tmpDirectory =  System.getProperty("java.io.tmpdir");
         String fileSep = System.getProperty("file.separator");
 
         if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
@@ -75,14 +83,14 @@ public class ElasticSearchServer {
 
         tmpDir = tmpDirectory;
         this.transportClient = transportClient;
-        EsSetup esSetup = null;
+        Node esSetup = null;
         Client theClient = null;
         boolean setupOk = true;
 
 
         int port = -1;
 
-        if(transportClient) {
+        if(transportClient || httpClient) {
             try {
                 port = findFreePort();
             } catch (Exception e) {
@@ -101,9 +109,6 @@ public class ElasticSearchServer {
                     .put("index.store.type", "memory")
                     .put("index.store.fs.memory.enabled", "true")
                     .put("gateway.type", "local")
-                    .put("index.number_of_shards", "1")
-                    .put("index.number_of_replicas", "0")
-                    .put("cluster.routing.schedule", "50ms")
                     .put("node.data", true)
                     .put("node.client",false)
                     .put("node.master", true)
@@ -128,14 +133,32 @@ public class ElasticSearchServer {
                 b.put("node.local", true);
             }
 
-            esSetup = new CustomEsSetup(b.build());
+            if(httpClient) {
+                b.put("http.enabled",true)
+                        .put("http.port",port+11);
+            }
+
+//            esSetup = new CustomEsSetup(b.build());
 
 
             try {
                 if(setupOk) {
-                    esSetup.execute( deleteAll() );
+                    esSetup = NodeBuilder.nodeBuilder().settings(b.build()).node();
+
+                    // Get a client
                     theClient = esSetup.client();
-                    setIndexTemplate(esSetup.client());
+
+                    // Wait for Yellow status
+                    theClient.admin().cluster()
+                            .prepareHealth()
+                            .setWaitForYellowStatus()
+                            .setTimeout(TimeValue.timeValueMinutes(1))
+                            .execute()
+                            .actionGet();
+//                    esSetup.execute( deleteAll() );
+                    theClient = esSetup.client();
+
+                    setIndexTemplate(theClient);
                     setupOk = true;
                 }
             } catch (Exception e) {
@@ -145,14 +168,19 @@ public class ElasticSearchServer {
             this.esSetup = esSetup;
             this.setup = setupOk;
             this.esClient = theClient;
+            deleteAllIndexes();
         }
 
+    }
+
+    public void deleteAllIndexes() {
+        esClient.admin().indices().prepareDelete().execute().actionGet();
     }
 
     public void shutdown() {
         if(esSetup!=null) {
            try {
-               esSetup.terminate();
+               esSetup.close();
            } catch(Exception e) {
 
            }
@@ -167,6 +195,7 @@ public class ElasticSearchServer {
     public int getPort() {
         return port;
     }
+    public int getHttpPort() { return port+11; }
 
     public boolean isSetup() {
         return setup;
@@ -223,6 +252,28 @@ public class ElasticSearchServer {
         }
     }
 
+    public boolean flush(String indexName) {
+        try {
+            esClient.admin().indices().refresh(new RefreshRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
+            esClient.admin().indices().flush(new FlushRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean indexExists(String indexname) {
+        try {
+            IndicesExistsResponse response = esClient.admin().indices().prepareExists(indexname).execute().actionGet();
+            return response.isExists();
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
 
     public boolean indexDocument(String indexName,String doc) {
         try {
@@ -263,6 +314,10 @@ public class ElasticSearchServer {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    public Client getEsClient() {
+        return esClient;
     }
 
     private void setIndexTemplate(Client esClient) {
