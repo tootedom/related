@@ -21,10 +21,9 @@
 
 package org.greencheek.related.elastic.util;
 
-import com.github.tlrx.elasticsearch.test.EsSetup;
-import com.github.tlrx.elasticsearch.test.provider.LocalClientProvider;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
@@ -49,7 +48,6 @@ import java.net.ServerSocket;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
 
 /**
  * Created with IntelliJ IDEA.
@@ -138,9 +136,6 @@ public class ElasticSearchServer {
                         .put("http.port",port+11);
             }
 
-//            esSetup = new CustomEsSetup(b.build());
-
-
             try {
                 if(setupOk) {
                     esSetup = NodeBuilder.nodeBuilder().settings(b.build()).node();
@@ -155,7 +150,6 @@ public class ElasticSearchServer {
                             .setTimeout(TimeValue.timeValueMinutes(1))
                             .execute()
                             .actionGet();
-//                    esSetup.execute( deleteAll() );
                     theClient = esSetup.client();
 
                     setIndexTemplate(theClient);
@@ -201,24 +195,6 @@ public class ElasticSearchServer {
         return setup;
     }
 
-    private class CustomEsSetup extends EsSetup {
-
-        CustomEsSetup(Settings settings) {
-            super(new CustomLocalClientProvider(settings));
-        }
-    }
-
-    private class CustomLocalClientProvider extends LocalClientProvider {
-
-        private final Settings settings;
-        public CustomLocalClientProvider(Settings settings) {
-            this.settings = settings;
-        }
-        @Override
-        protected Settings buildNodeSettings() {
-            return settings;
-        }
-    }
 
     public static int findFreePort()
             throws IOException {
@@ -256,6 +232,10 @@ public class ElasticSearchServer {
         try {
             esClient.admin().indices().refresh(new RefreshRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
             esClient.admin().indices().flush(new FlushRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
+
+            ClusterHealthRequestBuilder healthRequest = esClient.admin().cluster().prepareHealth();
+            healthRequest.setIndices(indexName); // only request health of this index...
+            healthRequest.setWaitForYellowStatus();
             return true;
         }
         catch (Exception e) {
@@ -320,9 +300,23 @@ public class ElasticSearchServer {
         return esClient;
     }
 
+    public boolean setIndexTemplate(String indexName, String template) {
+       return setIndexTemplate(indexName,template,esClient);
+    }
+
+    public boolean setIndexTemplate(String indexName, String template, Client esClient) {
+        try {
+            esClient.admin().indices().putTemplate(new PutIndexTemplateRequest(indexName).source(template));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private void setIndexTemplate(Client esClient) {
 
-        esClient.admin().indices().putTemplate(new PutIndexTemplateRequest("relateditems").source("" +
+        this.setIndexTemplate("relateditems", "" +
                 "{\n" +
                 "    \"template\" : \"relateditems*\",\n" +
                 "    \"settings\" : {\n" +
@@ -348,43 +342,47 @@ public class ElasticSearchServer {
                 "           }   \n" +
                 "        }\n" +
                 "   }\n" +
-                "}")).actionGet();
-
+                "}",esClient);
     }
 
     public void setIndexTemplate(String indexName) {
-        try {
-            esClient.admin().indices().putTemplate(new PutIndexTemplateRequest(indexName).source("" +
-                    "{\n" +
-                    "    \"template\" : \""+indexName+"*\",\n" +
-                    "    \"settings\" : {\n" +
-                    "        \"number_of_shards\" : 1,\n" +
-                    "        \"number_of_replicas\" : 0,\n" +
-                    "        \"index.cache.field.type\" : \"soft\",\n" +
-                    "        \"index.refresh_interval\" : \"5s\",\n" +
-                    "        \"index.store.compress.stored\" : true,\n" +
-                    "        \"index.query.default_field\" : \"id\",\n" +
-                    "        \"index.routing.allocation.total_shards_per_node\" : 3\n" +
-                    "    },\n" +
-                    "    \"mappings\" : {\n" +
-                    "        \"related\" : {\n" +
-                    "           \"_all\" : {\"enabled\" : false},\n" +
-                    "           \"properties\" : {              \n" +
-                    "              \"id\": { \"type\": \"string\", \"index\": \"not_analyzed\"},\n" +
-                    "              \"related-with\": { \"type\": \"string\", \"index\": \"not_analyzed\" },              \n" +
-                    "              \"date\": { \"type\": \"date\", \"index\": \"not_analyzed\" },\n" +
-                    "              \"channel\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"site\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"title\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"type\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" } \n" +
-                    "           } \n" +
-                    "        }\n" +
-                    "   }\n" +
-                    "}")).actionGet();
-        } catch (Exception e) {
-            e.printStackTrace();;
-        }
 
+        this.setIndexTemplate(indexName,"" +
+                "{\n" +
+                "    \"template\" : \""+indexName+"*\",\n" +
+                "    \"settings\" : {\n" +
+                "        \"number_of_shards\" : 1,\n" +
+                "        \"number_of_replicas\" : 0,\n" +
+                "        \"index.cache.field.type\" : \"soft\",\n" +
+                "        \"index.refresh_interval\" : \"5s\",\n" +
+                "        \"index.store.compress.stored\" : true,\n" +
+                "        \"index.query.default_field\" : \"id\",\n" +
+                "        \"index.routing.allocation.total_shards_per_node\" : 3\n" +
+                "    },\n" +
+                "    \"mappings\" : {\n" +
+                "        \"related\" : {\n" +
+                "           \"_all\" : {\"enabled\" : false},\n" +
+                "           \"properties\" : {              \n" +
+                "              \"id\": { \"type\": \"string\", \"index\": \"not_analyzed\"},\n" +
+                "              \"related-with\": { \"type\": \"string\", \"index\": \"not_analyzed\" },              \n" +
+                "              \"date\": { \"type\": \"date\", \"index\": \"not_analyzed\" },\n" +
+                "              \"channel\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"site\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"title\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"type\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" } \n" +
+                "           } \n" +
+                "        }\n" +
+                "   }\n" +
+                "}");
+    }
+
+    public boolean addAlias(String indexName,String indexAlias) {
+        try {
+            esClient.admin().indices().aliases(new IndicesAliasesRequest().addAlias(indexName,indexAlias)).actionGet();
+            return true;
+        } catch(Exception e) {
+            return false;
+        }
     }
 
 }

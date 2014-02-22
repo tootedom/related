@@ -21,10 +21,8 @@
 
 package org.greencheek.related.indexing.elasticsearch;
 
-import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -46,8 +44,6 @@ import org.junit.*;
 
 import java.util.*;
 
-import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
-import static com.github.tlrx.elasticsearch.test.EsSetup.index;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

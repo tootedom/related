@@ -21,13 +21,7 @@
 
 package org.greencheek.related.searching.repository;
 
-import com.github.tlrx.elasticsearch.test.EsSetup;
-import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
-import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
-import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateRequest;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.facet.Facet;
@@ -42,6 +36,7 @@ import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
@@ -51,7 +46,6 @@ import org.greencheek.related.util.config.ConfigurationConstants;
 import org.greencheek.related.util.config.SystemPropertiesConfiguration;
 import org.junit.*;
 
-import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -63,13 +57,11 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
     private static Configuration configuration;
     private static ElasticSearchClientFactory clientFactory;
-    private static EsSetup esSetup;
     private static SearchRequestLookupKeyFactory lookupKeyFactory;
 
     private static SearchResultsConverter converter;
 
-    private Client esClient;
-
+    public ElasticSearchServer esServer;
 
 
     @BeforeClass
@@ -91,30 +83,15 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
     }
 
     public void shutdownElastic() {
-        esSetup.terminate();
+        esServer.shutdown();
     }
 
     @Before
     public void setUp() {
 
-        esSetup = new EsSetup(ImmutableSettings.settingsBuilder()
-                .put("cluster.name", configuration.getStorageClusterName())
-                .put("index.store.type", "memory")
-                .put("index.store.fs.memory.enabled", "true")
-                .put("gateway.type", "none")
-                .put("index.number_of_shards", "1")
-                .put("index.number_of_replicas", "0")
-                .put("cluster.routing.schedule", "50ms")
-                .put("node.local", true)
-                .put("node.data", true)
-                .put("discovery.zen.ping.multicast.enabled", "false")
-                .put("network.host","127.0.0.1")
-                .put("http.enabled",false)
-                .build());
+        esServer = new ElasticSearchServer(configuration.getStorageClusterName(),false,false);
 
         lookupKeyFactory = new SipHashSearchRequestLookupKeyFactory();
-        esSetup.execute( deleteAll() );
-        esClient = esSetup.client();
 
         Settings settings = ImmutableSettings.
                 settingsBuilder().
@@ -155,7 +132,8 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         setIndexTemplate();
         indexDoc();
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+
+        assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
 
@@ -215,7 +193,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         setIndexTemplate();
         indexDoc();
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+        assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
 
@@ -257,7 +235,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         setIndexTemplate();
         indexDoc();
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+        assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
 
@@ -284,7 +262,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         setIndexTemplate();
         indexDoc();
 
-        assertTrue(esSetup.exists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
+        assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
         ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
 
@@ -357,12 +335,12 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
 
     private void setAlias(Configuration configuration) {
-        esClient.admin().indices().aliases(new IndicesAliasesRequest().addAlias(configuration.getStorageIndexNamePrefix()+"-2013-01-01",configuration.getStorageIndexNameAlias())).actionGet();
+        esServer.addAlias(configuration.getStorageIndexNamePrefix() + "-2013-01-01", configuration.getStorageIndexNameAlias());
     }
 
     private void setIndexTemplate() {
 
-        esClient.admin().indices().putTemplate(new PutIndexTemplateRequest("relateditems").source("" +
+        esServer.setIndexTemplate("relateditems","" +
                 "{\n" +
                 "    \"template\" : \"relateditems*\",\n" +
                 "    \"settings\" : {\n" +
@@ -387,7 +365,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
                 "           }   \n" +
                 "        }\n" +
                 "   }\n" +
-                "}")).actionGet();
+                "}");
 
     }
 
@@ -462,35 +440,28 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         String contentNoRelation = "{ \"channel\":\"film4\", \""+ configuration.getKeyForIndexRequestIdAttr()+"\" : \"elf\", \"" + configuration.getKeyForIndexRequestRelatedWithAttr() +"\":" +
                 "[ ]}";
 
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content2);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content3);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content4);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content5);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content6);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content7);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content8);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content9);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content10);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content11);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content12);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content13);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content14);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content15);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content16);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content17);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content18);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-02-11",configuration.getStorageContentTypeName(),content19);
 
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content2)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content3)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content4)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content5)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content6)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content7)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content8)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content9)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content10)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content11)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content12)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content13)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content14)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content15)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content16)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content17)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content18)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-02-11").type(configuration.getStorageContentTypeName()).source(content19)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(content20)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(content21)).actionGet();
-        esClient.index(new IndexRequest().index(configuration.getStorageIndexNamePrefix()+"-2013-01-01").type(configuration.getStorageContentTypeName()).source(contentNoRelation)).actionGet();
-
-
-
-        esClient.admin().indices().refresh(new RefreshRequest(configuration.getStorageIndexNamePrefix() + "-2013-02-11")).actionGet();
-        esClient.admin().indices().refresh(new RefreshRequest(configuration.getStorageIndexNamePrefix() + "-2013-01-01")).actionGet();
-
-
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-01-01",configuration.getStorageContentTypeName(),content20);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-01-01",configuration.getStorageContentTypeName(),content21);
+        esServer.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-01-01",configuration.getStorageContentTypeName(),contentNoRelation);
     }
 }

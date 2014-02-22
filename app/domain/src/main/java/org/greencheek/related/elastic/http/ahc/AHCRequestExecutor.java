@@ -41,7 +41,7 @@ public  class AHCRequestExecutor {
 
         requestBuilder.setUrl(host + path);
         try {
-            Response res = client.executeRequest(requestBuilder.build()).get();
+            Response res = client.executeRequest(requestBuilder.build(),new AsyncCompletionHandlerBase()).get();
             return new HttpResult(HttpSearchExecutionStatus.OK,res.getResponseBody());
         } catch (Exception e) {
             Throwable cause = e.getCause();
