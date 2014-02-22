@@ -19,15 +19,14 @@
  *
  */
 
-package org.greencheek.related.searching.util.elasticsearch;
+package org.greencheek.related.elastic.util;
 
-import com.github.tlrx.elasticsearch.test.EsSetup;
-import com.github.tlrx.elasticsearch.test.provider.LocalClientProvider;
-import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.admin.indices.flush.FlushRequest;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
@@ -39,6 +38,9 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.io.FileSystemUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +48,6 @@ import java.net.ServerSocket;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,7 +60,7 @@ public class ElasticSearchServer {
 
     private static final String TYPE = "related";
     private final int port;
-    private final EsSetup esSetup;
+    private final Node esSetup;
     private final Client esClient;
     private final boolean transportClient;
     private final boolean setup;
@@ -67,7 +68,12 @@ public class ElasticSearchServer {
 
 
     public ElasticSearchServer(String clustername, boolean transportClient) {
-        String tmpDirectory =  System.getProperty("java.io.tmpdir");
+        this(clustername, transportClient,false);
+    }
+
+    public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient) {
+
+            String tmpDirectory =  System.getProperty("java.io.tmpdir");
         String fileSep = System.getProperty("file.separator");
 
         if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
@@ -75,14 +81,14 @@ public class ElasticSearchServer {
 
         tmpDir = tmpDirectory;
         this.transportClient = transportClient;
-        EsSetup esSetup = null;
+        Node esSetup = null;
         Client theClient = null;
         boolean setupOk = true;
 
 
         int port = -1;
 
-        if(transportClient) {
+        if(transportClient || httpClient) {
             try {
                 port = findFreePort();
             } catch (Exception e) {
@@ -101,9 +107,6 @@ public class ElasticSearchServer {
                     .put("index.store.type", "memory")
                     .put("index.store.fs.memory.enabled", "true")
                     .put("gateway.type", "local")
-                    .put("index.number_of_shards", "1")
-                    .put("index.number_of_replicas", "0")
-                    .put("cluster.routing.schedule", "50ms")
                     .put("node.data", true)
                     .put("node.client",false)
                     .put("node.master", true)
@@ -128,14 +131,28 @@ public class ElasticSearchServer {
                 b.put("node.local", true);
             }
 
-            esSetup = new CustomEsSetup(b.build());
-
+            if(httpClient) {
+                b.put("http.enabled",true)
+                        .put("http.port",port+11);
+            }
 
             try {
                 if(setupOk) {
-                    esSetup.execute( deleteAll() );
+                    esSetup = NodeBuilder.nodeBuilder().settings(b.build()).node();
+
+                    // Get a client
                     theClient = esSetup.client();
-                    setIndexTemplate(esSetup.client());
+
+                    // Wait for Yellow status
+                    theClient.admin().cluster()
+                            .prepareHealth()
+                            .setWaitForYellowStatus()
+                            .setTimeout(TimeValue.timeValueMinutes(1))
+                            .execute()
+                            .actionGet();
+                    theClient = esSetup.client();
+
+                    setIndexTemplate(theClient);
                     setupOk = true;
                 }
             } catch (Exception e) {
@@ -145,14 +162,19 @@ public class ElasticSearchServer {
             this.esSetup = esSetup;
             this.setup = setupOk;
             this.esClient = theClient;
+            deleteAllIndexes();
         }
 
+    }
+
+    public void deleteAllIndexes() {
+        esClient.admin().indices().prepareDelete().execute().actionGet();
     }
 
     public void shutdown() {
         if(esSetup!=null) {
            try {
-               esSetup.terminate();
+               esSetup.close();
            } catch(Exception e) {
 
            }
@@ -167,29 +189,12 @@ public class ElasticSearchServer {
     public int getPort() {
         return port;
     }
+    public int getHttpPort() { return port+11; }
 
     public boolean isSetup() {
         return setup;
     }
 
-    private class CustomEsSetup extends EsSetup {
-
-        CustomEsSetup(Settings settings) {
-            super(new CustomLocalClientProvider(settings));
-        }
-    }
-
-    private class CustomLocalClientProvider extends LocalClientProvider {
-
-        private final Settings settings;
-        public CustomLocalClientProvider(Settings settings) {
-            this.settings = settings;
-        }
-        @Override
-        protected Settings buildNodeSettings() {
-            return settings;
-        }
-    }
 
     public static int findFreePort()
             throws IOException {
@@ -219,6 +224,32 @@ public class ElasticSearchServer {
         }
         catch (Exception e) {
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean flush(String indexName) {
+        try {
+            esClient.admin().indices().refresh(new RefreshRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
+            esClient.admin().indices().flush(new FlushRequest(indexName).force(true)).actionGet(10000, TimeUnit.MILLISECONDS);
+
+            ClusterHealthRequestBuilder healthRequest = esClient.admin().cluster().prepareHealth();
+            healthRequest.setIndices(indexName); // only request health of this index...
+            healthRequest.setWaitForYellowStatus();
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean indexExists(String indexname) {
+        try {
+            IndicesExistsResponse response = esClient.admin().indices().prepareExists(indexname).execute().actionGet();
+            return response.isExists();
+        }
+        catch (Exception e) {
             return false;
         }
     }
@@ -265,9 +296,27 @@ public class ElasticSearchServer {
         }
     }
 
+    public Client getEsClient() {
+        return esClient;
+    }
+
+    public boolean setIndexTemplate(String indexName, String template) {
+       return setIndexTemplate(indexName,template,esClient);
+    }
+
+    public boolean setIndexTemplate(String indexName, String template, Client esClient) {
+        try {
+            esClient.admin().indices().putTemplate(new PutIndexTemplateRequest(indexName).source(template));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private void setIndexTemplate(Client esClient) {
 
-        esClient.admin().indices().putTemplate(new PutIndexTemplateRequest("relateditems").source("" +
+        this.setIndexTemplate("relateditems", "" +
                 "{\n" +
                 "    \"template\" : \"relateditems*\",\n" +
                 "    \"settings\" : {\n" +
@@ -293,43 +342,47 @@ public class ElasticSearchServer {
                 "           }   \n" +
                 "        }\n" +
                 "   }\n" +
-                "}")).actionGet();
-
+                "}",esClient);
     }
 
     public void setIndexTemplate(String indexName) {
-        try {
-            esClient.admin().indices().putTemplate(new PutIndexTemplateRequest(indexName).source("" +
-                    "{\n" +
-                    "    \"template\" : \""+indexName+"*\",\n" +
-                    "    \"settings\" : {\n" +
-                    "        \"number_of_shards\" : 1,\n" +
-                    "        \"number_of_replicas\" : 0,\n" +
-                    "        \"index.cache.field.type\" : \"soft\",\n" +
-                    "        \"index.refresh_interval\" : \"5s\",\n" +
-                    "        \"index.store.compress.stored\" : true,\n" +
-                    "        \"index.query.default_field\" : \"id\",\n" +
-                    "        \"index.routing.allocation.total_shards_per_node\" : 3\n" +
-                    "    },\n" +
-                    "    \"mappings\" : {\n" +
-                    "        \"related\" : {\n" +
-                    "           \"_all\" : {\"enabled\" : false},\n" +
-                    "           \"properties\" : {              \n" +
-                    "              \"id\": { \"type\": \"string\", \"index\": \"not_analyzed\"},\n" +
-                    "              \"related-with\": { \"type\": \"string\", \"index\": \"not_analyzed\" },              \n" +
-                    "              \"date\": { \"type\": \"date\", \"index\": \"not_analyzed\" },\n" +
-                    "              \"channel\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"site\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"title\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
-                    "              \"type\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" } \n" +
-                    "           } \n" +
-                    "        }\n" +
-                    "   }\n" +
-                    "}")).actionGet();
-        } catch (Exception e) {
-            e.printStackTrace();;
-        }
 
+        this.setIndexTemplate(indexName,"" +
+                "{\n" +
+                "    \"template\" : \""+indexName+"*\",\n" +
+                "    \"settings\" : {\n" +
+                "        \"number_of_shards\" : 1,\n" +
+                "        \"number_of_replicas\" : 0,\n" +
+                "        \"index.cache.field.type\" : \"soft\",\n" +
+                "        \"index.refresh_interval\" : \"5s\",\n" +
+                "        \"index.store.compress.stored\" : true,\n" +
+                "        \"index.query.default_field\" : \"id\",\n" +
+                "        \"index.routing.allocation.total_shards_per_node\" : 3\n" +
+                "    },\n" +
+                "    \"mappings\" : {\n" +
+                "        \"related\" : {\n" +
+                "           \"_all\" : {\"enabled\" : false},\n" +
+                "           \"properties\" : {              \n" +
+                "              \"id\": { \"type\": \"string\", \"index\": \"not_analyzed\"},\n" +
+                "              \"related-with\": { \"type\": \"string\", \"index\": \"not_analyzed\" },              \n" +
+                "              \"date\": { \"type\": \"date\", \"index\": \"not_analyzed\" },\n" +
+                "              \"channel\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"site\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"title\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" },\n" +
+                "              \"type\" : {\"type\" : \"string\" , \"index\" : \"not_analyzed\" } \n" +
+                "           } \n" +
+                "        }\n" +
+                "   }\n" +
+                "}");
+    }
+
+    public boolean addAlias(String indexName,String indexAlias) {
+        try {
+            esClient.admin().indices().aliases(new IndicesAliasesRequest().addAlias(indexName,indexAlias)).actionGet();
+            return true;
+        } catch(Exception e) {
+            return false;
+        }
     }
 
 }

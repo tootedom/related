@@ -35,6 +35,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- http endpoint for elastic -->
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>${async.version}</version>
+        </dependency>
+
         <!-- used for caching date strings -->
         <dependency>
             <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
@@ -124,12 +131,7 @@
             <version>2.2.4</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>async-http-client</artifactId>
-            <version>1.7.22</version>
-            <scope>test</scope>
-        </dependency>
+
 
     </dependencies>
 

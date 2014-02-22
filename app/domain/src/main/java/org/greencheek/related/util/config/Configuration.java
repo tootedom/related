@@ -23,6 +23,8 @@ package org.greencheek.related.util.config;
 
 import org.greencheek.related.api.searching.SearchResultsOutcome;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created with IntelliJ IDEA.
  * User: dominictootell
@@ -136,13 +138,18 @@ public interface Configuration {
 
     int getDefaultElasticSearchPort();
 
+    public String getElasticSearchHttpHosts();
+
+    public int getElasticSearchHttpPort();
+
     String getKeyForStorageResponseTime();
 
     String getKeyForSearchProcessingResponseTime();
 
     public enum ElasticeSearchClientType {
         NODE,
-        TRANSPORT;
+        TRANSPORT,
+        HTTP;
     }
 
     public boolean useSharedSearchRepository();
@@ -158,4 +165,21 @@ public interface Configuration {
      * when faceting is performed.
      */
     public String getStorageFacetExecutionHint();
+
+    public String getElasticSearchMultiSearchEndpoint();
+    public int getElasticSearchHttpRequestTimeoutMs();
+    public int getElasticSearchHttpConnectionTimeoutMs();
+    public int getElasticSearchHttpNoOfRetries();
+    public boolean getElasticSearchHttpFollowRedirects();
+    public boolean getElasticSearchHttpConnectionPoolingEnabled();
+    public boolean getElasticSearchHttpCompressionEnabled();
+
+    public int getElasticSearchNodeSniffingHttpRequestTimeoutMs();
+    public int getElasticSearchNodeSniffingHttpConnectionTimeoutMs();
+    public int getElasticSearchNodeSniffingHttpNoOfRetries();
+    public String getElasticSearchNodesSniffingHttpAdminEndpoint();
+    public int getElasticSearchNodesSniffingHttpRetryInterval();
+    public TimeUnit getElasticSearchNodesSniffingRetryIntervalUnit();
+    public boolean getElasticSearchNodesSniffingEnabled();
+
 }

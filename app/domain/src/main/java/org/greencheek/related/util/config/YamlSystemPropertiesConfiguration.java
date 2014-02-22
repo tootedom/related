@@ -41,6 +41,7 @@ import java.util.Map;
 public class YamlSystemPropertiesConfiguration extends SystemPropertiesConfiguration {
 
     public static final String PROPNAME_SETTINGS_YAML_LOCATION = "related-items.settings.file";
+    public static final String DEFAULT_REFERENCE_SETTINGS_YAML_LOCATION = "reference-related-items.yaml";
     public static final String DEFAULT_SETTINGS_YAML_LOCATION = "related-items.yaml";
 
     private static final Logger log = LoggerFactory.getLogger(YamlSystemPropertiesConfiguration.class);
@@ -53,7 +54,22 @@ public class YamlSystemPropertiesConfiguration extends SystemPropertiesConfigura
     public static Map<String,Object> yamlProperties(String filePath) {
         Map<String,Object> properties = new HashMap<String,Object>(100);
         Environment env = new Environment();
+
+        // Try reading the reference settings.
         InputStream is;
+        try {
+            URL url = env.resolveConfig(DEFAULT_REFERENCE_SETTINGS_YAML_LOCATION);
+            String resourceName = url.toExternalForm();
+            is= url.openStream();
+            SettingsLoader settingsLoader = SettingsLoaderFactory.loaderFromResource(resourceName);
+            Map<String,String> settings = settingsLoader.load(Streams.copyToString(new InputStreamReader(is, Charsets.UTF_8)));
+            if(settings!=null) {
+                properties.putAll(parseProperties(settings));
+            }
+        } catch (Exception e) {
+            log.info("Unable to load reference YAML settings: {}. Defaults and System Properties will be in place", filePath);
+        }
+
         try {
             URL url = env.resolveConfig(filePath);
             String resourceName = url.toExternalForm();
