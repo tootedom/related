@@ -63,7 +63,7 @@ The Indexing and Searching components do not need to directly be used.  In other
 * JDK 7 (recommended jdk7u40+).
 * Java Web Application Server (Tested on Tomcat).
 * Requires Servlet 3
-* Elasticsearch 0.90.9
+* Elasticsearch 0.90.11  (1.0.2)
 
 
 ## Releases ##
@@ -79,12 +79,14 @@ will be available in the future.
 
 ### Searching War ###
 
-* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war
+* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.2/related-web-searching-1.0.2.war coming soon (0.90.11)
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war (0.90.9)
 * 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war
 
 ### Indexing War ###
 
-* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war
+* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.2/related-web-indexing-1.0.2.war coming soon (0.90.11)
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war (0.90.9)
 * 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war
 
 ___
@@ -671,7 +673,7 @@ The means by which the indexing and searching applications talk to elastic is by
 Meaning, the version of the client embedded within the web applications (indexing and searching), *MUST* match that of the elasticsearch server.
 Also, the version of JAVA on the client and the server *MUST* be the same.
 
-    * Current embedded elasticsearch version is: **0.90.9**
+    * Current embedded elasticsearch version is: **0.90.11**
 
 By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:
 
@@ -1052,7 +1054,7 @@ Below show the load testing results from indexing and searching tests performed 
 
 The load tests results are from running a 1GB heap and running indexing and searching completely independently of each other.
 
-Elasticsearch version 0.90.9 is running on 2 hosts:
+Elasticsearch version 0.90.9/0.90.11 is running on 2 hosts:
 
 * Mac mini 2.3 GHz Core i5 (I5-2415M)
 * macbook pro 17" 2.5 GHz Core i7 (I7-2860QM) 
