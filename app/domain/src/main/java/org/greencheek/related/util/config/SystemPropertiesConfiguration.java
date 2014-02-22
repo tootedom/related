@@ -21,6 +21,7 @@
 
 package org.greencheek.related.util.config;
 
+import org.elasticsearch.common.unit.TimeValue;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
 import org.greencheek.related.util.arrayindexing.Util;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import static org.greencheek.related.util.config.ConfigurationConstants.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -160,9 +162,32 @@ public class SystemPropertiesConfiguration implements Configuration {
 
     private final int DEFAULT_ELASTIC_SEARCH_PORT ;
 
+    private final String ELASTIC_SEARCH_HTTP_HOSTS;
+
+    private final int ELASTIC_SEARCH_HTTP_DEFAULT_PORT;
+
     private final boolean USE_SHARED_SEARCH_REPOSITORY ;
 
     private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED ;
+
+
+    public final int ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS;
+    public final int ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS;
+    public final int ELASTIC_SEARCH_HTTP_NO_OF_RETRIES;
+    public final boolean ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS;
+    public final boolean ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED;
+    public final boolean ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED;
+
+    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS;
+    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS;
+    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES;
+
+    public final String ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT;
+
+    public final TimeUnit ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT;
+    public final String ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT;
+    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL;
+    public final boolean ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
 
     private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
     private final WaitStrategyFactory waitStrategyFactory;
@@ -258,11 +283,32 @@ public class SystemPropertiesConfiguration implements Configuration {
         DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_PRODUCTS =  getBoolean(properties, PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS, DEFAULT_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS);
         ELASTIC_SEARCH_TRANSPORT_HOSTS = getString(properties,PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS,DEFAULT_ELASTIC_SEARCH_TRANSPORT_HOSTS);
         DEFAULT_ELASTIC_SEARCH_PORT = getInt(properties,PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT,DEFAULT_DEFAULT_ELASTIC_SEARCH_PORT);
+        ELASTIC_SEARCH_HTTP_HOSTS = getString(properties,PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS,DEFAULT_ELASTIC_SEARCH_HTTP_HOSTS);
+        ELASTIC_SEARCH_HTTP_DEFAULT_PORT = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_DEFAULT_PORT,DEFAULT_ELASTIC_SEARCH_HTTP_DEFAULT_PORT);
         USE_SHARED_SEARCH_REPOSITORY = getBoolean(properties,PROPNAME_USE_SHARED_SEARCH_REPOSITORY,DEFAULT_USE_SHARED_SEARCH_REPOSITORY);
         RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = getBoolean(properties, PROPNAME_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED, DEFAULT_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
 
-        setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE,FAILED_SEARCH_REQUEST_STATUS_CODE,
-                TIMED_OUT_SEARCH_REQUEST_STATUS_CODE,MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
+
+        ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS);
+        ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS);
+        ELASTIC_SEARCH_HTTP_NO_OF_RETRIES = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES,DEFAULT_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES);
+        ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS = getBoolean(properties,PROPNAME_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS,DEFAULT_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS);
+        ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED = getBoolean(properties,PROPNAME_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED);
+        ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED = getBoolean(properties,PROPNAME_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED);
+
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS);
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS);
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES = getInt(properties,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES);
+
+        ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT = getString(properties,PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT);
+
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT = getString(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT);
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = getInt(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = parseIntervalUnit(getString(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT));
+        ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = getBoolean(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
+
+        setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE, FAILED_SEARCH_REQUEST_STATUS_CODE,
+                TIMED_OUT_SEARCH_REQUEST_STATUS_CODE, MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
                 FOUND_SEARCH_REQUEST_STATUS_CODE);
 
         waitStrategyFactory = parseWaitStrategy(WAIT_STRATEGY);
@@ -459,8 +505,30 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_DISCARD_INDEXING_REQUESTS_WITH_TOO_MANY_ITEMS);
         parseString(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_TRANSPORT_HOSTS);
         parseInt(parsedProperties, propertiesToConvert, PROPNAME_DEFAULT_ELASTIC_SEARCH_PORT);
+        parseString(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_HOSTS);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_DEFAULT_PORT);
         parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_USE_SHARED_SEARCH_REPOSITORY);
         parseBoolean(parsedProperties,propertiesToConvert, PROPNAME_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED);
+
+
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES);
+        parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS);
+        parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED);
+        parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED);
+
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES);
+        parseBoolean(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT);
+
+
+        parseString(parsedProperties, propertiesToConvert,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT);
+        parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
+        parseString(parsedProperties, propertiesToConvert,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT);
+        parseBoolean(parsedProperties, propertiesToConvert,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
+
         return parsedProperties;
     }
 
@@ -547,8 +615,31 @@ public class SystemPropertiesConfiguration implements Configuration {
             return ElasticeSearchClientType.TRANSPORT;
         } else if(type.equals("node")) {
             return ElasticeSearchClientType.NODE;
+        } else if(type.equals("http")) {
+            return ElasticeSearchClientType.HTTP;
         } else {
             return ElasticeSearchClientType.TRANSPORT;
+        }
+    }
+
+    protected TimeUnit parseIntervalUnit(String unit) {
+        if(unit.equalsIgnoreCase("seconds") || unit.equalsIgnoreCase("s") ||
+                unit.equalsIgnoreCase("sec") || unit.equalsIgnoreCase("secs")) {
+            return TimeUnit.SECONDS;
+        } else if(unit.equalsIgnoreCase("minutes") || unit.equalsIgnoreCase("m") ||
+                unit.equalsIgnoreCase("min") || unit.equalsIgnoreCase("mins")) {
+            return TimeUnit.MINUTES;
+        } else if(unit.equalsIgnoreCase("milliseconds") || unit.equalsIgnoreCase("ms") ||
+                unit.equalsIgnoreCase("milli") || unit.equalsIgnoreCase("millis")) {
+            return TimeUnit.MILLISECONDS;
+        } else if(unit.equalsIgnoreCase("hours") || unit.equalsIgnoreCase("h")
+                || unit.equalsIgnoreCase("hour")) {
+            return TimeUnit.HOURS;
+        } else if(unit.equalsIgnoreCase("days") || unit.equalsIgnoreCase("d")
+                || unit.equalsIgnoreCase("day")) {
+            return TimeUnit.DAYS;
+        } else {
+            return TimeUnit.MINUTES;
         }
     }
 
@@ -834,6 +925,16 @@ public class SystemPropertiesConfiguration implements Configuration {
     }
 
     @Override
+    public String getElasticSearchHttpHosts() {
+        return ELASTIC_SEARCH_HTTP_HOSTS;
+    }
+
+    @Override
+    public int getElasticSearchHttpPort() {
+        return ELASTIC_SEARCH_HTTP_DEFAULT_PORT;
+    }
+
+    @Override
     public String getKeyForStorageResponseTime() {
         return KEY_FOR_STORAGE_RESPONSE_TIME;
     }
@@ -858,6 +959,64 @@ public class SystemPropertiesConfiguration implements Configuration {
         return STORAGE_FACET_SEARCH_EXECUTION_HINT;
     }
 
+    public int getElasticSearchHttpRequestTimeoutMs() {
+        return ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS;
+    }
 
+    public int getElasticSearchHttpConnectionTimeoutMs() {
+        return ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS;
+    }
+
+    public int getElasticSearchHttpNoOfRetries() {
+        return ELASTIC_SEARCH_HTTP_NO_OF_RETRIES;
+    }
+
+    public boolean getElasticSearchHttpFollowRedirects() {
+        return ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS;
+    }
+
+    public boolean getElasticSearchHttpConnectionPoolingEnabled() {
+        return ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED;
+    }
+
+    public boolean getElasticSearchHttpCompressionEnabled() {
+        return ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED;
+    }
+
+    public int getElasticSearchNodeSniffingHttpRequestTimeoutMs() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS;
+    }
+
+    public int getElasticSearchNodeSniffingHttpConnectionTimeoutMs() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS;
+    }
+
+    public int getElasticSearchNodeSniffingHttpNoOfRetries() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES;
+    }
+
+    @Override
+    public String getElasticSearchNodesSniffingHttpAdminEndpoint() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT;
+    }
+
+    @Override
+    public int getElasticSearchNodesSniffingHttpRetryInterval() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL;
+    }
+
+    @Override
+    public TimeUnit getElasticSearchNodesSniffingRetryIntervalUnit() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT;
+    }
+
+    @Override
+    public boolean getElasticSearchNodesSniffingEnabled() {
+        return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
+    }
+
+
+
+    public String getElasticSearchMultiSearchEndpoint() { return ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT; }
 
 }

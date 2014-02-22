@@ -79,11 +79,12 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
         bulkRequest.setReplicationType(ReplicationType.ASYNC).setRefresh(false);
 
+
+
         int requestAdded = 0;
         for(RelatedItem product : relatedItems) {
             requestAdded += addRelatedItem(indexLocationMapper, bulkRequest, product);
         }
-
         if(requestAdded>0) {
             log.info("Sending Relating Product Index Requests to Elastic: {}",requestAdded);
             BulkResponse bulkResponse = bulkRequest.execute().actionGet();
@@ -119,12 +120,15 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
 
             builder.endObject();
 
+
             IndexRequestBuilder indexRequestBuilder = elasticClient.prepareIndex(indexLocationMapper.getLocationName(product), indexType);
             indexRequestBuilder.setOpType(createOrIndex);
             indexRequestBuilder.setOperationThreaded(threadedIndexing);
-            log.debug("added indexing request to batch request: {}",builder.string());
-            bulkRequest.add(indexRequestBuilder.setSource(builder));
+            if(log.isDebugEnabled()) {
+                log.debug("added indexing request to batch request: {}", builder.string());
+            }
 
+            bulkRequest.add(indexRequestBuilder.setSource(builder));
             return 1;
         } catch(IOException e) {
             return 0;

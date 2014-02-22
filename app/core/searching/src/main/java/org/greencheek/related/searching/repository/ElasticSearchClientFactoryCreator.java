@@ -25,11 +25,7 @@ import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.util.config.Configuration;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 15/12/2013
- * Time: 14:02
- * To change this template use File | Settings | File Templates.
+ * Creates a Node or Transport client that is able to connect to Elasticsearch.
  */
 public interface ElasticSearchClientFactoryCreator {
     ElasticSearchClientFactory getElasticSearchClientConnectionFactory(Configuration configuration);

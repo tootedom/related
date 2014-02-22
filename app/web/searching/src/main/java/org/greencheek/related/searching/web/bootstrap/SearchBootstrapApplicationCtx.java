@@ -29,15 +29,17 @@ import org.greencheek.related.api.searching.lookup.RelatedItemSearchFactoryWithS
 import org.greencheek.related.api.searching.lookup.RelatedItemSearchLookupKeyGenerator;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKeyFactory;
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKeyFactory;
+import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpElasticSearchClientFactory;
+import org.greencheek.related.elastic.http.ahc.AHCHttpSniffAvailableNodes;
 import org.greencheek.related.searching.*;
 import org.greencheek.related.searching.disruptor.requestprocessing.*;
 import org.greencheek.related.searching.disruptor.responseprocessing.*;
 import org.greencheek.related.searching.domain.RelatedItemSearchRequestFactory;
 import org.greencheek.related.searching.executor.SearchExecutorFactory;
-import org.greencheek.related.searching.repository.ElasticSearchClientFactoryCreator;
-import org.greencheek.related.searching.repository.ElasticSearchFrequentlyRelatedItemSearchProcessor;
-import org.greencheek.related.searching.repository.ElasticSearchRelatedItemSearchRepository;
-import org.greencheek.related.searching.repository.NodeOrTransportBasedElasticSearchClientFactoryCreator;
+import org.greencheek.related.searching.repository.*;
+import org.greencheek.related.searching.repository.http.FrequentlyRelatedItemHttpResponseParser;
+import org.greencheek.related.searching.repository.http.JsonSmartFrequentlyRelatedItemHttpResponseParser;
 import org.greencheek.related.searching.requestprocessing.MapBasedSearchRequestParameterValidatorLookup;
 import org.greencheek.related.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.related.searching.requestprocessing.SearchRequestParameterValidatorLocator;
@@ -45,7 +47,6 @@ import org.greencheek.related.searching.requestprocessing.SearchResponseContextL
 import org.greencheek.related.searching.responseprocessing.MapBasedSearchResponseContextHandlerLookup;
 import org.greencheek.related.searching.responseprocessing.SearchResponseContextHandlerLookup;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.FrequentlyRelatedSearchResultsArrayConverterFactory;
-import org.greencheek.related.searching.responseprocessing.resultsconverter.JsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.SearchResultsConverterFactory;
 import org.greencheek.related.searching.responseprocessing.resultsconverter.StringBasedJsonFrequentlyRelatedSearchResultsConverter;
 import org.greencheek.related.util.config.Configuration;
@@ -68,8 +69,7 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
     private final RelatedItemSearchRequestFactory relatedItemSearchRequestFactory;
     private final RelatedItemSearchFactory relatedItemSearchFactory;
     private final RelatedItemSearchLookupKeyGenerator relatedItemSearchLookupKeyGenerator;
-
-//    private final SearchResponseContextLookup responseContextLookup;
+    private final FrequentRelatedSearchRequestBuilder searchRequestBuilder;
 
 
 
@@ -91,7 +91,7 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
         this.relatedItemSearchRequestFactory = new RelatedItemSearchRequestFactory(config);
         this.relatedItemSearchLookupKeyGenerator = new KeyFactoryBasedRelatedItemSearchLookupKeyGenerator(config,searchRequestLookupKeyFactory);
         this.relatedItemSearchFactory = new RelatedItemSearchFactoryWithSearchLookupKeyFactory(config, relatedItemSearchLookupKeyGenerator);
-
+        this.searchRequestBuilder = createSearchRequestBuilder(config);
     }
 
 
@@ -188,17 +188,30 @@ public class SearchBootstrapApplicationCtx implements ApplicationCtx {
         }
     }
 
+    private RelatedItemSearchRepositoryFactory createClientFactoryCreator(Configuration config) {
+        return new NodeTransportOrHttpBasedElasticSearchClientFactoryCreator(getClientFactoryCreator(),createHttpElasticSearchClientFactory(config),
+                createFrequentlyRelatedItemHttpResponseParser(config));
+    }
+
+    private RelatedItemSearchRepository getRepository(Configuration configuration) {
+        return createClientFactoryCreator(configuration).createRelatedItemSearchRepository(configuration,searchRequestBuilder);
+    }
+
     private ElasticSearchClientFactoryCreator getClientFactoryCreator() {
         return NodeOrTransportBasedElasticSearchClientFactoryCreator.INSTANCE;
     }
 
-    private RelatedItemSearchRepository getRepository(Configuration configuration) {
-        return new ElasticSearchRelatedItemSearchRepository(
-                getClientFactoryCreator().getElasticSearchClientConnectionFactory(configuration),
-                new ElasticSearchFrequentlyRelatedItemSearchProcessor(config)
-        );
+    private HttpElasticSearchClientFactory createHttpElasticSearchClientFactory(Configuration config) {
+        return new AHCHttpElasticSearchClientFactory(config);
     }
 
+    private FrequentlyRelatedItemHttpResponseParser createFrequentlyRelatedItemHttpResponseParser(Configuration config) {
+        return new JsonSmartFrequentlyRelatedItemHttpResponseParser(config);
+    }
+
+    private FrequentRelatedSearchRequestBuilder createSearchRequestBuilder(Configuration config) {
+        return new FrequentRelatedSearchRequestBuilder(config);
+    }
 
     @Override
     public RelatedItemSearchRequestFactory createRelatedSearchRequestFactory() {

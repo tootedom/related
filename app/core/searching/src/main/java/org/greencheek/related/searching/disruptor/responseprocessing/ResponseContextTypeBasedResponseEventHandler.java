@@ -89,7 +89,7 @@ public class ResponseContextTypeBasedResponseEventHandler implements ResponseEve
             if (awaitingResponses == null || awaitingResponses.size()==0) {
                 if (log.isWarnEnabled() && converter!=null) {
                     String res = converter.convertToString(results);
-                    log.warn("No async responses waiting for search results : {}", res);
+                    log.info("No async responses waiting for search results, more than likely already processed: {}", res);
                 }
 
                 return;

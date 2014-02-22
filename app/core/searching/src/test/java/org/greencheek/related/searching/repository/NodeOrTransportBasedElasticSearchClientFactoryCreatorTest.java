@@ -27,7 +27,7 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
-import org.greencheek.related.searching.util.elasticsearch.ElasticSearchServer;
+import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
 import org.greencheek.related.util.config.SystemPropertiesConfiguration;
@@ -49,7 +49,7 @@ public class NodeOrTransportBasedElasticSearchClientFactoryCreatorTest {
     private ElasticSearchServer esServer;
     private Configuration configuration;
     private int port;
-    private ElasticSearchClientFactoryCreator clientFactoryCreator = new NodeOrTransportBasedElasticSearchClientFactoryCreator();
+    private ElasticSearchClientFactoryCreator clientFactoryCreator = NodeOrTransportBasedElasticSearchClientFactoryCreator.INSTANCE;
     private String clusterName;
 
     @Before

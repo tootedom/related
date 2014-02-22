@@ -29,10 +29,10 @@ import org.greencheek.related.api.searching.RelatedItemSearchType;
 import org.greencheek.related.api.searching.lookup.SipHashSearchRequestLookupKey;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.TransportBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
-import org.greencheek.related.searching.util.elasticsearch.ElasticSearchServer;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
 import org.greencheek.related.util.config.SystemPropertiesConfiguration;
@@ -91,7 +91,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
         // Create the repo
-        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration));
+        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration)));
     }
 
     public void shutDown() {
@@ -150,7 +150,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "0");
         try {
             Configuration config = new SystemPropertiesConfiguration();
-            ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config));
+            ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config,new FrequentRelatedSearchRequestBuilder(config)));
 
             SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
             assertEquals(2,results.length);

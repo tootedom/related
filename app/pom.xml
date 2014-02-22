@@ -49,9 +49,10 @@
         <git.releases.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/releases</git.releases.repo.url>
         <git.sites.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/sites</git.sites.repo.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <elastic.version>0.90.9</elastic.version>
+        <elastic.version>0.90.11</elastic.version>
         <slf4j.version>1.7.5</slf4j.version>
-        <log4j2.version>2.0-beta9</log4j2.version>
+        <log4j2.version>2.0-rc1</log4j2.version>
+        <async.version>1.8.3</async.version>
 
     </properties>
 
@@ -110,9 +111,6 @@
             <version>${log4j2.version}</version>
         </dependency>
 
-
-
-
         <!-- a la testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -135,18 +133,18 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.tlrx</groupId>
-            <artifactId>elasticsearch-test</artifactId>
-            <version>0.90.6</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.elasticsearch</groupId>
-                    <artifactId>elasticsearch</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.tlrx</groupId>-->
+            <!--<artifactId>elasticsearch-test</artifactId>-->
+            <!--<version>0.90.6</version>-->
+            <!--<scope>test</scope>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.elasticsearch</groupId>-->
+                    <!--<artifactId>elasticsearch</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

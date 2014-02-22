@@ -21,10 +21,8 @@
 
 package org.greencheek.related.indexing.elasticsearch;
 
-import com.github.tlrx.elasticsearch.test.EsSetup;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -32,6 +30,7 @@ import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.indexing.RelatedItem;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.NodeBasedElasticSearchClientFactory;
+import org.greencheek.related.elastic.util.ElasticSearchServer;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
 import org.greencheek.related.indexing.RelatedItemStorageRepository;
 import org.greencheek.related.indexing.locationmappers.DayBasedStorageLocationMapper;
@@ -45,8 +44,6 @@ import org.junit.*;
 
 import java.util.*;
 
-import static com.github.tlrx.elasticsearch.test.EsSetup.deleteAll;
-import static com.github.tlrx.elasticsearch.test.EsSetup.index;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -61,43 +58,86 @@ import static org.junit.Assert.assertTrue;
 public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
     private RelatedItemStorageRepository repository;
-    private static Configuration configuration;
-    private static UTCCurrentDateFormatter dateFormatter;
-    private static ElasticSearchClientFactory clientFactory;
-    private static RelatedItemStorageLocationMapper dayStorageLocationMapper;
-    private static RelatedItemStorageLocationMapper hourStorageLocationMapper;
+    private Configuration configuration;
+    private UTCCurrentDateFormatter dateFormatter;
+    private ElasticSearchClientFactory clientFactory;
+    private RelatedItemStorageLocationMapper dayStorageLocationMapper;
+    private RelatedItemStorageLocationMapper hourStorageLocationMapper;
 
+    private static String tmpDir;
 
-    private static EsSetup esSetup;
-    private Client esClient;
+//    private static EsSetup esSetup;
+    private ElasticSearchServer server;
 
     private String currentIndexDate;
 
-
+//
     @BeforeClass
     public static void setUpElastic() {
-        // Instantiates a local node & client
-        configuration = new SystemPropertiesConfiguration();
 
-        esSetup = new EsSetup(ImmutableSettings.settingsBuilder()
-                              .put("cluster.name", configuration.getStorageClusterName())
-                                      .put("index.store.type", "memory")
-                                      .put("index.store.fs.memory.enabled", "true")
-                                      .put("gateway.type", "none")
-                                      .put("index.number_of_shards", "1")
-                                      .put("index.number_of_replicas", "0")
-                                      .put("cluster.routing.schedule", "50ms")
-                                      .put("node.local", true)
-                                      .put("node.data", true)
-                                      .put("discovery.zen.ping.multicast.enabled", "false")
-                                      .put("network.host","127.0.0.1")
-                .put("http.enabled",false)
-                .build());
-
-        esSetup.execute( deleteAll() );
-
+//        String tmpDirectory =  System.getProperty("java.io.tmpdir");
+//        String fileSep = System.getProperty("file.separator");
+//
+//        if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
+//        tmpDirectory += UUID.randomUUID().toString() + fileSep;
+//
+//        tmpDir = tmpDirectory;
+//
+//        // Instantiates a local node & client
+//        configuration = new SystemPropertiesConfiguration();
+//
+//        esSetup = new EsSetup(ImmutableSettings.settingsBuilder()
+//                .put("cluster.name", configuration.getStorageClusterName())
+//                .put("index.store.type", "memory")
+//                .put("index.store.fs.memory.enabled", "true")
+//                .put("gateway.type", "local")
+//                .put("node.data", true)
+//                .put("node.client",false)
+//                .put("node.master", true)
+//                .put("discovery.zen.ping.multicast.enabled", "false")
+//                .put("discovery.zen.ping.multicast.ping.enabled","false")
+//                .put("discovery.zen.ping.unicast.enabled", "true")
+//                .put("discovery.zen.ping.unicast.hosts", "127.0.0.1[12345-23456]")
+//                .put("path.data", tmpDir+"data")
+//                .put("path.work", tmpDir+"work")
+//                .put("path.logs", tmpDir+"logs")
+//                .put("index.number_of_shards", "1")
+//                .put("index.number_of_replicas", "0")
+//                .put("cluster.routing.schedule", "50ms")
+//                .put("node.local", true)
+//                .put("http.enabled", false)
+//
+////                              .put("cluster.name", configuration.getStorageClusterName())
+////                                      .put("index.store.type", "memory")
+////                                      .put("index.store.fs.memory.enabled", "true")
+////                                      .put("gateway.type", "none")
+////                                      .put("index.number_of_shards", "1")
+////                                      .put("index.number_of_replicas", "0")
+////                                      .put("cluster.routing.schedule", "50ms")
+////                                      .put("node.local", true)
+////                                      .put("node.data", true)
+////                                      .put("discovery.zen.ping.multicast.enabled", "false")
+////                                      .put("network.host","127.0.0.1")
+////                .put("http.enabled",false)
+//                .build());
+//
+//        esSetup.execute( deleteAll() );
+//
 
         // Clean all data
+
+
+    }
+
+    @AfterClass
+    public static void shutdownElastic() {
+//        esSetup.terminate();
+    }
+
+    @Before
+    public void setUp() {
+        configuration = new SystemPropertiesConfiguration();
+        server = new ElasticSearchServer(configuration.getStorageClusterName(),false);
 
         dateFormatter = new JodaUTCCurrentDateFormatter();
 
@@ -105,35 +145,26 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
         hourStorageLocationMapper = new HourBasedStorageLocationMapper(configuration,new JodaUTCCurrentDateAndHourFormatter());
 
-    }
-
-    @AfterClass
-    public static void shutdownElastic() {
-        esSetup.terminate();
-    }
-
-    @Before
-    public void setUp() {
-        esSetup.execute( deleteAll() );
-        esClient = esSetup.client();
+//        esSetup.execute( deleteAll() );
+//        esClient = esSetup.client();
         currentIndexDate = dateFormatter.getCurrentDay();
 
         Settings settings = ImmutableSettings.
                 settingsBuilder().
                 put("network.host", "127.0.0.1").
+                put("cluster.name",configuration.getStorageClusterName()).
                 put("node.local", true).
                 put("node.data", false).
                 put("discovery.zen.ping.multicast.enabled", "false").build();
 
-        clientFactory = new NodeBasedElasticSearchClientFactory(settings,
-                configuration);
+        clientFactory = new NodeBasedElasticSearchClientFactory(settings,configuration);
 
         repository = new ElasticSearchRelatedItemIndexingRepository(configuration,clientFactory);
     }
 
     @After
     public void tearDown() throws Exception {
-
+        server.shutdown();
         // Shutdown the repo
         repository.shutdown();
     }
@@ -159,11 +190,12 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
     public void testSingleStoreOfProductWithTodaysDate() throws Exception {
         RelatedItem productToStore = createRelatedItemWithCurrentDay();
         indexAndFlush(Arrays.asList(productToStore));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
+        assertTrue(server.indexExists(getIndexNamePrefix() + currentIndexDate));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
+        QueryBuilder qb = termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
-        SearchResponse response = esClient.prepareSearch(getIndexNamePrefix()+ currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+
+        SearchResponse response = server.getEsClient().prepareSearch(getIndexNamePrefix()+ currentIndexDate).setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
     }
@@ -190,11 +222,11 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
     public void testSingleStoreOfProductWithCustomDate() {
         RelatedItem productToStore = createRelatedItemWithGivenDate("2012-05-16");
         indexAndFlush(Arrays.asList(productToStore));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-16"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2012-05-16"));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
+        QueryBuilder qb = termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = server.getEsClient().prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
     }
@@ -205,11 +237,11 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
         RelatedItem productToStore = createRelatedItemWithGivenDate("2012-05-15T12:00:00+01:00");
         indexAndFlush(Arrays.asList(productToStore));
 
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2012-05-15"));
 
-        QueryBuilder qb = fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
+        QueryBuilder qb = termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productToStore.getId()));
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = server.getEsClient().prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
     }
@@ -222,15 +254,15 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
         indexAndFlush(Arrays.asList(productsToStore));
 
-        assertTrue(esSetup.exists(getIndexNamePrefix()+"2012-05-15"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+"2011-05-15"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+currentIndexDate));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2012-05-15"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2011-05-15"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + currentIndexDate));
 
-        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
+        QueryBuilder qb = boolQuery().should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
+                .should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
+                .should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = server.getEsClient().prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(3,response.getHits().getTotalHits());
     }
@@ -243,15 +275,15 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
         indexAndFlush(Arrays.asList(productsToStore));
 
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-15"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-15"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ currentIndexDate));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2012-05-15"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2011-05-15"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + currentIndexDate));
 
-        QueryBuilder qb = boolQuery().should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
-                .should(fieldQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
+        QueryBuilder qb = boolQuery().should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[0].getId())))
+                .should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[1].getId())))
+                .should(termQuery(configuration.getKeyForIndexRequestIdAttr(), new String(productsToStore[2].getId())));
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = server.getEsClient().prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(3,response.getHits().getTotalHits());
     }
@@ -282,22 +314,22 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
         indexAndFlush(hourStorageLocationMapper,Arrays.asList(productsToStore));
 
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2012-05-01_11"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-02_10"));
-        assertTrue(esSetup.exists(getIndexNamePrefix()+ "2011-05-03_09"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2012-05-01_11"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2011-05-02_10"));
+        assertTrue(server.indexExists(getIndexNamePrefix() + "2011-05-03_09"));
 
-        QueryBuilder qb = fieldQuery("location", "liverpool");
+        QueryBuilder qb = termQuery("location", "liverpool");
 
 
 
-        SearchResponse response = esClient.prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
+        SearchResponse response = server.getEsClient().prepareSearch(configuration.getStorageIndexNamePrefix() + "*").setTypes(configuration.getStorageContentTypeName()).setQuery(qb).execute().actionGet();
 
         assertEquals(1,response.getHits().getTotalHits());
     }
 
     private void indexAndFlush(RelatedItemStorageLocationMapper storageLocationMapper, List<RelatedItem> products) {
         repository.store(storageLocationMapper,products);
-        esClient.admin().indices().refresh(new RefreshRequest(configuration.getStorageIndexNamePrefix() + "*")).actionGet();
+        server.getEsClient().admin().indices().refresh(new RefreshRequest(configuration.getStorageIndexNamePrefix() + "*")).actionGet();
     }
 
     private void indexAndFlush(List<RelatedItem> products) {
