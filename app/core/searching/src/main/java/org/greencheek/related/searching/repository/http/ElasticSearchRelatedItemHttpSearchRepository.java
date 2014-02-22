@@ -21,8 +21,6 @@
 
 package org.greencheek.related.searching.repository.http;
 
-import org.elasticsearch.ElasticSearchTimeoutException;
-import org.elasticsearch.action.search.MultiSearchResponse;
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
 import org.greencheek.related.api.searching.RelatedItemSearch;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;

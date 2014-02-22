@@ -137,19 +137,19 @@ public class ElasticSearchRelatedItemHttpSearchRepositoryTest {
     }
 
     @Test
-    public void testFailedResultsAreReturnedWhenNoIndexExists() {
+    public void testEmptyResultsAreReturnedWhenNoIndexExists() {
         repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
         SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
         assertEquals(2,results.length);
         System.out.println("testFailedResultsAreReturnedWhenNoIndexExists, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
         System.out.println("testFailedResultsAreReturnedWhenNoIndexExists, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
 
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
+        assertSame(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
+        assertSame(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
     }
 
     @Test
-    public void testFailedResultsAreReturnedWhenIndexIsEmpty() {
+    public void testEmptyResultsAreReturnedWhenIndexIsEmpty() {
         server.createIndex(configuration.getStorageIndexNamePrefix());
         repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
 
@@ -201,34 +201,7 @@ public class ElasticSearchRelatedItemHttpSearchRepositoryTest {
         }
     }
 
-    @Test
-    public void testFailureIsReturnedOnException() {
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor processor = mock(ElasticSearchFrequentlyRelatedItemSearchProcessor.class);
-        doThrow(new RuntimeException()).when(processor).executeSearch(any(Client.class), any(RelatedItemSearch[].class));
-        repository = searchRepositoryFactory.createRelatedItemSearchRepository(configuration,builder);
-
-        RelatedItemSearch[] searches = createSearch();
-        SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, searches);
-        assertEquals(2,results.length);
-        System.out.println("testFailureIsReturnedOnException, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
-        System.out.println("testFailureIsReturnedOnException, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
-
-        reset(processor);
-        MultiSearchResponse res1 = mock(MultiSearchResponse.class);
-        when(processor.executeSearch(any(Client.class), any(RelatedItemSearch[].class))).thenReturn(res1);
-        doThrow(new RuntimeException()).when(processor).processMultiSearchResponse(searches, res1);
-
-        results = repository.findRelatedItems(configuration, searches);
-        assertEquals(2,results.length);
-        System.out.println("testFailureIsReturnedOnException, Results 0 outcometype: " + results[0].getResponse().getOutcomeType());
-        System.out.println("testFailureIsReturnedOnException, Results 1 outcometype: " + results[1].getResponse().getOutcomeType());
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[0].getResponse());
-        assertSame(SearchResultsEvent.EMPTY_FAILED_FREQUENTLY_RELATED_SEARCH_RESULTS, results[1].getResponse());
-
-    }
 
     private final static String RELATED_CONTENT_BLADES1_PURCHASEa = "{\n"+
             "\"id\": \"anchor man\",\n"+

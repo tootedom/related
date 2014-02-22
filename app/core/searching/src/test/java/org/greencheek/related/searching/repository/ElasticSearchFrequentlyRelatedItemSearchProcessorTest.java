@@ -336,6 +336,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
     private void setAlias(Configuration configuration) {
         esServer.addAlias(configuration.getStorageIndexNamePrefix() + "-2013-01-01", configuration.getStorageIndexNameAlias());
+
     }
 
     private void setIndexTemplate() {

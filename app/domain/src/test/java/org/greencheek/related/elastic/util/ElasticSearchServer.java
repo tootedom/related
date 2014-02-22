@@ -120,7 +120,8 @@ public class ElasticSearchServer {
                     .put("index.number_of_shards", "1")
                     .put("index.number_of_replicas", "0")
                     .put("cluster.routing.schedule", "50ms")
-                    .put("http.enabled", false);
+                    .put("http.enabled", false)
+                    .put("action.destructive_requires_name",false);
 
             if(transportClient) {
                 b.put("node.local", false)
@@ -168,7 +169,7 @@ public class ElasticSearchServer {
     }
 
     public void deleteAllIndexes() {
-        esClient.admin().indices().prepareDelete().execute().actionGet();
+        esClient.admin().indices().prepareDelete("_all").execute().actionGet();
     }
 
     public void shutdown() {
@@ -378,7 +379,7 @@ public class ElasticSearchServer {
 
     public boolean addAlias(String indexName,String indexAlias) {
         try {
-            esClient.admin().indices().aliases(new IndicesAliasesRequest().addAlias(indexName,indexAlias)).actionGet();
+            esClient.admin().indices().aliases(new IndicesAliasesRequest().addAlias(indexAlias,indexName)).actionGet();
             return true;
         } catch(Exception e) {
             return false;

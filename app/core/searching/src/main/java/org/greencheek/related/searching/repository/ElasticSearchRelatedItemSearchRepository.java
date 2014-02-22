@@ -21,7 +21,7 @@
 
 package org.greencheek.related.searching.repository;
 
-import org.elasticsearch.ElasticSearchTimeoutException;
+import org.elasticsearch.ElasticsearchTimeoutException;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.client.Client;
 import org.greencheek.related.api.searching.FrequentlyRelatedSearchResult;
@@ -71,7 +71,7 @@ public class ElasticSearchRelatedItemSearchRepository implements RelatedItemSear
             log.debug("Processing results for search {} request(s)",searches.length);
             results = frequentlyRelatedWithSearchBuilder.processMultiSearchResponse(searches,sr);
             log.debug("Search Completed, returning processed results.");
-        } catch(ElasticSearchTimeoutException timeoutException) {
+        } catch(ElasticsearchTimeoutException timeoutException) {
             long time = (System.nanoTime()-startNanos)/1000000;
             log.warn("Timeout exception executing search request: ",timeoutException);
             int size = searches.length;
