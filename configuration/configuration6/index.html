@@ -4,15 +4,19 @@
 
 
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-   
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">   
+  
+  
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    
+    <title>Tomcat</title>
+    
 
     
-    <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    <meta name="description" content="server.xml configuration for tomcat 7 for running the indexing and searching webapplication"/>
+    
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />
@@ -146,7 +150,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -167,7 +171,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -287,7 +291,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -308,7 +312,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -347,7 +351,7 @@
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://relateit.io/configuration/configuration1">Elasticsearch</a></dd>
+          <dd data-magellan-arrival="1" ><a href="http://relateit.io/configuration/configuration1">ES Connections</a></dd>
         
         <li class="divider">|</li>
         
@@ -365,7 +369,7 @@
         
          
         
-          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">JVM</a></dd>
+          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">Webapp JVM</a></dd>
         
         <li class="divider">|</li>
         
@@ -401,6 +405,81 @@
            socket.rxBufSize=&quot;4096&quot; socket.txBufSize=&quot;4096&quot; 
            socket.tcpNoDelay=&quot;true&quot; acceptCount=&quot;1024&quot;
            redirectPort=&quot;8443&quot; maxThreads=&quot;8&quot; asyncTimeout=&quot;120000&quot;/&gt;</code></pre>
+
+<p>An example of a full configuration file would be:</p>
+
+<pre><code>&lt;Server port=&quot;8005&quot; shutdown=&quot;SHUTDOWN&quot;&gt;	  
+  &lt;!--APR library loader. Documentation at /docs/apr.html --&gt;
+  &lt;Listener className=&quot;org.apache.catalina.core.AprLifecycleListener&quot; SSLEngine=&quot;on&quot; /&gt;
+  &lt;!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html --&gt;
+  &lt;Listener className=&quot;org.apache.catalina.core.JasperListener&quot; /&gt;
+  &lt;!-- Prevent memory leaks due to use of particular java/javax APIs--&gt;
+  &lt;Listener className=&quot;org.apache.catalina.core.JreMemoryLeakPreventionListener&quot; /&gt;
+  &lt;Listener className=&quot;org.apache.catalina.mbeans.GlobalResourcesLifecycleListener&quot; /&gt;
+  &lt;Listener className=&quot;org.apache.catalina.core.ThreadLocalLeakPreventionListener&quot; /&gt;
+
+  &lt;!-- Global JNDI resources
+       Documentation at /docs/jndi-resources-howto.html
+  --&gt;
+  &lt;GlobalNamingResources&gt;
+    &lt;!-- Editable user database that can also be used by
+         UserDatabaseRealm to authenticate users
+    --&gt;
+    &lt;Resource name=&quot;UserDatabase&quot; auth=&quot;Container&quot;
+              type=&quot;org.apache.catalina.UserDatabase&quot;
+              description=&quot;User database that can be updated and saved&quot;
+              factory=&quot;org.apache.catalina.users.MemoryUserDatabaseFactory&quot;
+              pathname=&quot;conf/tomcat-users.xml&quot; /&gt;
+  &lt;/GlobalNamingResources&gt;
+
+  &lt;!-- A &quot;Service&quot; is a collection of one or more &quot;Connectors&quot; that share
+       a single &quot;Container&quot; Note:  A &quot;Service&quot; is not itself a &quot;Container&quot;,
+       so you may not define subcomponents such as &quot;Valves&quot; at this level.
+       Documentation at /docs/config/service.html
+   --&gt;
+  &lt;Service name=&quot;Catalina&quot;&gt;
+
+
+    &lt;!-- A &quot;Connector&quot; represents an endpoint by which requests are received
+         and responses are returned. Documentation at :
+         Java HTTP Connector: /docs/config/http.html (blocking &amp; non-blocking)
+         Java AJP  Connector: /docs/config/ajp.html
+         APR (HTTP/AJP) Connector: /docs/apr.html
+         Define a non-SSL HTTP/1.1 Connector on port 8080
+    --&gt;
+    &lt;Connector port=&quot;8080&quot; protocol=&quot;org.apache.coyote.http11.Http11NioProtocol&quot;
+            connectionTimeout=&quot;60000&quot; processorCache=&quot;20000&quot; maxKeepAliveRequests=&quot;10000&quot; 
+            acceptorThreadCount=&quot;1&quot; socket.rxBufSize=&quot;4096&quot; socket.txBufSize=&quot;4096&quot; 
+            socket.tcpNoDelay=&quot;true&quot; acceptCount=&quot;1024&quot;
+            redirectPort=&quot;8443&quot; maxThreads=&quot;8&quot; asyncTimeout=&quot;120000&quot;/&gt;
+            
+    
+
+    &lt;!-- An Engine represents the entry point (within Catalina) that processes
+         every request.  The Engine implementation for Tomcat stand alone
+         analyzes the HTTP headers included with the request, and passes them
+         on to the appropriate Host (virtual host).
+         Documentation at /docs/config/engine.html --&gt;
+
+    &lt;Engine name=&quot;Catalina&quot; defaultHost=&quot;localhost&quot;&gt;
+
+      &lt;!-- Use the LockOutRealm to prevent attempts to guess user passwords
+           via a brute-force attack --&gt;
+      &lt;Realm className=&quot;org.apache.catalina.realm.LockOutRealm&quot;&gt;
+        &lt;!-- This Realm uses the UserDatabase configured in the global JNDI
+             resources under the key &quot;UserDatabase&quot;.  Any edits
+             that are performed against this UserDatabase are immediately
+             available for use by the Realm.  --&gt;
+        &lt;Realm className=&quot;org.apache.catalina.realm.UserDatabaseRealm&quot;
+               resourceName=&quot;UserDatabase&quot;/&gt;
+      &lt;/Realm&gt;
+
+      &lt;Host name=&quot;localhost&quot;  appBase=&quot;webapps&quot;
+            unpackWARs=&quot;true&quot; autoDeploy=&quot;false&quot;&gt;
+      &lt;/Host&gt;
+    &lt;/Engine&gt;
+  &lt;/Service&gt;
+&lt;/Server&gt;               </code></pre>
 
 <!--       <article>
 

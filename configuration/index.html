@@ -1,14 +1,18 @@
 <!doctype html>
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-   
+  
+     
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    
+    <title>ES Connections</title>
+    
 
     
-    <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    <meta name="description" content="The various ways of connecting the indexing and searching webapps to an Elasticsearch cluster"/>
+    
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />
@@ -141,7 +145,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search class="active">ES Connections</a></li>
 	
 
 
@@ -162,7 +166,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -285,7 +289,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search class="active">Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search class="active">ES Connections</a></li>
 	
 
 
@@ -306,7 +310,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -346,7 +350,7 @@
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="http://relateit.io/configuration/configuration1">Elasticsearch</a></dd>       
+          <dd data-magellan-arrival="1" class="active"><a href="http://relateit.io/configuration/configuration1">ES Connections</a></dd>       
         
         <li class="divider">|</li>
         
@@ -364,7 +368,7 @@
         
          
         
-          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">JVM</a></dd>
+          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">Webapp JVM</a></dd>
         
         <li class="divider">|</li>
         
@@ -390,7 +394,7 @@
 </div>      
 <!-- This loops through the paginated posts -->
 
-  <h1><a href="/configuration/configuration1">Elasticsearch</a></h1>
+  <h1><a href="/configuration/configuration1">ES Connections</a></h1>
   <div class="content">
     <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
 
@@ -398,7 +402,7 @@
 
 <p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
 
-<pre><code>Current embedded elasticsearch version is: **0.90.9**</code></pre>
+<pre><code>Current embedded elasticsearch version is: **1.0.0**</code></pre>
 
 <p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
 
@@ -406,7 +410,11 @@
 
 <p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
 
-<p>The reason behind no support for HTTP endpoint is just to focus on using the most performant client option, which is that of the transport client. HTTP support is on the list of things to enable, but it would require either extra configuration at your side (i.e. a load balancer), or for the application to provide a simple round robin implementation to round robin request over a list of nodes. So at the moment only the <code>node</code>, or <code>transport</code> option are available. With the default being that of <code>transport</code>.</p>
+<p>The reason behind no support for HTTP endpoint (in versions 1.0.0 and 1.0.1) is just to focus on using the most performant client option, which is that of the transport client. HTTP support is <em>now</em> available in version 1.0.2+.</p>
+
+<p>The HTTP support requires either extra configuration at your side (i.e. a load balancer) to load balance over your ES nodes, Or you can use in simple internal round robin implementation in the HTTP client support.</p>
+
+<p>The default connection protocol is that of <code>transport</code>, but the it is relatively easy to use <em>http</em>; as shown below.</p>
 
 <h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
 
@@ -421,6 +429,77 @@
 <pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
 
 <p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+<hr />
+<h3 id="elasticsearch_http_connection_configuration">Elasticsearch HTTP Connection Configuration</h3>
+
+<p>As of release 1.0.2+ an http client connection has been made available, <a href="https://github.com/tootedom/related/issues/2">Issue 2</a>. The http client connection means that you do not have to have ES client library, as that of the ES server. This means you can upgrade the server with less fear of breaking the client implementation.</p>
+
+<p>The Http client library used is that of the <a href="https://github.com/AsyncHttpClient/async-http-client">AsyncHttpClient</a>. Even though the asynchronous features of this http client library have not been taken advantage of, the easy of use of the library made it a preferred choice over that of something like Apache’s Http Client.</p>
+
+<p>To enable the HTTP client connection you need to specify the property:</p>
+
+<pre><code>-Drelated-item.es.client.type=http</code></pre>
+
+<p>With this enabled the indexing and searching web applications use the HTTP connection factory to talk to the ES server’s http endpoint. In order for the app to know what to talk to you specify the following property (by default it is <code>http://127.0.0.1:9200</code>):</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200</code></pre>
+
+<p>You can specify multiple hosts, by comma separating them:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200,http://10.0.1.49:9200</code></pre>
+
+<p>The http client will round robin requests over the given number of endpoints* (<em>see below for round robin details</em>).</p>
+
+<p>By default the HTTP client will run a background scheduling task that talks to each ES endpoint, checking for any newly added ES nodes. If a node has been added the HTTP client is notified of the new host, and it will be made available for round robin allocation of http requests. The background thread runs every 15 minutes hitting the following url:</p>
+
+<pre><code>host:port/_nodes/http</code></pre>
+
+<p>from the returned json it parses the http endpoint information building a list of available connections. It is that list that forms the new list of load balanced nodes.</p>
+
+<p>This sniffing of available ES servers can be disabled with the following property:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.nodesniffing.enabled=false</code></pre>
+
+<p>If you wish to descrease the frequency of which the sniffing takes place use the following property:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.nodesniffing.retry.interval=30</code></pre>
+
+<p>The default unit is minutes. This can be changed with the property:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.nodesniffing.retry.interval.unit=secs|mins|hours|days</code></pre>
+<hr />
+<h4 id="elasticsearch_http_connection_round_robin">Elasticsearch HTTP Connection Round Robin</h4>
+
+<p>The Http Client performs round robin load balancing of requests over the set of available ES http nodes. So for example given 2 hosts:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200</code></pre>
+
+<p>Each host will be sent an equal number of requests. The round robin load balancing implementation uses an array size to a power of 2, to loop over the array of available hosts. This means for a list of 3 hosts. The load is <em>NOT</em> spread evenly over the nodes. Given 3 hosts:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200</code></pre>
+
+<p>The host list internally will be expanded to a power of 2 (i.e 4 available hosts for load balancing). The extra hosts are made up from the existing list of actual available. Which means that for 3 defined hosts. 1 host will get more traffic than then others. For example the repetition may something like the follwoing list, where <code>http://10.0.1.19:9200</code> is in the list twice.</p>
+
+<pre><code>http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200,http://10.0.1.19:9200</code></pre>
+<hr />
+<h4 id="http_connection_configuration">Http Connection configuration</h4>
+
+<p>The following properties can be used to control the HTTP connections, such as the request and connection timeouts to the elasticsearch nodes.</p>
+<table><thead><tr><th>Property</th><th>Use</th></tr></thead><tbody><tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.request.timeout.ms=5000</code></td><td style="text-align: left;">The max amount ot time the http request agaist the elastic search node can take</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.connect.timeout.ms=2000</code></td><td style="text-align: left;">The max amount of time the http request can take to connect to the elasticsearch node</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.no.of.retries=0</code></td><td style="text-align: left;">The number of retries to try against the elasticsearch node.</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.follow.redirects=false</code></td><td style="text-align: left;">If we should automatically follow redirects issued by elasticsearch</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.connection.pool.enabled=true</code></td><td style="text-align: left;">If keep alive connections should be made to the elasticsearch nodes</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.compression.enabled=true</code></td><td style="text-align: left;">Compressed responses from elasticsearch can be dealt with</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.request.timeout.ms=15000</code></td><td style="text-align: left;">The amount of time allowed for making the node request to the elasticsearch server.</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.connect.timeout.ms=5000</code></td><td style="text-align: left;">The amount of time allowed to establish a connection to the elasticsearch node to obtain the nodes it knows about</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.no.of.retries=0</code></td><td style="text-align: left;">The number of automatic retries the GET request for node information.</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.multisearch.endpoint=/_msearch</code></td><td style="text-align: left;">The searching endpoint</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.endpoint=/_nodes/http</code></td><td style="text-align: left;">The endpoint used for sniffing nodes added to the cluster</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.retry.interval=15</code></td><td style="text-align: left;">The amount of time between runs for sniffing the cluster for any newly added elasticsearch nodes</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.retry.interval.unit=mins</code></td><td style="text-align: left;">The duration (minutes) for which the interval applies: days,hours,mins,secs</td></tr>
+<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.enabled=true</code></td><td style="text-align: left;">If node sniffing is enabled or not.</td></tr>
+</tbody></table>
   </div>
 
 

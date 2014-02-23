@@ -4,15 +4,19 @@
 
 
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-   
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">   
+  
+  
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    
+    <title>ES Configuration</title>
+    
 
     
-    <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    <meta name="description" content="Specifies the required settings in the elasticsearch.yml configuration for the indexing and search webapps to talk to elasticsearch"/>
+    
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />
@@ -146,7 +150,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -167,7 +171,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -287,7 +291,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="http://relateit.io/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -308,7 +312,7 @@
  
 
 	
-	<li><a href="http://relateit.io/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="http://relateit.io/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -347,7 +351,7 @@
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://relateit.io/configuration/configuration1">Elasticsearch</a></dd>
+          <dd data-magellan-arrival="1" ><a href="http://relateit.io/configuration/configuration1">ES Connections</a></dd>
         
         <li class="divider">|</li>
         
@@ -365,7 +369,7 @@
         
          
         
-          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">JVM</a></dd>
+          <dd data-magellan-arrival="4" ><a href="http://relateit.io/configuration/configuration4">Webapp JVM</a></dd>
         
         <li class="divider">|</li>
         
@@ -391,16 +395,16 @@
 </div>      
 
     <h1><a href="/configuration/configuration3">ES Configuration</a></h1>
-    <p>The elasticsearch server itself also requires some configuration. By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the <em>data/</em> directory in it’s download installation location. You more than like want to:</p>
+    <p>The elasticsearch server itself also requires some configuration. By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the <code>data/</code> directory in the elasticsearch download installation location. You will more than likely want to make changes to this configuration, for example:</p>
 
 <pre><code>* Move to unicast if your network does not cope with multicast traffic routing well (i.e. multiple data centres, etc.)
 * Move the local storage to a raid array, with raid 1, 5 or raid 1+0 (10), away from the data/ directory.  So that you can update the elasticsearch binaries without affecting the data indexed.</code></pre>
 
-<p>The elasticsearch configuration file (<code>config/elasticsearch.yml</code>), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being <code>&quot;relateditems&quot;</code>). The name of the cluster is controlled by the following property on the Searching or Indexing web application:</p>
+<p>The elasticsearch configuration file (<code>config/elasticsearch.yml</code>), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being <code>relateditems</code>). The name of the cluster is controlled by the following property on the Searching or Indexing web application:</p>
 
-<pre><code>* related-item.storage.cluster.name</code></pre>
+<pre><code>related-item.storage.cluster.name</code></pre>
 
-<p>Therefore the elasticsearch configuration (<strong>config/elasticsearch.yml</strong>) should have the following set:</p>
+<p>Therefore the elasticsearch configuration (<code>config/elasticsearch.yml</code>) should have the following set:</p>
 
 <pre><code>cluster.name: relateditems</code></pre>
 
