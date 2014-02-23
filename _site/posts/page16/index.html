@@ -2,14 +2,18 @@
 <!doctype html>
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-    
+  
+   
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    
+    <title>Relateit.io</title>
+    
 
     
-    <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    <meta name="description" content="Application that provides a simple way to relate items together.  The most common use of this is show customers a 'Also Bought With' section on a web page"/>
+    
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />
@@ -57,6 +61,22 @@
       	overflow: scroll;
       }
     </style>
+
+	
+	
+		
+
+	
+	
+		
+
+	
+	
+		
+
+	
+	
+		
 
 	
 	
@@ -230,7 +250,7 @@
 	          <h4>Searching</h4>
 	          <p>Find the items that are mostly purchased with product <strong>1</strong>, filtering the results to that of “torches” (type=torch):</p>
 
-<pre><code>curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch | python -mjson.tool</code></pre>
+<pre><code>curl -v -N http://localhost:8080/searching/frequentlyrelatedto/1?type=torch</code></pre>
 
 <p>The result is:</p>
 
@@ -252,7 +272,7 @@
 
 <p>This can be reduced event further to search for torches, just in channel uk, which is:</p>
 
-<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot; | python -mjson.tool</code></pre>
+<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&amp;channel=uk&quot;</code></pre>
 
 <p>Which will result in just the one related item:</p>
 

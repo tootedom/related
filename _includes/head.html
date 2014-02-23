@@ -1,10 +1,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    {% if pageTitle == '' %}
+    <title>Relate it</title>
+    {% else %}
+    <title>{{pageTitle}}</title>
+    {% endif %}
 
-    
+    {% if pageDesc == '' %}
     <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    {% else %}
+    <meta name="description" content="{{pageDesc}}"/>
+    {% endif %}
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />

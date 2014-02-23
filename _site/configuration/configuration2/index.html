@@ -4,15 +4,19 @@
 
 
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-   
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">   
+  
+  
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Relate It</title>
+    
+    <title>ES Type Mapping</title>
+    
 
     
-    <meta name="description" content="Relate it: Tracks Frequently Related Items.  Enabling you to present a 'Also Bought With' section to customers."/>
+    <meta name="description" content="Gives a base template for the mapping to used for the related item documents when stored in the Elasticsearch cluster"/>
+    
     
     <meta name="author" content="Dominic Tootell" />
     <meta name="copyright" content="relate it (c) 2013-2014" />
@@ -146,7 +150,7 @@
  
 
 	
-	<li><a href="/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -167,7 +171,7 @@
  
 
 	
-	<li><a href="/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -287,7 +291,7 @@
  
 
 	
-	<li><a href="/configuration/configuration1" data-search>Elasticsearch</a></li>
+	<li><a href="/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -308,7 +312,7 @@
  
 
 	
-	<li><a href="/configuration/configuration4" data-search>JVM</a></li>
+	<li><a href="/configuration/configuration4" data-search>Webapp JVM</a></li>
 	
 
 
@@ -347,7 +351,7 @@
         
          
         
-          <dd data-magellan-arrival="1" ><a href="/configuration/configuration1">Elasticsearch</a></dd>
+          <dd data-magellan-arrival="1" ><a href="/configuration/configuration1">ES Connections</a></dd>
         
         <li class="divider">|</li>
         
@@ -365,7 +369,7 @@
         
          
         
-          <dd data-magellan-arrival="4" ><a href="/configuration/configuration4">JVM</a></dd>
+          <dd data-magellan-arrival="4" ><a href="/configuration/configuration4">Webapp JVM</a></dd>
         
         <li class="divider">|</li>
         
@@ -429,7 +433,7 @@
 
 <p>If the related documents you are indexed are going to have more properties (i.e. channel, type, etc). You need to expand upon the mapping above to detail those properties. A guide to mapping can be found <a href="http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html">In the following elasticsearch documentation</a></p>
 
-<pre><code>curl -XPUT http://10.0.1.19:9200/_template/relateditems -d &#39;{
+<pre><code>curl -XPUT http://localhost:9200/_template/relateditems -d &#39;{
     &quot;template&quot; : &quot;relateditems*&quot;,
     &quot;settings&quot; : {
         &quot;number_of_shards&quot; : 1,

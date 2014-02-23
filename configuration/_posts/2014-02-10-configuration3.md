@@ -4,20 +4,21 @@ page_no : 3
 date : 2014-02-13
 category : configuration
 title : ES Configuration
+desc : Specifies the required settings in the elasticsearch.yml configuration for the indexing and search webapps to talk to elasticsearch
 categories : 
 - configuration
 ---
 
-The elasticsearch server itself also requires some configuration.  By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the *data/* directory in it's download installation location.  You more than like want to:
+The elasticsearch server itself also requires some configuration.  By default out of the box elastic search will use multicast to locate other nodes in the cluster, and will locally store indexes inside the `data/` directory in the elasticsearch download installation location.  You will more than likely want to make changes to this configuration, for example:
 
     * Move to unicast if your network does not cope with multicast traffic routing well (i.e. multiple data centres, etc.)
     * Move the local storage to a raid array, with raid 1, 5 or raid 1+0 (10), away from the data/ directory.  So that you can update the elasticsearch binaries without affecting the data indexed.
 
-The elasticsearch configuration file (`config/elasticsearch.yml`), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being `"relateditems"`).  The name of the cluster is controlled by the following property on the Searching or Indexing web application:
+The elasticsearch configuration file (`config/elasticsearch.yml`), needs to be updated to reflect the default cluster name that the indexing and searching application will be looking for the elasticsearch cluster/nodes to be operating with (the default being `relateditems`).  The name of the cluster is controlled by the following property on the Searching or Indexing web application:
 
-    * related-item.storage.cluster.name
+    related-item.storage.cluster.name
 
-Therefore the elasticsearch configuration (**config/elasticsearch.yml**) should have the following set:
+Therefore the elasticsearch configuration (`config/elasticsearch.yml`) should have the following set:
  
     cluster.name: relateditems
 

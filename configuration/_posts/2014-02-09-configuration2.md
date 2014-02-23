@@ -4,6 +4,7 @@ page_no : 2
 date : 2014-02-14
 category : configuration
 title : ES Type Mapping
+desc : Gives a base template for the mapping to used for the related item documents when stored in the Elasticsearch cluster
 categories : 
 - configuration
 ---
@@ -42,7 +43,7 @@ When indexing documents in elasticsearch, if a type (i.e. "related") does not ha
 
 If the related documents you are indexed are going to have more properties (i.e. channel, type, etc).  You need to expand upon the mapping above to detail those properties.  A guide to mapping can be found [In the following elasticsearch documentation](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-core-types.html)
 
-    curl -XPUT http://10.0.1.19:9200/_template/relateditems -d '{
+    curl -XPUT http://localhost:9200/_template/relateditems -d '{
         "template" : "relateditems*",
         "settings" : {
             "number_of_shards" : 1,

@@ -6,7 +6,7 @@ sitemap_include: false
 
 Find the items that are mostly purchased with product **1**, filtering the results to that of "torches" (type=torch):
 
-    curl -v -N http://10.0.1.29:8080/searching/frequentlyrelatedto/1?type=torch | python -mjson.tool
+    curl -v -N http://localhost:8080/searching/frequentlyrelatedto/1?type=torch
 
 The result is:
 
@@ -28,7 +28,7 @@ The result is:
 
 This can be reduced event further to search for torches, just in channel uk, which is:
 
-    curl -v -N "http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&channel=uk" | python -mjson.tool
+    curl -v -N "http://localhost:8080/searching/frequentlyrelatedto/1?type=torch&channel=uk"
 
 Which will result in just the one related item:
 

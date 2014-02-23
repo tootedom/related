@@ -3,7 +3,8 @@ is_for_config : true
 page_no : 4
 date : 2014-02-12
 category : configuration
-title : JVM
+title : Webapp JVM
+desc : JVM settings for the indexing and searching Web Applications, based on the defaults out of the box configuration.
 categories : 
 - configuration
 ---
@@ -17,7 +18,7 @@ are listed below (jdk7 - the following options *WILL NOT* work on jdk6).
 The JVM options slightly differ between searching and indexing.  The common options
 are listed and then the differences listed:
 
-### Common options for Web Applications
+### Common options for both Web Applications
 
     -XX:CMSInitiatingOccupancyFraction=85
     -XX:MaxTenuringThreshold=15

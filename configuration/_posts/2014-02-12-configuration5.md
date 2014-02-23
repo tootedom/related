@@ -4,6 +4,7 @@ page_no : 5
 date : 2014-02-11
 category : configuration
 title : App Config
+desc: Detailed list of configuration options for the Indexing and Searching Web Applications
 categories : 
 - configuration
 ---
