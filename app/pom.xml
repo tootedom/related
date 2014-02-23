@@ -50,7 +50,7 @@
         <git.sites.repo.url>https://raw.github.com/tootedom/tootedom-mvn-repo/master/sites</git.sites.repo.url>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <elastic.version>1.0.0</elastic.version>
-        <slf4j.version>1.7.5</slf4j.version>
+        <slf4j.version>1.7.6</slf4j.version>
         <log4j2.version>2.0-rc1</log4j2.version>
         <async.version>1.8.3</async.version>
 
@@ -95,7 +95,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.6.1</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
 

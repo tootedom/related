@@ -129,7 +129,7 @@ public class ConfigurationConstants {
     public static final int DEFAULT_RELATED_ITEM_ADDITIONAL_PROPERTY_VALUE_LENGTH = 30;
     public static final int DEFAULT_SIZE_OF_INCOMING_REQUEST_QUEUE = 16384;
     public static final int DEFAULT_SIZE_OF_BATCH_STORAGE_INDEX_REQUEST_QUEUE = -1;
-    public static final int DEFAULT_BATCH_INDEX_SIZE = 625;
+    public static final int DEFAULT_BATCH_INDEX_SIZE = 16;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE = 16384;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_HANDLER_QUEUE = -1;
     public static final int DEFAULT_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE = -1;
@@ -187,7 +187,7 @@ public class ConfigurationConstants {
     public static final boolean DEFAULT_RELATED_ITEM_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED = false;
 
     public static final int DEFAULT_ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS = 5000;
-    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS = 1000;
+    public static final int DEFAULT_ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS = 2000;
     public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NO_OF_RETRIES = 0;
     public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS = false;
     public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED = true;

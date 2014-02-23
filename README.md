@@ -63,7 +63,7 @@ The Indexing and Searching components do not need to directly be used.  In other
 * JDK 7 (recommended jdk7u40+).
 * Java Web Application Server (Tested on Tomcat).
 * Requires Servlet 3
-* Elasticsearch 0.90.11  (1.0.2)
+* Elasticsearch 1.0.0  (1.0.3)
 
 
 ## Releases ##
@@ -79,14 +79,18 @@ will be available in the future.
 
 ### Searching War ###
 
-* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.2/related-web-searching-1.0.2.war coming soon (0.90.11)
-* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war (0.90.9)
+* 1.0.4 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.4/related-web-searching-1.0.4.war (es v1.0.0)
+* 1.0.3 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.3/related-web-searching-1.0.3.war (es v1.0.0)
+* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.2/related-web-searching-1.0.2.war (es v0.90.11)
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war (es v0.90.9)
 * 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war
 
 ### Indexing War ###
 
-* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.2/related-web-indexing-1.0.2.war coming soon (0.90.11)
-* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war (0.90.9)
+* 1.0.4 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.4/related-web-indexing-1.0.4.war (es v1.0.0)
+* 1.0.3 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.3/related-web-indexing-1.0.3.war (es v1.0.0)
+* 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.2/related-web-indexing-1.0.2.war (es v0.90.11)
+* 1.0.1 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war (es v0.90.9)
 * 1.0.0 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war
 
 ___

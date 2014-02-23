@@ -9,7 +9,9 @@ import org.greencheek.related.util.config.Configuration;
 
 import java.util.concurrent.ExecutorService;
 
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
 
 /**
  * Given a configuration object, creates a AsyncHttpClient object
@@ -27,7 +29,17 @@ public class AHCFactory {
      */
     public static AsyncHttpClient createClient(Configuration configuration, int numberOfHostsBeingConnectedTo) {
 
-        AsyncHttpClientConfig.Builder cf = createClientConfig(configuration).setMaximumConnectionsTotal(numberOfHostsBeingConnectedTo);
+
+        AsyncHttpClientConfig.Builder cf = createClientConfig(configuration);
+        // A Bug exists in the AsyncConnection library that leak permits on a
+        // Connection exception (i.e. when host not listening .. hard fail)
+        // So we do not enable connection tracking.  Which is fine as the ring
+        // buffer does the job of having a single thread talking to the backend repo (ES)
+        // So the connection should not grow in an unmanaged way, as the ring buffer
+        // is restricting the connections
+        // cf.setMaximumConnectionsTotal(numberOfHostsBeingConnectedTo);
+        cf.setMaximumConnectionsTotal(-1);
+        cf.setMaximumConnectionsPerHost(-1);
         cf.setExecutorService(getExecutorService(numberOfHostsBeingConnectedTo));
 
         return createClient(cf);
@@ -39,10 +51,14 @@ public class AHCFactory {
 
     public static AsyncHttpClientConfig.Builder createClientConfig(Configuration configuration) {
         AsyncHttpProviderConfig providerConfig =  new NettyAsyncHttpProviderConfig();
-        providerConfig.addProperty(NettyAsyncHttpProviderConfig.USE_BLOCKING_IO,true);
+        // We use nio, instead of having a thread per backend ES server node.
+        // providerConfig.addProperty(NettyAsyncHttpProviderConfig.USE_BLOCKING_IO,true);
+        providerConfig.addProperty(NettyAsyncHttpProviderConfig.EXECUTE_ASYNC_CONNECT,false);
 
         AsyncHttpClientConfig.Builder cf = new AsyncHttpClientConfig.Builder();
+
         cf.setAsyncHttpClientProviderConfig(providerConfig);
+        cf.setIOThreadMultiplier(1);
         cf.setCompressionEnabled(configuration.getElasticSearchHttpCompressionEnabled());
         cf.setConnectionTimeoutInMs(configuration.getElasticSearchHttpConnectionTimeoutMs());
         cf.setFollowRedirects(configuration.getElasticSearchHttpFollowRedirects());
@@ -50,10 +66,17 @@ public class AHCFactory {
         cf.setMaxRequestRetry(configuration.getElasticSearchHttpNoOfRetries());
         cf.setAllowPoolingConnection(configuration.getElasticSearchHttpConnectionPoolingEnabled());
         cf.setRequestTimeoutInMs(configuration.getElasticSearchHttpRequestTimeoutMs());
+
         return cf;
     }
 
     private static ExecutorService getExecutorService(int numberOfHostsBeingConnectedTo) {
-        return newFixedThreadPool(numberOfHostsBeingConnectedTo,new DefaultNameableThreadFactory("EsHttpSearchExecutor"));
+        // Cached thread pool is used.  As we cannot control the number of workers
+        // for netty.  Which is determine via the number of processors available on the machine
+        // The number of items on the queue of requests for the executor is bounded by the
+        // ring buffer.
+        //
+        //
+        return newCachedThreadPool(new DefaultNameableThreadFactory("EsHttpSearchExecutor"));
     }
 }

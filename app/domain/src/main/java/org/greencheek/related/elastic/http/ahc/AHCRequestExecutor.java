@@ -65,7 +65,6 @@ public  class AHCRequestExecutor {
                 }
             }
             else {
-                e.printStackTrace();
                 log.error("Exception talking to {}",host,e);
                 return new HttpResult(HttpSearchExecutionStatus.REQUEST_FAILURE,null);
             }
