@@ -40,9 +40,12 @@
 
 # Relateit
 
-**relateit** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:  "For this item, what are the most frequently related items."
+**relateit** is a simple and easy way to relate one item to several others.  Once several items are related, you can enquire:
+ "For this item, what are the most frequently related items."
 
-An example use case of this functionality is on a web site to associate the items the people are purchasing.  If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.  When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is most frequently purchased with.  
+An example use case of this functionality is on a web site to associate the items the people are purchasing.
+ If a person purchases the books 'Java Performance Tuning', 'Akka Concurrency' and 'Java concurrency in practice' at the same time.
+ When a second user is browsing 'Java Performance Tuning', you can present that user with related items that this book is most frequently purchased with.
 
 This application has 3 parts to it:
 
@@ -63,7 +66,7 @@ The Indexing and Searching components do not need to directly be used.  In other
 * JDK 7 (recommended jdk7u40+).
 * Java Web Application Server (Tested on Tomcat).
 * Requires Servlet 3
-* Elasticsearch 1.0.0  (1.0.3)
+* Elasticsearch 1.0.0  (1.0.4)
 
 
 ## Releases ##
@@ -76,6 +79,12 @@ This mean you can download manually, or via maven.
 
 Apologies for the lack of other options at the moment, and formats.  An rpm download format (with possible customization)
 will be available in the future.
+
+The current release version is 1.0.4.  This release includes support for HTTP connections to the Elasticsearch cluster.
+This means you do not require the same ES client jar version as the server.  The HTTP client in release 1.0.4. can for instance
+connect to an ES cluster running 0.90.11, or 1.0.0.
+
+Release 1.0.4 includes ES 1.0.0 client jars.  Which means to use TCP or NODE transport the ES cluster needs to be 1.0.0
 
 ### Searching War ###
 
