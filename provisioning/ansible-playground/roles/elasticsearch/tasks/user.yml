@@ -1,0 +1,8 @@
+# file: roles/elasticsearch/tasks/user.yml
+
+- name: Elasticsearch | Make sure the elasticsearch group is present
+  group: name={{ elasticsearch_user }}
+
+- name: Elasticsearch | Make sure the elasticsearch user is present
+  user: name={{ elasticsearch_user }} group={{ elasticsearch_group }} home="/home/{{ elasticsearch_user }}" shell=/bin/bash state=present comment="elasticsearch user"
+

@@ -1,0 +1,9 @@
+#file: roles/elasticsearch/defaults/main.yml
+
+elasticsearch_version: 1.0.0
+elasticsearch_user: elasticsearch
+elasticsearch_group: elasticsearch
+
+######################### elasticsearch.yml - Cluster #########################
+elasticsearch_cluster_name: relateditems
+

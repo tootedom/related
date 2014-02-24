@@ -1,0 +1,5 @@
+
+
+jdk_download_url: "http://download.oracle.com/otn-pub/java/jdk/7u51-b13/jdk-7u51-linux-x64.tar.gz"
+jdk_download_filename: jdk-7u51-linux-x64.tar.gz
+jdk_version: jdk1.7.0_51

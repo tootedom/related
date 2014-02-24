@@ -754,7 +754,7 @@ By default the HTTP client will run a background scheduling task that talks to e
 added ES nodes.  If a node has been added the HTTP client is notified of the new host, and it will be made available for
 round robin allocation of http requests.  The background thread runs every 15 minutes hitting the following url:
 
-   <host>:<port>/_nodes/http
+    host:port/_nodes/http
 
 from the returned json it parses the http endpoint information building a list of available connections.  It is that
 list that forms the new list of load balanced nodes.
@@ -915,6 +915,7 @@ are listed and then the differences listed:
 
 ### Common options for Web Applications
 
+    -XX:+UnlockDiagnosticVMOptions
     -XX:CMSInitiatingOccupancyFraction=85
     -XX:MaxTenuringThreshold=15
     -XX:CMSWaitDuration=70000    
@@ -922,10 +923,10 @@ are listed and then the differences listed:
     -XX:ParGCCardsPerStrideChunk=4096
     -XX:+UseParNewGC
     -XX:+UseConcMarkSweepGC
-    -XX:+UseCMSInitiatingOccupancyOnly    
-    -XX:+UnlockDiagnosticVMOptions
+    -XX:+UseCMSInitiatingOccupancyOnly
     -XX:+AggressiveOpts
     -XX:+UseCondCardMark
+    -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 
 ----
 Below shows the heap configuration for indexing and search.  The difference between

@@ -1,0 +1,5 @@
+#file: roles/elasticsearch/tasks/main.yml
+
+- include: user.yml
+- include: install.yml
+- include: configure.yml

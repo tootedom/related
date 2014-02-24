@@ -1,0 +1,48 @@
+---
+- name: add group "tomcat"
+  group: name=tomcat
+
+- name: add user "tomcat"
+  user: name=tomcat group=tomcat home=/usr/share/tomcat
+  sudo: True
+
+- name: delete home dir for symlink of tomcat
+  shell: rm -fr /usr/share/tomcat
+  sudo: True
+
+- name: Download Tomcat
+  get_url: url=http://apache.mirror.anlx.net/tomcat/tomcat-7/v7.0.52/bin/apache-tomcat-7.0.52.tar.gz dest=/opt/apache-tomcat-7.0.52.tar.gz
+
+- name: Extract archive
+  command: chdir=/usr/share /bin/tar xvf /opt/apache-tomcat-7.0.52.tar.gz -C /opt/ creates=/opt/apache-tomcat-7.0.52
+
+- name: Symlink install directory
+  file: src=/opt/apache-tomcat-7.0.52 path=/usr/share/tomcat state=link
+
+- name: Remove sample webapps
+  file: state=absent path="{{item}}"
+  with_items:
+   - /usr/share/tomcat/webapps/ROOT
+   - /usr/share/tomcat/webapps/manager
+   - /usr/share/tomcat/webapps/examples
+   - /usr/share/tomcat/webapps/docs
+   - /usr/share/tomcat/webapps/host-manager
+
+- name: Change ownership of Tomcat installation
+  file: path=/usr/share/tomcat/ owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Configure Tomcat server
+  template: src=server.xml dest=/usr/share/tomcat/conf/
+  notify: restart tomcat
+
+- name: Install Tomcat init script
+  template: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+
+- name: Install setenv for tomcat
+  copy: src=setenv.sh dest=/usr/share/tomcat/bin/ mode=0755
+
+- name: Start Tomcat
+  service: name=tomcat state=restarted enabled=yes
+
+- name: wait for tomcat to start
+  wait_for: port={{http_port}}

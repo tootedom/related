@@ -1,0 +1,4 @@
+#file: roles/elasticsearch/meta/main.yml
+
+dependencies:
+  - { role: jdk }

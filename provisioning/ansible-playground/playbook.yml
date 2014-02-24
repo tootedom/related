@@ -1,0 +1,13 @@
+---
+# This playbook deploys a simple standalone Tomcat 7 server. 
+
+- hosts: tomcat
+# controlled in the Vagrantfile
+#  user: root
+
+  roles:
+    - selinux
+    - jdk
+    - elasticsearch
+    - tomcat
+    - relateit

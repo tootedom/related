@@ -21,6 +21,7 @@
 
 package org.greencheek.related.indexing.web.ctxlistener;
 
+import org.apache.logging.log4j.core.async.AsyncLogger;
 import org.greencheek.related.indexing.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.indexing.web.bootstrap.BootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
@@ -53,6 +54,6 @@ public class ApplicationCtxListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        AsyncLogger.stop();
     }
 }

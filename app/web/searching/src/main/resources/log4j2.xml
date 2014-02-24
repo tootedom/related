@@ -4,7 +4,7 @@
         <RollingRandomAccessFile name="SEARCHING" fileName="${sys:related-item.searching.log.file}"
                                  immediateFlush="false" append="true"
                                  filePattern="${sys:related-item.searching.log.file}-%d{yyyy-MM-dd}-%i.log.gz">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
                 <SizeBasedTriggeringPolicy size="50 MB"/>

@@ -1,0 +1,27 @@
+---
+- name: Download current searching War 
+  get_url: url=https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/{{relateit_version}}/related-web-searching-{{relateit_version}}.war  dest=/tmp/searching.war
+
+- name: Download current indexing WAR
+  get_url: url=https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/{{relateit_version}}/related-web-indexing-{{relateit_version}}.war  dest=/tmp/indexing.war
+
+- name: create indexing webapp dir
+  action: command mkdir /usr/share/tomcat/webapps/indexing creates=/usr/share/tomcat/webapps/indexing
+
+- name: create indexing webapp dir
+  action: command mkdir /usr/share/tomcat/webapps/searching creates=/usr/share/tomcat/webapps/searching
+
+- name: Unpack indexing war
+  command: chdir=/usr/share/tomcat/webapps/indexing jar -xvf /tmp/indexing.war WEB-INF creates=/usr/share/tomcat/webapps/indexing/WEB-INF
+
+- name: Unpack searching war
+  command: chdir=/usr/share/tomcat/webapps/searching jar -xvf /tmp/searching.war WEB-INF creates=/usr/share/tomcat/webapps/searching/WEB-INF
+
+- name: Change ownership of Tomcat installation
+  file: path=/usr/share/tomcat/webapps owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Start Tomcat
+  service: name=tomcat state=restarted enabled=yes
+
+- name: wait for tomcat to start
+  wait_for: port={{http_port}}
