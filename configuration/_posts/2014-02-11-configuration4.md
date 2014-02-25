@@ -20,6 +20,7 @@ are listed and then the differences listed:
 
 ### Common options for both Web Applications
 
+    -XX:+UnlockDiagnosticVMOptions
     -XX:CMSInitiatingOccupancyFraction=85
     -XX:MaxTenuringThreshold=15
     -XX:CMSWaitDuration=70000    
@@ -27,10 +28,10 @@ are listed and then the differences listed:
     -XX:ParGCCardsPerStrideChunk=4096
     -XX:+UseParNewGC
     -XX:+UseConcMarkSweepGC
-    -XX:+UseCMSInitiatingOccupancyOnly    
-    -XX:+UnlockDiagnosticVMOptions
+    -XX:+UseCMSInitiatingOccupancyOnly        
     -XX:+AggressiveOpts
     -XX:+UseCondCardMark
+    -DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
 
 ----
 Below shows the heap configuration for indexing and search.  The difference between
