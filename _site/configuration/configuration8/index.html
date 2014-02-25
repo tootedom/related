@@ -1,17 +1,21 @@
 <!doctype html>
+
+
+
+
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
-<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
+<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">   
   
-     
+  
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>ES Connections</title>
+    <title>Provisioning</title>
     
 
     
-    <meta name="description" content="The various ways of connecting the indexing and searching webapps to an Elasticsearch cluster"/>
+    <meta name="description" content="Details of Playground that is available for download."/>
     
     
     <meta name="author" content="Dominic Tootell" />
@@ -53,8 +57,9 @@
 
 
   <!-- End Nav -->
+  
 
-    <div class="off-canvas-wrap">
+  <div class="off-canvas-wrap">
   <div class="inner-wrap">
 
 <nav class="tab-bar show-for-small">
@@ -145,7 +150,7 @@
  
 
 	
-	<li><a href="/configuration/configuration1" data-search class="active">ES Connections</a></li>
+	<li><a href="/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -194,7 +199,7 @@
  
 
 	
-	<li><a href="/configuration/configuration8" data-search>Provisioning</a></li>
+	<li><a href="/configuration/configuration8" data-search class="active">Provisioning</a></li>
 	
 
 
@@ -208,12 +213,9 @@
 <a class="exit-off-canvas" href="#"></a>
 
 
-
   <!-- Main Page Content and Sidebar -->
-  <section role="main">
-  <div class="row">
 
-    
+  <div class="row">
         <div class="large-3 medium-4 columns">
       <div class="hide-for-small">
         <div class="sidebar">
@@ -296,7 +298,7 @@
  
 
 	
-	<li><a href="/configuration/configuration1" data-search class="active">ES Connections</a></li>
+	<li><a href="/configuration/configuration1" data-search>ES Connections</a></li>
 	
 
 
@@ -345,7 +347,7 @@
  
 
 	
-	<li><a href="/configuration/configuration8" data-search>Provisioning</a></li>
+	<li><a href="/configuration/configuration8" data-search class="active">Provisioning</a></li>
 	
 
 
@@ -356,15 +358,14 @@
     </div>
     <!-- Main Blog Content -->
     <div class="large-9 medium-8 columns" role="content">
-
     
-<div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">        
         
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="/configuration/configuration1">ES Connections</a></dd>       
+          <dd data-magellan-arrival="1" ><a href="/configuration/configuration1">ES Connections</a></dd>
         
         <li class="divider">|</li>
         
@@ -406,171 +407,221 @@
         
          
         
-          <dd data-magellan-arrival="8" ><a href="/configuration/configuration8">Provisioning</a></dd>
+          <dd data-magellan-arrival="8" class="active"><a href="/configuration/configuration8">Provisioning</a></dd>       
         
         <li class="divider">|</li>
                 
       </dl>
 </div>      
-<!-- This loops through the paginated posts -->
 
-  <h1><a href="/configuration/configuration1">ES Connections</a></h1>
-  <div class="content">
-    <p>The related item data is stored in that of elasticsearch. The ability to find the frequently related items, for a given item, is provided by that of elasticsearch and its faceting.</p>
+    <h1><a href="/configuration/configuration8">Provisioning</a></h1>
+    <h1 id="overview">Overview</h1>
 
-<p>The indexing and searching web applications use the elasticsearch java library.</p>
+<p>A Vagrant Box has been created (The vagrant box is a VirtualBox Centos 6.5 VM), that contains the Relate It application (Search and Indexing); and an instance of Elasticsearch.</p>
 
-<p>The means by which the indexing and searching applications talk to elastic is by using the elasticsearch binary transport protocol. Meaning, the version of the client embedded within the web applications (indexing and searching), <em>MUST</em> match that of the elasticsearch server. Also, the version of JAVA on the client and the server <code>MUST</code> be the same.</p>
-
-<pre><code>Current embedded elasticsearch version is: **1.0.0**</code></pre>
-
-<p>By default both applications use the Transport protocol to connect to elasticsearch with sniffing enabled:</p>
-
-<pre><code>client.transport.sniff : true</code></pre>
-
-<p>(Sniffing means that you can specify only a couple of hosts, and the client will glen information on the rest of the cluster through those nodes).</p>
-
-<p>The reason behind no support for HTTP endpoint (in versions 1.0.0 and 1.0.1) is just to focus on using the most performant client option, which is that of the transport client. HTTP support is <em>now</em> available in version 1.0.2+.</p>
-
-<p>The HTTP support requires either extra configuration at your side (i.e. a load balancer) to load balance over your ES nodes, Or you can use in simple internal round robin implementation in the HTTP client support.</p>
-
-<p>The default connection protocol is that of <code>transport</code>, but the it is relatively easy to use <em>http</em>; as shown below.</p>
-
-<h3 id="elasticsearch_connection_configuration">Elasticsearch Connection Configuration</h3>
-
-<p>The defaults for indexing and searching have been set based on a JVM the is running 1GB with 128m of PermGen (The specific configuration for these JVM Parameters can be found below).</p>
-
-<p>At minimum the only configuration required is the connection details for your elasticsearch installation:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300</code></pre>
-
-<p>This can be a comma separated list of hosts:</p>
-
-<pre><code>related-item.elastic.search.transport.hosts=10.0.1.19:9300,10.0.1.29:9300</code></pre>
-
-<p>By default the application uses the TRANSPORT client to connect to elastic search. If you only specify one host, but you have 2 nodes in your elasticsearch cluster, the transport client is enabled by default to sniff (ask the node for information about other nodes in the cluster), and obtain a list of other nodes to connect to.</p>
+<p>This vagrant box is provided as a playground for you to experiment with the Relate It application and that of elasticsearch. The vagrant box has been pre-created using Vagrant 1.4.3 and Ansible 1.4.5. The <code>Vagrantfile</code> and the playbook for creating the vm can be found at: <a href="https://github.com/tootedom/related/tree/master/provisioning/ansible-playground">Relate it playground provisioning</a>.</p>
 <hr />
-<h3 id="elasticsearch_http_connection_configuration">Elasticsearch HTTP Connection Configuration</h3>
+<h2 id="playground_requirements">Playground Requirements</h2>
 
-<p>As of release 1.0.2+ an http client connection has been made available, <a href="https://github.com/tootedom/related/issues/2">Issue 2</a>. The http client connection means that you do not have to have ES client library, as that of the ES server. This means you can upgrade the server with less fear of breaking the client implementation.</p>
+<p>In order to use the Playground you need two pieces of software</p>
 
-<p>The Http client library used is that of the <a href="https://github.com/AsyncHttpClient/async-http-client">AsyncHttpClient</a>. Even though the asynchronous features of this http client library have not been taken advantage of, the easy of use of the library made it a preferred choice over that of something like Apache’s Http Client.</p>
+<ul>
+<li><a href="https://www.virtualbox.org/wiki/Downloads">Virtual Box 4.3.6+</a></li>
 
-<p>To enable the HTTP client connection you need to specify the property:</p>
+<li><a href="http://www.vagrantup.com/downloads.html">Vagrant 1.4.3+</a></li>
+</ul>
 
-<pre><code>-Drelated-item.es.client.type=http</code></pre>
-
-<p>With this enabled the indexing and searching web applications use the HTTP connection factory to talk to the ES server’s http endpoint. In order for the app to know what to talk to you specify the following property (by default it is <code>http://127.0.0.1:9200</code>):</p>
-
-<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200</code></pre>
-
-<p>You can specify multiple hosts, by comma separating them:</p>
-
-<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200,http://10.0.1.49:9200</code></pre>
-
-<p>The http client will round robin requests over the given number of endpoints* (<em>see below for round robin details</em>).</p>
-
-<p>By default the HTTP client will run a background scheduling task that talks to each ES endpoint, checking for any newly added ES nodes. If a node has been added the HTTP client is notified of the new host, and it will be made available for round robin allocation of http requests. The background thread runs every 15 minutes hitting the following url:</p>
-
-<pre><code>host:port/_nodes/http</code></pre>
-
-<p>from the returned json it parses the http endpoint information building a list of available connections. It is that list that forms the new list of load balanced nodes.</p>
-
-<p>This sniffing of available ES servers can be disabled with the following property:</p>
-
-<pre><code>-Drelated-item.elastic.search.http.nodesniffing.enabled=false</code></pre>
-
-<p>If you wish to descrease the frequency of which the sniffing takes place use the following property:</p>
-
-<pre><code>-Drelated-item.elastic.search.http.nodesniffing.retry.interval=30</code></pre>
-
-<p>The default unit is minutes. This can be changed with the property:</p>
-
-<pre><code>-Drelated-item.elastic.search.http.nodesniffing.retry.interval.unit=secs|mins|hours|days</code></pre>
+<p>Please down load and install the above.</p>
 <hr />
-<h4 id="elasticsearch_http_connection_round_robin">Elasticsearch HTTP Connection Round Robin</h4>
+<h2 id="add_and_download_the_vagrant_playground_box">Add and Download the vagrant playground box</h2>
 
-<p>The Http Client performs round robin load balancing of requests over the set of available ES http nodes. So for example given 2 hosts:</p>
+<p>Run the following command to install the box into Vagrant. This command will download the .box file and install it into Vagrant.</p>
 
-<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200</code></pre>
+<pre><code>vagrant box add relateitplayground http://goo.gl/omKZOm   </code></pre>
 
-<p>Each host will be sent an equal number of requests. The round robin load balancing implementation uses an array size to a power of 2, to loop over the array of available hosts. This means for a list of 3 hosts. The load is <em>NOT</em> spread evenly over the nodes. Given 3 hosts:</p>
+<p>One downloaded you sill be able to run <code>vagrant box list</code> and it will show you the ‘Vagrant’ boxes you have available on your machine:</p>
 
-<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200</code></pre>
+<pre><code> &gt; vagrant box list
+ relateitplayground       (virtualbox)    </code></pre>
 
-<p>The host list internally will be expanded to a power of 2 (i.e 4 available hosts for load balancing). The extra hosts are made up from the existing list of actual available. Which means that for 3 defined hosts. 1 host will get more traffic than then others. For example the repetition may something like the follwoing list, where <code>http://10.0.1.19:9200</code> is in the list twice.</p>
+<p>Once the vagrant box has “added”, the create a new directory and change into it. Inside that directory create a file named <code>Vagrantfile</code>, and put the following in it:</p>
 
-<pre><code>http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200,http://10.0.1.19:9200</code></pre>
+<pre><code>Vagrant.configure(&quot;2&quot;) do |config|
+  config.vm.define &quot;relateit&quot; do |conf|
+    conf.vm.hostname = &quot;relateit&quot;
+    conf.vm.box = &quot;relateitplayground&quot;
+    conf.vm.network &quot;forwarded_port&quot;, guest: 8080, host: 28080
+    conf.vm.network &quot;forwarded_port&quot;, guest: 9200, host: 29200         
+    conf.vm.provider &quot;virtualbox&quot; do |v|
+      v.memory = 2048
+    end
+  end
+end    </code></pre>
+
+<p>Once added run:</p>
+
+<pre><code>vagrant up</code></pre>
+
+<p>This will start the Virtual Machine which will have the following ports forwarded to the virtual machine:</p>
+
+<ul>
+<li>28080 forwarding to 8080 (tomcat http) on the VM</li>
+
+<li>29200 forwarding to 9200 (elasticsearch http) on the VM</li>
+</ul>
+
+<p>To log into the virtual machine you can run <code>vagrant ssh</code></p>
+
+<p>The relateit searching and web application is running in the tomcat at <code>/usr/share/tomcat</code>. This can be stopped and started with</p>
+
+<pre><code>service tomcat stop
+service tomcat start</code></pre>
+
+<p>The elasticsearch instance can be stopped an started with the following:</p>
+
+<pre><code>service elasticsearch stop
+service elasticsearch start</code></pre>
+
+<p>When the machine is started with vagrant the tomcat and elasticsearch instance will be start when the Virtual Machine starts</p>
+
+<p>This means for indexing or searching you can execute requests against port 28080 locally, which will be automatically routed to port 8080 on the VM. For example</p>
+
+<p>To index a related item execute the following</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:28080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;de&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;1&quot;,
+         &quot;type&quot;:&quot;map&quot;
+      },
+      {
+         &quot;id&quot;:&quot;2&quot;,
+         &quot;type&quot;:&quot;compass&quot;
+      },
+      {
+         &quot;id&quot;:&quot;3&quot;,
+         &quot;type&quot;:&quot;torch&quot;
+      },
+      {
+         &quot;id&quot;:&quot;4&quot;,
+         &quot;type&quot;:&quot;torch&quot;,
+         &quot;channel&quot;:&quot;uk&quot;
+      }
+    ]
+}&#39;</code></pre>
+
+<p>After waiting a second or two, you should be able to execute the following search and obtain a result (the default install of elasticsearch commits every 1second).</p>
+
+<pre><code>curl http://localhost:28080/searching/frequentlyrelatedto/1    </code></pre>
 <hr />
-<h4 id="http_connection_configuration">Http Connection configuration</h4>
+<h2 id="how_the_playground_was_created">How the Playground was created</h2>
 
-<p>The following properties can be used to control the HTTP connections, such as the request and connection timeouts to the elasticsearch nodes.</p>
-<table><thead><tr><th>Property</th><th>Use</th></tr></thead><tbody><tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.request.timeout.ms=5000</code></td><td style="text-align: left;">The max amount ot time the http request agaist the elastic search node can take</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.connect.timeout.ms=2000</code></td><td style="text-align: left;">The max amount of time the http request can take to connect to the elasticsearch node</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.no.of.retries=0</code></td><td style="text-align: left;">The number of retries to try against the elasticsearch node.</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.follow.redirects=false</code></td><td style="text-align: left;">If we should automatically follow redirects issued by elasticsearch</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.connection.pool.enabled=true</code></td><td style="text-align: left;">If keep alive connections should be made to the elasticsearch nodes</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.compression.enabled=true</code></td><td style="text-align: left;">Compressed responses from elasticsearch can be dealt with</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.request.timeout.ms=15000</code></td><td style="text-align: left;">The amount of time allowed for making the node request to the elasticsearch server.</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.connect.timeout.ms=5000</code></td><td style="text-align: left;">The amount of time allowed to establish a connection to the elasticsearch node to obtain the nodes it knows about</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.no.of.retries=0</code></td><td style="text-align: left;">The number of automatic retries the GET request for node information.</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.multisearch.endpoint=/_msearch</code></td><td style="text-align: left;">The searching endpoint</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.endpoint=/_nodes/http</code></td><td style="text-align: left;">The endpoint used for sniffing nodes added to the cluster</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.retry.interval=15</code></td><td style="text-align: left;">The amount of time between runs for sniffing the cluster for any newly added elasticsearch nodes</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.retry.interval.unit=mins</code></td><td style="text-align: left;">The duration (minutes) for which the interval applies: days,hours,mins,secs</td></tr>
-<tr><td class="nowraptext" style="text-align: left;"><code>related-item.elastic.search.http.nodesniffing.enabled=true</code></td><td style="text-align: left;">If node sniffing is enabled or not.</td></tr>
-</tbody></table>
-  </div>
+<p>This folder contains a ansible playbook that installs on a Vagrant vm the relate it application and elasticsearch.</p>
 
+<h2 id="development_standalone_relate_it_virtual_machine">Development standalone Relate it virtual machine.</h2>
 
-    <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
-         
-        
-        <li class="current"><a href="/configuration/configuration1">1</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration2">2</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration3">3</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration4">4</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration5">5</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration6">6</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration7">7</a></li>
-        
-      
-         
-        
-        <li><a href="/configuration/configuration8">8</a></li>
-        
-      
-      </ul>
-    </div>
+<ul>
+<li>Requires Ansible 1.4 or newer</li>
 
+<li>Requires Virtualbox 4.3.6+</li>
+
+<li>Requires Vagrant 1.4.3 and CentOS/RHEL 6.x hosts from https://github.com/2creatives/vagrant-centos/releases/tag/v6.5.1</li>
+</ul>
+
+<h2 id="installing_ansible">Installing ansible</h2>
+
+<p>Details for installing ansible can be found at: http://docs.ansible.com/intro_installation.html However, for a quick step guide for installation on Mac OS X.</p>
+
+<pre><code>sudo easy_install pip
+sudo pip install ansible</code></pre>
+
+<p>To upgrade after install run:</p>
+
+<pre><code>sudo pip install ansible --upgrade</code></pre>
+
+<p>If you get the following error: <code>configure: error: cannot find sources (src/pycrypto_compat.h)</code> Then it could be one of two things:</p>
+
+<p><strong>1)</strong> Out of date XCode it’s an xcode thing <strong>2)</strong> Or you need to install pycyrpto from source (http://superuser.com/questions/259278/python-2-6-1-pycrypto-2-3-pypi-package-broken-pipe-during-build) when compiling pycrypto</p>
+
+<p>If (2) try to do the following:</p>
+
+<pre><code>download pycrpto source (https://www.dlitz.net/software/pycrypto/):
+untar and cd into it
+run: ./configure
+sudo python ./setup.py build
+sudo python ./setup.py install    </code></pre>
+
+<h2 id="install_virtual_box">Install Virtual box</h2>
+
+<p>Install Virtual box from https://www.virtualbox.org/wiki/Downloads</p>
+
+<h2 id="vagrant">Vagrant</h2>
+
+<p>Install vagrant from http://www.vagrantup.com/downloads.html</p>
+
+<p>Then add the following box:</p>
+
+<pre><code>vagrant box add centos65-x86_64-20131205 https://github.com/2creatives/vagrant-centos/releases/download/v6.5.1/centos65-x86_64-20131205.box</code></pre>
+
+<h2 id="buildingprovisioning_the_vagrant_virtual_machine">Building/Provisioning the Vagrant virtual machine</h2>
+
+<p>The Vagrant/Ansible provisioning in this folder creates a vm that has:</p>
+
+<ul>
+<li>Elasticsearch 1.0.0</li>
+
+<li>Relateit Indexing and Searching application on tomcat 7.0.52, on Oracle jdk1.7.0_51</li>
+</ul>
+
+<p>Provisioning the vm is a matter of running <code>vagrant up</code></p>
+
+<pre><code>vagrant up</code></pre>
+
+<h2 id="talking_to_the_indexing_and_search_application_on_the_virtual_machine">Talking to the Indexing and Search application on the Virtual Machine</h2>
+
+<p>The virtual machine, when started by Vagrant, has the following ports forwarded to the virtual machine:</p>
+
+<ul>
+<li>28080 forwarding to 8080 (tomcat http) on the VM</li>
+
+<li>29200 forwarding to 9200 (elasticsearch http) on the VM</li>
+</ul>
+
+<p>This means for indexing or searching you can execute requests against port 28080 locally, which will be automatically routed to port 8080 on the VM. For example</p>
+
+<p>To index a related item execute the following</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:28080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;de&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;1&quot;,
+         &quot;type&quot;:&quot;map&quot;
+      },
+      {
+         &quot;id&quot;:&quot;2&quot;,
+         &quot;type&quot;:&quot;compass&quot;
+      },
+      {
+         &quot;id&quot;:&quot;3&quot;,
+         &quot;type&quot;:&quot;torch&quot;
+      },
+      {
+         &quot;id&quot;:&quot;4&quot;,
+         &quot;type&quot;:&quot;torch&quot;,
+         &quot;channel&quot;:&quot;uk&quot;
+      }
+    ]
+}&#39;</code></pre>
+
+<p>After waiting a second or two, you should be able to execute the following search and obtain a result (the default install of elasticsearch commits every 1second).</p>
+
+<pre><code>curl http://localhost:28080/searching/frequentlyrelatedto/1    </code></pre>
 
 <!--       <article>
 
@@ -647,6 +698,53 @@
 
   <!-- End Main Content and Sidebar -->
 
+      <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li><a href="/configuration/configuration1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration2">2</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration3">3</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration4">4</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration5">5</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration6">6</a></li>
+        
+      
+         
+        
+        <li><a href="/configuration/configuration7">7</a></li>
+        
+      
+         
+        
+        <li class="current"><a href="/configuration/configuration8">8</a></li>
+        
+      
+      </ul>
+    </div>
 
   <!-- Footer -->
   </div>
@@ -693,6 +791,6 @@
             pageTracker._trackPageview();
             } catch(err) {}
 </script>
-  </section>
   </body>
 </html>
+
