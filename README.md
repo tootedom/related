@@ -32,6 +32,7 @@
 	- [Searching and Indexing Architecture](#searching-and-indexing-architecture)
 			- [Searching](#searching-1)
 			- [Indexing](#indexing)
+	- [Installing a Playground](#installing-a-playground)
 	- [Load Testing](#load-testing)
 		- [Indexing Load Test Output](#indexing-load-test-output)
 		- [Searching Load Test Output](#searching-load-test-output)
@@ -80,7 +81,7 @@ This mean you can download manually, or via maven.
 Apologies for the lack of other options at the moment, and formats.  An rpm download format (with possible customization)
 will be available in the future.
 
-The current release version is 1.0.4.  This release includes support for HTTP connections to the Elasticsearch cluster.
+The current release version is `1.0.5`.  This release includes support for HTTP connections to the Elasticsearch cluster.
 This means you do not require the same ES client jar version as the server.  The HTTP client in release 1.0.4. can for instance
 connect to an ES cluster running 0.90.11, or 1.0.0.
 
@@ -88,6 +89,7 @@ Release 1.0.4 includes ES 1.0.0 client jars.  Which means to use TCP or NODE tra
 
 ### Searching War ###
 
+* 1.0.5 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.5/related-web-searching-1.0.5.war (es v1.0.0)
 * 1.0.4 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.4/related-web-searching-1.0.4.war (es v1.0.0)
 * 1.0.3 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.3/related-web-searching-1.0.3.war (es v1.0.0)
 * 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.2/related-web-searching-1.0.2.war (es v0.90.11)
@@ -96,6 +98,7 @@ Release 1.0.4 includes ES 1.0.0 client jars.  Which means to use TCP or NODE tra
 
 ### Indexing War ###
 
+* 1.0.5 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.5/related-web-indexing-1.0.5.war (es v1.0.0)
 * 1.0.4 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.4/related-web-indexing-1.0.4.war (es v1.0.0)
 * 1.0.3 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.3/related-web-indexing-1.0.3.war (es v1.0.0)
 * 1.0.2 : https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.2/related-web-indexing-1.0.2.war (es v0.90.11)
@@ -1061,6 +1064,122 @@ The below shows a couple of simple high level architecture diagrams for the inde
 
 ![Index Application Architecture](./IndexExecutionArch.png)
 
+
+----
+
+## Installing a Playground
+
+A Vagrant Box has been created (The vagrant box is a VirtualBox Centos 6.5 VM), that contains the Relate It application
+(Search and Indexing); and an instance of Elasticsearch.
+
+This vagrant box is provided as a playground for you to experiment with the Relate It application and that of elasticsearch.
+The vagrant box has been pre-created using Vagrant 1.4.3 and Ansible 1.4.5.  The `Vagrantfile` and the playbook for creating the
+vm can be found at: [Relate it playground provisioning](https://github.com/tootedom/related/tree/master/provisioning/ansible-playground).
+
+
+----
+
+## Playground Requirements
+
+In order to use the Playground you need two pieces of software
+
+- [Virtual Box 4.3.6+](https://www.virtualbox.org/wiki/Downloads)
+- [Vagrant 1.4.3+](http://www.vagrantup.com/downloads.html)
+
+
+Please down load and install the above.
+
+----
+
+## Add and Download the vagrant playground box
+
+Run the following command to install the box into Vagrant.  This command will download the .box file and install it into Vagrant.
+
+    vagrant box add relateitplayground http://goo.gl/omKZOm
+
+One downloaded you sill be able to run `vagrant box list` and it will show you the 'Vagrant' boxes you have available on your machine:
+
+     > vagrant box list
+     relateitplayground       (virtualbox)
+
+Once the vagrant box has "added", the create a new directory and change into it.  Inside that directory create a file named `Vagrantfile`,
+and put the following in it:
+
+    Vagrant.configure("2") do |config|
+      config.vm.define "relateit" do |conf|
+        conf.vm.hostname = "relateit"
+        conf.vm.box = "relateitplayground"
+        conf.vm.network "forwarded_port", guest: 8080, host: 28080
+        conf.vm.network "forwarded_port", guest: 9200, host: 29200
+        conf.vm.provider "virtualbox" do |v|
+          v.memory = 2048
+        end
+      end
+    end
+
+
+Once added run:
+
+    vagrant up
+
+This will start the Virtual Machine which will have the following ports forwarded to the virtual machine:
+
+- 28080 forwarding to 8080 (tomcat http) on the VM
+- 29200 forwarding to 9200 (elasticsearch http) on the VM
+
+
+To log into the virtual machine you can run `vagrant ssh`
+
+The relateit searching and web application is running in the tomcat at `/usr/share/tomcat`.  This can be stopped and started with
+
+    service tomcat stop
+    service tomcat start
+
+
+The elasticsearch instance can be stopped an started with the following:
+
+    service elasticsearch stop
+    service elasticsearch start
+
+
+When the machine is started with vagrant the tomcat and elasticsearch instance will be start when the Virtual Machine starts
+
+This means for indexing or searching you can execute requests against port 28080 locally, which will be automatically routed
+to port 8080 on the VM.  For example
+
+To index a related item execute the following
+
+    curl -H"Content-Type:text/json" -XPOST -v http://localhost:28080/indexing/index -d '
+    {
+       "channel":"de",
+       "site":"amazon",
+       "items":[
+          {
+             "id":"1",
+             "type":"map"
+	      },
+          {
+             "id":"2",
+             "type":"compass"
+          },
+          {
+             "id":"3",
+             "type":"torch"
+          },
+          {
+             "id":"4",
+             "type":"torch",
+             "channel":"uk"
+          }
+        ]
+    }'
+
+After waiting a second or two, you should be able to execute the following search and obtain a result (the default install
+of elasticsearch commits every 1second).
+
+    curl http://localhost:28080/searching/frequentlyrelatedto/1
+
+----
 
 ## Load Testing ##
 
