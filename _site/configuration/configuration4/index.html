@@ -401,17 +401,18 @@
 
 <h3 id="common_options_for_both_web_applications">Common options for both Web Applications</h3>
 
-<pre><code>-XX:CMSInitiatingOccupancyFraction=85
+<pre><code>-XX:+UnlockDiagnosticVMOptions
+-XX:CMSInitiatingOccupancyFraction=85
 -XX:MaxTenuringThreshold=15
 -XX:CMSWaitDuration=70000    
 -XX:MaxPermSize=128m
 -XX:ParGCCardsPerStrideChunk=4096
 -XX:+UseParNewGC
 -XX:+UseConcMarkSweepGC
--XX:+UseCMSInitiatingOccupancyOnly    
--XX:+UnlockDiagnosticVMOptions
+-XX:+UseCMSInitiatingOccupancyOnly        
 -XX:+AggressiveOpts
--XX:+UseCondCardMark</code></pre>
+-XX:+UseCondCardMark
+-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector</code></pre>
 <hr />
 <p>Below shows the heap configuration for indexing and search. The difference between the two is that of the eden space.</p>
 
