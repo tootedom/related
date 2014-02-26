@@ -38,7 +38,7 @@ Please down load and install the above.
 
 Run the following command to install the box into Vagrant.  This command will download the .box file and install it into Vagrant.
 
-    vagrant box add relateitplayground http://goo.gl/omKZOm   
+    vagrant box add relateitplayground http://bit.ly/1fFxBrn  
 
 One downloaded you sill be able to run `vagrant box list` and it will show you the 'Vagrant' boxes you have available on your machine:
 
@@ -126,6 +126,10 @@ of elasticsearch commits every 1second).
 ----
 
 ## How the Playground was created
+
+The source for the provisioning can be found here: 
+
+- [Relate it playground provisioning](https://github.com/tootedom/related/tree/master/provisioning/ansible-playground).
 
 This folder contains a ansible playbook that installs on a Vagrant vm the relate it application and elasticsearch.
 
