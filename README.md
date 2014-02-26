@@ -1095,7 +1095,7 @@ Please down load and install the above.
 
 Run the following command to install the box into Vagrant.  This command will download the .box file and install it into Vagrant.
 
-    vagrant box add relateitplayground http://goo.gl/omKZOm
+    vagrant box add relateitplayground http://bit.ly/1fFxBrn
 
 One downloaded you sill be able to run `vagrant box list` and it will show you the 'Vagrant' boxes you have available on your machine:
 
