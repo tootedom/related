@@ -118,6 +118,10 @@ public class ConfigurationConstants {
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = "related-item.elastic.search.http.nodesniffing.enabled";
 
 
+    public static final String PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = "related-item.http.async.indexing.request.timeout";
+    public static final String PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = "related-item.http.async.searching.request.timeout";
+
+
 
     public static final boolean DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA = false;
     public static final int DEFAULT_MAX_NO_OF_RELATED_ITEM_PROPERTES = 10;
@@ -202,6 +206,10 @@ public class ConfigurationConstants {
     public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = 15;
     public static final String DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = "mins";
     public static final boolean DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = true;
+
+    public static final int DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = 10000;
+    public static final int DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = 10000;
+
 
     public static final Map<String,Object> DEFAULT_SETTINGS;
     static {
@@ -288,6 +296,10 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT);
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
+
+
+        configuration.put(PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
+        configuration.put(PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
 
         DEFAULT_SETTINGS = configuration;
     }

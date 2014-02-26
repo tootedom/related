@@ -182,4 +182,7 @@ public interface Configuration {
     public TimeUnit getElasticSearchNodesSniffingRetryIntervalUnit();
     public boolean getElasticSearchNodesSniffingEnabled();
 
+    public int getHttpAsyncIndexingRequestTimeout();
+    public int getHttpAsyncSearchingRequestTimeout();
+
 }

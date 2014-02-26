@@ -87,25 +87,15 @@ public class RelatedItemSearchServlet extends HttpServlet {
         else {
             asyncContext = request.startAsync(request, response);
         }
-        asyncContext.setTimeout(30000);
+        asyncContext.setTimeout(configuration.getHttpAsyncSearchingRequestTimeout());
 
+        try {
+            submitRequestForProcessing(asyncContext, request);
+        } catch (Exception e) {
+            log.warn("Exception submitting request for processing", e);
+            asyncContext.complete();
+        }
 
-//        try {
-//            asyncContext.start(new Runnable() {
-//                @Override
-//                public void run() {
-                    try {
-                        submitRequestForProcessing(asyncContext, request);
-                    } catch(Exception e) {
-                        log.warn("Exception submitting request for processing",e);
-                        asyncContext.complete();
-                    }
-//                }
-//            });
-//        } catch(Exception e) {
-//
-//
-//        }
 
     }
 
@@ -121,48 +111,43 @@ public class RelatedItemSearchServlet extends HttpServlet {
     private void submitRequestForProcessing(AsyncContext ctx, HttpServletRequest request) {
         Map<String,String> params = convertToFirstParameterValueMap(request.getParameterMap());
         params.put(configuration.getRequestParameterForId(), getId(request.getPathInfo()));
-//        try {
-            log.debug("Request {}",params);
-            SearchResponseContext[] contexts;
-            if(configuration.isSearchResponseDebugOutputEnabled()) {
-                contexts = new SearchResponseContext[] {
-                        new AsyncServletSearchResponseContext(ctx),
-                        LogDebuggingSearchResponseContext.INSTANCE
-                };
+        log.debug("Request {}", params);
+        SearchResponseContext[] contexts;
+        if (configuration.isSearchResponseDebugOutputEnabled()) {
+            contexts = new SearchResponseContext[]{
+                    new AsyncServletSearchResponseContext(ctx),
+                    LogDebuggingSearchResponseContext.INSTANCE
+            };
 
-            } else {
-                contexts = new SearchResponseContext[] {
-                        new AsyncServletSearchResponseContext(ctx)
-                };
-            }
-            SearchRequestSubmissionStatus status = productSearchRequestProcessor.processRequest(RelatedItemSearchType.FREQUENTLY_RELATED_WITH,params,contexts);
+        } else {
+            contexts = new SearchResponseContext[]{
+                    new AsyncServletSearchResponseContext(ctx)
+            };
+        }
+        SearchRequestSubmissionStatus status = productSearchRequestProcessor.processRequest(RelatedItemSearchType.FREQUENTLY_RELATED_WITH, params, contexts);
 
-            HttpServletResponse response = (HttpServletResponse)ctx.getResponse();
+        HttpServletResponse response = (HttpServletResponse) ctx.getResponse();
 
-            boolean completeRequest = false;
-            switch (status) {
-               case PROCESSING_REJECTED_AT_MAX_CAPACITY:
-                   response.setStatus(503);
-                   response.setContentLength(0);
-                   completeRequest = true;
-                   break;
-               case REQUEST_VALIDATION_FAILURE:
-                   response.setStatus(400);
-                   response.setContentLength(0);
-                   completeRequest = true;
-                   break;
-               case PROCESSING:
-                   completeRequest=false;
-            }
+        boolean completeRequest = false;
+        switch (status) {
+            case PROCESSING_REJECTED_AT_MAX_CAPACITY:
+                response.setStatus(503);
+                response.setContentLength(0);
+                completeRequest = true;
+                break;
+            case REQUEST_VALIDATION_FAILURE:
+                response.setStatus(400);
+                response.setContentLength(0);
+                completeRequest = true;
+                break;
+            case PROCESSING:
+                completeRequest = false;
+        }
 
         if(completeRequest) {
             ctx.complete();
         }
 
-//        } catch (InvalidSearchRequestException invalidRequestException) {
-//            log.warn("Invalid search request",invalidRequestException);
-//            ctx.complete();
-//        }
     }
 
     /**

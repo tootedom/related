@@ -189,6 +189,9 @@ public class SystemPropertiesConfiguration implements Configuration {
     public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL;
     public final boolean ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
 
+    public final int HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS;
+    public final int HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS;
+
     private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
     private final WaitStrategyFactory waitStrategyFactory;
     private final ElasticeSearchClientType esClientType;
@@ -306,6 +309,9 @@ public class SystemPropertiesConfiguration implements Configuration {
         ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = getInt(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
         ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = parseIntervalUnit(getString(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT));
         ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED = getBoolean(properties, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED, DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
+
+        HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
+        HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
 
         setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE, FAILED_SEARCH_REQUEST_STATUS_CODE,
                 TIMED_OUT_SEARCH_REQUEST_STATUS_CODE, MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
@@ -528,6 +534,9 @@ public class SystemPropertiesConfiguration implements Configuration {
         parseInt(parsedProperties, propertiesToConvert, PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
         parseString(parsedProperties, propertiesToConvert,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT);
         parseBoolean(parsedProperties, propertiesToConvert,PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED);
+
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
 
         return parsedProperties;
     }
@@ -1015,6 +1024,15 @@ public class SystemPropertiesConfiguration implements Configuration {
         return ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
     }
 
+    @Override
+    public int getHttpAsyncIndexingRequestTimeout() {
+        return HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS;
+    }
+
+    @Override
+    public int getHttpAsyncSearchingRequestTimeout() {
+        return HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS;
+    }
 
 
     public String getElasticSearchMultiSearchEndpoint() { return ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT; }

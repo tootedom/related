@@ -76,8 +76,7 @@ public class RelatedItemIndexOrderServlet extends HttpServlet {
     }
 
 
-
-    protected void doPost(HttpServletRequest request,HttpServletResponse response)
+    protected void doPut(HttpServletRequest request,HttpServletResponse response)
             throws ServletException, IOException {
 
         final AsyncContext asyncContext;
@@ -87,21 +86,30 @@ public class RelatedItemIndexOrderServlet extends HttpServlet {
         else {
             asyncContext = request.startAsync(request, response);
         }
-        asyncContext.setTimeout(10000*2);
 
-//        try {
+//
 //            asyncContext.start(new Runnable() {
 //                @Override
 //                public void run() {
-        submitRequestForProcessing(asyncContext);
+//                    submitRequestForProcessing(asyncContext);
 //                }
 //            });
-//        } catch(Exception e) {
-//
-//
-//        }
+        submitRequestForProcessing(asyncContext);
 
 
+    }
+
+    /**
+     * Direct the doPost to doPut
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    protected void doPost(HttpServletRequest request,HttpServletResponse response)
+            throws ServletException, IOException {
+        this.doPut(request,response);
     }
 
     /**
@@ -238,7 +246,12 @@ public class RelatedItemIndexOrderServlet extends HttpServlet {
                 }
             }
         } finally {
-            ctx.complete();
+            try {
+                ctx.complete();
+            } catch(IllegalStateException e) {
+                log.warn("Unable to complete the async context.  A timeout more than likely occurred");
+            }
+
         }
 
     }

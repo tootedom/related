@@ -214,6 +214,52 @@ public class RelatedItemIndexOrderServletTest {
         assertEquals(1,reposCalled);
     }
 
+    /**
+     * Test that indexing requests are sent to a single storage repository
+     * i.e. traverses the ring buffer to the storage repo
+     */
+    @Test
+    public void testIndexingSingleItemViaPutWithSingleRequestProcessor() {
+        System.setProperty(ConfigurationConstants.PROPNAME_BATCH_INDEX_SIZE,"3");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_INDEXING_REQUEST_PROCESSORS, "1");
+
+        final CountDownLatch latch = new CountDownLatch(3);
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap(latch);
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+
+
+        Response response1 = sendPut();
+
+        try {
+            boolean countedDown = latch.await(5000, TimeUnit.MILLISECONDS);
+            assertTrue("Storage Repository not called in required time",countedDown);
+
+        } catch (Exception e) {
+            fail("Storage Repository not called in required time");
+        }
+
+
+
+        int i = 0;
+        int reposCalled = 0;
+        for(TestRelatedItemStorageRepository repo : bootstrap.getRepository().getRepos()) {
+            i+= repo.getProductsRequestedToBeStored();
+            if(repo.getProductsRequestedToBeStored()>1) reposCalled++;
+        }
+
+        assertEquals(3,i);
+        assertEquals(1,reposCalled);
+    }
 
     /**
      * Test that indexing requests are round robin to both the storage repositories
@@ -541,6 +587,35 @@ public class RelatedItemIndexOrderServletTest {
         Response response=null;
         try {
             response = asyncHttpClient.preparePost(indexingurl).setBody(POST_JSON).execute().get();
+            assertEquals(statusCodeExpected, response.getStatusCode());
+            return response;
+        } catch (IOException e ) {
+            fail(e.getMessage());
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        } catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * @return
+     */
+    private Response sendPut() {
+        return sendPut(202);
+    }
+
+
+    /**
+     * sends the indexing request and asserts that a http 202 was received.
+     * @return
+     */
+    private Response sendPut(int statusCodeExpected) {
+        Response response=null;
+        try {
+            response = asyncHttpClient.preparePut(indexingurl).setBody(POST_JSON).execute().get();
             assertEquals(statusCodeExpected, response.getStatusCode());
             return response;
         } catch (IOException e ) {
