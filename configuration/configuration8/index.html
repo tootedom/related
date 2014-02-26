@@ -437,7 +437,7 @@
 
 <p>Run the following command to install the box into Vagrant. This command will download the .box file and install it into Vagrant.</p>
 
-<pre><code>vagrant box add relateitplayground http://goo.gl/omKZOm   </code></pre>
+<pre><code>vagrant box add relateitplayground http://bit.ly/1fFxBrn  </code></pre>
 
 <p>One downloaded you sill be able to run <code>vagrant box list</code> and it will show you the ‘Vagrant’ boxes you have available on your machine:</p>
 
@@ -518,6 +518,12 @@ service elasticsearch start</code></pre>
 <pre><code>curl http://localhost:28080/searching/frequentlyrelatedto/1    </code></pre>
 <hr />
 <h2 id="how_the_playground_was_created">How the Playground was created</h2>
+
+<p>The source for the provisioning can be found here:</p>
+
+<ul>
+<li><a href="https://github.com/tootedom/related/tree/master/provisioning/ansible-playground">Relate it playground provisioning</a>.</li>
+</ul>
 
 <p>This folder contains a ansible playbook that installs on a Vagrant vm the relate it application and elasticsearch.</p>
 
