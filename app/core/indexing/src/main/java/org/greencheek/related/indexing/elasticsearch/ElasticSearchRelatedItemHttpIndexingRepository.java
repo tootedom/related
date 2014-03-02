@@ -26,10 +26,12 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.support.replication.ReplicationType;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.indexing.RelatedItem;
+import org.greencheek.related.api.indexing.RelatedItemUtil;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.http.*;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
@@ -40,6 +42,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -63,6 +67,17 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
     private final String indexingEndpoint;
 
 
+    private final String relatedItemsDocumentIndexName;
+    private final String relatedItemsDocumentTypeName;
+    private final String relatedItemsDocumentMergingScriptName;
+    private final boolean relatedItemsDocumentIndexingEnabled;
+    private final String relatedItemsDocumentMD5KeyName;
+    private int propertySize;
+    private final boolean removeRelatedItemsDocumentDateAttribute;
+
+    private final MessageDigest MD5;
+
+
     public ElasticSearchRelatedItemHttpIndexingRepository(Configuration configuration,
                                                           HttpElasticSearchClientFactory factory) {
 
@@ -73,28 +88,44 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
         this.createOrIndex = configuration.getShouldReplaceOldContentIfExists() == true ? IndexRequest.OpType.INDEX : IndexRequest.OpType.CREATE;
         this.threadedIndexing = configuration.getShouldUseSeparateIndexStorageThread();
         this.elasticClient = factory.getClient();
+        this.propertySize = configuration.getRelatedItemAdditionalPropertyKeyLength()+configuration.getRelatedItemAdditionalPropertyValueLength();
+
 
         StringBuilder b = new StringBuilder(60);
         b.append("/_bulk?refresh=false&replication=async");
         indexingEndpoint = b.toString();
+
+
+        this.relatedItemsDocumentIndexName = configuration.getRelatedItemsDocumentIndexName();
+        this.relatedItemsDocumentMergingScriptName = configuration.getRelatedItemsDocumentMergingScriptName();
+        this.relatedItemsDocumentTypeName =  configuration.getRelatedItemsDocumentTypeName();
+        this.relatedItemsDocumentIndexingEnabled = configuration.getRelatedItemsDocumentIndexingEnabled();
+        this.relatedItemsDocumentMD5KeyName = configuration.getRelatedItemsDocumentMD5KeyName();
+        this.removeRelatedItemsDocumentDateAttribute = configuration.getRemoveRelatedItemsDocumentDateAttribute();
+
+        try {
+            MD5 =  MessageDigest.getInstance("MD5");
+        } catch(NoSuchAlgorithmException e) {
+            throw new InstantiationError();
+        }
     }
 
     @Override
     public void store(RelatedItemStorageLocationMapper indexLocationMapper, List<RelatedItem> relatedItems) {
-        StringBuilder jsonRequest = new StringBuilder(256*relatedItems.size());
+        StringBuilder jsonRequest = new StringBuilder(512*relatedItems.size());
 
         int requestAdded = 0;
         for(RelatedItem product : relatedItems) {
-            requestAdded += addRelatedItem(indexLocationMapper, jsonRequest, product);
+            int added = addRelatedItem(indexLocationMapper, jsonRequest, product);
+            if(relatedItemsDocumentIndexingEnabled && added==1) {
+                added += addRelatedItemDocument(jsonRequest, product);
+            }
+            requestAdded+=added;
         }
 
         if(requestAdded>0) {
             log.info("Sending {} Relating Product Index Requests to Elastic:",requestAdded);
-//            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-//
-//            if(bulkResponse.hasFailures()) {
-//                log.warn(bulkResponse.buildFailureMessage());
-//            }
+
             String request = jsonRequest.toString();
             log.debug("Sending http request {}",request);
 
@@ -107,6 +138,47 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
                     log.warn("Bulk indexing request failed: {}",request);
                 }
             }
+        }
+    }
+
+    private int addRelatedItemDocument(StringBuilder bulkRequest,
+                                       RelatedItem product) {
+        try {
+            String id = new String(product.getId());
+            XContentBuilder builder = jsonBuilder().startObject();
+            String[][] props = RelatedItemUtil.getSortedProperties(product.getAdditionalProperties());
+            for(String[] keyValue : props) {
+                if(removeRelatedItemsDocumentDateAttribute && keyValue[0].equals(dateAttributeName)) {
+                    continue;
+                }
+
+                builder.field(keyValue[0], keyValue[1]);
+
+            }
+            String md5 = new String(RelatedItemUtil.getMD5ForRelatedItemProperties(props,propertySize,MD5));
+            builder.field(relatedItemsDocumentMD5KeyName, md5);
+            builder.endObject();
+
+            String document = builder.string();
+
+            //{ "update" : {"_id" : "2", "_type" : "items", "_index" : "related"} }
+            bulkRequest.append("{\"update\":");
+            bulkRequest.append("{\"_id\":\"").append(id).append("\",");
+            bulkRequest.append("\"_index\":\"").append(relatedItemsDocumentIndexName);
+            bulkRequest.append("\",\"_type\":\"").append(relatedItemsDocumentTypeName);
+            bulkRequest.append("\"}}\n");
+
+            // { "script" : "foo","lang" : "native","params" : {"md5" : "ttffff","xxx" : "xxx"},"upsert":{"id":"2","date":"2013-12-24T17:44:41.943Z","md5":"tt","type":"map","site":"amazon","channel":"de" } }
+            bulkRequest.append("{\"script\":\"").append(relatedItemsDocumentMergingScriptName).append("\",");
+            bulkRequest.append("\"lang\":\"native\",\"params\":");
+            bulkRequest.append(document);
+            bulkRequest.append(",\"upsert\":");
+            bulkRequest.append(document).append("}\n");
+
+
+            return 1;
+        } catch (IOException e) {
+            return 0;
         }
     }
 

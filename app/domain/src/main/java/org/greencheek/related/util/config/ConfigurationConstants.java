@@ -121,6 +121,13 @@ public class ConfigurationConstants {
     public static final String PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = "related-item.http.async.indexing.request.timeout";
     public static final String PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = "related-item.http.async.searching.request.timeout";
 
+    public static final String PROPNAME_DOCUMENT_INDEX_NAME = "related-item.document.index.name";
+    public static final String PROPNAME_DOCUMENT_TYPE_NAME = "related-item.document.type.name";
+    public static final String PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME = "related-item.document.merging.scriptname";
+    public static final String PROPNAME_DOCUMENT_INDEXING_ENABLED = "related-item.document.indexing.enabled";
+    public static final String PROPNAME_DOCUMENT_MD5_KEY_NAME = "related-item.document.md5.keyname";
+    public static final String PROPNAME_DOCUMENT_REMOVE_DATE_ATTRIBUTE = "related-item.document.remove.date.attribute";
+
 
 
     public static final boolean DEFAULT_SAFE_TO_OUTPUT_REQUEST_DATA = false;
@@ -209,6 +216,13 @@ public class ConfigurationConstants {
 
     public static final int DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = 10000;
     public static final int DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = 10000;
+
+    public static final String DEFAULT_DOCUMENT_INDEX_NAME = "relateddocs";
+    public static final String DEFAULT_DOCUMENT_TYPE_NAME = "relateddoc";
+    public static final String DEFAULT_DOCUMENT_MERGING_SCRIPT_NAME = "relateddocupdater";
+    public static final boolean DEFAULT_DOCUMENT_INDEXING_ENABLED = false;
+    public static final String DEFAULT_DOCUMENT_MD5_KEY_NAME = "md5";
+    public static final boolean DEFAULT_DOCUMENT_REMOVE_DATE_ATTRIBUTE = true;
 
 
     public static final Map<String,Object> DEFAULT_SETTINGS;
@@ -300,6 +314,13 @@ public class ConfigurationConstants {
 
         configuration.put(PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
         configuration.put(PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
+
+        configuration.put(PROPNAME_DOCUMENT_INDEX_NAME,DEFAULT_DOCUMENT_INDEX_NAME);
+        configuration.put(PROPNAME_DOCUMENT_TYPE_NAME,DEFAULT_DOCUMENT_TYPE_NAME);
+        configuration.put(PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME,DEFAULT_DOCUMENT_MERGING_SCRIPT_NAME);
+        configuration.put(PROPNAME_DOCUMENT_INDEXING_ENABLED,DEFAULT_DOCUMENT_INDEXING_ENABLED);
+        configuration.put(PROPNAME_DOCUMENT_MD5_KEY_NAME,DEFAULT_DOCUMENT_MD5_KEY_NAME);
+        configuration.put(PROPNAME_DOCUMENT_REMOVE_DATE_ATTRIBUTE,DEFAULT_DOCUMENT_REMOVE_DATE_ATTRIBUTE);
 
         DEFAULT_SETTINGS = configuration;
     }

@@ -185,4 +185,12 @@ public interface Configuration {
     public int getHttpAsyncIndexingRequestTimeout();
     public int getHttpAsyncSearchingRequestTimeout();
 
+    public String getRelatedItemsDocumentIndexName();
+    public String getRelatedItemsDocumentTypeName();
+    public String getRelatedItemsDocumentMergingScriptName();
+    public boolean getRelatedItemsDocumentIndexingEnabled();
+    public String getRelatedItemsDocumentMD5KeyName();
+
+    public boolean getRemoveRelatedItemsDocumentDateAttribute();
+
 }

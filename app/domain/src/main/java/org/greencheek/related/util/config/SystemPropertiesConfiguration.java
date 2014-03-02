@@ -171,26 +171,35 @@ public class SystemPropertiesConfiguration implements Configuration {
     private final boolean RELATED_PRODUCT_SEARCH_REPONSE_DEBUG_OUTPUT_ENABLED ;
 
 
-    public final int ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS;
-    public final int ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS;
-    public final int ELASTIC_SEARCH_HTTP_NO_OF_RETRIES;
-    public final boolean ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS;
-    public final boolean ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED;
-    public final boolean ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED;
+    private final int ELASTIC_SEARCH_HTTP_REQUEST_TIMEOUT_MS;
+    private final int ELASTIC_SEARCH_HTTP_CONNECT_TIMEOUT_MS;
+    private final int ELASTIC_SEARCH_HTTP_NO_OF_RETRIES;
+    private final boolean ELASTIC_SEARCH_HTTP_FOLLOW_REDIRECTS;
+    private final boolean ELASTIC_SEARCH_HTTP_CONNECTION_POOL_ENABLED;
+    private final boolean ELASTIC_SEARCH_HTTP_COMPRESSION_ENABLED;
 
-    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS;
-    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS;
-    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES;
+    private final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_REQUEST_TIMEOUT_MS;
+    private final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS;
+    private final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES;
 
-    public final String ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT;
+    private final String ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT;
 
-    public final TimeUnit ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT;
-    public final String ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT;
-    public final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL;
-    public final boolean ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
+    private final TimeUnit ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT;
+    private final String ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT;
+    private final int ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL;
+    private final boolean ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENABLED;
 
-    public final int HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS;
-    public final int HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS;
+    private final int HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS;
+    private final int HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS;
+
+    private final String DOCUMENT_INDEX_NAME;
+    private final String DOCUMENT_TYPE_NAME;
+    private final String DOCUMENT_MERGING_SCRIPT_NAME;
+    private final boolean DOCUMENT_INDEXING_ENABLED;
+    private final String DOCUMENT_MD5_KEY_NAME;
+    private final boolean DOCUMENT_REMOVE_DATE_ATTRIBUTE;
+
+
 
     private final int[] searchRequestResponseCodes = new int[SearchResultsOutcome.values().length];
     private final WaitStrategyFactory waitStrategyFactory;
@@ -312,6 +321,15 @@ public class SystemPropertiesConfiguration implements Configuration {
 
         HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
         HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS = getInt(properties,PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS,DEFAULT_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
+
+        DOCUMENT_INDEX_NAME = getString(properties, PROPNAME_DOCUMENT_INDEX_NAME,DEFAULT_DOCUMENT_INDEX_NAME);
+        DOCUMENT_TYPE_NAME = getString(properties, PROPNAME_DOCUMENT_TYPE_NAME,DEFAULT_DOCUMENT_TYPE_NAME);;
+        DOCUMENT_MERGING_SCRIPT_NAME = getString(properties, PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME,DEFAULT_DOCUMENT_MERGING_SCRIPT_NAME);
+        DOCUMENT_INDEXING_ENABLED = getBoolean(properties, PROPNAME_DOCUMENT_INDEXING_ENABLED,DEFAULT_DOCUMENT_INDEXING_ENABLED);
+        DOCUMENT_MD5_KEY_NAME = getString(properties, PROPNAME_DOCUMENT_MD5_KEY_NAME,DEFAULT_DOCUMENT_MD5_KEY_NAME);
+
+        DOCUMENT_REMOVE_DATE_ATTRIBUTE = getBoolean(properties, PROPNAME_DOCUMENT_REMOVE_DATE_ATTRIBUTE, DEFAULT_DOCUMENT_REMOVE_DATE_ATTRIBUTE);
+
 
         setResponseCodes(NO_FOUND_SEARCH_REQUEST_STATUS_CODE, FAILED_SEARCH_REQUEST_STATUS_CODE,
                 TIMED_OUT_SEARCH_REQUEST_STATUS_CODE, MISSING_SEARCH_RESULTS_HANDLER_STATUS_CODE,
@@ -537,6 +555,14 @@ public class SystemPropertiesConfiguration implements Configuration {
 
         parseInt(parsedProperties,propertiesToConvert,PROPNAME_HTTP_ASYNC_INDEXING_REQUEST_TIMEOUT_MS);
         parseInt(parsedProperties,propertiesToConvert,PROPNAME_HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS);
+
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_INDEX_NAME);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_TYPE_NAME);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME);
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_INDEXING_ENABLED);
+        parseInt(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_MD5_KEY_NAME);
+
+        parseBoolean(parsedProperties,propertiesToConvert,PROPNAME_DOCUMENT_MD5_KEY_NAME);
 
         return parsedProperties;
     }
@@ -1032,6 +1058,36 @@ public class SystemPropertiesConfiguration implements Configuration {
     @Override
     public int getHttpAsyncSearchingRequestTimeout() {
         return HTTP_ASYNC_SEARCHING_REQUEST_TIMEOUT_MS;
+    }
+
+    @Override
+    public String getRelatedItemsDocumentIndexName() {
+        return DOCUMENT_INDEX_NAME;
+    }
+
+    @Override
+    public String getRelatedItemsDocumentTypeName() {
+        return DOCUMENT_TYPE_NAME;
+    }
+
+    @Override
+    public String getRelatedItemsDocumentMergingScriptName() {
+        return DOCUMENT_MERGING_SCRIPT_NAME;
+    }
+
+    @Override
+    public boolean getRelatedItemsDocumentIndexingEnabled() {
+        return DOCUMENT_INDEXING_ENABLED;
+    }
+
+    @Override
+    public String getRelatedItemsDocumentMD5KeyName() {
+        return DOCUMENT_MD5_KEY_NAME;
+    }
+
+    @Override
+    public boolean getRemoveRelatedItemsDocumentDateAttribute() {
+        return DOCUMENT_REMOVE_DATE_ATTRIBUTE;
     }
 
 
