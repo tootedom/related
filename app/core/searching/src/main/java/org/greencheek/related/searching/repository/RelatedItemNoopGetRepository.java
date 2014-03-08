@@ -10,6 +10,8 @@ import java.util.Map;
  */
 public class RelatedItemNoopGetRepository implements RelatedItemGetRepository {
 
+    public static RelatedItemNoopGetRepository INSTANCE = new RelatedItemNoopGetRepository();
+
     private final static String EMPTY_RESULT = "{}";
 
     public static Map<String,String> getEmptyResults(String[] ids) {

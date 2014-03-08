@@ -275,7 +275,22 @@ public class ElasticSearchServer {
 
     public boolean indexDocument(String indexName,String type, String doc) {
         try {
-            IndexResponse res = esClient.index(new IndexRequest().index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            indexDocument(indexName, TYPE,doc,null);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean indexDocument(String indexName,String type, String doc,String id) {
+        try {
+            if(id==null) {
+                IndexResponse res = esClient.index(new IndexRequest().index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            } else {
+                IndexResponse res = esClient.index(new IndexRequest().id(id).index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            }
+
             esClient.admin().indices().refresh(new RefreshRequest(indexName).force(true)).actionGet(2000, TimeUnit.MILLISECONDS);
             return true;
         } catch (Exception e) {

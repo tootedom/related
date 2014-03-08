@@ -87,8 +87,6 @@ public class RelatedItemSearchEventHandler implements RelatedItemSearchDisruptor
                 log.debug("Executing search request for {} search(s)", searches.length);
                 SearchResultEventWithSearchRequestKey[] results = searchRespository.findRelatedItems(configuration, searches);
 
-                // TODO Potentially Add the get product data call to here?
-
                 searchResultsHandler.sendSearchResultsToResponseContexts(results);
             } finally {
                 searchMap.clear();

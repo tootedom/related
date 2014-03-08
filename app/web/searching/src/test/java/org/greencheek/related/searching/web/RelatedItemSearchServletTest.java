@@ -43,9 +43,7 @@ import org.greencheek.related.searching.RelatedItemSearchExecutorFactory;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
 import org.greencheek.related.searching.RelatedItemSearchResultsToResponseGateway;
 import org.greencheek.related.searching.executor.SearchExecutorFactory;
-import org.greencheek.related.searching.repository.ElasticSearchFrequentlyRelatedItemSearchProcessor;
-import org.greencheek.related.searching.repository.ElasticSearchRelatedItemSearchRepository;
-import org.greencheek.related.searching.repository.FrequentRelatedSearchRequestBuilder;
+import org.greencheek.related.searching.repository.*;
 import org.greencheek.related.searching.requestprocessing.MultiMapSearchResponseContextLookup;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContext;
 import org.greencheek.related.searching.requestprocessing.SearchResponseContextLookup;
@@ -53,6 +51,7 @@ import org.greencheek.related.searching.web.bootstrap.ApplicationCtx;
 import org.greencheek.related.searching.web.bootstrap.SearchBootstrapApplicationCtx;
 import org.greencheek.related.util.config.Configuration;
 import org.greencheek.related.util.config.ConfigurationConstants;
+import org.greencheek.related.util.config.SystemPropertiesConfiguration;
 import org.greencheek.related.util.config.YamlSystemPropertiesConfiguration;
 import org.junit.After;
 import org.junit.Before;
@@ -65,6 +64,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -106,16 +106,17 @@ public class RelatedItemSearchServletTest {
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
         // Create the repo
-        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration)));
+        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration), RelatedItemNoopGetRepository.INSTANCE));
 
         try {
             server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-14",RELATED_CONTENT_BLADES1_PURCHASEa);
             server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-14",RELATED_CONTENT_BLADES1_PURCHASEb);
             server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-15",RELATED_CONTENT_BLADES2_PURCHASEa);
             server.indexDocument(configuration.getStorageIndexNamePrefix()+"-2013-12-15",RELATED_CONTENT_BLADES2_PURCHASEb);
+            server.indexDocument(configuration.getRelatedItemsDocumentIndexName(),configuration.getRelatedItemsDocumentTypeName(),RELATED_CONTENT_BLADES1_PURCHASEa_doc,"anchorman");
+            server.indexDocument(configuration.getRelatedItemsDocumentIndexName(),configuration.getRelatedItemsDocumentTypeName(),RELATED_CONTENT_BLADES1_PURCHASEb_doc,"blades of glory");
 
-
-            assertEquals(2,server.getIndexCount());
+            assertEquals(3, server.getIndexCount());
             assertEquals(2,server.getDocCount(configuration.getStorageIndexNamePrefix()+"-2013-12-14"));
             assertEquals(2,server.getDocCount(configuration.getStorageIndexNamePrefix()+"-2013-12-15"));
         } catch(Exception e)  {
@@ -133,7 +134,7 @@ public class RelatedItemSearchServletTest {
         System.clearProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS);
         System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE);
         System.clearProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RESPONSE_PROCESSING_QUEUE);
-
+        System.clearProperty(ConfigurationConstants.PROPNAME_DOCUMENT_INDEXING_ENABLED);
 
         factory.shutdown();
 
@@ -396,8 +397,74 @@ public class RelatedItemSearchServletTest {
 
 
 
+
+    @Test
+    public void testSearchingReturnsTheSourceDocuments() {
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_QUEUE,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_NUMBER_OF_SEARCHING_REQUEST_PROCESSORS, "1");
+        System.setProperty(ConfigurationConstants.PROPNAME_SIZE_OF_RELATED_CONTENT_SEARCH_REQUEST_AND_RESPONSE_QUEUE,"10");
+        System.setProperty(ConfigurationConstants.PROPNAME_DOCUMENT_INDEXING_ENABLED,"true");
+
+        if(repository!=null) {
+            repository.shutdown();
+        }
+
+        configuration = new SystemPropertiesConfiguration();
+        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),new ElasticSearchRelatedItemGetRepository(configuration,factory)));
+
+
+        TestBootstrapApplicationCtx bootstrap = getTestBootStrap();
+        assertEquals(16, bootstrap.getConfiguration().getSizeOfRelatedItemSearchRequestQueue());
+
+        try {
+            startTomcat(bootstrap);
+        } catch(Exception e) {
+            try {
+                shutdownTomcat();
+            } catch (Exception shutdown) {
+
+            }
+            fail("Unable to start tomcat");
+        }
+
+        List<ListenableFuture<Response>> resps = sendGet("anchorman",1);
+        int oks = 0;
+        int gatewayBusy = 0;
+        int unknown = 0;
+        String responseBody = null;
+        for(ListenableFuture<Response> r : resps) {
+            Response res = null;
+            try {
+                res = r.get();
+                responseBody = r.get().getResponseBody();
+                switch(res.getStatusCode()) {
+                    case 503:
+                        gatewayBusy++;
+                        break;
+                    case 200:
+                        oks++;
+                        break;
+                    default:
+                        unknown++;
+                        break;
+                }
+            } catch(Exception e) {
+                unknown++;
+            }
+
+        }
+
+        assertEquals("1 Request should have been ok",1,oks);
+        assertTrue(responseBody.contains("source"));
+        assertTrue(responseBody.contains("47563211214dab14a7b2dab49669fb52f4464a2b4b970faa7bb5cac54abda4a9"));
+        assertEquals("No requests should have failed with unexpected statuscode",0,unknown);
+    }
+
+
+
+
     /**
-     * sends the indexing request and asserts that a http 202 was received.
+     * sends the search request and asserts that a http 202 was received.
      * @return
      */
     private Response sendGet(int statusCodeExpected,String id) {
@@ -439,6 +506,8 @@ public class RelatedItemSearchServletTest {
             "\"channel\": \"uk\"\n"+
             "}";
 
+
+
     private final static String RELATED_CONTENT_BLADES1_PURCHASEb = "{\n"+
             "\"id\": \"blades of glory\",\n"+
             "\"date\": \"2013-12-14T17:44:41.943Z\",\n"+
@@ -466,6 +535,24 @@ public class RelatedItemSearchServletTest {
             "\"channel\": \"uk\"\n"+
             "}";
 
+
+    private final static String RELATED_CONTENT_BLADES1_PURCHASEa_doc = "{\n"+
+            "\"id\": \"anchorman\",\n"+
+            "\"type\": \"dvd\",\n"+
+            "\"site\": \"amazon\",\n"+
+            "\"channel\": \"uk\",\n"+
+            "\"sha256\": \"7eddfd5382d5487b715e19499b5c0e1735bbf5b0459288a32668e9d53a7ea3bc\"\n"+
+            "}";
+
+
+
+    private final static String RELATED_CONTENT_BLADES1_PURCHASEb_doc = "{\n"+
+            "\"id\": \"blades of glory\",\n"+
+            "\"type\": \"dvd\",\n"+
+            "\"site\": \"amazon\",\n"+
+            "\"channel\": \"uk\",\n"+
+            "\"sha256\": \"47563211214dab14a7b2dab49669fb52f4464a2b4b970faa7bb5cac54abda4a9\"\n"+
+            "}";
 
 
     public TestBootstrapApplicationCtx getTestBootStrap() {

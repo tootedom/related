@@ -29,6 +29,7 @@ import org.greencheek.related.searching.RelatedItemGetRepository;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
 import org.greencheek.related.searching.RelatedItemSearchRepositoryFactory;
 import org.greencheek.related.searching.repository.http.ElasticSearchFrequentlyRelatedItemHttpSearchProcessor;
+import org.greencheek.related.searching.repository.http.ElasticSearchRelatedItemHttpGetRepository;
 import org.greencheek.related.searching.repository.http.ElasticSearchRelatedItemHttpSearchRepository;
 import org.greencheek.related.searching.repository.http.FrequentlyRelatedItemHttpResponseParser;
 import org.greencheek.related.util.config.Configuration;
@@ -66,18 +67,25 @@ public class NodeTransportOrHttpBasedElasticSearchClientFactoryCreator implement
             case HTTP:
                 RelatedItemGetRepository getRepository;
                 if(configuration.getRelatedItemsDocumentIndexingEnabled()) {
-                    getRepository = new RelatedItemNoopGetRepository();
+                    getRepository = new ElasticSearchRelatedItemHttpGetRepository(configuration,httpFactory);
                 }
                 else {
-                    getRepository = new RelatedItemNoopGetRepository();
+                    getRepository = RelatedItemNoopGetRepository.INSTANCE;
                 }
                 respository = new ElasticSearchRelatedItemHttpSearchRepository(configuration,httpFactory,
                         new ElasticSearchFrequentlyRelatedItemHttpSearchProcessor(configuration,searchRequestBuilder,responseParser,getRepository));
                 break;
             default:
                 ElasticSearchClientFactory factory = nodeOrTransportFactory.getElasticSearchClientConnectionFactory(configuration);
+
+                if(configuration.getRelatedItemsDocumentIndexingEnabled()) {
+                    getRepository = new ElasticSearchRelatedItemGetRepository(configuration,factory);
+                }
+                else {
+                    getRepository = RelatedItemNoopGetRepository.INSTANCE;
+                }
                 ElasticSearchFrequentlyRelatedItemSearchProcessor processor;
-                processor = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,requestBuilder);
+                processor = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,requestBuilder,getRepository);
                 respository = new ElasticSearchRelatedItemSearchRepository(factory,processor);
                 break;
         }

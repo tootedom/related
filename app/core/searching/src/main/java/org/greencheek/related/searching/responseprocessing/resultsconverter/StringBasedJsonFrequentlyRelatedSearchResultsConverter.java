@@ -159,7 +159,7 @@ public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements S
             if(relateDocumentIndexingEnabled && sourceDoc != null) {
                 b.append(',');
                 addKeyItem(b,sourceKey);
-                addValueItem(b,sourceDoc);
+                b.append(sourceDoc);
             }
             b.append('}').append(',');
         }
@@ -170,6 +170,14 @@ public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements S
         b.append(',');
         addKeyItem(b, resultFrequencyKey);
         addValueItem(b, Long.toString(res.getFrequency()));
+
+        String sourceDoc = res.getSourceDoc();
+        if(relateDocumentIndexingEnabled && sourceDoc != null) {
+            b.append(',');
+            addKeyItem(b,sourceKey);
+            b.append(sourceDoc);
+        }
+
         b.append('}').append(']').append(',');
 
         addKeyItem(b,repoResponseTimeKey);

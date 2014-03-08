@@ -34,6 +34,7 @@ import org.elasticsearch.search.facet.terms.TermsFacetBuilder;
 import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.searching.*;
 import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
+import org.greencheek.related.searching.RelatedItemGetRepository;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.api.searching.SearchResultsOutcome;
@@ -56,10 +57,13 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
     private final String facetResultName;
     private final long searchTimeout;
     private final FrequentRelatedSearchRequestBuilder builder;
+    private final RelatedItemGetRepository getRepository;
+
 //    private final Map<String,SearchFieldType> searchFieldType;
 
     public ElasticSearchFrequentlyRelatedItemSearchProcessor(Configuration configuration,
-                                                             FrequentRelatedSearchRequestBuilder builder) {
+                                                             FrequentRelatedSearchRequestBuilder builder,
+                                                             RelatedItemGetRepository getRepository) {
         this.builder = builder;
         this.configuration = configuration;
         String indexNameAlias = configuration.getStorageIndexNameAlias();
@@ -70,6 +74,8 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
         }
         this.facetResultName = configuration.getStorageFrequentlyRelatedItemsFacetResultsFacetName();
         this.searchTimeout = configuration.getFrequentlyRelatedItemsSearchTimeoutInMillis();
+        this.getRepository = getRepository;
+
     }
 
     public MultiSearchResponse executeSearch(Client elasticClient,RelatedItemSearch[] searches) {
@@ -116,12 +122,23 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessor implements MultiS
             List<TermsFacet.Entry> facets = (List<TermsFacet.Entry>) f.getEntries();
             int noOfFacets = facets==null ? 0 : facets.size();
             if(noOfFacets!=0) {
+                String[] ids = new String[noOfFacets];
+                long[] counts = new long[noOfFacets];
+
                 results = new FrequentlyRelatedSearchResult[noOfFacets];
 
                 while(noOfFacets--!=0) {
                     TermsFacet.Entry entry = facets.get(noOfFacets);
-                    results[noOfFacets] = new FrequentlyRelatedSearchResult(entry.getTerm().string(), entry.getCount());
+                    ids[noOfFacets] = entry.getTerm().string();
+                    counts[noOfFacets] = entry.getCount();
                 }
+
+                Map<String,String> docs = getRepository.getRelatedItemDocument(ids);
+
+                for(int i=0;i<ids.length;i++) {
+                    results[i] = new FrequentlyRelatedSearchResult(ids[i],counts[i],docs.get(ids[i]));
+                }
+
                 outcome = SearchResultsOutcome.HAS_RESULTS;
             } else {
                 log.debug("no related content found for search key {}",key);

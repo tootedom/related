@@ -1,10 +1,7 @@
 package org.greencheek.related.searching.repository;
 
 import org.elasticsearch.ElasticsearchTimeoutException;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.client.Client;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.searching.RelatedItemGetRepository;
@@ -63,7 +60,10 @@ public class ElasticSearchRelatedItemGetRepository implements RelatedItemGetRepo
             MultiGetItemResponse[] items = response.getResponses();
             for(MultiGetItemResponse item : items) {
                 if(!item.isFailed()) {
+                  GetResponse resp = item.getResponse();
+                  if(resp.isExists()) {
                     results.put(item.getId(), item.getResponse().getSourceAsString());
+                  }
                 }
             } 
         }
