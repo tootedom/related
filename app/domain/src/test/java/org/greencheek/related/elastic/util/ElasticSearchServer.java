@@ -72,8 +72,11 @@ public class ElasticSearchServer {
     }
 
     public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient) {
+        this(clustername,transportClient,httpClient,null);
+    }
 
-            String tmpDirectory =  System.getProperty("java.io.tmpdir");
+    public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient, Settings customsettings) {
+        String tmpDirectory =  System.getProperty("java.io.tmpdir");
         String fileSep = System.getProperty("file.separator");
 
         if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
@@ -135,6 +138,10 @@ public class ElasticSearchServer {
             if(httpClient) {
                 b.put("http.enabled",true)
                         .put("http.port",port+11);
+            }
+
+            if(customsettings!=null) {
+                b.put(customsettings);
             }
 
             try {
@@ -268,7 +275,22 @@ public class ElasticSearchServer {
 
     public boolean indexDocument(String indexName,String type, String doc) {
         try {
-            IndexResponse res = esClient.index(new IndexRequest().index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            indexDocument(indexName, TYPE,doc,null);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean indexDocument(String indexName,String type, String doc,String id) {
+        try {
+            if(id==null) {
+                IndexResponse res = esClient.index(new IndexRequest().index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            } else {
+                IndexResponse res = esClient.index(new IndexRequest().id(id).index(indexName).type(type).source(doc)).actionGet(2000, TimeUnit.MILLISECONDS);
+            }
+
             esClient.admin().indices().refresh(new RefreshRequest(indexName).force(true)).actionGet(2000, TimeUnit.MILLISECONDS);
             return true;
         } catch (Exception e) {

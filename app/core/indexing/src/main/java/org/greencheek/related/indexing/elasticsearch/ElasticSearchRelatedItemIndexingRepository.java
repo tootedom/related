@@ -26,10 +26,12 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.support.replication.ReplicationType;
+import org.elasticsearch.action.update.UpdateRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.indexing.RelatedItem;
+import org.greencheek.related.api.indexing.RelatedItemUtil;
 import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
 import org.greencheek.related.indexing.RelatedItemStorageRepository;
@@ -41,6 +43,8 @@ import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 
@@ -51,6 +55,7 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
 
     private final String indexType;
     private final String relatedWithAttributeName;
+    private final int propertySize;
     private final boolean threadedIndexing;
     private final IndexRequest.OpType createOrIndex;
 
@@ -60,6 +65,13 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
     private final ElasticSearchClientFactory elasticSearchClientFactory;
     private final Client elasticClient;
 
+    private final String relatedItemsDocumentIndexName;
+    private final String relatedItemsDocumentTypeName;
+    private final String relatedItemsDocumentMergingScriptName;
+    private final boolean relatedItemsDocumentIndexingEnabled;
+    private final String relatedItemsDocumentComparisonKeyName;
+
+    private final MessageDigest SHA256;
 
     public ElasticSearchRelatedItemIndexingRepository(Configuration configuration,
                                                       ElasticSearchClientFactory factory) {
@@ -70,8 +82,21 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
         this.relatedWithAttributeName = configuration.getKeyForIndexRequestRelatedWithAttr();
         this.createOrIndex = configuration.getShouldReplaceOldContentIfExists() == true ? IndexRequest.OpType.INDEX : IndexRequest.OpType.CREATE;
         this.threadedIndexing = configuration.getShouldUseSeparateIndexStorageThread();
+        this.propertySize = configuration.getRelatedItemAdditionalPropertyKeyLength()+configuration.getRelatedItemAdditionalPropertyValueLength();
         this.elasticSearchClientFactory = factory;
         this.elasticClient = elasticSearchClientFactory.getClient();
+
+        this.relatedItemsDocumentIndexName = configuration.getRelatedItemsDocumentIndexName();
+        this.relatedItemsDocumentMergingScriptName = configuration.getRelatedItemsDocumentMergingScriptName();
+        this.relatedItemsDocumentTypeName =  configuration.getRelatedItemsDocumentTypeName();
+        this.relatedItemsDocumentIndexingEnabled = configuration.getRelatedItemsDocumentIndexingEnabled();
+        this.relatedItemsDocumentComparisonKeyName = configuration.getRelatedItemsDocumentComparisonKeyName();
+
+        try {
+            SHA256 =  MessageDigest.getInstance("SHA-256");
+        } catch(NoSuchAlgorithmException e) {
+            throw new InstantiationError();
+        }
     }
 
     @Override
@@ -79,12 +104,15 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
         BulkRequestBuilder bulkRequest = elasticClient.prepareBulk();
         bulkRequest.setReplicationType(ReplicationType.ASYNC).setRefresh(false);
 
-
-
         int requestAdded = 0;
         for(RelatedItem product : relatedItems) {
-            requestAdded += addRelatedItem(indexLocationMapper, bulkRequest, product);
+            int added = addRelatedItem(indexLocationMapper, bulkRequest, product);
+            if(relatedItemsDocumentIndexingEnabled && added==1) {
+                added+=addRelatedItemDocument(bulkRequest, product);
+            }
+            requestAdded+=added;
         }
+
         if(requestAdded>0) {
             log.info("Sending Relating Product Index Requests to Elastic: {}",requestAdded);
             BulkResponse bulkResponse = bulkRequest.execute().actionGet();
@@ -92,6 +120,38 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
             if(bulkResponse.hasFailures()) {
                 log.warn(bulkResponse.buildFailureMessage());
             }
+        }
+    }
+
+
+
+    private int addRelatedItemDocument(BulkRequestBuilder bulkRequestBuilder,
+                                       RelatedItem product) {
+        try {
+            String id = new String(product.getId());
+
+            UpdateRequestBuilder updateRequestBuilder = elasticClient.prepareUpdate(relatedItemsDocumentIndexName, relatedItemsDocumentTypeName, id);
+            updateRequestBuilder.setId(id);
+
+            XContentBuilder builder = jsonBuilder().startObject();
+
+            String[][] props = RelatedItemUtil.getSortedProperties(product.getAdditionalProperties());
+            for(String[] keyValue : props) {
+                builder.field(keyValue[0],keyValue[1]);
+                updateRequestBuilder.addScriptParam(keyValue[0],keyValue[1]);
+            }
+            updateRequestBuilder.setScriptLang("native");
+            String sha256 = new String(RelatedItemUtil.getComparisonHashForRelatedItemProperties(props,propertySize,SHA256));
+            updateRequestBuilder.addScriptParam(relatedItemsDocumentComparisonKeyName, sha256);
+            updateRequestBuilder.setScript(relatedItemsDocumentMergingScriptName);
+
+            builder.field(relatedItemsDocumentComparisonKeyName, sha256);
+            builder.endObject();
+            updateRequestBuilder.setUpsert(builder);
+            bulkRequestBuilder.add(updateRequestBuilder);
+            return 1;
+        } catch (IOException e) {
+            return 0;
         }
     }
 

@@ -26,20 +26,27 @@ package org.greencheek.related.api.searching;
  */
 public class FrequentlyRelatedSearchResult {
 
-
-
     private final long frequency;
     private final String relatedItemId;
+    private final String sourceDoc;
 
     public FrequentlyRelatedSearchResult(String id, long frequency) {
+        this(id,frequency,null);
+    }
+
+    public FrequentlyRelatedSearchResult(String id, long frequency, String sourceDoc) {
         this.frequency = frequency;
         this.relatedItemId = id;
+        this.sourceDoc = sourceDoc;
     }
 
     public String getRelatedItemId() {
         return relatedItemId;
     }
 
+    public String getSourceDoc() {
+        return sourceDoc;
+    }
 
     public long getFrequency() {
         return frequency;

@@ -86,6 +86,7 @@ public interface Configuration {
     public String getKeyForFrequencyResultOccurrence();
     public String getKeyForFrequencyResultId();
     public String getKeyForFrequencyResultOverallResultsSize();
+    public String getKeyForFrequencyResultSource();
 
     public String getKeyForIndexRequestDateAttr();
     public String getKeyForIndexRequestIdAttr();
@@ -146,6 +147,8 @@ public interface Configuration {
 
     String getKeyForSearchProcessingResponseTime();
 
+    String getKeyForStorageGetResponseTime();
+
     public enum ElasticeSearchClientType {
         NODE,
         TRANSPORT,
@@ -182,7 +185,17 @@ public interface Configuration {
     public TimeUnit getElasticSearchNodesSniffingRetryIntervalUnit();
     public boolean getElasticSearchNodesSniffingEnabled();
 
+    public String getElasticSearchMultiGetEndpoint();
+
     public int getHttpAsyncIndexingRequestTimeout();
     public int getHttpAsyncSearchingRequestTimeout();
+
+    public String getRelatedItemsDocumentIndexName();
+    public String getRelatedItemsDocumentTypeName();
+    public String getRelatedItemsDocumentMergingScriptName();
+    public boolean getRelatedItemsDocumentIndexingEnabled();
+    public String getRelatedItemsDocumentComparisonKeyName();
+
+    public boolean getRemoveRelatedItemsDocumentDateAttribute();
 
 }

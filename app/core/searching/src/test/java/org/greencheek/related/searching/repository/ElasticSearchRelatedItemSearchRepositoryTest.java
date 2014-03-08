@@ -91,7 +91,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         factory = new TransportBasedElasticSearchClientFactory(configuration);
 
         // Create the repo
-        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration)));
+        repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE));
     }
 
     public void shutDown() {
@@ -150,7 +150,7 @@ public class ElasticSearchRelatedItemSearchRepositoryTest {
         System.setProperty(ConfigurationConstants.PROPNAME_FREQUENTLY_RELATED_SEARCH_TIMEOUT_IN_MILLIS, "0");
         try {
             Configuration config = new SystemPropertiesConfiguration();
-            ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config,new FrequentRelatedSearchRequestBuilder(config)));
+            ElasticSearchRelatedItemSearchRepository repository = new ElasticSearchRelatedItemSearchRepository(factory,new ElasticSearchFrequentlyRelatedItemSearchProcessor(config,new FrequentRelatedSearchRequestBuilder(config),RelatedItemNoopGetRepository.INSTANCE));
 
             SearchResultEventWithSearchRequestKey[] results = repository.findRelatedItems(configuration, createSearch());
             assertEquals(2,results.length);

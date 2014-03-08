@@ -26,11 +26,8 @@ import org.greencheek.related.api.indexing.RelatedItem;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: dominictootell
- * Date: 01/06/2013
- * Time: 22:14
- * To change this template use File | Settings | File Templates.
+ * Stores related items into the storage repo, and is responsible for storing the given relatedItems
+ * into the repo
  */
 public interface RelatedItemStorageRepository {
     // Must not be asynchronous, The input list will not be a copy, but a passed reference

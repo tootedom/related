@@ -28,6 +28,7 @@ import org.greencheek.related.elastic.http.HttpElasticClient;
 import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
 import org.greencheek.related.elastic.http.HttpResult;
 import org.greencheek.related.elastic.http.HttpSearchExecutionStatus;
+import org.greencheek.related.searching.RelatedItemGetRepository;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
@@ -50,7 +51,6 @@ public class ElasticSearchRelatedItemHttpSearchRepository implements RelatedItem
     private final HttpElasticClient elasticClient;
     private final Configuration configuration;
     private final ElasticSearchFrequentlyRelatedItemHttpSearchProcessor frequentlyRelatedWithSearchBuilder;
-
 
     public ElasticSearchRelatedItemHttpSearchRepository(Configuration configuration,
                                                         HttpElasticSearchClientFactory factory,

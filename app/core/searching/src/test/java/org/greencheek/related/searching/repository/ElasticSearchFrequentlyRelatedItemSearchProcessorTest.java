@@ -135,7 +135,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
+        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE);
 
         RelatedItemSearch[] search = new RelatedItemSearch[] {createChannelSearch("bbc","apparentice you're hired")};
         MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
@@ -195,7 +195,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
+        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE);
 
         RelatedItemSearch[] search = new RelatedItemSearch[] {createIdSearch("emmerdale")};
         MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
@@ -237,7 +237,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
+        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE);
 
         RelatedItemSearch[] search = new RelatedItemSearch[] {createIdSearch("emmerdale")};
 
@@ -264,7 +264,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
 
         assertTrue(esServer.indexExists(configuration.getStorageIndexNamePrefix() + "-2013-02-11"));
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
+        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE);
 
         RelatedItemSearch[] search = new RelatedItemSearch[] {createIdSearch("elf")};
 
@@ -290,7 +290,7 @@ public class ElasticSearchFrequentlyRelatedItemSearchProcessorTest {
         indexDoc();
         setAlias(configuration);
 
-        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration));
+        ElasticSearchFrequentlyRelatedItemSearchProcessor searcher = new ElasticSearchFrequentlyRelatedItemSearchProcessor(configuration,new FrequentRelatedSearchRequestBuilder(configuration),RelatedItemNoopGetRepository.INSTANCE);
 
         RelatedItemSearch[] search = new RelatedItemSearch[] {createIdSearch("emmerdale")};
         MultiSearchResponse response = searcher.executeSearch(clientFactory.getClient(),search);
