@@ -2,7 +2,6 @@
 
 
 
-
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
   
@@ -11,11 +10,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>Release 1.0.1</title>
+    <title>Release 1.0.4</title>
     
 
     
-    <meta name="description" content="Release 1.0.1 including minor bug fix for AsyncContext being closed twice"/>
+    <meta name="description" content="Release 1.0.4 including HTTP connectivity and ES 1.0.0 client jars"/>
     
     
     <meta name="author" content="Dominic Tootell" />
@@ -102,6 +101,11 @@
  
 
 	<li><a href="http://relateit.io/indexing/indexing5" data-search>Logging</a></li>
+
+
+ 
+
+	<li><a href="http://relateit.io/indexing/indexing6" data-search>Document Info</a></li>
 
 
               <li class="divider"></li>
@@ -208,19 +212,25 @@
                             
                
               <li>
-                <a href="http://relateit.io/blog/blog1">Release 1.0.4</a>
+                <a href="http://relateit.io/blog/blog1">Release 1.1.0</a>
+                <p><p>Returning document information for frequently matching items. Release 1.1.0 also includes an upgrade to 1.0.1 of Elasticsearch</p></p>
+              </li>
+                            
+               
+              <li>
+                <a href="http://relateit.io/blog/blog2">Release 1.0.4</a>
                 <p><p>Release 1.0.4 includes an enhancement to the available methods for connecting to Elasticsearch, that of HTTP communication. The pull request covering this feature (link to the source) can be found in the following <a href="https://github.com/tootedom/related/pull/4">Pull Request</a></p></p>
               </li>
                             
                
               <li>
-                <a href="http://relateit.io/blog/blog2">Release 1.0.1</a>
+                <a href="http://relateit.io/blog/blog3">Release 1.0.1</a>
                 <p><p>Release 1.0.1 is a minor release that fixed a bug with the AsyncContext being closed twice.</p></p>
               </li>
                             
                
               <li>
-                <a href="http://relateit.io/blog/blog3">Release 1.0.0</a>
+                <a href="http://relateit.io/blog/blog4">Release 1.0.0</a>
                 <p><p>The initial release of <code>Relate it</code>. Allowing you to relate items, and find the most frequently related items.</p></p>
               </li>
               
@@ -238,39 +248,59 @@
         
          
         
-          <dd data-magellan-arrival="1" ><a href="http://relateit.io/blog/blog1">Release 1.0.4</a></dd>
+          <dd data-magellan-arrival="1" ><a href="http://relateit.io/blog/blog1">Release 1.1.0</a></dd>
         
         <li class="divider">|</li>
         
          
         
-          <dd data-magellan-arrival="2" class="active"><a href="http://relateit.io/blog/blog2">Release 1.0.1</a></dd>       
+          <dd data-magellan-arrival="2" class="active"><a href="http://relateit.io/blog/blog2">Release 1.0.4</a></dd>       
         
         <li class="divider">|</li>
         
          
         
-          <dd data-magellan-arrival="3" ><a href="http://relateit.io/blog/blog3">Release 1.0.0</a></dd>
+          <dd data-magellan-arrival="3" ><a href="http://relateit.io/blog/blog3">Release 1.0.1</a></dd>
+        
+        <li class="divider">|</li>
+        
+         
+        
+          <dd data-magellan-arrival="4" ><a href="http://relateit.io/blog/blog4">Release 1.0.0</a></dd>
         
         <li class="divider">|</li>
                 
       </dl>
 </div>      
 
-    <h1><a href="/blog/blog2">Release 1.0.1</a></h1>
-    <p>Release 1.0.1 is a minor release that fixed a bug with the AsyncContext being closed twice.</p>
+    <h1>Release 1.0.4</h1>
+    <p>Release 1.0.4 includes an enhancement to the available methods for connecting to Elasticsearch, that of HTTP communication. The pull request covering this feature (link to the source) can be found in the following <a href="https://github.com/tootedom/related/pull/4">Pull Request</a></p>
 
-<p>The details of the this bug can be found in the following issue report along with associated code fix (https://github.com/tootedom/related/issues/1).<br />Release 1.0.1. also includes a slight performance improvement due to duplicate look up of configuration information when creating the search request to elasticsearch.</p>
+<p>With the release of 1.0.4 the version of elasticsearch that is required has been update to 1.0.0. In order to use the Node or transport connections your Elasticsearch cluster must be either 1.0.0. Or you have to use the HTTP connection, which has been tested against 0.90.11 and 1.0.0.</p>
+
+<p>To enable the HTTP client connection you need to specify the property:</p>
+
+<pre><code>-Drelated-item.es.client.type=http</code></pre>
+
+<p>With this enabled the indexing and searching web applications use the HTTP connection factory to talk to the ES server’s http endpoint. In order for the app to know what to talk to you specify the following property (by default it is <em>http://127.0.0.1:9200</em>):</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200</code></pre>
+
+<p>You can specify multiple hosts, by comma separating them:</p>
+
+<pre><code>-Drelated-item.elastic.search.http.hosts=http://10.0.1.19:9200,http://10.0.1.29:9200,http://10.0.1.39:9200,http://10.0.1.49:9200</code></pre>
+
+<p>More information on configuring the HTTP connection can be found in the documentation section: http://relateit.io/configuration/index.html</p>
 
 <p>The relase can be found at the following location:</p>
 
 <ul>
 <li>
-<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.1/related-web-searching-1.0.1.war">1.0.1 Searching WAR</a></p>
+<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.4/related-web-searching-1.0.4.war">1.0.4 Searching WAR</a></p>
 </li>
 
 <li>
-<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.1/related-web-indexing-1.0.1.war">1.0.1 Indexing WAR</a></p>
+<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.4/related-web-indexing-1.0.4.war">1.0.4 Indexing WAR</a></p>
 </li>
 </ul>
 
@@ -367,6 +397,11 @@
          
         
         <li><a href="http://relateit.io/blog/blog3">3</a></li>
+        
+      
+         
+        
+        <li><a href="http://relateit.io/blog/blog4">4</a></li>
         
       
       </ul>
