@@ -25,6 +25,7 @@ import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.NodeBasedElasticSearchClientFactory;
 import org.greencheek.related.elastic.TransportBasedElasticSearchClientFactory;
 import org.greencheek.related.elastic.http.HttpElasticSearchClientFactory;
+import org.greencheek.related.searching.RelatedItemGetRepository;
 import org.greencheek.related.searching.RelatedItemSearchRepository;
 import org.greencheek.related.searching.RelatedItemSearchRepositoryFactory;
 import org.greencheek.related.searching.repository.http.ElasticSearchFrequentlyRelatedItemHttpSearchProcessor;
@@ -63,8 +64,15 @@ public class NodeTransportOrHttpBasedElasticSearchClientFactoryCreator implement
 
         switch(configuration.getElasticSearchClientType()) {
             case HTTP:
+                RelatedItemGetRepository getRepository;
+                if(configuration.getRelatedItemsDocumentIndexingEnabled()) {
+                    getRepository = new RelatedItemNoopGetRepository();
+                }
+                else {
+                    getRepository = new RelatedItemNoopGetRepository();
+                }
                 respository = new ElasticSearchRelatedItemHttpSearchRepository(configuration,httpFactory,
-                        new ElasticSearchFrequentlyRelatedItemHttpSearchProcessor(configuration,searchRequestBuilder,responseParser));
+                        new ElasticSearchFrequentlyRelatedItemHttpSearchProcessor(configuration,searchRequestBuilder,responseParser,getRepository));
                 break;
             default:
                 ElasticSearchClientFactory factory = nodeOrTransportFactory.getElasticSearchClientConnectionFactory(configuration);

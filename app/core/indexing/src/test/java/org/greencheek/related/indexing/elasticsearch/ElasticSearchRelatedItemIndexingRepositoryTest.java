@@ -66,73 +66,10 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
     private static String tmpDir;
 
-//    private static EsSetup esSetup;
     private ElasticSearchServer server;
 
     private String currentIndexDate;
 
-//
-    @BeforeClass
-    public static void setUpElastic() {
-
-//        String tmpDirectory =  System.getProperty("java.io.tmpdir");
-//        String fileSep = System.getProperty("file.separator");
-//
-//        if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
-//        tmpDirectory += UUID.randomUUID().toString() + fileSep;
-//
-//        tmpDir = tmpDirectory;
-//
-//        // Instantiates a local node & client
-//        configuration = new SystemPropertiesConfiguration();
-//
-//        esSetup = new EsSetup(ImmutableSettings.settingsBuilder()
-//                .put("cluster.name", configuration.getStorageClusterName())
-//                .put("index.store.type", "memory")
-//                .put("index.store.fs.memory.enabled", "true")
-//                .put("gateway.type", "local")
-//                .put("node.data", true)
-//                .put("node.client",false)
-//                .put("node.master", true)
-//                .put("discovery.zen.ping.multicast.enabled", "false")
-//                .put("discovery.zen.ping.multicast.ping.enabled","false")
-//                .put("discovery.zen.ping.unicast.enabled", "true")
-//                .put("discovery.zen.ping.unicast.hosts", "127.0.0.1[12345-23456]")
-//                .put("path.data", tmpDir+"data")
-//                .put("path.work", tmpDir+"work")
-//                .put("path.logs", tmpDir+"logs")
-//                .put("index.number_of_shards", "1")
-//                .put("index.number_of_replicas", "0")
-//                .put("cluster.routing.schedule", "50ms")
-//                .put("node.local", true)
-//                .put("http.enabled", false)
-//
-////                              .put("cluster.name", configuration.getStorageClusterName())
-////                                      .put("index.store.type", "memory")
-////                                      .put("index.store.fs.memory.enabled", "true")
-////                                      .put("gateway.type", "none")
-////                                      .put("index.number_of_shards", "1")
-////                                      .put("index.number_of_replicas", "0")
-////                                      .put("cluster.routing.schedule", "50ms")
-////                                      .put("node.local", true)
-////                                      .put("node.data", true)
-////                                      .put("discovery.zen.ping.multicast.enabled", "false")
-////                                      .put("network.host","127.0.0.1")
-////                .put("http.enabled",false)
-//                .build());
-//
-//        esSetup.execute( deleteAll() );
-//
-
-        // Clean all data
-
-
-    }
-
-    @AfterClass
-    public static void shutdownElastic() {
-//        esSetup.terminate();
-    }
 
     @Before
     public void setUp() {
@@ -145,8 +82,7 @@ public class ElasticSearchRelatedItemIndexingRepositoryTest {
 
         hourStorageLocationMapper = new HourBasedStorageLocationMapper(configuration,new JodaUTCCurrentDateAndHourFormatter());
 
-//        esSetup.execute( deleteAll() );
-//        esClient = esSetup.client();
+
         currentIndexDate = dateFormatter.getCurrentDay();
 
         Settings settings = ImmutableSettings.

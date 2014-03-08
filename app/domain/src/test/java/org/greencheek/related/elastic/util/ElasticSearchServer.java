@@ -72,8 +72,11 @@ public class ElasticSearchServer {
     }
 
     public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient) {
+        this(clustername,transportClient,httpClient,null);
+    }
 
-            String tmpDirectory =  System.getProperty("java.io.tmpdir");
+    public ElasticSearchServer(String clustername, boolean transportClient, boolean httpClient, Settings customsettings) {
+        String tmpDirectory =  System.getProperty("java.io.tmpdir");
         String fileSep = System.getProperty("file.separator");
 
         if(!tmpDirectory.endsWith(fileSep)) tmpDirectory += fileSep;
@@ -135,6 +138,10 @@ public class ElasticSearchServer {
             if(httpClient) {
                 b.put("http.enabled",true)
                         .put("http.port",port+11);
+            }
+
+            if(customsettings!=null) {
+                b.put(customsettings);
             }
 
             try {

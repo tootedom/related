@@ -58,6 +58,9 @@ public class ConfigurationConstants {
     public static final String PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME = "related-item.searching.key.for.search.processing.time";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS = "related-item.searching.key.for.frequency.result.overall.no.of.related.items";
     public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULTS ="related-item.searching.key.for.frequency.results";
+    public static final String PROPNAME_KEY_FOR_FREQUENCY_RESULT_SOURCE = "related-item.searching.key.for.frequency.result.source";
+    public static final String PROPNAME_KEY_FOR_STORAGE_GET_RESPONSE_TIME = "related-item.searching.key.for.storage.get.response.time";
+
     public static final String PROPNAME_REQUEST_PARAMETER_FOR_SIZE = "related-item.searching.request.parameter.for.size";
     public static final String PROPNAME_REQUEST_PARAMETER_FOR_ID =  "related-item.searching.request.parameter.for.id";
     public static final String PROPNAME_DEFAULT_NUMBER_OF_RESULTS= "related-item.searching.default.number.of.results";
@@ -112,6 +115,7 @@ public class ConfigurationConstants {
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS = "related-item.elastic.search.http.nodesniffing.connect.timeout.ms";
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES = "related-item.elastic.search.http.nodesniffing.no.of.retries";
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT = "related-item.elastic.search.http.multisearch.endpoint";
+    public static final String PROPNAME_ELASTIC_SEARCH_HTTP_MULTIGET_ENDPOINT = "related-item.elastic.search.http.multiget.endpoint";
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT = "related-item.elastic.search.http.nodesniffing.endpoint";
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = "related-item.elastic.search.http.nodesniffing.retry.interval";
     public static final String PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = "related-item.elastic.search.http.nodesniffing.retry.interval.unit";
@@ -125,7 +129,7 @@ public class ConfigurationConstants {
     public static final String PROPNAME_DOCUMENT_TYPE_NAME = "related-item.document.type.name";
     public static final String PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME = "related-item.document.merging.scriptname";
     public static final String PROPNAME_DOCUMENT_INDEXING_ENABLED = "related-item.document.indexing.enabled";
-    public static final String PROPNAME_DOCUMENT_MD5_KEY_NAME = "related-item.document.md5.keyname";
+    public static final String PROPNAME_DOCUMENT_COMPARISON_KEY_NAME = "related-item.document.comparison.keyname";
     public static final String PROPNAME_DOCUMENT_REMOVE_DATE_ATTRIBUTE = "related-item.document.remove.date.attribute";
 
 
@@ -169,6 +173,8 @@ public class ConfigurationConstants {
 
     public static final String DEFAULT_KEY_FOR_STORAGE_RESPONSE_TIME = "storage_response_time";
     public static final String DEFAULT_KEY_FOR_SEARCH_PROCESSING_TIME = "response_time";
+    public static final String DEFAULT_KEY_FOR_FREQUENCY_RESULT_SOURCE = "source";
+    public static final String DEFAULT_KEY_FOR_STORAGE_GET_RESPONSE_TIME = "storage_get_response_time";
 
     public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_TRANSPORT_SETTINGS_FILE_NAME = "default-transport-elasticsearch.yml";
     public static final String DEFAULT_ELASTIC_SEARCH_CLIENT_DEFAULT_NODE_SETTINGS_FILE_NAME = "default-node-elasticsearch.yml";
@@ -209,6 +215,7 @@ public class ConfigurationConstants {
     public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES = 0;
 
     public static final String DEFAULT_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT = "/_msearch";
+    public static final String DEFAULT_ELASTIC_SEARCH_HTTP_MULTIGET_ENDPOINT = "/_mget";
     public static final String DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT = "/_nodes/http";
     public static final int DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL = 15;
     public static final String DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL_UNIT = "mins";
@@ -221,7 +228,7 @@ public class ConfigurationConstants {
     public static final String DEFAULT_DOCUMENT_TYPE_NAME = "relateddoc";
     public static final String DEFAULT_DOCUMENT_MERGING_SCRIPT_NAME = "relateddocupdater";
     public static final boolean DEFAULT_DOCUMENT_INDEXING_ENABLED = false;
-    public static final String DEFAULT_DOCUMENT_MD5_KEY_NAME = "md5";
+    public static final String DEFAULT_DOCUMENT_COMPARISON_KEY_NAME = "sha256";
     public static final boolean DEFAULT_DOCUMENT_REMOVE_DATE_ATTRIBUTE = true;
 
 
@@ -249,9 +256,10 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE,DEFAULT_KEY_FOR_FREQUENCY_RESULT_OCCURRENCE);
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS, DEFAULT_KEY_FOR_FREQUENCY_RESULT_OVERALL_NO_OF_RELATED_ITEMS);
         configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULTS,DEFAULT_KEY_FOR_FREQUENCY_RESULTS);
-
+        configuration.put(PROPNAME_KEY_FOR_FREQUENCY_RESULT_SOURCE,DEFAULT_KEY_FOR_FREQUENCY_RESULT_SOURCE);
         configuration.put(PROPNAME_KEY_FOR_SEARCH_PROCESSING_TIME,DEFAULT_KEY_FOR_SEARCH_PROCESSING_TIME);
         configuration.put(PROPNAME_KEY_FOR_STORAGE_RESPONSE_TIME,DEFAULT_KEY_FOR_STORAGE_RESPONSE_TIME);
+        configuration.put(PROPNAME_KEY_FOR_STORAGE_GET_RESPONSE_TIME,DEFAULT_KEY_FOR_STORAGE_GET_RESPONSE_TIME);
 
         configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_SIZE,DEFAULT_REQUEST_PARAMETER_FOR_SIZE);
         configuration.put(PROPNAME_REQUEST_PARAMETER_FOR_ID,DEFAULT_REQUEST_PARAMETER_FOR_ID);
@@ -305,6 +313,7 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_CONNECT_TIMEOUT_MS);
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_NO_OF_RETRIES);
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_MULTISEARCH_ENDPOINT);
+        configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_MULTIGET_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_MULTIGET_ENDPOINT);
 
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_ENDPOINT);
         configuration.put(PROPNAME_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL,DEFAULT_ELASTIC_SEARCH_HTTP_NODE_SNIFFING_RETRY_INTERVAL);
@@ -319,7 +328,7 @@ public class ConfigurationConstants {
         configuration.put(PROPNAME_DOCUMENT_TYPE_NAME,DEFAULT_DOCUMENT_TYPE_NAME);
         configuration.put(PROPNAME_DOCUMENT_MERGING_SCRIPT_NAME,DEFAULT_DOCUMENT_MERGING_SCRIPT_NAME);
         configuration.put(PROPNAME_DOCUMENT_INDEXING_ENABLED,DEFAULT_DOCUMENT_INDEXING_ENABLED);
-        configuration.put(PROPNAME_DOCUMENT_MD5_KEY_NAME,DEFAULT_DOCUMENT_MD5_KEY_NAME);
+        configuration.put(PROPNAME_DOCUMENT_COMPARISON_KEY_NAME,DEFAULT_DOCUMENT_COMPARISON_KEY_NAME);
         configuration.put(PROPNAME_DOCUMENT_REMOVE_DATE_ATTRIBUTE,DEFAULT_DOCUMENT_REMOVE_DATE_ATTRIBUTE);
 
         DEFAULT_SETTINGS = configuration;

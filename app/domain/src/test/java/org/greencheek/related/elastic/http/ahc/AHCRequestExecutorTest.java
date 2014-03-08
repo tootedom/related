@@ -32,6 +32,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 public class AHCRequestExecutorTest {
 
 
+    public static int[] ports;
 
     public static int port = findFreePort();
 

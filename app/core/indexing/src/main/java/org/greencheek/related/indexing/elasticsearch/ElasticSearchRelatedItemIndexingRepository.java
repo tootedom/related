@@ -45,7 +45,6 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -70,9 +69,9 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
     private final String relatedItemsDocumentTypeName;
     private final String relatedItemsDocumentMergingScriptName;
     private final boolean relatedItemsDocumentIndexingEnabled;
-    private final String relatedItemsDocumentMD5KeyName;
+    private final String relatedItemsDocumentComparisonKeyName;
 
-    private final MessageDigest MD5;
+    private final MessageDigest SHA256;
 
     public ElasticSearchRelatedItemIndexingRepository(Configuration configuration,
                                                       ElasticSearchClientFactory factory) {
@@ -91,10 +90,10 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
         this.relatedItemsDocumentMergingScriptName = configuration.getRelatedItemsDocumentMergingScriptName();
         this.relatedItemsDocumentTypeName =  configuration.getRelatedItemsDocumentTypeName();
         this.relatedItemsDocumentIndexingEnabled = configuration.getRelatedItemsDocumentIndexingEnabled();
-        this.relatedItemsDocumentMD5KeyName = configuration.getRelatedItemsDocumentMD5KeyName();
+        this.relatedItemsDocumentComparisonKeyName = configuration.getRelatedItemsDocumentComparisonKeyName();
 
         try {
-            MD5 =  MessageDigest.getInstance("MD5");
+            SHA256 =  MessageDigest.getInstance("SHA-256");
         } catch(NoSuchAlgorithmException e) {
             throw new InstantiationError();
         }
@@ -142,11 +141,11 @@ public class ElasticSearchRelatedItemIndexingRepository implements RelatedItemSt
                 updateRequestBuilder.addScriptParam(keyValue[0],keyValue[1]);
             }
             updateRequestBuilder.setScriptLang("native");
-            String md5 = new String(RelatedItemUtil.getMD5ForRelatedItemProperties(props,propertySize,MD5));
-            updateRequestBuilder.addScriptParam(relatedItemsDocumentMD5KeyName, md5);
+            String sha256 = new String(RelatedItemUtil.getComparisonHashForRelatedItemProperties(props,propertySize,SHA256));
+            updateRequestBuilder.addScriptParam(relatedItemsDocumentComparisonKeyName, sha256);
             updateRequestBuilder.setScript(relatedItemsDocumentMergingScriptName);
 
-            builder.field(relatedItemsDocumentMD5KeyName, md5);
+            builder.field(relatedItemsDocumentComparisonKeyName, sha256);
             builder.endObject();
             updateRequestBuilder.setUpsert(builder);
             bulkRequestBuilder.add(updateRequestBuilder);

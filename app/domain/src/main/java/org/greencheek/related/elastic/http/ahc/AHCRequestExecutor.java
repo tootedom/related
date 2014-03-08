@@ -65,8 +65,13 @@ public  class AHCRequestExecutor {
                 }
             }
             else {
-                log.error("Exception talking to {}",host,e);
-                return new HttpResult(HttpSearchExecutionStatus.REQUEST_FAILURE,null);
+                if (e instanceof IOException && e.getMessage().equalsIgnoreCase("closed")) {
+                    log.warn("Unable to use client, client is closed");
+                    return HttpResult.CLIENT_CLOSED;
+                } else {
+                    log.error("Exception talking to {}",host,e);
+                    return new HttpResult(HttpSearchExecutionStatus.REQUEST_FAILURE,null);
+                }
             }
         }
     }

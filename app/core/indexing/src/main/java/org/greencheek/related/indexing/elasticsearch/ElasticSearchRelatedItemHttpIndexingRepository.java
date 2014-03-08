@@ -21,18 +21,11 @@
 
 package org.greencheek.related.indexing.elasticsearch;
 
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.action.support.replication.ReplicationType;
-import org.elasticsearch.action.update.UpdateRequestBuilder;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.greencheek.related.api.RelatedItemAdditionalProperties;
 import org.greencheek.related.api.indexing.RelatedItem;
 import org.greencheek.related.api.indexing.RelatedItemUtil;
-import org.greencheek.related.elastic.ElasticSearchClientFactory;
 import org.greencheek.related.elastic.http.*;
 import org.greencheek.related.indexing.RelatedItemStorageLocationMapper;
 import org.greencheek.related.indexing.RelatedItemStorageRepository;
@@ -71,11 +64,11 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
     private final String relatedItemsDocumentTypeName;
     private final String relatedItemsDocumentMergingScriptName;
     private final boolean relatedItemsDocumentIndexingEnabled;
-    private final String relatedItemsDocumentMD5KeyName;
+    private final String relatedItemsDocumentComparisonKeyName;
     private int propertySize;
     private final boolean removeRelatedItemsDocumentDateAttribute;
 
-    private final MessageDigest MD5;
+    private final MessageDigest SHA256;
 
 
     public ElasticSearchRelatedItemHttpIndexingRepository(Configuration configuration,
@@ -100,11 +93,11 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
         this.relatedItemsDocumentMergingScriptName = configuration.getRelatedItemsDocumentMergingScriptName();
         this.relatedItemsDocumentTypeName =  configuration.getRelatedItemsDocumentTypeName();
         this.relatedItemsDocumentIndexingEnabled = configuration.getRelatedItemsDocumentIndexingEnabled();
-        this.relatedItemsDocumentMD5KeyName = configuration.getRelatedItemsDocumentMD5KeyName();
+        this.relatedItemsDocumentComparisonKeyName = configuration.getRelatedItemsDocumentComparisonKeyName();
         this.removeRelatedItemsDocumentDateAttribute = configuration.getRemoveRelatedItemsDocumentDateAttribute();
 
         try {
-            MD5 =  MessageDigest.getInstance("MD5");
+            SHA256 =  MessageDigest.getInstance("SHA-256");
         } catch(NoSuchAlgorithmException e) {
             throw new InstantiationError();
         }
@@ -155,8 +148,8 @@ public class ElasticSearchRelatedItemHttpIndexingRepository implements RelatedIt
                 builder.field(keyValue[0], keyValue[1]);
 
             }
-            String md5 = new String(RelatedItemUtil.getMD5ForRelatedItemProperties(props,propertySize,MD5));
-            builder.field(relatedItemsDocumentMD5KeyName, md5);
+            String sha256 = new String(RelatedItemUtil.getComparisonHashForRelatedItemProperties(props,propertySize,SHA256));
+            builder.field(relatedItemsDocumentComparisonKeyName, sha256);
             builder.endObject();
 
             String document = builder.string();

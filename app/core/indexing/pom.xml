@@ -29,6 +29,12 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.greencheek.related.plugins</groupId>
+            <artifactId>relateddocs-merger</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

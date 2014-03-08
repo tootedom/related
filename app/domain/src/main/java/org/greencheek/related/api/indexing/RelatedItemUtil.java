@@ -26,7 +26,7 @@ public class RelatedItemUtil {
     };
 
 
-    public static char[] md5ToHex(byte[] data) {
+    public static char[] bytesToHex(byte[] data) {
 
         int l = data.length;
 
@@ -42,14 +42,14 @@ public class RelatedItemUtil {
 
     }
 
-    public static char[] getMD5ForRelatedItemProperties(String[][] props,int propertySize, MessageDigest MD5) {
+    public static char[] getComparisonHashForRelatedItemProperties(String[][] props,int propertySize, MessageDigest digest) {
         StringBuilder b = new StringBuilder(props.length*propertySize);
         for(String[] keyValue : props) {
             b.append(keyValue[0]).append(keyValue[1]);
         }
-        byte[] data = MD5.digest(b.toString().getBytes());
-        MD5.reset();
-        return md5ToHex(data);
+        byte[] data = digest.digest(b.toString().getBytes());
+        digest.reset();
+        return bytesToHex(data);
     }
 
 
@@ -68,8 +68,8 @@ public class RelatedItemUtil {
         Arrays.sort(prop,PROPERTY_NAME_COMPARATOR);
         Arrays.sort(prop2,PROPERTY_NAME_COMPARATOR);
 
-        System.out.println(getMD5ForRelatedItemProperties(prop, 10, MessageDigest.getInstance("MD5")));
-        System.out.println(getMD5ForRelatedItemProperties(prop2,10,MessageDigest.getInstance("MD5")));
+        System.out.println(getComparisonHashForRelatedItemProperties(prop, 10, MessageDigest.getInstance("SHA-256")));
+        System.out.println(getComparisonHashForRelatedItemProperties(prop2,10,MessageDigest.getInstance("SHA-256")));
 
     }
 

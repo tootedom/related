@@ -57,6 +57,7 @@ import java.util.Map;
 public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements SearchResultsConverter<FrequentlyRelatedSearchResult[]> {
 
     private final String sizeKey;
+    private final String sourceKey;
     private final String responseTimeKey;
     private final String repoResponseTimeKey;
     private final String resultsKey;
@@ -68,6 +69,7 @@ public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements S
     private final int estimatedResultsSize;
     private final int resultItemSize;
     private final int idSize;
+    private final boolean relateDocumentIndexingEnabled;
 
     private final String EMPTY_JSON_RESULTS;
     private final String EMPTY_JSON_WITHOUT_RESPONSE_TIMES;
@@ -80,14 +82,15 @@ public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements S
         resultIdKeySize = resultIdKey.length();
         resultFrequencyKey = configuration.getKeyForFrequencyResultOccurrence();
         resultFrequencyKeySize = resultFrequencyKey.length();
-
+        relateDocumentIndexingEnabled = configuration.getRelatedItemsDocumentIndexingEnabled();
         resultsKey = configuration.getKeyForFrequencyResults();
         repoResponseTimeKey = configuration.getKeyForStorageResponseTime();
         responseTimeKey = configuration.getKeyForSearchProcessingResponseTime();
         sizeKey = configuration.getKeyForFrequencyResultOverallResultsSize();
+        sourceKey = configuration.getKeyForFrequencyResultSource();
 
         idSize = configuration.getRelatedItemIdLength();
-        estimatedResultsSize = 35 + responseTimeKey.length()+repoResponseTimeKey.length()+resultsKey.length()+sizeKey.length();
+        estimatedResultsSize = 35 + responseTimeKey.length()+repoResponseTimeKey.length()+resultsKey.length()+sizeKey.length()+sourceKey.length();
         resultItemSize = resultFrequencyKeySize + resultIdKeySize + 13;
 
         StringBuilder b = new StringBuilder(estimatedResultsSize);
@@ -152,6 +155,12 @@ public class StringBasedJsonFrequentlyRelatedSearchResultsConverter implements S
             b.append(',');
             addKeyItem(b, resultFrequencyKey);
             addValueItem(b, Long.toString(res.getFrequency()));
+            String sourceDoc = res.getSourceDoc();
+            if(relateDocumentIndexingEnabled && sourceDoc != null) {
+                b.append(',');
+                addKeyItem(b,sourceKey);
+                addValueItem(b,sourceDoc);
+            }
             b.append('}').append(',');
         }
         FrequentlyRelatedSearchResult res = results[resultsMinusOne];

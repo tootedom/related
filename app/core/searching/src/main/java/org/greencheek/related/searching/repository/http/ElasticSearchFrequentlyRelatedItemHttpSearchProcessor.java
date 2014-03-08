@@ -48,6 +48,7 @@ import org.greencheek.related.api.searching.lookup.SearchRequestLookupKey;
 import org.greencheek.related.elastic.http.HttpElasticClient;
 import org.greencheek.related.elastic.http.HttpMethod;
 import org.greencheek.related.elastic.http.HttpResult;
+import org.greencheek.related.searching.RelatedItemGetRepository;
 import org.greencheek.related.searching.domain.api.SearchResultEventWithSearchRequestKey;
 import org.greencheek.related.searching.domain.api.SearchResultsEvent;
 import org.greencheek.related.searching.repository.FrequentRelatedSearchRequestBuilder;
@@ -56,7 +57,9 @@ import org.greencheek.related.util.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -74,16 +77,19 @@ public class ElasticSearchFrequentlyRelatedItemHttpSearchProcessor {
 
     private final FrequentRelatedSearchRequestBuilder relatedItemSearchBuilder;
     private final FrequentlyRelatedItemHttpResponseParser responseParser;
+    private final RelatedItemGetRepository getRepository;
 
 //    private final Map<String,SearchFieldType> searchFieldType;
 
     public ElasticSearchFrequentlyRelatedItemHttpSearchProcessor(Configuration configuration,
                                                                  FrequentRelatedSearchRequestBuilder builder,
-                                                                 FrequentlyRelatedItemHttpResponseParser responseParser) {
+                                                                 FrequentlyRelatedItemHttpResponseParser responseParser,
+                                                                 RelatedItemGetRepository getRepository) {
         this.responseParser = responseParser;
         this.msearchEndpoint = configuration.getElasticSearchMultiSearchEndpoint();
         this.relatedItemSearchBuilder = builder;
         this.configuration = configuration;
+        this.getRepository = getRepository;
         String indexNameAlias = configuration.getStorageIndexNameAlias();
         if(indexNameAlias==null || indexNameAlias.trim().length()==0) {
             indexName = configuration.getStorageIndexNamePrefix()+"*";
@@ -111,7 +117,8 @@ public class ElasticSearchFrequentlyRelatedItemHttpSearchProcessor {
         return httpElasticClient.executeSearch(HttpMethod.POST,msearchEndpoint,query);
     }
 
-    public SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]>[] processMultiSearchResponse(RelatedItemSearch[] searches,HttpResult searchResponse) {
+    public SearchResultEventWithSearchRequestKey<FrequentlyRelatedSearchResult[]>[] processMultiSearchResponse(RelatedItemSearch[] searches,
+                                                                                                               HttpResult searchResponse) {
 
         SearchResultEventWithSearchRequestKey[] results = new SearchResultEventWithSearchRequestKey[searches.length];
         log.debug("parsing json response: {}",searchResponse.getResult());
@@ -146,14 +153,23 @@ public class ElasticSearchFrequentlyRelatedItemHttpSearchProcessor {
         else {
 
             int noOfFacets = searchResponse.getNumberOfFacets();
+            String[] ids = new String[noOfFacets];
+            long[] counts = new long[noOfFacets];
             if(noOfFacets!=0) {
                 results = new FrequentlyRelatedSearchResult[noOfFacets];
 
                 while(noOfFacets--!=0) {
                     TermFacet entry = searchResponse.getFacetResult(noOfFacets);
-                    results[noOfFacets] = new FrequentlyRelatedSearchResult(entry.name, entry.count);
+                    ids[noOfFacets] = entry.name;
+                    counts[noOfFacets] = entry.count;
                 }
                 outcome = SearchResultsOutcome.HAS_RESULTS;
+
+                Map<String,String> docs = getRepository.getRelatedItemDocument(ids);
+
+                for(int i=0;i<ids.length;i++) {
+                    results[i] = new FrequentlyRelatedSearchResult(ids[i],counts[i],docs.get(ids[i]));
+                }
             } else {
                 log.debug("no related content found for search key {}",key);
                 return new SearchResultEventWithSearchRequestKey(SearchResultsEvent.EMPTY_FREQUENTLY_RELATED_SEARCH_RESULTS,key,searchResponse.getTimeTaken(),requestStartTime);
