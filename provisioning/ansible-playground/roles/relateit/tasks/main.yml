@@ -5,6 +5,9 @@
 - name: Download current indexing WAR
   get_url: url=https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/{{relateit_version}}/related-web-indexing-{{relateit_version}}.war  dest=/tmp/indexing.war
 
+- name: Download current merging module
+  get_url: url=https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/plugins/relateddocs-merger/{{relateit_merger_version}}/relateddocs-merger-{{relateit_merger_version}}.jar  dest=/tmp/relateddocs-merger.jar
+
 - name: create indexing webapp dir
   action: command mkdir /usr/share/tomcat/webapps/indexing creates=/usr/share/tomcat/webapps/indexing
 
@@ -19,6 +22,21 @@
 
 - name: Change ownership of Tomcat installation
   file: path=/usr/share/tomcat/webapps owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Install template for the related items
+  copy: src=relateditems.json dest=/etc/elasticsearch/templates/ mode=0755
+
+- name: Install template for the related docs
+  copy: src=relateddocs.json dest=/etc/elasticsearch/templates/ mode=0755
+
+- name: Install plugin into the elasticsearch plugins dir
+  command: cp /tmp/relateddocs-merger.jar /usr/share/elasticsearch/lib/ creates=/usr/share/elasticsearch/lib/relateddocs-merger.jar
+
+- name: chmod es plugin file as readable
+  file: path=/etc/elasticsearch/plugins/relateddocs-merger.jar mode=0666
+
+- name: Elasticsearch | Start Elasticsearch
+  service: name=elasticsearch state=restarted enabled=yes
 
 - name: Start Tomcat
   service: name=tomcat state=restarted enabled=yes

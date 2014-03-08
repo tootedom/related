@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
       ansible.groups = { "jdk" => ["tomcat"], "tomcat" => ["tomcat"], "relateit" => ["tomcat"], "elasticsearch" => ["tomcat"] } 
     end
     conf.vm.provider "virtualbox" do |v|
-      v.memory = 2048
+      v.memory = 1280
     end
   end
 end

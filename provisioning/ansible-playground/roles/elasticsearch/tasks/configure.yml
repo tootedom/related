@@ -7,5 +7,26 @@
     - dest=/etc/sysconfig/elasticsearch regexp='^.*ES_USER.*' line="ES_USER={{ elasticsearch_user }}" state=present
     - dest=/etc/elasticsearch/elasticsearch.yml regexp='^.*cluster.name:.*' line="cluster.name{{':'}} {{elasticsearch_cluster_name}}" state=present
 
-- name: Elasticsearch | Start Elasticsearch
-  service: name=elasticsearch state=restarted enabled=yes
+- name: Update elasticsearch configuration to append module
+  lineinfile: 
+    dest=/etc/elasticsearch/elasticsearch.yml
+    line="script.native.relateddocupdater.type{{':'}} org.greencheek.related.plugins.relateddocsmerger.RelatedDocsMergerFactory"
+    regexp="^script.native.relateddocupdater.type{{':'}} org.greencheek.related.plugins.relateddocsmerger.RelatedDocsMergerFactory"
+    state=present
+    insertafter=EOF
+    create=True  
+
+- name: Update elasticsearch configuration to disable dynamic scripts
+  lineinfile: 
+    dest=/etc/elasticsearch/elasticsearch.yml
+    line="script.disable_dynamic{{':'}} true"
+    regexp="^script.disable_dynamic{{':'}} true"
+    state=present
+    insertafter=EOF
+    create=True    
+
+- name: create templates
+  action: command mkdir /etc/elasticsearch/templates creates=/etc/elasticsearch/templates
+
+- name: Change ownership of elasticsearch templates directory
+  file: path=/etc/elasticsearch/templates owner={{ elasticsearch_user }} group={{ elasticsearch_group }} state=directory recurse=yes
