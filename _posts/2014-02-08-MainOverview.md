@@ -23,8 +23,13 @@ The Indexing and Searching components do not need to directly be used.  In other
 
 ----
 
+## Latest Version ##
+
+The lastest version is `1.1.0` (
+<a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.1.0/related-web-searching-1.1.0.war">searching.war</a> | <a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.1.0/related-web-indexing-1.1.0.war">indexing.war</a>)
+
 ## Requirements ##
 
 
-* JDK 7 (recommended jdk7u40+), Java Web Application Server with Servlet 3 (i.e. Tomcat 7+) and Elasticsearch 0.90.9 
+* JDK 7 (recommended jdk7u40+), Java Web Application Server with Servlet 3 (i.e. Tomcat 7+) and Elasticsearch 0.90.9+  
 

@@ -1,4 +1,7 @@
 <!doctype html>
+
+
+
 <!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
   
@@ -7,11 +10,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <title>Overview</title>
+    <title>Release 1.0.0</title>
     
 
     
-    <meta name="description" content="Overview of how to index documents via the related items indexing web application"/>
+    <meta name="description" content="Initial release of the relateit.io Related Items application"/>
     
     
     <meta name="author" content="Dominic Tootell" />
@@ -53,8 +56,7 @@
 
 
   <!-- End Nav -->
-
-    <div class="off-canvas-wrap">
+  <div class="off-canvas-wrap">
   <div class="inner-wrap">
 
 <nav class="tab-bar show-for-small">
@@ -78,44 +80,32 @@
 
  
 
-	
-	<li><a href="/indexing/indexing1" data-search class="active">Overview</a></li>
-	
+	<li><a href="/indexing/indexing1" data-search>Overview</a></li>
 
 
  
 
-	
 	<li><a href="/indexing/indexing2" data-search>Dates</a></li>
-	
 
 
  
 
-	
 	<li><a href="/indexing/indexing3" data-search>Document Format</a></li>
-	
 
 
  
 
-	
 	<li><a href="/indexing/indexing4" data-search>Properties</a></li>
-	
 
 
  
 
-	
 	<li><a href="/indexing/indexing5" data-search>Logging</a></li>
-	
 
 
  
 
-	
 	<li><a href="/indexing/indexing6" data-search>Document Info</a></li>
-	
 
 
               <li class="divider"></li>
@@ -211,323 +201,94 @@
 
 
   <!-- Main Page Content and Sidebar -->
-  <section role="main">
-  <div class="row">
 
-    
+  <div class="row">
         <div class="large-3 medium-4 columns">
       <div class="hide-for-small">
-        <div class="sidebar">
-          <h5>Documentation:</h5>          
+        <div class="sidebar">             
           <nav>
             <ul class="side-nav">
-              <li class="heading">Indexing</li>
               
+                            
+               
+              <li>
+                <a href="/blog/blog1">Release 1.1.0</a>
+                <p><p>Returning document information for frequently matching items. Release 1.1.0 also includes an upgrade to 1.0.1 of Elasticsearch</p></p>
+              </li>
+                            
+               
+              <li>
+                <a href="/blog/blog2">Release 1.0.4</a>
+                <p><p>Release 1.0.4 includes an enhancement to the available methods for connecting to Elasticsearch, that of HTTP communication. The pull request covering this feature (link to the source) can be found in the following <a href="https://github.com/tootedom/related/pull/4">Pull Request</a></p></p>
+              </li>
+                            
+               
+              <li>
+                <a href="/blog/blog3">Release 1.0.1</a>
+                <p><p>Release 1.0.1 is a minor release that fixed a bug with the AsyncContext being closed twice.</p></p>
+              </li>
+                            
+               
+              <li>
+                <a href="/blog/blog4">Release 1.0.0</a>
+                <p><p>The initial release of <code>Relate it</code>. Allowing you to relate items, and find the most frequently related items.</p></p>
+              </li>
               
-                
-              
-              
-
- 
-
-	
-	<li><a href="/indexing/indexing1" data-search class="active">Overview</a></li>
-	
-
-
- 
-
-	
-	<li><a href="/indexing/indexing2" data-search>Dates</a></li>
-	
-
-
- 
-
-	
-	<li><a href="/indexing/indexing3" data-search>Document Format</a></li>
-	
-
-
- 
-
-	
-	<li><a href="/indexing/indexing4" data-search>Properties</a></li>
-	
-
-
- 
-
-	
-	<li><a href="/indexing/indexing5" data-search>Logging</a></li>
-	
-
-
- 
-
-	
-	<li><a href="/indexing/indexing6" data-search>Document Info</a></li>
-	
-
-
-              <li class="divider"></li>
-              <li class="heading">Searching</li>
-              
-              
-                
-              
-              
-
- 
-
-	<li><a href="/searching/searching1" data-search>Overview</a></li>
-
-
- 
-
-	<li><a href="/searching/searching2" data-search>Filters</a></li>
-
-
- 
-
-	<li><a href="/searching/searching3" data-search>Logging</a></li>
-
-
- 
-
-	<li><a href="/searching/searching4" data-search>Indexes</a></li>
-
-
- 
-
-	<li><a href="/searching/searching5" data-search>Aliases</a></li>
-
-
-              <li class="divider"></li>
-              <li class="heading">Configuration</li>
-              
-              
-                
-              
-              
-
- 
-
-	<li><a href="/configuration/configuration1" data-search>ES Connections</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration2" data-search>ES Type Mapping</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration3" data-search>ES Configuration</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration4" data-search>Webapp JVM</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration5" data-search>App Config</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration6" data-search>Tomcat</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration7" data-search>Diagrams</a></li>
-
-
- 
-
-	<li><a href="/configuration/configuration8" data-search>Provisioning</a></li>
-
-
             </ul>
           </nav>
         </div> 
       </div>
-    </div>
+    </div>    
     <!-- Main Blog Content -->
     <div class="large-9 medium-8 columns" role="content">
-
     
-<div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
+    <div class="magellan-container" data-magellan-expedition="fixed" style="left: auto;">
       <dl class="sub-nav">        
         
         
          
         
-          <dd data-magellan-arrival="1" class="active"><a href="/indexing/indexing1">Overview</a></dd>       
+          <dd data-magellan-arrival="1" ><a href="/blog/blog1">Release 1.1.0</a></dd>
         
         <li class="divider">|</li>
         
          
         
-          <dd data-magellan-arrival="2" ><a href="/indexing/indexing2">Dates</a></dd>
+          <dd data-magellan-arrival="2" ><a href="/blog/blog2">Release 1.0.4</a></dd>
         
         <li class="divider">|</li>
         
          
         
-          <dd data-magellan-arrival="3" ><a href="/indexing/indexing3">Document Format</a></dd>
+          <dd data-magellan-arrival="3" ><a href="/blog/blog3">Release 1.0.1</a></dd>
         
         <li class="divider">|</li>
         
          
         
-          <dd data-magellan-arrival="4" ><a href="/indexing/indexing4">Properties</a></dd>
-        
-        <li class="divider">|</li>
-        
-         
-        
-          <dd data-magellan-arrival="5" ><a href="/indexing/indexing5">Logging</a></dd>
-        
-        <li class="divider">|</li>
-        
-         
-        
-          <dd data-magellan-arrival="6" ><a href="/indexing/indexing6">Document Info</a></dd>
+          <dd data-magellan-arrival="4" class="active"><a href="/blog/blog4">Release 1.0.0</a></dd>       
         
         <li class="divider">|</li>
                 
       </dl>
 </div>      
 
-<!-- This loops through the paginated posts -->
+    <h1>Release 1.0.0</h1>
+    <p>The initial release of <code>Relate it</code>. Allowing you to relate items, and find the most frequently related items.</p>
 
-  <h1><a href="/indexing/indexing1">Overview</a></h1>
-  <div class="content">
-    <p>The index web application is POSTed data containing a group of related items, i.e. for example a purchase containing several items.</p>
+<p><code>Relate it</code> allows the common cross-selling functionality you see on many shopping websites. That of presenting the shoppers with products that are frequently purchased together.</p>
 
-<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
-{
-   &quot;channel&quot;:&quot;de&quot;,
-   &quot;site&quot;:&quot;amazon&quot;,
-   &quot;items&quot;:[
-      {
-         &quot;id&quot;:&quot;1&quot;,
-         &quot;type&quot;:&quot;map&quot;
-      },
-      {
-         &quot;id&quot;:&quot;2&quot;,
-         &quot;type&quot;:&quot;compass&quot;
-      },
-      {
-         &quot;id&quot;:&quot;3&quot;,
-         &quot;type&quot;:&quot;torch&quot;
-      },
-      {
-         &quot;id&quot;:&quot;4&quot;,
-         &quot;type&quot;:&quot;torch&quot;,
-         &quot;channel&quot;:&quot;uk&quot;
-      }
-   ]
-}&#39;</code></pre>
-
-<p>The indexing application returns a 202 accepted status code to the client that issued the indexing request. This indicates to the client that the request has been accepted for processing and indexing. Please note that the returning of 202 doesn’t mean that the related items have been stored in Elasticsearch. It means that the item is current held within the disruptor ring buffer pending processing and storage. The indexing application can return the following status codes:</p>
+<p>The relase can be found at the following location:</p>
 
 <ul>
-<li>400 : The indexing json contains no products, or is invalid jason</li>
+<li>
+<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-searching/1.0.0/related-web-searching-1.0.0.war">1.0.0 Searching WAR</a></p>
+</li>
 
-<li>503 : The ring buffer is full, and cannot accept any more items for processing.</li>
-
-<li>202 : Item is being processed</li>
+<li>
+<p><a href="https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/related-web-indexing/1.0.0/related-web-indexing-1.0.0.war">1.0.0 Indexing WAR</a></p>
+</li>
 </ul>
-
-<p>It is at this point the POSTed json data is assembled into several documents. For example, for the above request; 3 JSON documents will be assembled and submitted to elasticsearch for storage and indexing:</p>
-
-<pre><code>{
-    &quot;id&quot;: &quot;1&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;2&quot;,&quot;3&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;map&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
-
-{
-    &quot;id&quot;: &quot;2&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;3&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;compass&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
-
-{
-    &quot;id&quot;: &quot;3&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;4&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;de&quot;
-}
-
-{
-    &quot;id&quot;: &quot;4&quot; ,
-    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
-    &quot;related-with&quot;: [ &quot;1&quot;,&quot;2&quot;,&quot;3&quot;],
-    &quot;type&quot;: &quot;torch&quot;,
-    &quot;site&quot;: &quot;amazon&quot;,
-    &quot;channel&quot;: &quot;uk&quot;
-}</code></pre>
-
-<p>It is the json element “related-with”, that will be used during search, to provide faceting information. It is this faceting functionality provided by Elasticsearch that allows us to say:</p>
-
-<ul>
-<li>For this id, what are the 5 top most frequently <strong>related-with</strong> ids.</li>
-</ul>
-  </div>
-
-
-    <div class="pagination-centered">
-      <ul class="pagination">
-      
-      
-      
-         
-        
-        <li class="current"><a href="/indexing/indexing1">1</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing2">2</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing3">3</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing4">4</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing5">5</a></li>
-        
-      
-         
-        
-        <li><a href="/indexing/indexing6">6</a></li>
-        
-      
-      </ul>
-    </div>
-
 
 <!--       <article>
 
@@ -604,6 +365,33 @@
 
   <!-- End Main Content and Sidebar -->
 
+      <div class="pagination-centered">
+      <ul class="pagination">
+      
+      
+      
+         
+        
+        <li><a href="/blog/blog1">1</a></li>
+        
+      
+         
+        
+        <li><a href="/blog/blog2">2</a></li>
+        
+      
+         
+        
+        <li><a href="/blog/blog3">3</a></li>
+        
+      
+         
+        
+        <li class="current"><a href="/blog/blog4">4</a></li>
+        
+      
+      </ul>
+    </div>
 
   <!-- Footer -->
   </div>
@@ -650,6 +438,6 @@
             pageTracker._trackPageview();
             } catch(err) {}
 </script>
-  </section>
   </body>
 </html>
+

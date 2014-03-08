@@ -105,6 +105,11 @@
 	<li><a href="/indexing/indexing5" data-search>Logging</a></li>
 
 
+ 
+
+	<li><a href="/indexing/indexing6" data-search>Document Info</a></li>
+
+
               <li class="divider"></li>
               <li class="heading">Searching</li>
               
@@ -245,6 +250,11 @@
  
 
 	<li><a href="/indexing/indexing5" data-search>Logging</a></li>
+
+
+ 
+
+	<li><a href="/indexing/indexing6" data-search>Document Info</a></li>
 
 
               <li class="divider"></li>
@@ -480,13 +490,15 @@
     &quot;storage_response_time&quot;: 1
 }</code></pre>
 
-<p>Currently the search result just returns the id’s of the related items, and the frequency by which it was related with the searched for item it. It <em>DOES NOT</em> return the matching document’s information.</p>
+<h2 id="default_searching_and_indexing">Default Searching and Indexing</h2>
+
+<p>Currently when searching and indexing, the search result will just returns the id’s of the related items by default, and the frequency by which it was related with the searched for item it. It <em>DOES NOT</em> return the matching document’s information.</p>
 
 <p>The reason behind not returning the matching documents source, is that there could be literally hundreds of matching documents. An example would be the dvd <code>The Raid</code>. This could be bought many many times, and with a number of other items; and often with the same related item many times.</p>
 
-<p>For the below related item POSTs, the dvd <code>The Raid</code>, is associated with <code>Enter the dragon</code> and <code>kick boxer</code>. It is associated with <code>kick boxer</code> twice, and therefore <code>kick boxer</code> is the most frequently related item.</p>
+<p>For the below related item POST(s). The dvd <code>The Raid</code>, is associated with both <code>Enter the dragon</code> and <code>kick boxer</code>. It is also associated with <code>kick boxer</code> twice, and therefore <code>kick boxer</code> is the most frequently related item.</p>
 
-<p>In the backend (elasticsearch), there are two actual physical documents that represent <code>kick boxer</code>. If we are to return the matching documents for the <code>most frequently related</code>, we have to return the source of both <code>kick boxer</code> documents. Expanding this further you could quite easily have am item related to another item 100’s of times; which would mean 100’s of matching documents. It is for this reason the content of that matches are not returned.</p>
+<p>In the backend (elasticsearch), when a relation is stored/indexed there are two actual physical documents that represent <code>kick boxer</code> within the <code>relateitems-*</code> indexes. If we are to return all the matching documents for the <code>most frequently related</code>, we have to return the source of both <code>kick boxer</code> documents from the <code>relateditems-*</code> indexes. Expanding this further you could quite easily have am item related to another item 100’s of times; which would mean 100’s of matching documents. It is for this reason the content of that matches are not returned by default.</p>
 
 <pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
 {
@@ -541,6 +553,186 @@ curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexi
       }
    ]
 }&#39;</code></pre>
+
+<h2 id="returning_related_documents">Returning Related Documents</h2>
+
+<p>In release <code>1.1.0</code>, a new feature has been developed that allows returning of doucments with id’s matching the most fequently related item.<br />This feature uses an extra index (<code>relateddocs</code>) during the index process. This feature is enabled with the following property being set to true:</p>
+
+<pre><code>-Drelated-item.document.indexing.enabled=true</code></pre>
+
+<p>With this property set to true, the initial index of the document with the id will be inserted into the <code>relateddocs</code> index. Any changes that may occur to that document will <code>NOT</code> be reflected unless you install a custom plugin (more inforation about this is a moment).</p>
+
+<p>When the indexing application is sent the http request, for example:</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;uk&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;B00E391KA8&quot;,
+         &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+         &quot;title&quot;:&quot;Samsung 840 EVO 120GB&quot;
+      },
+      {
+         &quot;id&quot;:&quot;B004RFDHKO&quot;,
+         &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+         &quot;title&quot;:&quot;Dynamode SSD-RAIL&quot;
+      }          
+   ]
+}&#39;</code></pre>
+
+<p>The indexing application writes to two indexes. It writes by default to the relate items date based index <code>relateditems-YYYY-MM-DD</code>:</p>
+
+<pre><code>{
+    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
+    &quot;related-with&quot;: [ &quot;B00E391KA8&quot; ],
+    &quot;site&quot;: &quot;amazon&quot;,
+    &quot;channel&quot;: &quot;uk&quot;,
+    &quot;id&quot;:&quot;B004RFDHKO&quot;,
+    &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+    &quot;title&quot;:&quot;Dynamode SSD-RAIL&quot;
+}
+
+{
+    &quot;date&quot;: &quot;2013-12-24T17:44:41.943Z&quot;,
+    &quot;related-with&quot;: [ &quot;B004RFDHKO&quot; ],
+    &quot;site&quot;: &quot;amazon&quot;,
+    &quot;channel&quot;: &quot;uk&quot;,
+    &quot;id&quot;:&quot;B00E391KA8&quot;,
+    &quot;department&quot;:&quot;Computers &amp; Accessories&quot;.
+    &quot;title&quot;:&quot;Samsung 840 EVO 120GB&quot;
+}</code></pre>
+
+<p>But it also writes to a secondary index <code>relateddocs</code>:</p>
+
+<pre><code>{
+    &quot;site&quot;: &quot;amazon&quot;,
+    &quot;channel&quot;: &quot;uk&quot;,
+    &quot;_id&quot;:&quot;B004RFDHKO&quot;,
+    &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+    &quot;title&quot;:&quot;Dynamode SSD-RAIL&quot;
+}
+
+{             
+    &quot;site&quot;: &quot;amazon&quot;,
+    &quot;channel&quot;: &quot;uk&quot;,
+    &quot;_id&quot;:&quot;B00E391KA8&quot;,
+    &quot;department&quot;:&quot;Computers &amp; Accessories&quot;.
+    &quot;title&quot;:&quot;Samsung 840 EVO 120GB&quot;
+}</code></pre>
+
+<p>When a search in executed, the original facetted search is performed which returns the list of related ids, and the associated frequency; representing the most frequently related item(s).<br />Then, with related document indexing enabled, a secondary search would then be issued against the elasticsearch cluster. This performs a multi get for documents with the given id. What this means is that the <code>relateddocs</code> index holds documents based on the <code>id</code> field; and there is only one document that exists for a given id.</p>
+
+<p>So for the search query:</p>
+
+<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/B00E391KA8&quot;</code></pre>
+
+<p>The following results will be returned</p>
+
+<pre><code>{
+   &quot;size&quot;:&quot;1&quot;,
+   &quot;results&quot;:[
+      {
+         &quot;id&quot;:&quot;B004RFDHKO&quot;,
+         &quot;frequency&quot;:&quot;1&quot;,
+         &quot;source&quot;:{
+            &quot;channel&quot;:&quot;uk&quot;,
+            &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+            &quot;site&quot;:&quot;amazon&quot;,
+            &quot;title&quot;:&quot;Dynamode SSD-RAIL&quot;,
+            &quot;sha256&quot;:&quot;f317f2f157720b2888d2ccfb12c6488e65653c613345eab275732a444f3ed014&quot;
+         }
+      }
+   ],
+   &quot;storage_response_time&quot;:&quot;2&quot;,
+   &quot;response_time&quot;:&quot;304&quot;
+}</code></pre>
+
+<p>In the above results you can see that there is the addtional <code>source</code> attribute in the returned document. If the document does not exist in the <code>relateddocs</code> index then the <code>source</code> attribute will be empty:</p>
+
+<pre><code>{
+   &quot;size&quot;:&quot;1&quot;,
+   &quot;results&quot;:[
+      {
+         &quot;id&quot;:&quot;B004RFDHKO&quot;,
+         &quot;frequency&quot;:&quot;1&quot;,
+         &quot;source&quot;:{                
+         }
+      }
+   ],
+   &quot;storage_response_time&quot;:&quot;2&quot;,
+   &quot;response_time&quot;:&quot;304&quot;
+}</code></pre>
+
+<h2 id="updating_related_documents">Updating Related Documents</h2>
+
+<p>As discussed above, when related items are indexed, the related document is indexed in in the <code>relatedocs</code> index. The <code>_id</code> of the document is that of the <code>&quot;id&quot;</code> field, i.e. B004RFDHKO When the document is referenced in another relation, then the <code>relateddocs</code> index is again send an index request with the data. If the item didn’t exist it would be created. It any details had been ammended, the will NOT be update.</p>
+
+<p>In order to have a document subsequently updated; a plugin has to be installed in your elasticsearch cluster. This plugin allows a document to be updated. For instance, in the below The “Samsung 840 EV0 120GB” is relate with a “Torx Set”. However in the below, the Samsung related document has an extra field <code>description</code>. In order for the Samsung document to be updated <code>B00E391KA8</code> you need to install the update plugin.</p>
+
+<p>For example:</p>
+
+<pre><code>curl -H&quot;Content-Type:text/json&quot; -XPOST -v http://localhost:8080/indexing/index -d &#39;
+{
+   &quot;channel&quot;:&quot;uk&quot;,
+   &quot;site&quot;:&quot;amazon&quot;,
+   &quot;items&quot;:[
+      {
+         &quot;id&quot;:&quot;B00E391KA8&quot;,
+         &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+         &quot;title&quot;:&quot;Samsung 840 EVO 120GB&quot;,
+         &quot;description&quot;:&quot;2.5 inch Basic SATA Solid State Drive&quot;
+      },
+      {
+         &quot;id&quot;:&quot;B0000934GO&quot;,
+         &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+         &quot;title&quot;:&quot;Torx Set&quot;
+      }          
+   ]
+}&#39; </code></pre>
+
+<p>Then issue the search request:</p>
+
+<pre><code>curl -v -N &quot;http://localhost:8080/searching/frequentlyrelatedto/B0000934GO&quot;</code></pre>
+
+<p>The results show the addition of the <code>description</code> attribute:</p>
+
+<pre><code>{
+   &quot;size&quot;:&quot;1&quot;,
+   &quot;results&quot;:[
+      {
+         &quot;id&quot;:&quot;B00E391KA8&quot;,
+         &quot;frequency&quot;:&quot;1&quot;,
+         &quot;source&quot;:{
+            &quot;channel&quot;:&quot;uk&quot;,
+            &quot;department&quot;:&quot;Computers &amp; Accessories&quot;,
+            &quot;site&quot;:&quot;amazon&quot;,
+            &quot;title&quot;:&quot;Samsung 840 EVO 120GB&quot;,
+            &quot;sha256&quot;:&quot;2600849b237aa8b3fe8d160321bd8cc13d0041019501953fd5f3985cb5dc88d2&quot;,
+            &quot;description&quot;:&quot;2.5 inch Basic SATA Solid Stat&quot;
+         }
+      }
+   ],
+   &quot;storage_response_time&quot;:&quot;2&quot;,
+   &quot;response_time&quot;:&quot;3&quot;
+}</code></pre>
+
+<p>Without the plugin the document update will to the <code>relateddoc</code> will not occur. Don’t worry the origin indexing/recording of frequencies will still occur, so finding the frequently related items will all work. All that will not occur, without the plugin enabled, is updates to the <code>relateddocs</code> document. The updates uses the elasticsearch updates api and the upsert mechanism to install documents.</p>
+
+<h3 id="installing_the_plugin">Installing the Plugin</h3>
+
+<p>To install the plugin, you need to download the plugin from:</p>
+
+<pre><code>https://oss.sonatype.org/content/repositories/releases/org/greencheek/related/plugins/relateddocs-merger/1.0.0/relateddocs-merger-1.0.0.jar</code></pre>
+
+<p>And install it into your elasticsearch cluster in the <code>ES_HOME/lib</code> directory, or into your plugins dir. Then you enable the plugin in your elasticsearch cluster by adding the following to your <code>elasticsearch.yaml</code>:</p>
+
+<pre><code>script.native.relateddocupdater.type: org.greencheek.related.plugins.relateddocsmerger.RelatedDocsMergerFactory</code></pre>
+
+<p>The plugin source code can be found at:</p>
+
+<pre><code>https://github.com/tootedom/related-esplugins  </code></pre>
 
 <!--       <article>
 
