@@ -447,7 +447,7 @@
 
 <p>Run the following command to install the box into Vagrant. This command will download the .box file and install it into Vagrant.</p>
 
-<pre><code>vagrant box add relateitplayground http://bit.ly/1fFxBrn  </code></pre>
+<pre><code>vagrant box add relateitplayground http://bit.ly/1ql9DGx </code></pre>
 
 <p>One downloaded you sill be able to run <code>vagrant box list</code> and it will show you the ‘Vagrant’ boxes you have available on your machine:</p>
 
@@ -463,7 +463,7 @@
     conf.vm.network &quot;forwarded_port&quot;, guest: 8080, host: 28080
     conf.vm.network &quot;forwarded_port&quot;, guest: 9200, host: 29200         
     conf.vm.provider &quot;virtualbox&quot; do |v|
-      v.memory = 2048
+      v.memory = 1280
     end
   end
 end    </code></pre>
@@ -491,7 +491,7 @@ service tomcat start</code></pre>
 
 <pre><code>service elasticsearch stop
 service elasticsearch start</code></pre>
-
+<hr />
 <p>When the machine is started with vagrant the tomcat and elasticsearch instance will be start when the Virtual Machine starts</p>
 
 <p>This means for indexing or searching you can execute requests against port 28080 locally, which will be automatically routed to port 8080 on the VM. For example</p>
@@ -587,7 +587,7 @@ sudo python ./setup.py install    </code></pre>
 <p>The Vagrant/Ansible provisioning in this folder creates a vm that has:</p>
 
 <ul>
-<li>Elasticsearch 1.0.0</li>
+<li>Elasticsearch 1.0.1</li>
 
 <li>Relateit Indexing and Searching application on tomcat 7.0.52, on Oracle jdk1.7.0_51</li>
 </ul>
