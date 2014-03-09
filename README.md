@@ -85,11 +85,11 @@ This mean you can download manually, or via maven.
 Apologies for the lack of other options at the moment, and formats.  An rpm download format (with possible customization)
 will be available in the future.
 
-The current release version is `1.0.5`.  This release includes support for HTTP connections to the Elasticsearch cluster.
+The current release version is `1.1.0`.  This release includes support for HTTP connections to the Elasticsearch cluster.
 This means you do not require the same ES client jar version as the server.  The HTTP client in release 1.0.4. can for instance
-connect to an ES cluster running 0.90.11, or 1.0.0.
+connect to an ES cluster running 0.90.11+, or 1.0.0+.
 
-Release 1.0.4 includes ES 1.0.0 client jars.  Which means to use TCP or NODE transport the ES cluster needs to be 1.0.0
+Release 1.1.0 includes ES 1.0.1 client jars.  Which means to use TCP or NODE transport the ES cluster needs to be 1.0.1
 
 ### Searching War ###
 
