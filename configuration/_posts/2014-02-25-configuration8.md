@@ -38,7 +38,7 @@ Please down load and install the above.
 
 Run the following command to install the box into Vagrant.  This command will download the .box file and install it into Vagrant.
 
-    vagrant box add relateitplayground http://bit.ly/1fFxBrn  
+    vagrant box add relateitplayground http://bit.ly/1ql9DGx 
 
 One downloaded you sill be able to run `vagrant box list` and it will show you the 'Vagrant' boxes you have available on your machine:
 
@@ -55,7 +55,7 @@ and put the following in it:
         conf.vm.network "forwarded_port", guest: 8080, host: 28080
         conf.vm.network "forwarded_port", guest: 9200, host: 29200         
         conf.vm.provider "virtualbox" do |v|
-          v.memory = 2048
+          v.memory = 1280
         end
       end
     end    
@@ -84,6 +84,7 @@ The elasticsearch instance can be stopped an started with the following:
     service elasticsearch stop
     service elasticsearch start
 
+----
 
 When the machine is started with vagrant the tomcat and elasticsearch instance will be start when the Virtual Machine starts    
 
@@ -183,7 +184,7 @@ Then add the following box:
 
 The Vagrant/Ansible provisioning in this folder creates a vm that has:
 
-- Elasticsearch 1.0.0
+- Elasticsearch 1.0.1
 - Relateit Indexing and Searching application on tomcat 7.0.52, on Oracle jdk1.7.0_51
 
 
